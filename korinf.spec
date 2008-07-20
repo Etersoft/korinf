@@ -21,8 +21,15 @@ This package contains Korinf build system.
 %prep
 %setup -q
 
+%build
+%make
+
+%install
+%makeinstall
+
 %files
 %doc README TODO NEWS
+%_bindir/korinf-build
 
 %changelog
 * Sun Jul 20 2008 Vitaly Lipatov <lav@altlinux.ru> 0.9-alt1
