@@ -1,0 +1,74 @@
+# Система сборки пропускает мимо задания на системы, которых нет в списке (без failed)
+# Не комментировать! Здесь полный список
+
+# Linux online
+LinuxXP/2006
+LinuxXP/2007
+
+# Fedora based
+ASPLinux/10
+ASPLinux/11
+ASPLinux/12
+
+#RedHat/9
+Scientific/4.1
+CentOS/5
+#FedoraCore/4
+FedoraCore/5
+FedoraCore/6
+Fedora/7
+Fedora/8
+Fedora/9
+
+#Mandriva/2005
+#Mandriva/2006
+#Mandriva/2007
+#Mandriva/2008
+
+#PCLinux/2007
+
+# Debian based
+Debian/3.1
+Debian/4.0
+
+#Ubuntu/5.10
+Ubuntu/6.06
+Ubuntu/6.10
+Ubuntu/7.04
+Ubuntu/7.10
+
+# Novell
+SUSE/10
+SUSE/10.1
+SUSE/10.3
+#NLD/9
+
+# Slackware based
+Slackware/10.2
+Slackware/11
+#MOPSLinux/4.0
+MOPSLinux/5.0
+MOPSLinux/6.0
+
+
+ArchLinux/2007.08
+
+#Gentoo/2007
+
+# ALT Linux
+#ALTLinux/2.3 do not support anymore
+#ALTLinux/2.4
+#ALTLinux/3.0
+ALTLinux/4.0
+ALTLinux/Sisyphus
+
+#Special/3.0
+
+#OpenSolaris/1.0
+
+# BSD
+#FreeBSD/5.4
+#FreeBSD/6.0
+#FreeBSD/6.2
+#FreeBSD/6.3
+#FreeBSD/7.0

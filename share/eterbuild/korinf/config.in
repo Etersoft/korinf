@@ -1,0 +1,74 @@
+# 2005, 2006, 2007 (c) Etersoft http://etersoft.ru
+# Author: Vitaly Lipatov <lav@etersoft.ru>
+# GNU Public License
+
+# Нужно отделить общий конфиг он частного WINE
+
+# We need rw group and permit reading to all
+umask 0002
+
+export LANG=C
+
+export PRODUCTNAME="WINE@Etersoft"
+
+# Каталог с деревом пакетов свободного WINE и файлов к нему
+export WINEPUB_PATH=/var/ftp/pub/Etersoft/$PRODUCTNAME
+
+# Каталог с закрытой частью
+export WINEETER_PATH=/var/ftp/pvt/Etersoft/$PRODUCTNAME
+
+# User in local system
+export LOCUSER=builder
+
+# User in remote(build) system
+export INTUSER=lav
+
+# Path to chroot dir (remote system mounted)
+export CHROOTDIR=/tmp/autobuild
+mkdir -p $CHROOTDIR
+
+# Path for mount tasks
+export TASKDIR=$HOME/sales
+
+# Linux builder
+export LINUXSSH=borroman
+#export LINUXHOST=$LINUXSSH:/mnt
+export LINUXHOST=/net/os/stable
+#export LINUXHOST=/net/os
+
+# FreeBSD builder
+export FREEBSDSSH=$LOCUSER@freebsd
+[ "$USER" = "lav" ] && export FREEBSDKEY="-i /home/lav/.ssh/id_dsa.builder"
+export FREEBSDPATH=home/$LOCUSER/work-$$
+
+# Менять можно: версия, которая идёт на сборку заказов, устанавливается в arobot.sh!
+if [ -z "$WINENUMVERSION" ] ; then
+	export WINENUMVERSION="1.0.9"
+	export WINENEXTVERSION="1.0.10"
+	export WINEPREVVERSION="1.0.8"
+fi
+export WINEBASEVER="1.0"
+
+#VERSION=`echo "$WINEVERSION" | sed -e "s| |-|g" | tr [A-Z] [a-z]`
+export PKGVERSION=`echo "$WINEVERSION" | sed -e "s| |-|g"`
+
+# Думаю, достаточно пользоваться списком из файла
+# Get list already built target platforms
+if cd $WINEPUB_PATH/$WINENUMVERSION/WINE ; then
+	#pwd
+	export DISTR_LIST=`find -L -maxdepth 2 -mindepth 2 -type d | sed -e "s|^./||" | sort | grep -v Windows`
+	cd - >/dev/null
+fi
+
+test -z "$WORKDIR" && export WORKDIR=`pwd`
+
+if [ -n "$WORKDIR" ] ; then
+	# Make log dir with date for builder user only
+	ALOGDIR=$WORKDIR/log
+	[ "$USER" = "builder" ] && ALOGDIR=$ALOGDIR/`date "+%Y%m%d"`
+	export ALOGDIR
+	# убрать надо
+	[ "$WORKDIR" = `pwd` ] || mkdir -p $ALOGDIR
+	#mkdir -p $CHROOTDIR
+fi
+

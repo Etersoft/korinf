@@ -1,0 +1,144 @@
+#!/bin/bash
+# 2005, 2006, 2007 (c) Etersoft http://etersoft.ru
+# Author: Vitaly Lipatov <lav@etersoft.ru>
+# GNU Public License
+#
+# Собирает пакеты для перечисленных в rebuild.list систем и копирует сборки на место.
+# Пакеты собираются из опубликованных подписанных исходников
+# use with builder user
+# Req: etersoft-build-utils >= 1.0, alien >= 8.63
+
+# make link to etersoft-build-utils repository to get run from the source tree
+# load common functions, compatible with local and installed script
+. `dirname $0`/../share/eterbuild/functions/common
+
+KORINFETC=/etc/eterbuild
+KORINFDIR=/usr/share/eterbuild
+
+# if run from local installation
+if ! dirname $0 | grep /usr/share >/dev/null ; then
+	KORINFDIR=$(realpath `dirname $0`/../share/eterbuild)
+	KORINFETC=$(realpath `dirname $0`/../etc)
+	#echo "Note: run from source tree, datadir=$KORINFDIR, sysconfdir=$KORINFETC"
+fi
+
+
+# Try to set clear environment
+LC_ALL=C
+unset DISPLAY
+
+test `hostname` = builder.office.etersoft.ru || warning "It is tested only at Etersoft builder host!"
+
+fatal()
+{
+	echo "FATAL: $@"
+	end_umount
+	exit 1
+}
+
+warning()
+{
+	echo "WARNING: $@"
+#	continue
+	echo `date` $dist ERROR: $@ | tee -a $ALOGDIR/autobuild.report.log
+	if [ -n "$CAREBUILD" ] ; then
+		end_umount
+		exit 1
+	fi
+}
+
+. ./functions/mount.sh
+. ./functions/copying.sh
+. ./functions/install.sh
+. ./functions/log.sh
+. ./functions/build-main.sh
+
+
+main_phase()
+{
+	# On systems with portage change wine package name
+	# TODO: remove BUILDNAME or PACKAGE
+	[ "$BUILDNAME" = "wine" ] && PACKAGE="wine-etersoft-public" || PACKAGE=$BUILDNAME
+
+	# TODO: remove
+	[ -n "$PRODUCT" ] && EPACKAGE=$PACKAGE-$PRODUCT || EPACKAGE=$PACKAGE
+
+	# TODO: remove
+	if [ "$BUILDNAME" = "wine-etersoft" ] ; then
+		BUILDSRPM=$(ls -1 $SOURCEPATH/$BUILDNAME-$WINEBASEVER.$PRODUCT*.src.rpm | sort | tail -n1)
+	else
+		BUILDSRPM=$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm | sort | tail -n1)
+	fi
+	# end of obsoleted part
+
+	# Use default value for simple backward compat
+	[ -z "$MAINFILES" ] && [ -z "$EXTRAFILES" ] && export MAINFILES="${PACKAGE}[-_]"
+
+	#logit "`basename $BUILDSRPM` ($BUILDNAME)"
+	#logit "`basename $BUILDSRPM` ($BUILDNAME)"
+	logit "`basename $BUILDSRPM .src.rpm`"
+	
+	# FIXME: move it to log_it?
+	#if [ -z "$NIGHTBUILD" ] ; then
+	#	rpm --checksig $BUILDSRPM || warning "GPG check failed"
+	#fi
+
+	if [ -n "$MAKESPKG" ] ; then
+		build_src_pkg || return 1
+	else
+		build_in_dist || return 1
+	fi
+	logit "copying log" copying_log || return 1
+}
+
+exit_handler()
+{
+    local rc=$?
+    trap - EXIT
+    warning "Interrupted, exiting..."
+    end_umount
+    exit $rc
+}
+
+trap exit_handler EXIT HUP INT QUIT PIPE TERM
+
+
+[ -f "$REBUILDLIST" ] && CMDRE=`cat $REBUILDLIST | grep -v "^#"` || CMDRE=$REBUILDLIST
+[ -z "$CMDRE" ] && fatal "build list is empty"
+
+# Url for remote building
+SOURCEURL=$(echo $SOURCEPATH | sed -e "s|/var/ftp/|ftp://server/|g")
+
+for dist in $CMDRE ; do
+	# Куда будем складывать собранные пакеты
+	DESTDIR=$TARGETPATH/$dist
+
+	dist_ver=`echo $dist | sed -e "s|.*/||g"`
+	dist_name=`echo $dist | sed -e "s|/.*||g"`
+	[ -z "$dist_name" ] && fatal "Empty dist_name for $dist"
+	[ -d "functions" ] || fatal "Use me only inside eterbuild dir (now `pwd`)"
+
+	init_log
+
+	if ! main_phase ; then
+		# Размонтируем при ошибке, если не указано обратное
+		if [ -z "$ADEBUG" ] ; then
+			logit "umount" end_umount
+		fi
+		# Если сборка с автоспеком провалилась, опубликуем логи
+		logit "copying log from broken build" copying_log
+
+		# Если автосборка, останавливаемся на ошибке
+		if [ -n "$NIGHTBUILD" ] ; then
+			echo `date` $dist FATAL >> $ALOGDIR/autobuild.report.log
+			fatal "Fatal autobuild"
+		fi
+	fi
+
+	echo `date` $dist DONE >> $ALOGDIR/autobuild.report.log
+
+done
+
+# disable trap before exit
+trap - EXIT
+exit 0
