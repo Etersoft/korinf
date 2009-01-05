@@ -88,7 +88,9 @@ main_phase()
 
 main_build()
 {
-[ -f "$REBUILDLIST" ] && CMDRE=`cat $REBUILDLIST | grep -v "^#"` || CMDRE=$REBUILDLIST
+[ -n "$ADEBUG" ] && echo "BUILDNAME: $BUILDNAME"
+
+CMDRE=$(get_distro_list $REBUILDLIST)
 [ -z "$CMDRE" ] && fatal "build list is empty"
 
 # Url for remote building
