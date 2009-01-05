@@ -21,25 +21,8 @@
 
 kormod config build
 
-# FIXME: Obsoleted?
-# call with full path
-switch_to_builder()
-{
-if [ ! `id -un` = "$LOCUSER" ] ; then
-	SCRIPTPATH=`realpath $1 | sed -e "s|.*/Projects/|/home/$LOCUSER/Projects/|g"`
-	echo $SCRIPTPATH
-	#SCRIPTPATH=/home/builder/Projects/eterbuild/`basename $1`
-	shift
-	echo
-	echo
-	echo "Restart script $SCRIPTPATH with $LOCUSER user"
-	sudo su - $LOCUSER -c "$SCRIPTPATH $@" | tee $ALOGDIR/autobuild.process.log
-	exit 1
-fi
-}
-
 # build binary packages according to REBUILDLIST
-# args: BUILDNAME
+# arg: package_name [HELPER]
 build_rpm()
 {
 	echo
@@ -49,7 +32,7 @@ build_rpm()
 	local PRODUCT BUILDNAME
 	# disable changelog editing
 	export EDITOR=
-	test -n "$1" && BUILDNAME=$1 || fatal "broken build_rpm param"
+	test -n "$1" && BUILDNAME=$1 || fatal "Missed build_rpm param"
 
 	MAINFILESLIST=$MAINFILES
 	EXTRAFILESLIST=$EXTRAFILES
@@ -90,7 +73,7 @@ build_rpm()
 	echo "SOURCE=$SOURCEPATH TARGET=$TARGETPATH"
 
 	[ -n "$ADEBUG" ] && echo "BUILDNAME: $BUILDNAME PRODUCT:$PRODUCT"
-	( export BUILDPKGNAME MAINFILESLIST EXTRAFILESLIST INTUSER BUILDERHOME BUILDNAME PRODUCT ADEBUG SOURCEPATH TARGETPATH ; functions/autobuild-functions.sh ) || fatal "Failed"
+	main_build
 }
 
 # build source packages according to REBUILDLIST
@@ -109,7 +92,6 @@ build_srpm()
 	[ -z "$MAINFILESLIST$EXTRAFILESLIST" ] && MAINFILESLIST="${BUILDNAME}"
 
 	[ -n "$ADEBUG" ] && echo "BUILDNAME: $BUILDNAME"
-	( export BUILDPKGNAME MAINFILESLIST EXTRAFILESLIST INTUSER BUILDERHOME BUILDNAME ADEBUG SOURCEPATH TARGETPATH MAKESPKG; functions/autobuild-functions.sh ) || fatal "Failed"
-
+	main_build
 }
 
