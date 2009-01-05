@@ -2,13 +2,12 @@
 # 2006 (c) Etersoft www.etersoft.ru
 # Public domain
 
-. /etc/rpm/etersoft-build-functions
+# load common functions, compatible with local and installed script
+. `dirname $0`/../share/eterbuild/korinf/common
 
-cd `dirname $0`/..
-
-. functions/config.in || fatal "Can't locate config.in"
+. $KORINFDIR/korinf/config.in || fatal "Can't locate config.in"
 #. functions/autobuild-functions.sh
-. functions/log.sh
+. $KORINFDIR/korinf/log.sh
 
 check()
 {
