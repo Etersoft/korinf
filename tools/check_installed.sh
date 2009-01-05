@@ -2,19 +2,13 @@
 # 2006 (c) Etersoft www.etersoft.ru
 # Public domain
 
-. /etc/rpm/etersoft-build-functions
+# load common functions, compatible with local and installed script
+. `dirname $0`/../share/eterbuild/korinf/common
 
-cd `dirname $0`/..
-
-. functions/config.in || fatal "Can't locate config.in"
-#. functions/helpers.sh
-
-
-#export WORKDIR=/var/ftp/pvt/Etersoft
 TESTDIR=/tmp/autobuild/testlog
 mkdir -p $TESTDIR
 
-for i in `cat lists/rebuild.list.all | grep -v "^#" | cut -f 1 -d " "` ; do
+for i in $(get_distro_list $KORINFETC/lists/rebuild.list.all) ; do
 	if set_target_type $i ; then
 		continue
 	fi
