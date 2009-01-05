@@ -1,13 +1,23 @@
-# Система сборки пропускает мимо задания на системы, которых нет в списке (без failed)
-# Не комментировать! Здесь полный список
+# Список систем к релизу
 
+# Сначала самые приоритетные
+Fedora/9
+Mandriva/2008.1
+Ubuntu/8.04
+Ubuntu/8.10
+ALTLinux/Sisyphus
+SUSE/11
+ALTLinux/4.0
+ALTLinux/4.1
+
+# Потом остальные
 # Linux online
 LinuxXP/2006
 LinuxXP/2007
 LinuxXP/2008
 
 # Fedora based
-ASPLinux/10
+#ASPLinux/10
 ASPLinux/11
 ASPLinux/12
 
@@ -15,27 +25,24 @@ ASPLinux/12
 #RedHat/9
 Scientific/4.1
 CentOS/5
-CentOS/5.2
+#CentOS/5.2
 #FedoraCore/4
 #FedoraCore/5
 #FedoraCore/6
 Fedora/7
 Fedora/8
-Fedora/9
-Fedora/10
 
 #Mandriva/2005
 # not supported
 #Mandriva/2006
 Mandriva/2007.1
 Mandriva/2008
-Mandriva/2008.1
 Mandriva/2009.0
 
-PCLinux/2007
+#PCLinux/2007
 
 # Debian based
-Debian/3.1
+#Debian/3.1
 Debian/4.0
 Debian/5.0
 
@@ -45,19 +52,16 @@ Ubuntu/6.06
 #Ubuntu/6.10
 Ubuntu/7.04
 Ubuntu/7.10
-Ubuntu/8.04
-Ubuntu/8.10
 
 # Novell
-SUSE/10
+#SUSE/10
 SUSE/10.1
 SUSE/10.3
-SUSE/11
-NLD/9
+#NLD/9
 
 # Slackware based
 #Slackware/10.2
-Slackware/11
+#Slackware/11
 #MOPSLinux/4.0
 #MOPSLinux/5.0
 MOPSLinux/6.0
@@ -65,15 +69,14 @@ MOPSLinux/6.0
 
 ArchLinux/2007.08
 
+#Gentoo/2007
+
 # ALT Linux
 #ALTLinux/2.3 do not support anymore
-ALTLinux/2.4
-ALTLinux/3.0
-ALTLinux/4.0
-ALTLinux/4.1
-ALTLinux/Sisyphus
+#ALTLinux/2.4
+#ALTLinux/3.0
 
-Special/3.0
+#Special/3.0
 
 #OpenSolaris/1.0
 
@@ -83,15 +86,3 @@ Special/3.0
 #FreeBSD/6.2
 FreeBSD/6.3
 FreeBSD/7.0
-
-Gentoo/2007
-
-# We need it for SELTA
-Windows
-
-
-#x86_64 systems (with prefix x86_64)
-x86_64/Ubuntu/8.04
-x86_64/SUSE/10.1
-
-

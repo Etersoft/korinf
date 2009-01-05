@@ -1,7 +1,10 @@
+# Список для параллельной сборки
+# Список для сборки основных систем при создании ISO
+
 # ALT Linux
-# do not support anymore ALTLinux/2.3
-ALTLinux/2.4
-ALTLinux/3.0
+#ALTLinux/2.3
+#ALTLinux/2.4
+#ALTLinux/3.0
 ALTLinux/4.0
 ALTLinux/4.1
 ALTLinux/Sisyphus
