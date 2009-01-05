@@ -1,3 +1,4 @@
+#!/bin/sh
 # 2005, 2006, 2007, 2009 (c) Etersoft http://etersoft.ru
 # Author: Vitaly Lipatov <lav@etersoft.ru>
 # GNU Public License version 3
@@ -20,7 +21,7 @@ export WINEPUB_PATH=/var/ftp/pub/Etersoft/$PRODUCTNAME
 # Каталог с закрытой частью
 export WINEETER_PATH=/var/ftp/pvt/Etersoft/$PRODUCTNAME
 
-# User in local system
+# FIXME: User in local system (with the same uid as INTUSER)
 export LOCUSER=builder
 
 # User in remote(build) system
@@ -44,19 +45,6 @@ export FREEBSDPATH=home/$LOCUSER/work-$$
 # Менять можно: версия, которая идёт на сборку заказов, устанавливается в arobot.sh!
 if [ -z "$WINENUMVERSION" ] ; then
 	export WINENUMVERSION="1.0.9"
-	export WINENEXTVERSION="1.0.10"
-	export WINEPREVVERSION="1.0.8"
-fi
-
-#VERSION=`echo "$WINEVERSION" | sed -e "s| |-|g" | tr [A-Z] [a-z]`
-export PKGVERSION=`echo "$WINEVERSION" | sed -e "s| |-|g"`
-
-# Думаю, достаточно пользоваться списком из файла
-# Get list already built target platforms
-if cd $WINEPUB_PATH/$WINENUMVERSION/WINE ; then
-	#pwd
-	export DISTR_LIST=`find -L -maxdepth 2 -mindepth 2 -type d | sed -e "s|^./||" | sort | grep -v Windows`
-	cd - >/dev/null
 fi
 
 test -z "$WORKDIR" && export WORKDIR=`pwd`

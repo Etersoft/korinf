@@ -303,8 +303,8 @@ prepareMail()
 	>$FILETO
 	NAME=`get_name "$FULLNAME"`
 	BETA=""
-#	if [ "$RELEASECANDIDAT" = "1" ] ; then
-	if [ "$WINENEXTVERSION" = "$WINENUMVERSION" ] ; then
+	# FIXME: is it used?
+	if [ "$RELEASECANDIDAT" = "1" ] ; then
 		BETA="
 !! This is release candidat build, use it with caution !!
 
@@ -429,8 +429,6 @@ build_wine()
 		PUBDOWNLOAD1CIFS="http://updates.etersoft.ru/pub/Etersoft/$VERNAME/CIFS/$DIST"
 		#PUBDOWNLOAD1CIFS="http://updates.etersoft.ru/pub/Etersoft/CIFS@Etersoft/3.3-linux-cifs/$DIST"
 		#PUBDOWNLOAD2="ftp://ftp.linux.kiev.ua/pub/mirrors/ftp.etersoft.ru/$PRNAME"
-		#if [ "$WINENEXTVERSION" = "$WINENUMVERSION" ] ; then
-		#PUBDOWNLOAD1CIFS="http://updates.etersoft.ru/pub/Etersoft/CIFS@Etersoft/3.5/$DIST"
 	fi
  
 	#PUBDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/$PRNAME/WINE/$DIST"

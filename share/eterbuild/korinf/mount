@@ -4,6 +4,8 @@
 # GNU Public License version 3
 #
 
+MOUNT_MODULE_INCLUDED=1
+
 mount_linux()
 {
 	local MOUNTPARAM
@@ -13,6 +15,7 @@ mount_linux()
 	BUILDERHOME=$BUILDROOT-home
 	mkdir -p $BUILDERHOME/{,tmp,RPM,RPM/BUILD,RPM/RPMS} || fatal "Can't create $BUILDERHOME"
 	chmod g+rwx $BUILDROOT $BUILDERHOME
+	# FIXME: why LOCUSER??
 	$SUDO chown $LOCUSER $BUILDERHOME -R
 
 	echo "Mount $LINUXHOST/$dist to $BUILDROOT..."

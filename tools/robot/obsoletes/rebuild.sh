@@ -35,8 +35,8 @@ EOF
 build()
 {
 	# remove old builds at midnight
-	[ "$MODE" = "dayly" ] && rm -rf /srv/$LOCUSER/RPM/BUILD/*
-	cd /home/$LOCUSER/Projects/wine-etersoft-public || fatal ""
+	[ "$MODE" = "dayly" ] && rm -rf /srv/$USER/RPM/BUILD/*
+	cd $HOME/Projects/wine-etersoft-public || fatal ""
 	rm -f wine.spec freebsd/wine-etersoft-public/Makefile ebuild/wine-etersoft-public/wine-etersoft-public-1.0.ebuild
 	cvs update || fatal "Can't cvs checkout"
 	./wine-release.sh $VER
@@ -52,7 +52,7 @@ build()
 	# install after build
 	export NIGHTBUILD=
 	export WINENUMVERSION=current
-	[ $MODE = "weekly" ] && [ -d $WINEPUB_PATH/$WINENEXTVERSION ] && export WINENUMVERSION=$WINENEXTVERSION
+	#[ $MODE = "weekly" ] && [ -d $WINEPUB_PATH/$WINENEXTVERSION ] && export WINENUMVERSION=$WINENEXTVERSION
 
 	export REBUILDLIST=$WORKDIR/lists/rebuild.list.$MODE
 	export BASEPATH=$WINEPUB_PATH/$WINENUMVERSION

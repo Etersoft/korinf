@@ -22,7 +22,6 @@ test -z "$ALPHA" && ALPHA=/current
 [ "$1" = "-r" ] && ALPHA=/$WINENUMVERSION
 
 # Note: list for released version only
-#echo "List: $DISTR_LIST"
 check_file()
 {
 if [ ! -d "$PATHTO" ] ; then
