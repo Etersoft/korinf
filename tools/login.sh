@@ -2,14 +2,9 @@
 # скрипт на той стороне
 # создание /srv/wine
 # TODO: монтирование /proc и /dev/pts
-#export LANG=C
 
-cd `dirname $0`/..
-
-. functions/config.in || fatal "Can't locate config.in"
-
-#export WORKDIR=/home/builder/Projects/eterbuild
-#. $WORKDIR/functions/config.in
+# load common functions, compatible with local and installed script
+. `dirname $0`/../share/eterbuild/korinf/common
 
 SUDO="sudo"
 if [ $UID = "0" ]; then
