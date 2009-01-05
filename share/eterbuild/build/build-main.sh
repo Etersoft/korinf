@@ -68,7 +68,17 @@ build_in_dist()
 				logit "umount" end_umount || return 1
 				;;
 			esac
+			;;
 
+		"ArchLinux")
+			. ./functions/build-archlinux.sh
+			. ./functions/build-rpm.sh
+			logit "mount $dist" mount_linux || return 1
+			logit "build $dist" build_rpms $dist || return 1
+			logit "convert RPM to $TARGET" convert_archlinux || return 1
+			prepare_filelist
+			logit "copying built packages to $dist" copying_pkgbuild || return 1
+			logit "umount" end_umount || return 1
 			;;
 
 		"ALTLinux")
