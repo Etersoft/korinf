@@ -14,6 +14,8 @@ EEEE-000D - Mandriva 2009
 EEEE-000E - ALT Linux 4.1 Desktop Small Business
 EEEE-000F - Linux XP Desktop 2008
 
+Req: etersoft-build-utils >= 1.1, alien >= 8.63
+
 ===Подготовка новой системы к сборке===
 1. установить необходимые для сборки пакеты (выводятся при попытке rpmbb в системе)
 2. установить пакеты для сборки модулей ядра (kernel-headers или kernel-devel)

@@ -1,4 +1,5 @@
 Юра: где скрипт, лежащий в Arch?
+Боря: надо перейти на другого внутреннего пользователя (не lav, а korinfer), удалить LOCUSER
 
 remove *elf* from /etc/rpm/*/macros for Arch
 
