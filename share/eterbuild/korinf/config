@@ -77,4 +77,8 @@ if [ -n "$WORKDIR" ] ; then
 fi
 
 fi
+
+# load Korinf config
+test -f /etc/eterbuild/korinf && . /etc/eterbuild/korinf
+test -f ~/.config/korinf  && . ~/.config/korinf
 # end if CHROOTDIR
