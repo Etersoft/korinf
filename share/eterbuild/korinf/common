@@ -69,4 +69,27 @@ kormod_build()
 	done
 }
 
+# get distro list from arg/directory/file
+get_distro_list()
+{
+	local LIST
+
+	# get list from directory
+	if [ -d "$1" ] ; then
+		LIST="$1/distro.list"
+		if [ ! -r "$LIST" ] ; then
+			fatal "get_distro_list: $LIST is not found"
+		fi
+	# get list from file
+	elif [ -r "$1" ] ; then
+		LIST="$1"
+	# list in the variable
+	else
+		echo "$@"
+		return
+	fi
+	cat "$LIST" | grep -v "^#" | sort | sed -e "s|[ 	].*||g"
+
+}
+
 kormod config
