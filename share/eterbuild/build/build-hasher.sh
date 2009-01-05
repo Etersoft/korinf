@@ -57,14 +57,16 @@ fi
 	rpm -iv $BUILDSRPM || return 1;
 	subst "s|@ETERREGNUM@|${ETERREGNUM}|g" $RPMDIR/SPECS/$BUILDNAME.spec
 
+if [ ! -r ~/.ebconfig ] ; then
 	cat >~/.ebconfig <<EOF
 HASHER_NOCHECK=nvr,gpg,packager,changelog,deps
 #TODO: специальный репозиторий без updates
-APTCONF=$WORKDIR/apt/apt.conf
+APTCONFBASE=$WORKDIR/apt/apt.conf
 EOF
+fi
 
 	# Hack for kernel module packages
-	if [ "$BUILDNAME" = "haspd" ] || [ "$BUILDNAME" = "linux-cifs" ] ; then
+	if [ "$BUILDNAME" = "haspd" ] ; then
 		case $MENV in
 			M24)
 				NEEDEDKERNEL="kernel-headers-modules-std26-smp kernel-headers-modules-std26-up"
@@ -83,10 +85,16 @@ EOF
 			M40)
 				NEEDEDKERNEL="kernel-headers-modules-std-smp kernel-headers-modules-std-pae kernel-headers-modules-ovz-smp kernel-headers-modules-wks-smp"
 				;;
+			M41)
+				NEEDEDKERNEL="kernel-headers-modules-std-smp kernel-headers-modules-std-pae kernel-headers-modules-ovz-smp"
+				;;
+						#kernel-headers-modules-wks-smp"
 			SS)
-				NEEDEDKERNEL="kernel-headers-modules-std-smp kernel-headers-modules-std-pae kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
+				NEEDEDKERNEL="kernel-headers-modules-std-pae kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
+						#kernel-headers-modules-std-smp
 				;;
 		esac
+		# Add selected kernel requires
 		subst "1iBuildRequires: $NEEDEDKERNEL" $RPMDIR/SPECS/$BUILDNAME.spec
 	fi
 
@@ -113,7 +121,6 @@ EOF
 			[ "$MENV" != "M23" ] && subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
 			rpmbph -n $MENVARG $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot build srpm" ; return 1 ; }
 		fi
-		#EXPMAINFILES=
 		return
 	fi
 

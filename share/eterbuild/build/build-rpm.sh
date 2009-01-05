@@ -16,8 +16,11 @@ build_rpms()
 	BUILTRPM=$BUILDERHOME/RPM/RPMS
 	TARGET=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -p`
 	[ -z "$TARGET" ] && { warning "TARGET is empty" ; return 1 ; }
-
-	echo "Build '$BUILDSRPM' in chrooted system for $dist"
+	BUILDARCH="i586"
+	if echo $dist | grep x86_64 >/dev/null ; then
+	    BUILDARCH="x86_64"
+	fi
+	echo "Build '$BUILDSRPM' in chrooted $BUILDARCH system for $dist"
 
 	cp -f $BUILDSRPM $BUILDERHOME/tmp/$BUILDNAME.src.rpm || { warning "Can't copy src.rpm" ; return 1 ; }
 	$SUDO chown $LOCUSER $BUILDERHOME/tmp/$BUILDNAME.src.rpm
@@ -78,12 +81,13 @@ fi
 
         LOGFAILFILE="$BUILDERHOME/RPM/log/$BUILDNAME.log.failed"
 	rm -f $LOGFAILFILE
+
 	echo Chrooting as $INTUSER...
 	# copy src.rpm into build system and build
 	RPMCOMMAND=rpm
 	# Use rpm.static if exist (due ALT's src.rpm has too old version)"
 	[ -x "$BUILDROOT/usr/bin/rpm.static" ] && RPMCOMMAND=/usr/bin/rpm.static
-	$SUDO chroot $BUILDROOT su - $INTUSER -c "umask 002 ; mkdir -p ~/RPM/SRPMS ; $RPMCOMMAND -i ~/tmp/$BUILDNAME.src.rpm ; $CMDREPORT ; subst 's|@ETERREGNUM@|${ETERREGNUM}|g' ~/RPM/SPECS/$BUILDNAME.spec ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERREPORT"
+	setarch $BUILDARCH $SUDO chroot $BUILDROOT su - $INTUSER -c "umask 002 ; mkdir -p ~/RPM/SRPMS ; $RPMCOMMAND -i ~/tmp/$BUILDNAME.src.rpm ; $CMDREPORT ; subst 's|@ETERREGNUM@|${ETERREGNUM}|g' ~/RPM/SPECS/$BUILDNAME.spec ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERREPORT"
 
 	ELOGFILE=$LLOGDIR/$BUILDNAME.cenv.log
 	cat $BUILDERHOME/buildenv.txt | sed -e "s|[0-9A-F]\{4\}-[0-9A-F]\{4\}|XxXX-XxXX|g" >$ELOGFILE
@@ -111,17 +115,19 @@ convert_rpm()
 	# FIXME: do not return result code
 	case $TARGET in
 		"deb")
-			$SUDO chroot $BUILDROOT su - $INTUSER -c "cd $INTBUILT; ls -l ; fakeroot alien --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm ; ls -l" || { warning "alien problem"; return 1 ; }
+			$SUDO chroot $BUILDROOT su - $INTUSER -c "cd $INTBUILT; ls -l ; fakeroot alien --keep-version --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm ; ls -l" || { warning "alien problem with deb"; popd ; return 1 ; }
 			;;
 		"tgz")
-			fakeroot alien --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem"; return 1 ; }
+			# Slackware
+			fakeroot alien --keep-version --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with tgz"; popd; return 1 ; }
 			;;
 		"tar.gz")
-			fakeroot alien --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem"; return 1 ; }
+			# ArchLinux
+			fakeroot alien --keep-version --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tar.gz"; popd; return 1 ; }
 			for i in *${BUILDNAME}*.tgz ; do mv $i `basename $i .tgz`.tar.gz ; done
 			;;
 		*)
-			warning "unknown $TARGET" ; return 1;
+			warning "unknown $TARGET" ; popd; return 1;
 	esac
 	#echo "To del: $TODEL"
 	#[ "$TARGET" = "deb" ] && $SUDO chroot $BUILD su - $INTUSER /usr/bin/dpkg -i $INTBUILT/*${BUILDNAME}*.$TARGET

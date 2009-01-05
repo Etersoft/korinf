@@ -16,16 +16,17 @@ expand_filelist()
 
 prepare_filelist()
 {
-	EXPMAINFILES=`expand_filelist $MAINFILES`
-	EXPEXTRAFILES=`expand_filelist $EXTRAFILES`
+	[ -z "$MAINFILESLIST$EXTRAFILESLIST" ] && fatal "Logical error with MAINFILESLIST EXTRAFILESLIST"
+	EXPMAINFILES=`expand_filelist $MAINFILESLIST`
+	EXPEXTRAFILES=`expand_filelist $EXTRAFILESLIST`
 
 	# Hack for ALT
 	# TODO: move to build script, но ведь можно только как rpm-build* и разнести от etersoft-build-utils
 	[ "$BUILDNAME" = "rpm-build-altlinux-compat" ] && \
-		[ $dist_name = "ALTLinux" ] && EXPMAINFILES="rpm-build-compat-[0-9]*.$TARGET"
+		[ $dist_name = "ALTLinux" ] && EXPMAINFILES=`expand_filelist rpm-build-compat-[0-9]`
 
-	test -z "$EXPMAINFILES$EXPEXTRAFILES" && fatal "Logical error with EXPMAINFILES EXPEXTRAFILES"
 	[ -n "$ADEBUG" ] && echo "EXPMAINFILES: $EXPMAINFILES EXPEXTRAFILES: $EXPEXTRAFILES"
+	[ -z "$EXPMAINFILES$EXPEXTRAFILES" ] && fatal "Logical error with EXPMAINFILES EXPEXTRAFILES"
 
 }
 

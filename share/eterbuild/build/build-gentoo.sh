@@ -54,7 +54,7 @@ copying_gentoo2007()
 {
         prepare_copying
 
-        scp $REMOTESSHG7:/tmp/wine/ready/$PACKAGE* $DESTDIR
+	scp $REMOTESSHG7:/usr/portage/packages/All/$EPACKAGE*.tbz2 $DESTDIR
         chmod g+rw -R $DESTDIR/* || true
 }
 
