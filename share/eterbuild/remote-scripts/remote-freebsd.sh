@@ -48,7 +48,10 @@ fi
 #echo "My current directory is `pwd`, with `ls`"
 echo "I'm in FreeBSD. My current id is `whoami`, removing $TPL package"
 # зачем удаляем пакет сначала?
-pkg_info -x $TPL && pkg_delete -xf $TPL
+# удалять не надо. надо выставить FORCE_PKG_REGISTER=yes
+# удалять надо! иначе пакуется несколько раз.
+#pkg_info -x $TPL && pkg_delete -xf $TPL
+pkg_delete -xf "$EPACKAGE"
 
 # вот здесь конфликт по файлам...
 # Удаляем все пакеты начинающиеся с wine
