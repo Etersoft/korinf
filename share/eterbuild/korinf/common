@@ -68,3 +68,5 @@ kormod_build()
 		. $KORINFDIR/build/build-$i.sh
 	done
 }
+
+kormod config
