@@ -14,11 +14,8 @@ if false ; then
 	exit 0
 fi
 
-#. /etc/rpm/etersoft-build-functions
-
-export WORKDIR=../functions
-
-. $WORKDIR/config.in
+# load common functions, compatible with local and installed script
+. `dirname $0`/../share/eterbuild/korinf/common
 
 #[ "$1" = "-c" ] && ALPHA=-current
 test -z "$ALPHA" && ALPHA=/current
@@ -32,7 +29,7 @@ if [ ! -d "$PATHTO" ] ; then
 	echo "Path $PATHTO is missed"
 	exit 1
 fi
-for i in $DISTR_LIST ; do
+for i in $(get_distro_list $PATHTO ) ; do
 	NAME=$i
 	test -L $PATHTO/$i && NAME="$NAME [L]"
 	FILENAME=$(ls -1 $PATHTO/$i/${CHECKFILE}* | sort -n | head -n1)
@@ -54,7 +51,7 @@ done
 }
 
 echo
-echo -n "Product: $WINEVERSION. Check for date `date`"
+echo -n "Check for date `date`"
 echo
 
 PG_PATH=/var/ftp/pub/Etersoft/PostgreSQL

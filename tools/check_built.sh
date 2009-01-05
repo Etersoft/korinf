@@ -14,18 +14,13 @@ if false ; then
 	exit 0
 fi
 
-#. /etc/rpm/etersoft-build-functions
-
-export WORKDIR=../functions
-
-. $WORKDIR/config.in
+# load common functions, compatible with local and installed script
+. `dirname $0`/../share/eterbuild/korinf/common
 
 #[ "$1" = "-c" ] && ALPHA=-current
 test -z "$ALPHA" && ALPHA=/current
 [ "$1" = "-r" ] && ALPHA=/$WINENUMVERSION
 
-# Note: list for released version only
-#echo "List: $DISTR_LIST"
 check_file()
 {
 if [ ! -d "$PATHTO" ] ; then
@@ -54,11 +49,12 @@ done
 }
 
 echo
-echo -n "Product: $WINEVERSION. Check for date `date`"
+echo -n "Check for date `date`"
 echo
 WINEVER=$WINENUMVERSION
 CHECKFILE="wine[-_]*${WINEVER}"
 PATHTO=$WINEPUB_PATH$ALPHA/WINE
+DISTR_LIST=$(get_distro_list $WINEPUB_PATH$ALPHA)
 echo
 echo "Check for $CHECKFILE... in $PATHTO"
 check_file
