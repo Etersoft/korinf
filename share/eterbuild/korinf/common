@@ -31,8 +31,8 @@ test `hostname` = builder.office.etersoft.ru || warning "It is tested only at Et
 
 fatal()
 {
-	echo "FATAL: $@"
-	end_umount
+	echo "FATAL: $@" >&2
+	[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount
 	# disable trap before exit
 	trap - EXIT
 	exit 1
@@ -40,13 +40,13 @@ fatal()
 
 warning()
 {
-	echo "WARNING: $@"
+	echo "WARNING: $@" >&2
 #	continue
 	if [ -d "$ALOGDIR" ] ; then
 		echo `date` $dist ERROR: $@ | tee -a $ALOGDIR/autobuild.report.log
 	fi
 	if [ -n "$CAREBUILD" ] ; then
-		end_umount
+		[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount
 		# disable trap before exit
 		trap - EXIT
 		exit 1
