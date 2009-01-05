@@ -1,8 +1,7 @@
 #!/bin/sh
 
-cd `dirname $0`/..
-
-. functions/helpers.sh
+# load common functions, compatible with local and installed script
+. `dirname $0`/../share/eterbuild/korinf/common
 
 # Original path
 PATHTO=$WINEPUB_PATH/$WINENUMVERSION/WINE
@@ -12,7 +11,7 @@ PATHTO=$WINEPUB_PATH/$WINENUMVERSION/WINE
 #PATHNEW=$WINEETER_PATH/current/WINE-SQL
 PATHNEW=$WINEPUB_PATH/../PostgreSQL/8.2
 
-for i in $DISTR_LIST; do
+for i in $(get_distro_list $PATHTO); do
 	LI=
 	if [ -L $PATHTO/$i ] ; then
 		LI=`readlink $PATHTO/$i | sed -e "s|\.\./||g;s|/| |g"`
