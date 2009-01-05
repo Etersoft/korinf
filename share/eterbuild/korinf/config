@@ -48,9 +48,6 @@ if [ -z "$WINENUMVERSION" ] ; then
 	export WINEPREVVERSION="1.0.8"
 fi
 
-# TODO: remove
-export WINEBASEVER="1.0"
-
 #VERSION=`echo "$WINEVERSION" | sed -e "s| |-|g" | tr [A-Z] [a-z]`
 export PKGVERSION=`echo "$WINEVERSION" | sed -e "s| |-|g"`
 

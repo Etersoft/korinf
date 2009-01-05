@@ -232,19 +232,11 @@ build_pre()
 	# Вывод скрипта не записывается в лог
 	export BUILDSTRAP=
 	# ���� �������� ����. ������
-	if [ "1.0.7n" = "$WINENUMVERSION" ] ; then
-		export NOREPL=1
-		export BUILDNAME=wine-etersoft
-		build_rpm $BUILDNAME $type || fatal "Build failed"
-		#EFILE=$(ls -1 $FTPDIR/$DIST/$BUILDNAME[-_]$WINEBASEVER* | head -n1)
-	else
-		export BUILDNAME=wine-etersoft-$type$licensetype
-		build_rpm $BUILDNAME || fatal "Build failed"
-		#EFILE=$(ls -1 $FTPDIR/$DIST/$BUILDNAME[-_]${WINENUMVERSION}* | head -n1)
-		#echo $EFILE
-	fi
-	# Use WINEBASEVER due WINENUMVERSION (1.0.8n) incompatible with 1.0.8 in package name
-	EFILE=$(ls -1 $FTPDIR/$DIST/$BUILDNAME[-_]${WINEBASEVER}* | head -n1)
+
+	export BUILDNAME=wine-etersoft-$type$licensetype
+	build_rpm $BUILDNAME || fatal "Build failed"
+
+	EFILE=$(ls -1 $FTPDIR/$DIST/$BUILDNAME[-_][0-9]* | head -n1)
 	# Каталог уже создаётся сборкой пакета
 	FTPDIR=$FTPDIR/$DIST
 	#cd $FTPDIR && { md5sum *.* >MD5SUM ; cd - ; }
@@ -253,7 +245,6 @@ build_pre()
 	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/README_$TYPE.html >$FTPDIR/README.html || fatal "readme copying"
 	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/license_$type$licensetype.html >$FTPDIR/license.html || fatal "license copying"
 	cp -f $DOCS/${type}_manual.html $FTPDIR/manual.html || fatal "manual copying"
-	#test -s "$EFILE" && ln $EFILE $FTPDIR/ || echo "$EFILE: W@E package not found"
 }
 
 
@@ -396,7 +387,6 @@ EOF
 
 build_wine()
 {
-	PRNAME=$PRODUCTNAME/$WINEBASEVER
 	VERNAME=$PRODUCTNAME/$WINENUMVERSION
 
 	TARGETDIR=/var/ftp/pub/download/WINE@Etersoft/$TARGETDIRNAME
@@ -613,8 +603,6 @@ EOF
 	#export BUILDNAME=wine-etersoft-$type
 	#build_rpm $BUILDNAME || fatal "Build failed"
 
-	# Use WINEBASEVER due WINENUMVERSION (1.0.8n) incompatible with 1.0.8 in package name
-	#EFILE=$(ls -1 $FTPDIR/$DIST/$BUILDNAME[-_]${WINEBASEVER}* | head -n1)
 	# Каталог уже создаётся сборкой пакета
 	#cd $FTPDIR && { md5sum *.* >MD5SUM ; cd - ; }
 	# вставить номер в readme и в каталог
