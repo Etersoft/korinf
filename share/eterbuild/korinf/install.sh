@@ -1,7 +1,7 @@
 #!/bin/sh
 # 2005, 2006, 2007, 2008 (c) Etersoft http://etersoft.ru
 # Author: Vitaly Lipatov <lav@etersoft.ru>
-# GNU Public License
+# GNU Public License version 3
 
 
 # install built packages

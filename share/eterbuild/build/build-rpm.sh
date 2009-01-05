@@ -1,7 +1,7 @@
 #!/bin/sh
 # 2005, 2006, 2007 (c) Etersoft http://etersoft.ru
 # Author: Vitaly Lipatov <lav@etersoft.ru>
-# GNU Public License
+# GNU Public License version 3
 
 # Build packages in chrooted Linux system
 # We hope here BUILDERHOME is clean already

@@ -1,7 +1,7 @@
 #!/bin/bash
 # 2005, 2006, 2007 (c) Etersoft http://etersoft.ru
 # Author: Vitaly Lipatov <lav@etersoft.ru>
-# GNU Public License
+# GNU Public License version 3
 
 # printout args with add *.$TARGET
 expand_filelist()
