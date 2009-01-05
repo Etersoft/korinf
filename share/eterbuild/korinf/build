@@ -12,6 +12,9 @@
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
+# Try to set clear environment
+LC_ALL=C
+unset DISPLAY
 
 . $KORINFDIR/korinf/mount.sh
 . $KORINFDIR/korinf/copying.sh
@@ -30,6 +33,26 @@ exit_handler()
 
 trap exit_handler EXIT HUP INT QUIT PIPE TERM
 
+# Returns the newest package from the pkg list
+last_rpm()
+{
+	local i
+	local lastrpm
+	local pkgver
+	lastrpm="___________"
+	for i in `cat` ; do
+		pkgver=`rpm -qp $i`
+		#echo "Compare $pkgver $lastrpm "
+		LR=`rpmvercmp $pkgver $lastrpm `
+		#echo "RES=$LR"
+		#LR=$?
+		if [ $LR -gt 0 ] ; then
+			lastrpm=$pkgver
+		fi
+	done
+	echo $lastrpm
+}
+
 main_phase()
 {
 	# On systems with portage change wine package name
@@ -39,19 +62,18 @@ main_phase()
 	# TODO: remove
 	[ -n "$PRODUCT" ] && EPACKAGE=$PACKAGE-$PRODUCT || EPACKAGE=$PACKAGE
 
-	# TODO: remove
-	if [ "$BUILDNAME" = "wine-etersoft" ] ; then
-		BUILDSRPM=$(ls -1 $SOURCEPATH/$BUILDNAME-$WINEBASEVER.$PRODUCT*.src.rpm | sort | tail -n1)
+	# Do use direct package name?
+	if [ -z "$BUILDPKGNAME" ] ; then
+		BUILDSRPM="$SOURCEPATH/$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm | last_rpm).src.rpm"
 	else
-		BUILDSRPM=$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm | sort | tail -n1)
+		BUILDSRPM="$SOURCEPATH/$BUILDPKGNAME"
 	fi
-	# end of obsoleted part
 
-	# Use default value for simple backward compat
-	[ -z "$MAINFILES" ] && [ -z "$EXTRAFILES" ] && export MAINFILES="${PACKAGE}[-_]"
+	if [ ! -r "$BUILDSRPM" ] ; then
+		warning "Package $BUILDSRPM is not readable"
+		return 1
+	fi
 
-	#logit "`basename $BUILDSRPM` ($BUILDNAME)"
-	#logit "`basename $BUILDSRPM` ($BUILDNAME)"
 	logit "`basename $BUILDSRPM .src.rpm`"
 	
 	# FIXME: move it to log_it?
@@ -77,6 +99,7 @@ SOURCEURL=$(echo $SOURCEPATH | sed -e "s|/var/ftp/|ftp://server/|g")
 for dist in $CMDRE ; do
 	# Куда будем складывать собранные пакеты
 	DESTDIR=$TARGETPATH/$dist
+	[ "$TARGETPRIVPATH" ] && DESTDIR=$TARGETPRIVPATH
 
 	dist_ver=`echo $dist | sed -e "s|.*/||g"`
 	dist_name=`echo $dist | sed -e "s|/.*||g"`
