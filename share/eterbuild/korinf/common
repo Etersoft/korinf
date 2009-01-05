@@ -60,3 +60,11 @@ kormod()
 		. $KORINFDIR/korinf/$i
 	done
 }
+
+kormod_build()
+{
+	local i
+	for i in $@ ; do
+		. $KORINFDIR/build/build-$i.sh
+	done
+}

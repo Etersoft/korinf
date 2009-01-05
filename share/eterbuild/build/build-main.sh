@@ -34,7 +34,7 @@ build_in_dist()
 {
 	case $dist_name in
 		"FreeBSD")
-			. ./functions/build-freebsd.sh
+			kormod_build freebsd
 			logit "build in FreeBSD $dist_ver" build_bsd || return 1
 			prepare_filelist
 			logit "copying built packages to $dist" copying_bsd || return 1
@@ -43,7 +43,7 @@ build_in_dist()
 			;;
 
 		"OpenSolaris")
-			. ./functions/build-solaris.sh
+			kormod_build solaris
 			logit "build in Solaris $dist_ver" build_solaris || return 1
 			prepare_filelist
 			logit "copying built packages to $dist" copying_solaris || return 1
@@ -51,7 +51,7 @@ build_in_dist()
 			;;
 
 		"Gentoo")
-			. ./functions/build-gentoo.sh
+			kormod_build gentoo
 			case $dist_ver in
 			    "2007")
 				logit "build in Gentoo $dist_ver" build_gentoo2007 || return 1
@@ -71,8 +71,8 @@ build_in_dist()
 			;;
 
 		"ArchLinux")
-			. ./functions/build-archlinux.sh
-			. ./functions/build-rpm.sh
+			kormod_build archlinux
+			kormod_build rpm
 			logit "mount $dist" mount_linux || return 1
 			logit "build $dist" build_rpms $dist || return 1
 			logit "convert RPM to $TARGET" convert_archlinux || return 1
@@ -82,14 +82,14 @@ build_in_dist()
 			;;
 
 		"ALTLinux")
-			. ./functions/build-hasher.sh
+			kormod_build hasher
 			logit "build in hasher $dist_ver" build_in_hasher || return 1
 			prepare_filelist
 			logit "copying built packages to $dist" copying_packages || return 1
 			;;
 
 		*)
-			. ./functions/build-rpm.sh
+			kormod_build rpm
 			logit "mount $dist" mount_linux || return 1
 			logit "build $dist" build_rpms $dist || return 1
 			prepare_filelist
@@ -117,14 +117,14 @@ build_src_pkg()
 			;;
 
 		"ALTLinux")
-			. ./functions/build-hasher.sh
+			kormod_build hasher
 			logit "build src.rpm" build_in_hasher || return 1
 			prepare_filelist
 			logit "copying to $dist" copying_packages || return 1
 			;;
 
 		*)
-			. ./functions/build-rpm.sh
+			kormod_build rpm
 			logit "mount $dist" mount_linux || return 1
 			logit "build src.rpm" build_rpms $dist || return 1
 			prepare_filelist
