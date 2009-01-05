@@ -16,10 +16,7 @@
 LC_ALL=C
 unset DISPLAY
 
-. $KORINFDIR/korinf/mount.sh
-. $KORINFDIR/korinf/copying.sh
-. $KORINFDIR/korinf/install.sh
-. $KORINFDIR/korinf/log.sh
+kormod mount copying install log
 . $KORINFDIR/build/build-main.sh
 
 exit_handler()

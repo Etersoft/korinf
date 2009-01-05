@@ -15,14 +15,11 @@
 # build_build your-package-name
 
 #
-if [ -z "$RPMBUILD" ] ; then
-	. /etc/rpm/etersoft-build-functions
-fi
+#if [ -z "$RPMBUILD" ] ; then
+#	. /etc/rpm/etersoft-build-functions
+#fi
 
-# For compatibility: If not included jet
-if [ -z "$CHROOTDIR" ] ; then
-	. functions/config.in || fatal "Can't locate config.in"
-fi
+kormod config build
 
 # FIXME: Obsoleted?
 # call with full path

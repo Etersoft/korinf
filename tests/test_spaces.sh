@@ -6,8 +6,8 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 
 . $KORINFDIR/korinf/config.in || fatal "Can't locate config.in"
-#. functions/autobuild-functions.sh
-. $KORINFDIR/korinf/log.sh
+
+load_kormod log
 
 check()
 {

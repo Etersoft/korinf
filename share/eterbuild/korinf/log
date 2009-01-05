@@ -5,7 +5,7 @@
 #
 
 export COLUMNS=80
-. $KORINFDIR/korinf/outformat.sh
+kormod outformat
 
 success()
 {

@@ -38,7 +38,10 @@ end_umount()
 {
 	local i u ERR
 	ERR=0
-	[ -z "$BUILDROOT" ] && echo "Skip umount due empty BUILDROOT" && return 1
+	if [ -z "$BUILDROOT" ] ; then
+		[ -z "$ADEBUG" ] || echo "Skip umount due empty BUILDROOT"
+		return 1
+	fi
 	echo "Unmounting and cleaning..."
 	for i in /proc/bus/usb /proc/sys/fs/binfmt_misc /proc /home/$INTUSER / ; do
 		u=$BUILDROOT$i

@@ -6,15 +6,15 @@
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
-. functions/helpers.sh
+kormod helpers
 
 export REBUILDLIST=lists/rebuild.list.all
 #export REBUILDLIST="Gentoo/2006.1"
 #export REBUILDLIST="FreeBSD/6.2"
 #export REBUILDLIST="LinuxXP/2006"
-export REBUILDLIST="ALTLinux/Sisyphus"
+#export REBUILDLIST="ALTLinux/Sisyphus"
 #export REBUILDLIST="ALTLinux/2.4"
-#export REBUILDLIST="NLD/9"
+export REBUILDLIST="NLD/9"
 #export REBUILDLIST="ASPLinux/11"
 #export REBUILDLIST="FedoraCore/8"
 #export REBUILDLIST="Slackware/11"
@@ -22,8 +22,9 @@ export REBUILDLIST="ALTLinux/Sisyphus"
 #export REBUILDLIST="MOPSLinux/4.0"
 #export REBUILDLIST=lists/rebuild.list.all
 
-export BASEPATH=/var/ftp/pub/Etersoft/BuildFarm
-export FTPDIR=$BASEPATH/$1
+BASEP=/var/ftp/pub/Etersoft/BuildFarm
+export SOURCEPATH=$BASEP/sources
+export TARGETPATH=$BASEP/$1
 
 # debug mode
 #ADEBUG=1

@@ -1,6 +1,9 @@
-# 2005, 2006, 2007 (c) Etersoft http://etersoft.ru
+# 2005, 2006, 2007, 2009 (c) Etersoft http://etersoft.ru
 # Author: Vitaly Lipatov <lav@etersoft.ru>
-# GNU Public License
+# GNU Public License version 3
+
+# do not include again
+if [ -z "$CHROOTDIR" ] ; then
 
 # Нужно отделить общий конфиг он частного WINE
 
@@ -31,10 +34,7 @@ mkdir -p $CHROOTDIR
 export TASKDIR=$HOME/sales
 
 # Linux builder
-export LINUXSSH=borroman
-#export LINUXHOST=$LINUXSSH:/mnt
 export LINUXHOST=/net/os/stable
-#export LINUXHOST=/net/os
 
 # FreeBSD builder
 export FREEBSDSSH=$LOCUSER@freebsd
@@ -47,6 +47,8 @@ if [ -z "$WINENUMVERSION" ] ; then
 	export WINENEXTVERSION="1.0.10"
 	export WINEPREVVERSION="1.0.8"
 fi
+
+# TODO: remove
 export WINEBASEVER="1.0"
 
 #VERSION=`echo "$WINEVERSION" | sed -e "s| |-|g" | tr [A-Z] [a-z]`
@@ -72,3 +74,5 @@ if [ -n "$WORKDIR" ] ; then
 	#mkdir -p $CHROOTDIR
 fi
 
+fi
+# end if CHROOTDIR
