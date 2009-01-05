@@ -8,6 +8,11 @@ EEEE-0007 - Волокно для 7.7 Сетевой
 EEEE-0008 - Волокно для 7.7 SQL
 EEEE-0009 - Волокно для 8.1 Сетевой
 EEEE-000A - Mandriva 2008
+EEEE-000B - Mandriva 2008.1
+EEEE-000C - WINE@Etersoft 0.9 Network для МСВС
+EEEE-000D - Mandriva 2009
+EEEE-000E - ALT Linux 4.1 Desktop Small Business
+EEEE-000F - Linux XP Desktop 2008
 
 ===Подготовка новой системы к сборке===
 1. установить необходимые для сборки пакеты (выводятся при попытке rpmbb в системе)
