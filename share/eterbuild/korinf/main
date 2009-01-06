@@ -52,10 +52,7 @@ main_build_phase()
 		BUILDSRPM="$SOURCEPATH/$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm | last_rpm).src.rpm"
 	fi
 
-	if [ ! -r "$BUILDSRPM" ] ; then
-		warning "Package $BUILDSRPM is not readable"
-		return 1
-	fi
+	[ -r "$BUILDSRPM" ] || fatal "Package $BUILDSRPM is not readable"
 
 	logit "`basename $BUILDSRPM .src.rpm`"
 	
