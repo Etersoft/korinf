@@ -20,7 +20,14 @@ KORINFDIR=/usr/share/eterbuild
 if ! dirname $0 | grep ^/usr/share >/dev/null ; then
 	KORINFDIR=$(realpath `dirname $0`/../share/eterbuild)
 	KORINFETC=$(realpath `dirname $0`/../etc)
-	#echo "Note: run from source tree, datadir=$KORINFDIR, sysconfdir=$KORINFETC"
+	if [ -r "$KORINFETC/../AUTHORS" ] ; then
+		if [ -n "$VERBOSE" ] ; then
+			echo "Note: run from source tree, datadir=$KORINFDIR, sysconfdir=$KORINFETC"
+		fi
+	else
+		KORINFETC=/etc/eterbuild
+		KORINFDIR=/usr/share/eterbuild
+	fi
 fi
 
 
