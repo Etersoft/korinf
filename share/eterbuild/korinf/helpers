@@ -14,13 +14,13 @@ kormod main
 
 # build binary packages according to REBUILDLIST
 # arg: package_name [HELPER]
-build_rpm()
+build_package()
 {
 	# FIXME: for compatibility
 	set_log_dir
 
 	echo
-	echo " =============================================== "
+	echo "=============================================== "
 	echo | write_report
 
 	local BUILDNAME
@@ -41,7 +41,9 @@ build_rpm()
 		fi
 	fi
 
-	echo "SOURCE=$SOURCEPATH TARGET=$TARGETPATH"
+	echo "Build $BUILDNAME package"
+	echo "Source dir: $SOURCEPATH"
+	echo "Target dir: $TARGETPATH"
 
 	if [ -z "$SOURCEPATH" ] || [ -z "$TARGETPATH" ] ; then
 		fatal "Source or target path is not set"
@@ -52,9 +54,26 @@ build_rpm()
 
 # build source packages according to REBUILDLIST
 # args: package_name
-build_srpm()
+build_srcrpm()
 {
 	MAKESPKG=1
-	build_rpm $@
+	build_package $@
 }
 
+build_project()
+{
+	export TARGETPATH=$(realpath $1/last)
+	export SOURCEPATH=$TARGETPATH/sources
+
+	if [ -n "$REBUILDLIST" ] ; then
+		echo "Build for $REBUILDLIST"
+	else
+		if [ -r "$TARGETPATH/distro.list" ] ; then
+			REBUILDLIST=$TARGETPATH/distro.list
+			echo "Build according to distro.list from $TARGETPATH"
+		else
+			REBUILDLIST=$KORINFETC/lists/rebuild.list.all
+			echo "Build for distros from $REBUILDLIST"
+		fi
+	fi
+}
