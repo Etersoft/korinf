@@ -30,26 +30,6 @@ exit_handler()
 
 trap exit_handler EXIT HUP INT QUIT PIPE TERM
 
-# Returns the newest package from the pkg list
-last_rpm()
-{
-	local i
-	local lastrpm
-	local pkgver
-	lastrpm="___________"
-	for i in `cat` ; do
-		pkgver=`rpm -qp $i`
-		#echo "Compare $pkgver $lastrpm "
-		LR=`rpmvercmp $pkgver $lastrpm `
-		#echo "RES=$LR"
-		#LR=$?
-		if [ $LR -gt 0 ] ; then
-			lastrpm=$pkgver
-		fi
-	done
-	echo $lastrpm
-}
-
 
 main_build_phase()
 {
@@ -86,6 +66,7 @@ main_build_phase()
 	fi
 	logit "copying log" copying_log || return 1
 }
+
 
 main_build()
 {

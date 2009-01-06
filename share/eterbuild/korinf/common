@@ -68,6 +68,26 @@ kormod_build()
 	done
 }
 
+# Returns the newest package from the pkg list (without extension .src.rpm)
+last_rpm()
+{
+	local i
+	local lastrpm
+	local pkgver
+	lastrpm="___________"
+	for i in `cat` ; do
+		pkgver=`rpm -qp $i`
+		#echo "Compare $pkgver $lastrpm "
+		LR=`rpmvercmp $pkgver $lastrpm `
+		#echo "RES=$LR"
+		#LR=$?
+		if [ $LR -gt 0 ] ; then
+			lastrpm=$pkgver
+		fi
+	done
+	echo $lastrpm
+}
+
 # get distro list from arg/directory/file
 get_distro_list()
 {
