@@ -388,7 +388,8 @@ EOF
 
 build_wine()
 {
-	VERNAME=$PRODUCTNAME/$WINENUMVERSION
+	PROJECTNAME="WINE@Etersoft"
+	VERNAME=$PROJECTNAME/$WINENUMVERSION
 
 	TARGETDIR=/var/ftp/pub/download/WINE@Etersoft/$TARGETDIRNAME
 	DOWNLOADDIR="ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/$TARGETDIRNAME"
@@ -399,7 +400,7 @@ build_wine()
 	# Use real path if possible
 	if [ -L "$PUBLOCAL" ] ; then
 		PUBLOCAL=`readlink -f "$PUBLOCAL"`
-		VERNAME=$PRODUCTNAME/`basename $PUBLOCAL`
+		VERNAME=$PROJECTNAME/`basename $PUBLOCAL`
 	fi
 
 	if [ ! -d "$PUBLOCAL/WINE/$DIST" ] ; then
@@ -528,8 +529,8 @@ EOF
 
 build_selta()
 {
-	PRODUCTNAME="SELTA@Etersoft"
-	VERNAME=$PRODUCTNAME/$WINENUMVERSION
+	PROJECTNAME="SELTA@Etersoft"
+	VERNAME=$PROJECTNAME/$WINENUMVERSION
 	
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Windows"
 	PUBDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/$VERNAME/Windows"
@@ -629,6 +630,7 @@ export NIGHTBUILD=1
 
 #fatal "По техническим причинам отгрузка приостановлена."
 
+# split to subscript
 case $PRODUCTVAR in
 	*WINE@Etersoft*)
 		build_wine

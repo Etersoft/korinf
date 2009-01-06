@@ -7,7 +7,7 @@
 cd ../`dirname $0`
 . makeiso/functions.sh
 
-export PRODUCTNAME=SQL
+export PRODUCT=SQL
 export WINENUMVERSION=1.0.9
 
 build_packages

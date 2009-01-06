@@ -21,13 +21,13 @@ fi
 
 ROOTDIR=/net/legacy/$VERSION-$PUBREL
 
-PRODUCTNAME=WINE@Etersoft
+PROJECTNAME=WINE@Etersoft
 
 # Каталог с деревом пакетов свободного WINE и файлов к нему
-export WINEPUB_PATH=/var/ftp/pub/Etersoft/$PRODUCTNAME
+WINEPUB_PATH=/var/ftp/pub/Etersoft/$PROJECTNAME
 
 # Каталог с закрытой частью
-export WINEETER_PATH=/var/ftp/pvt/Etersoft/$PRODUCTNAME
+WINEETER_PATH=/var/ftp/pvt/Etersoft/$PROJECTNAME
 
 
 SYSTEM=ALTLinux/Sisyphus

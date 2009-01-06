@@ -49,7 +49,7 @@ makeiso()
 {
 	#LANG=C ls -lR $WINE_PATH/ >$WINE_PATH/MANIFEST
 	echo "Creating ISO in $PATHTOFTP/$FILENAME"
-	mkisofs -V "WINE@Etersoft $WINENUMVERSION $PRODUCTNAME" \
+	mkisofs -V "WINE@Etersoft $WINENUMVERSION $PRODUCT" \
 	-p "Plikus Alexander, $DATESTAMP" \
 	-m "*update-from*" \
 	-m "*MD5SUM*" \
@@ -68,7 +68,7 @@ makeiso()
 
 build_packages()
 {
-	PRODUCTBASE=`echo $PRODUCTNAME | tr '[:upper:]' '[:lower:]'`
+	PRODUCTBASE=`echo $PRODUCT | tr '[:upper:]' '[:lower:]'`
 
 #trap exit_handler EXIT HUP INT QUIT PIPE TERM
 for i in `cat makeiso/$0.nums` ; do
@@ -107,7 +107,7 @@ for i in `cat makeiso/$0.nums` ; do
 
 	ALPHA=/$WINENUMVERSION
 	ALPHAP=-disk/$WINENUMVERSION/$PRODUCTBASE
-	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$WINEETER_PATH$ALPHAP/docs/README_$PRODUCTNAME.html >$WINEETER_PATH$ALPHAP/README.html || exit 1
+	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$WINEETER_PATH$ALPHAP/docs/README_$PRODUCT.html >$WINEETER_PATH$ALPHAP/README.html || exit 1
 	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$WINEETER_PATH$ALPHAP/docs/license_$PRODUCTBASE.html >$WINEETER_PATH$ALPHAP/license.html || exit 1
 
 	makeiso || exit 1
