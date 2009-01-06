@@ -26,7 +26,7 @@ echo $$ >$PIDFILE
 cd `dirname $0`/..
 # load common functions, compatible with local and installed script
 . `dirname $0`/share/eterbuild/korinf/common
-kormod helpers
+kormod korinf
 
 ALOGDIR=$ALOGDIR-arobot
 

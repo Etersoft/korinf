@@ -11,7 +11,7 @@ if [ -z "$1" ] ; then
 	exit 1
 fi
 
-kormod helpers
+kormod korinf
 
 if [ -n "$2" ] ; then
 	REBUILDLIST=$1

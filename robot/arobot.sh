@@ -12,7 +12,7 @@
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
-kormod helpers
+kormod korinf
 set_log_dir /`date "+%Y%m%d"`
 
 umask 0002
@@ -235,7 +235,7 @@ build_pre()
 	# ���� �������� ����. ������
 
 	export BUILDNAME=wine-etersoft-$type$licensetype
-	build_rpm $BUILDNAME || fatal "Build failed"
+	build_package $BUILDNAME || fatal "Build failed"
 
 	EFILE=$(ls -1 $FTPDIR/$DIST/$BUILDNAME[-_][0-9]* | head -n1)
 	# Каталог уже создаётся сборкой пакета

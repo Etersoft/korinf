@@ -3,12 +3,12 @@
 # Author: Vitaly Lipatov <lav@etersoft.ru>
 # GNU Public License version 3
 #
-# Main script for build packages
+# Main korinf script for build packages
 
-# Example in three lines:
-#  kormod helpers
-#  export REBUILDLIST=lists/rebuild.list.all
-#  build_build your-package-name
+# Example in the three lines:
+#  kormod korinf
+#  export REBUILDLIST=Fedora/10
+#  build_package your-package-name
 
 kormod main
 
@@ -60,6 +60,7 @@ build_srcrpm()
 	build_package $@
 }
 
+# args: 1) path to project dir (where versions) 2) package name
 build_project()
 {
 	export TARGETPATH=$(realpath $1/last)
