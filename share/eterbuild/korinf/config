@@ -42,11 +42,6 @@ export FREEBSDSSH=$LOCUSER@freebsd
 [ "$USER" = "lav" ] && export FREEBSDKEY="-i /home/lav/.ssh/id_dsa.builder"
 export FREEBSDPATH=home/$LOCUSER/work-$$
 
-# Менять можно: версия, которая идёт на сборку заказов, устанавливается в arobot.sh!
-if [ -z "$WINENUMVERSION" ] ; then
-	export WINENUMVERSION="1.0.9"
-fi
-
 test -z "$WORKDIR" && export WORKDIR=`pwd`
 
 # FIXME
