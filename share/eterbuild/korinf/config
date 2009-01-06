@@ -12,35 +12,26 @@ if [ -z "$CHROOTDIR" ] ; then
 umask 0002
 
 export LANG=C
-
-export PRODUCTNAME="WINE@Etersoft"
-
-# Каталог с деревом пакетов свободного WINE и файлов к нему
-export WINEPUB_PATH=/var/ftp/pub/Etersoft/$PRODUCTNAME
-
-# Каталог с закрытой частью
-export WINEETER_PATH=/var/ftp/pvt/Etersoft/$PRODUCTNAME
+export LC_ALL=C
 
 # FIXME: User in local system (with the same uid as INTUSER)
-export LOCUSER=builder
+LOCUSER=builder
 
 # User in remote(build) system
-export INTUSER=lav
+INTUSER=lav
 
 # Path to chroot dir (remote system mounted)
-export CHROOTDIR=/tmp/autobuild
+CHROOTDIR=/tmp/autobuild
+# FIXME
 mkdir -p $CHROOTDIR
 
-# Path for mount tasks
-export TASKDIR=$HOME/sales
-
 # Linux builder
-export LINUXHOST=/net/os/stable
+LINUXHOST=/net/os/stable
 
 # FreeBSD builder
-export FREEBSDSSH=$LOCUSER@freebsd
-[ "$USER" = "lav" ] && export FREEBSDKEY="-i /home/lav/.ssh/id_dsa.builder"
-export FREEBSDPATH=home/$LOCUSER/work-$$
+FREEBSDSSH=$LOCUSER@freebsd
+[ "$USER" = "lav" ] && FREEBSDKEY="-i /home/lav/.ssh/id_dsa.builder"
+FREEBSDPATH=home/$LOCUSER/work-$$
 
 test -z "$WORKDIR" && export WORKDIR=`pwd`
 
@@ -53,15 +44,14 @@ if [ -n "$WORKDIR" ] ; then
 	fi
 	# Make log dir with date for builder user only
 	[ "$USER" = "builder" ] && ALOGDIR=$ALOGDIR/`date "+%Y%m%d"`
-	export ALOGDIR
 	# убрать надо
 	[ "$WORKDIR" = `pwd` ] || mkdir -p $ALOGDIR
 	#mkdir -p $CHROOTDIR
 fi
 
-fi
-
 # load Korinf config
 test -f $KORINFETC/korinf && . $KORINFETC/korinf
 test -f ~/.config/korinf  && . ~/.config/korinf
+
+fi
 # end if CHROOTDIR

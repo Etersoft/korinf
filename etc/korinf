@@ -1,3 +1,18 @@
 #
 # Linux builder
-# export LINUXHOST=/net/os/stable
+# LINUXHOST=/net/os/stable
+
+PRODUCTNAME="WINE@Etersoft"
+
+# Каталог с деревом пакетов свободного WINE и файлов к нему
+WINEPUB_PATH=/var/ftp/pub/Etersoft/$PRODUCTNAME
+
+# Каталог с закрытой частью
+WINEETER_PATH=/var/ftp/pvt/Etersoft/$PRODUCTNAME
+
+# for korinf script
+BUILDFARMDIR=/var/ftp/pub/Etersoft/BuildFarm
+
+# for robot script
+# Path for mount tasks
+export TASKDIR=$HOME/sales
