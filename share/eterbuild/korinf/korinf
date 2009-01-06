@@ -37,8 +37,8 @@ build_package()
 	# FIXME: for compatibility
 	set_log_dir
 
-	echo
-	echo "=============================================== "
+	#echo
+	#echo "=============================================== "
 	echo | write_report
 
 	local BUILDNAME
@@ -83,8 +83,8 @@ build_srcrpm()
 # args: 1) path to project dir (where versions) 2) package name
 build_project()
 {
-	export TARGETPATH=$(realpath $1/last)
-	export SOURCEPATH=$TARGETPATH/sources
+	TARGETPATH=$(realpath $1/last)
+	SOURCEPATH=$TARGETPATH/sources
 
 	if [ -n "$REBUILDLIST" ] ; then
 		echo "Build for $REBUILDLIST"
@@ -97,4 +97,6 @@ build_project()
 			echo "Build for distros from $REBUILDLIST"
 		fi
 	fi
+
+	build_package $2
 }

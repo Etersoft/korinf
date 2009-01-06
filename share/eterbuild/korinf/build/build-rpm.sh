@@ -42,10 +42,10 @@ build_rpms()
 	cp -f $BUILDSRPM $BUILDERHOME/tmp/$BUILDNAME.src.rpm || { warning "Can't copy src.rpm" ; return 1 ; }
 	$SUDO chown $LOCUSER $BUILDERHOME/tmp/$BUILDNAME.src.rpm
 
-	#install -m644 $WINEETER_PATH/sources/rpmmacros $BUILDERHOME/.rpmmacros || fatal "Can't copy macros"
+	# FIXME: ebconfig is obsolete
 	[ -r $BUILDERHOME/.ebconfig ] || echo "RPMBUILD=rpmbuild" > $BUILDERHOME/.ebconfig
 
-if true || [ ! -r $BUILDERHOME/.rpmmacros ] ; then
+if [ ! -r $BUILDERHOME/.rpmmacros ] ; then
 cat <<EOF >$BUILDERHOME/.rpmmacros || fatal "Can't copy macros"
 # Etersoft's default macros
 %_topdir        /home/$INTUSER/RPM

@@ -103,15 +103,6 @@ write_report()
 	fi
 }
 
-
-write_log()
-{
-	if [ -w "$LOGFILE" ] ; then
-		cat >>$LOGFILE
-	fi
-}
-
-
 PREVSYSTEMLOGIT=
 logit()
 {
@@ -128,7 +119,7 @@ logit()
 	[ -z "$NIGHTBUILD" ] && echo -n "$STRMSG"
 	shift
 	TIMESTAMP=`date "+%s"`
-	$* 2>&1 | write_log
+	$* >>$LOGFILE 2>&1
 	RET=$?
 	let TIMESTAMP=`date "+%s"`-$TIMESTAMP
 	[ -z "$NIGHTBUILD" ] && STRMSG=""
