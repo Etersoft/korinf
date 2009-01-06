@@ -14,7 +14,7 @@ build_solaris()
 {
 	echo "Copying to Solaris"
 	ssh $REMOTESSH "mkdir -p $REMOTEPATH" || { warning "Cannot create dir $REMOTEPATH" ; return 1 ; }
-	scp functions/remote-solaris.sh $REMOTESSH:$REMOTEPATH/ || { warning "Cannot copy script" ; return 1 ; }
+	scp  $KORINFDIR/korinf/remote-scripts/remote-solaris.sh $REMOTESSH:$REMOTEPATH/ || { warning "Cannot copy script" ; return 1 ; }
 	echo "Building package with:"
 	echo "PACKAGE:$PACKAGE WINENUMVERSION:$WINENUMVERSION ETERREGNUM:$ETERREGNUM SOURCEURL:$SOURCEURL"
 	ssh $REMOTESSH "bash $REMOTEPATH/remote-solaris.sh $PACKAGE $WINENUMVERSION \"$ETERREGNUM\" $SOURCEURL" || { warning "Can't build" ; return 1 ; }

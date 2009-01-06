@@ -15,6 +15,8 @@ Source: %name-%version.tar
 
 BuildArchitectures: noarch
 
+Requires: etersoft-build-utils >= 1.5.2
+
 %description
 This package contains Korinf build system.
 
@@ -29,8 +31,9 @@ This package contains Korinf build system.
 
 %files
 %doc README TODO NEWS
-%_bindir/korinf-build
+%_bindir/korinf
 %config(noreplace) %_sysconfdir/eterbuild/korinf
+%_datadir/eterbuild/korinf/
 
 %changelog
 * Sun Jul 20 2008 Vitaly Lipatov <lav@altlinux.ru> 0.9-alt1

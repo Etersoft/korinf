@@ -99,6 +99,7 @@ SOURCEURL=$(echo $SOURCEPATH | sed -e "s|/var/ftp/|ftp://server/|g")
 for dist in $CMDRE ; do
 	# Куда будем складывать собранные пакеты
 	DESTDIR=$TARGETPATH/$dist
+	# FIXME: Hack
 	[ "$TARGETPRIVPATH" ] && DESTDIR=$TARGETPRIVPATH
 
 	dist_ver=`echo $dist | sed -e "s|.*/||g"`

@@ -14,7 +14,7 @@ build_bsd()
 
 	echo "Copying to $FREEBSDSSH:$PREF/$FREEBSDPATH"
 	ssh $FREEBSDKEY $FREEBSDSSH "mkdir -p $PREF/$FREEBSDPATH/" || { warning "Cannot create dir $FREEBSDPATH" ; return 1 ; }
-	scp functions/remote-freebsd.sh $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy script" ; return 1 ; }
+	scp  $KORINFDIR/korinf/remote-scripts/remote-freebsd.sh $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy script" ; return 1 ; }
 	echo "Building package..."
 	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $PACKAGE $WINENUMVERSION \"$PRODUCT\" \"$ETERREGNUM\" $SOURCEURL" || { warning "Can't build" ; return 1 ; }
 	true
