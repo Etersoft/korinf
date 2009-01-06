@@ -1,0 +1,32 @@
+#!/bin/sh
+# 2005, 2006, 2007 (c) Etersoft http://etersoft.ru
+# Author: Vitaly Lipatov <lav@etersoft.ru>
+# GNU Public License
+
+# load common functions, compatible with local and installed script
+. `dirname $0`/../share/eterbuild/korinf/common
+
+if [ -z "$1" ] ; then
+	echo "Use: korinf [System/Version] PackageName" >&2
+	exit 1
+fi
+
+kormod helpers
+
+if [ -n "$2" ] ; then
+	REBUILDLIST=$1
+	shift
+else
+	[ -n "$REBUILDLIST" ] || REBUILDLIST=$KORINFETC/lists/rebuild.list.all
+fi
+
+SOURCEPATH=$BUILDFARMDIR/sources
+TARGETPATH=$BUILDFARMDIR/$1
+
+# debug mode
+#ADEBUG=1
+
+# install packages after build
+#BOOTSTRAP=1
+
+build_rpm $1
