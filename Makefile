@@ -6,6 +6,7 @@ all:
 install: 
 	mkdir -p $(bindir)/ $(sysconfdir)/eterbuild/lists
 	mkdir -p $(datadir)/eterbuild/korinf $(datadir)/eterbuild/build
-	install -m 755 bin/build $(bindir)/korinf
+	install -m 755 bin/korinf $(bindir)/korinf
 	install -m 644 etc/korinf $(sysconfdir)/eterbuild/
+	install -m 644 etc/lists/* $(sysconfdir)/eterbuild/lists/
 	cp -ap share/eterbuild/korinf/* $(pkgdatadir)/korinf/ || :
