@@ -1,6 +1,5 @@
 #!/bin/sh
 # Output formatting functions.
-# $Id: outformat.sh,v 1.1 2008/01/12 17:31:36 lav Exp $
 #
 # Copyright (C) 2002 Ivan Zakharyaschev <imz@altlinux.ru>.
 # Copyright (C) 2002 Dmitry V. Levin <ldv@altlinux.org>.

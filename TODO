@@ -5,12 +5,12 @@ BUILDSRPM move?
 Боря: надо перейти на другого внутреннего пользователя (не lav, а korinfer), удалить LOCUSER
 исправить: не использовать WINENUMVERSION (проблема - в Makefile для FreeBSD, Gentoo)
 PACKAGEVERSION, PROJECTVERSION вместо WINENUMVERSION
-Расставить лицензию по всем файлам GPLv3
 Нужно исправить и проверить работу robot
 robot перенести потом в tools
 изменение ALOGDIR заменить на вызов set_log_dir
 LLOGDIR переименован в LOGDIR
 использовать write_report, write_log
+сделать eterbuild/korinf
 
 Наверное стоит отложить до 1.0.10, когда сборка будет не нужна
 makeiso: адаптировать, исправить использование WINENUMVERSION

@@ -1,26 +1,46 @@
 #!/bin/sh
-# 2005, 2006, 2007 (c) Etersoft http://etersoft.ru
-# Author: Vitaly Lipatov <lav@etersoft.ru>
-# GNU Public License version 3
+##
+#  Korinf project
+#
+#  Copying functions
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005-2009
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
 
 
-# Подготовка к копированию, общая для всех систем
+# Cleanup target dir, used for all systems
 prepare_copying()
 {
-	# Expand file lists, remove old packages
+	# Remove old packages from main dir
 	if [ -n "$MAINFILESLIST" ] ; then
 		mkdir -p $DESTDIR || fatal "Can't create $DESTDIR"
 		echo "Removing old '$MAINFILESLIST' from $DESTDIR..."
 		pushd $DESTDIR >/dev/null || return 1
 		rm -fv $EXPMAINFILES
-		popd
+		popd >/dev/null
 	fi
+
+	# Remove old packages from extra dir
 	if [ -n "$EXTRAFILESLIST" ] ; then
 		mkdir -p $DESTDIR/extra || fatal "Can't create $DESTDIR/extra"
 		echo "Removing old '$EXTRAFILESLIST' from $DESTDIR/extra..."
 		pushd $DESTDIR/extra >/dev/null || return 1
 		rm -fv $EXPEXTRAFILES
-		popd
+		popd >/dev/null
 	fi
 
 }
@@ -40,12 +60,13 @@ copying_packages()
 	if [ -n "$MAINFILESLIST" ] ; then
 		cp -v $EXPMAINFILES $DESTDIR/ || { warning "Cannot copy new packages $EXPMAINFILES" ; RC=1 ; }
 	fi
+
 	if [ -n "$EXTRAFILESLIST" ] ; then
 		cp -v $EXPEXTRAFILES $DESTDIR/extra/ || { warning "Cannot copy extra packages $EXPEXTRAFILES" ; RC=1 ; }
 	fi
 
-	popd
-	#pushd $DESTDIR
+	popd >/dev/null
+
 	# FIXME
 	chmod ug+rw $DESTDIR/* -R 2>/dev/null
 	chmod o+r $DESTDIR/* -R 2>/dev/null
