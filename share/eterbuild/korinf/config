@@ -62,6 +62,6 @@ fi
 fi
 
 # load Korinf config
-test -f /etc/eterbuild/korinf && . /etc/eterbuild/korinf
+test -f $KORINFETC/korinf && . $KORINFETC/korinf
 test -f ~/.config/korinf  && . ~/.config/korinf
 # end if CHROOTDIR

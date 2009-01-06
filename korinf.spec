@@ -30,6 +30,7 @@ This package contains Korinf build system.
 %files
 %doc README TODO NEWS
 %_bindir/korinf-build
+%config(noreplace) %_sysconfdir/eterbuild/korinf
 
 %changelog
 * Sun Jul 20 2008 Vitaly Lipatov <lav@altlinux.ru> 0.9-alt1
