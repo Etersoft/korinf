@@ -21,10 +21,24 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-# FIXME: do not support subdirs
-# make link to etersoft-build-utils repository to get run from the source tree
-# load common functions, compatible with local and installed script
-. `dirname $0`/../share/eterbuild/functions/common
+
+# Load etersoft-build-utils part
+LOCETERBUILDDIR=`dirname $0`/../share/eterbuild/functions
+RELETERBUILDDIR=../../etersoft-build-utils/share/eterbuild/functions
+
+# Create link to etersoft-build-utils repo if not exists
+if [ ! -d "$LOCETERBUILDDIR" ] ; then
+	if [ ! -d "`dirname $0`/$RELETERBUILDDIR" ] ; then
+		echo "Checkout etersoft-build-utils repository to the same directory as korinf checkouted" >&2
+		exit 1
+	else
+		rm -f $LOCETERBUILDDIR
+		ln -s ../$RELETERBUILDDIR $LOCETERBUILDDIR
+	fi
+fi
+. $LOCETERBUILDDIR/common
+
+
 
 KORINFETC=/etc/eterbuild
 KORINFDIR=/usr/share/eterbuild
