@@ -1,5 +1,10 @@
 Юра: где скрипт, лежащий в Arch?
 Боря: надо перейти на другого внутреннего пользователя (не lav, а korinfer), удалить LOCUSER
+исправить: не использовать WINENUMVERSION (проблема - в Makefile для FreeBSD, Gentoo)
+PACKAGEVERSION, PROJECTVERSION вместо WINENUMVERSION
+Расставить лицензию по всем файлам GPLv3
+Нужно исправить и проверить работу robot
+robot перенести потом в tools
 
 remove *elf* from /etc/rpm/*/macros for Arch
 
@@ -7,7 +12,6 @@ remove *elf* from /etc/rpm/*/macros for Arch
 FC 4?
 
 Добавить время сборки, чтобы понимать статистику
-исправить: не использовать WINENUMVERSION (проблема - в Makefile для FreeBSD, Gentoo)
 по умолчанию при ошибке всё равно размонтировать
 сделать передачу основных и дополнительных пакетов снаружи (для установки)
 

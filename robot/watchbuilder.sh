@@ -5,7 +5,8 @@
 PIDFILE=/var/run/eterbuild/watchbuilder.pid
 
 cd `dirname $0`/..
-. functions/config.in || fatal "Can't locate config.in"
+# load common functions, compatible with local and installed script
+. `dirname $0`/share/eterbuild/korinf/common
 
 if [ "$1" = "stop" ] ; then
 	kill `cat $PIDFILE`

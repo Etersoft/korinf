@@ -6,14 +6,14 @@
 # 08.06.2006, 09.06.06, 28.02.07, 09.03.07, 15.12.07, 2008
 # FIXME: если в имени запятая, разделяет на два адреса
 #
-export LANG=ru_RU.UTF-8
-export LC_ALL=ru_RU.UTF-8
+#export LANG=ru_RU.UTF-8
+#export LC_ALL=ru_RU.UTF-8
 
-cd `dirname $0`/..
+# load common functions, compatible with local and installed script
+. `dirname $0`/../share/eterbuild/korinf/common
 
-. functions/helpers.sh
-# config.in loads only during start
-ALOGDIR=$WORKDIR/log/`date "+%Y%m%d"`-arobot
+kormod helpers
+ALOGDIR=$ALOGDIR-arobot
 
 umask 0002
 
@@ -69,6 +69,7 @@ TASK="$1"
 #test -w "$TASK" || { do_removed ; fatal "Can't touch $TASK file, check permissions" ; }
 test -w "$TASK" || do_removed
 
+# Why recode TASK if all in utf8?
 cat $TASK | iconv -f utf8 -t koi8-r -r
 
 # WARNING!!! execute file!!!

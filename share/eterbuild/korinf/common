@@ -8,6 +8,7 @@
 # use with builder user
 # Req: etersoft-build-utils >= 1.6, alien >= 8.63
 
+# FIXME: do not support subdirs
 # make link to etersoft-build-utils repository to get run from the source tree
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/functions/common
@@ -16,7 +17,7 @@ KORINFETC=/etc/eterbuild
 KORINFDIR=/usr/share/eterbuild
 
 # if run from local installation
-if ! dirname $0 | grep /usr/share >/dev/null ; then
+if ! dirname $0 | grep ^/usr/share >/dev/null ; then
 	KORINFDIR=$(realpath `dirname $0`/../share/eterbuild)
 	KORINFETC=$(realpath `dirname $0`/../etc)
 	#echo "Note: run from source tree, datadir=$KORINFDIR, sysconfdir=$KORINFETC"
