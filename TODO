@@ -1,3 +1,6 @@
+PACKAGE
+EPACKAGE
+BUILDSRPM move?
 Юра: где скрипт, лежащий в Arch?
 Боря: надо перейти на другого внутреннего пользователя (не lav, а korinfer), удалить LOCUSER
 исправить: не использовать WINENUMVERSION (проблема - в Makefile для FreeBSD, Gentoo)
