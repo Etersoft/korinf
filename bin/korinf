@@ -1,5 +1,5 @@
 #!/bin/sh
-# 2005, 2006, 2007 (c) Etersoft http://etersoft.ru
+# 2005, 2006, 2007, 2009 (c) Etersoft http://etersoft.ru
 # Author: Vitaly Lipatov <lav@etersoft.ru>
 # GNU Public License
 
@@ -16,12 +16,24 @@ kormod helpers
 if [ -n "$2" ] ; then
 	REBUILDLIST=$1
 	shift
+fi
+
+BUILDNAME=$1
+
+if [ -n "$REBUILDLIST" ] ; then
+	echo "Build $BUILDNAME for $REBUILDLIST"
 else
-	[ -n "$REBUILDLIST" ] || REBUILDLIST=$KORINFETC/lists/rebuild.list.all
+	if [ -r "$BUILDFARMDIR/distro.list" ] ; then
+		REBUILDLIST=$BUILDFARMDIR/distro.list
+		echo "Build $BUILDNAME according to distro.list from $BUILDFARMDIR"
+	else
+		REBUILDLIST=$KORINFETC/lists/rebuild.list.all
+		echo "Build $BUILDNAME for distros from $REBUILDLIST"
+	fi
 fi
 
 SOURCEPATH=$BUILDFARMDIR/sources
-TARGETPATH=$BUILDFARMDIR/$1
+TARGETPATH=$BUILDFARMDIR/$BUILDNAME
 
 # debug mode
 #ADEBUG=1
@@ -29,4 +41,4 @@ TARGETPATH=$BUILDFARMDIR/$1
 # install packages after build
 #BOOTSTRAP=1
 
-build_rpm $1
+build_package $BUILDNAME
