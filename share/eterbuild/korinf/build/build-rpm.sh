@@ -89,8 +89,7 @@ fi
 	[ -x "$BUILDROOT/usr/bin/rpm.static" ] && RPMCOMMAND=/usr/bin/rpm.static
 	setarch $BUILDARCH $SUDO chroot $BUILDROOT su - $INTUSER -c "umask 002 ; mkdir -p ~/RPM/SRPMS ; $RPMCOMMAND -i ~/tmp/$BUILDNAME.src.rpm ; $CMDREPORT ; subst 's|@ETERREGNUM@|${ETERREGNUM}|g' ~/RPM/SPECS/$BUILDNAME.spec ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERREPORT"
 
-	ELOGFILE=$LLOGDIR/$BUILDNAME.cenv.log
-	cat $BUILDERHOME/buildenv.txt | sed -e "s|[0-9A-F]\{4\}-[0-9A-F]\{4\}|XxXX-XxXX|g" >$ELOGFILE
+	cat $BUILDERHOME/buildenv.txt | sed -e "s|[0-9A-F]\{4\}-[0-9A-F]\{4\}|XxXX-XxXX|g" >$LOGDIR/$BUILDNAME.cenv.log
 
 	[ -e "$LOGFAILFILE" ] && { rm -f "$LOGFAILFILE" ; warning "build failed" ; return 1 ; }
 

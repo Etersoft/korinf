@@ -107,7 +107,8 @@ for dist in $CMDRE ; do
 	[ -z "$dist_name" ] && fatal "Empty dist_name for $dist"
 	#[ -d "functions" ] || fatal "Use me only inside eterbuild dir (now `pwd`)"
 
-	init_log
+	# Initialize LOGDIR and LOGFILE variables
+	init_dist_log "$dist"
 
 	if ! main_phase ; then
 		# Размонтируем при ошибке, если не указано обратное

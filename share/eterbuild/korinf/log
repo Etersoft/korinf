@@ -32,34 +32,22 @@ failure()
 
 set_log_dir()
 {
-if [ -n "$WORKDIR" ] && [ -z "$ALOGDIR" ] ; then
-	ALOGDIR=$WORKDIR/log
-	# Hack for run from package
-	if [ ! -w "$ALOGDIR" ] ; then
-		ALOGDIR=$TMPDIR/korinf-log
-	fi
-	# Make log dir with date for builder user only
-	[ "$USER" = "builder" ] && ALOGDIR=$ALOGDIR/`date "+%Y%m%d"`
+	ALOGDIR=`pwd`/log
+	[ -w "$ALOGDIR" ] || ALOGDIR=$TMPDIR/korinf-log
+	[ -z "$1" ] || ALOGDIR="$ALOGDIR$1"
 
-	if [ -n "$1" ] ; then
-		ALOGDIR="$ALOGDIR-$1"
-	fi
-
-	# FIXME
-	[ "$WORKDIR" = `pwd` ] || mkdir -p $ALOGDIR
-	#mkdir -p $CHROOTDIR
-
-fi
+	[ -z "$ADEBUG" ] || echo "set_log_dir: Check me and disable. I create logdir in $ALOGDIR"
+	mkdir -p $ALOGDIR
 }
 
 
-init_log()
+init_dist_log()
 {
-	set_log_dir
+	[ -z "$ALOGDIR" ] || set_log_dir
 	# FIXME: used in ELOGFILE creating
-	LLOGDIR=$ALOGDIR/${dist}
-	mkdir -p $LLOGDIR || fatal "Can't create $LLOGDIR"
-	LOGFILE=$LLOGDIR/$BUILDNAME.log
+	LOGDIR="$ALOGDIR/$1"
+	mkdir -p $LOGDIR || fatal "Can't create $LOGDIR"
+	LOGFILE=$LOGDIR/$BUILDNAME.log
 	>$LOGFILE || fatal "Can't create log $LOGFILE"
 }
 
@@ -92,7 +80,7 @@ print_spaces_instead_string()
 write_report()
 {
 	set_log_dir
-	# FIXME: create here
+	# FIXME: create dir here
 	if [ -d "$ALOGDIR" ] ; then
 		cat >> $ALOGDIR/autobuild.report.log
 	fi

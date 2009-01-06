@@ -6,9 +6,6 @@
 # BUILDROOT - root of current system
 # BUILDERHOME - absolute path to user dir in current system
 
-#WORKDIR=$(dirname $0)
-#WORKDIR=.
-
 # TODO: user dist_ver
 
 REMOTESSHG7=builder@gentoo

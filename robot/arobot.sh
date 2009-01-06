@@ -13,7 +13,7 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 
 kormod helpers
-ALOGDIR=$ALOGDIR-arobot
+set_log_dir /`date "+%Y%m%d"`
 
 umask 0002
 

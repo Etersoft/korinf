@@ -61,7 +61,7 @@ if [ ! -r ~/.ebconfig ] ; then
 	cat >~/.ebconfig <<EOF
 HASHER_NOCHECK=nvr,gpg,packager,changelog,deps
 #TODO: специальный репозиторий без updates
-APTCONFBASE=$WORKDIR/apt/apt.conf
+#APTCONFBASE=$WORKDIR/apt/apt.conf
 EOF
 fi
 

@@ -25,15 +25,15 @@ CHROOTDIR=/tmp/autobuild
 # FIXME
 mkdir -p $CHROOTDIR
 
+# FIXME: change name and move to etc/korinf?
 # Linux builder
 LINUXHOST=/net/os/stable
 
+# FIXME: more universal way?
 # FreeBSD builder
 FREEBSDSSH=$LOCUSER@freebsd
 [ "$USER" = "lav" ] && FREEBSDKEY="-i /home/lav/.ssh/id_dsa.builder"
 FREEBSDPATH=home/$LOCUSER/work-$$
-
-test -z "$WORKDIR" && export WORKDIR=`pwd`
 
 # load Korinf config
 test -f $KORINFETC/korinf && . $KORINFETC/korinf
