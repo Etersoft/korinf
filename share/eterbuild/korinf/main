@@ -119,12 +119,12 @@ for dist in $CMDRE ; do
 
 		# Если автосборка, останавливаемся на ошибке
 		if [ -n "$NIGHTBUILD" ] ; then
-			echo `date` $dist FATAL >> $ALOGDIR/autobuild.report.log
+			echo `date` $dist FATAL write_report
 			fatal "Fatal autobuild"
 		fi
 	fi
 
-	echo `date` $dist DONE >> $ALOGDIR/autobuild.report.log
+	echo `date` $dist DONE | write_report
 
 done
 

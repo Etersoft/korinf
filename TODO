@@ -5,6 +5,8 @@ PACKAGEVERSION, PROJECTVERSION вместо WINENUMVERSION
 Расставить лицензию по всем файлам GPLv3
 Нужно исправить и проверить работу robot
 robot перенести потом в tools
+ALOGDIR заменить на вызов set_log_dir
+write_report, write_log
 
 remove *elf* from /etc/rpm/*/macros for Arch
 

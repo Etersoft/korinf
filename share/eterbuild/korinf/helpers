@@ -16,9 +16,12 @@ kormod main
 # arg: package_name [HELPER]
 build_rpm()
 {
+	# FIXME: for compatibility
+	set_log_dir
+
 	echo
 	echo " =============================================== "
-	echo >> $LOGDIR/autobuild.report.log
+	echo | write_report
 
 	local BUILDNAME
 	test -n "$1" && BUILDNAME=$1 || fatal "Missed build_rpm param"

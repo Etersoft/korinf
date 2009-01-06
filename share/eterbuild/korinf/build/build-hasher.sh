@@ -14,7 +14,7 @@ function build_in_hasher()
 		sed -e "s|2\.3|M23|g" | sed -e "s|3\.0|M30|g" |
 		sed -e "s|4\.0|M40|g" | sed -e "s|4\.1|M41|g" | sed -e "s|Sisyphus|SS|g"`
 	set_target_type $dist_mod
-	detect_target_env >>$LOGFILE 2>&1
+	detect_target_env 2>&1 | write_log
 	BUILTRPM=$HASHERDIR$MENVARG/repo/i586/RPMS.hasher
 
 	test -n "$MENV" || fatal "build_in_hasher: Call me with correct MENV variable"

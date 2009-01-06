@@ -43,9 +43,7 @@ warning()
 {
 	echo "WARNING: $@" >&2
 #	continue
-	if [ -d "$ALOGDIR" ] ; then
-		echo `date` $dist ERROR: $@ | tee -a $ALOGDIR/autobuild.report.log
-	fi
+	echo "`date` $dist WARNING: $@" | write_report
 	if [ -n "$CAREBUILD" ] ; then
 		[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount
 		# disable trap before exit
@@ -66,7 +64,7 @@ kormod_build()
 {
 	local i
 	for i in $@ ; do
-		. $KORINFDIR/build/build-$i.sh
+		. $KORINFDIR/korinf/build/build-$i.sh
 	done
 }
 
@@ -93,4 +91,4 @@ get_distro_list()
 
 }
 
-kormod config
+kormod config log

@@ -35,20 +35,6 @@ FREEBSDPATH=home/$LOCUSER/work-$$
 
 test -z "$WORKDIR" && export WORKDIR=`pwd`
 
-# FIXME
-if [ -n "$WORKDIR" ] ; then
-	ALOGDIR=$WORKDIR/log
-	# Hack for run from package
-	if [ ! -w "$ALOGDIR" ] ; then
-		ALOGDIR=$TMPDIR/korinf-log
-	fi
-	# Make log dir with date for builder user only
-	[ "$USER" = "builder" ] && ALOGDIR=$ALOGDIR/`date "+%Y%m%d"`
-	# убрать надо
-	[ "$WORKDIR" = `pwd` ] || mkdir -p $ALOGDIR
-	#mkdir -p $CHROOTDIR
-fi
-
 # load Korinf config
 test -f $KORINFETC/korinf && . $KORINFETC/korinf
 test -f ~/.config/korinf  && . ~/.config/korinf
