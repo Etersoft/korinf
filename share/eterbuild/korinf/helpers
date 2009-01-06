@@ -10,7 +10,7 @@
 #  export REBUILDLIST=lists/rebuild.list.all
 #  build_build your-package-name
 
-kormod build
+kormod main
 
 # build binary packages according to REBUILDLIST
 # arg: package_name [HELPER]
