@@ -1,3 +1,4 @@
 #!/bin/sh
-git push --all git.eter:packages/korinf.git
-git push --all git.alt:packages/korinf.git
+PROJECT=korinf
+git push --tags git.eter:packages/$PROJECT.git
+git push --tags git.alt:packages/$PROJECT.git
