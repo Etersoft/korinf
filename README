@@ -1,18 +1,7 @@
-EEEE-0001 - Linux XP Desktop 2006
-EEEE-0002 - Mandriva 2007.1
-EEEE-0003 - WINE@Etersoft Local BOX (LC)
-EEEE-0004 - ALT Linux 4.0 Desktop Professional
-EEEE-0005 - ASP Linux
-EEEE-0006 - Linux XP Desktop 2007
-EEEE-0007 - Волокно для 7.7 Сетевой
-EEEE-0008 - Волокно для 7.7 SQL
-EEEE-0009 - Волокно для 8.1 Сетевой
-EEEE-000A - Mandriva 2008
-EEEE-000B - Mandriva 2008.1
-EEEE-000C - WINE@Etersoft 0.9 Network для МСВС
-EEEE-000D - Mandriva 2009
-EEEE-000E - ALT Linux 4.1 Desktop Small Business
-EEEE-000F - Linux XP Desktop 2008
+Korinf project.
+
+Use BOOTSTRAP=1 variable for build package without etersoft-build-utils
+(needed only for build etersoft-build-utils and rpm-build-altlinux-compat).
 
 Req: etersoft-build-utils >= 1.1, alien >= 8.63
 
@@ -23,7 +12,7 @@ Req: etersoft-build-utils >= 1.1, alien >= 8.63
 
 ===Порядок сборки пакетов===
 
-Все тестовые сборки (внутренние) происходят в каталог WINE@Etersoft-current.
+Все тестовые сборки Wine (внутренние) происходят в каталог unstable.
 
 rpm-build-altlinux-compat
 etersoft-build-utils (need rpm-build-altlinux-compat)
@@ -62,22 +51,3 @@ makeiso.sh
 
 Сборки для всех систем готовятся автоматической пересборкой из проверенных исходников.
 
-Устарело:
-
-=== Сборка локальных версий ===
-
-autobuild-W@E-local.sh [ -r ]
-
-Собирает пакеты локальных версий для всех систем и создаёт каталоги с номерами
-для отгрузки.
-Ключ -r указывает совершить пересборку для всех имеющихся номеров.
-
-
-=== Сборка сетевых версий ===
-
-autobuild-W@E-network.sh [ -r ]
-
-Для каждого номера собирает пакеты сетевых версий для всех систем, создавая
-необходимые для отгрузки каталоги.
-
-Ключ -r указывает совершить пересборку для всех имеющихся номеров.

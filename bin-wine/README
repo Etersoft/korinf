@@ -1,0 +1,9 @@
+This directory contains build scripts for Wine related packages.
+
+Create log subdirectory for log write or check logs in $TMPDIR/korinf-log.
+
+Use ADEBUG=1 variable for enable additional output
+
+In ETERREGNUM variable we set registration number for proprietary part of
+WINE@Etersoft.
+
