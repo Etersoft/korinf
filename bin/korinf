@@ -38,22 +38,17 @@ fi
 
 BUILDNAME=$1
 
-if [ -n "$REBUILDLIST" ] ; then
-	echo "Build $BUILDNAME for $REBUILDLIST"
-else
-	if [ -r "$BUILDFARMDIR/distro.list" ] ; then
-		REBUILDLIST=$BUILDFARMDIR/distro.list
-		echo "Build $BUILDNAME according to distro.list from $BUILDFARMDIR"
-	else
-		REBUILDLIST=$KORINFETC/lists/all
-		echo "Build $BUILDNAME for distros from $REBUILDLIST"
-	fi
-fi
-
 SOURCEPATH=$BUILDFARMDIR/sources
 TARGETPATH=$BUILDFARMDIR/$BUILDNAME
 
-# debug mode
-#ADEBUG=1
+set_rebuildlist
+
+# For build farm check global distro.list before build for all
+if [ "$REBUILDLIST" = "$KORINFETC/lists/all" ] ; then
+	if [ -r "$BUILDFARMDIR/distro.list" ] ; then
+		REBUILDLIST=$BUILDFARMDIR/distro.list
+		echo "Build $BUILDNAME according to distro.list from $BUILDFARMDIR"
+	fi
+fi
 
 build_package $BUILDNAME

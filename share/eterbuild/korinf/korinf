@@ -79,6 +79,26 @@ build_srcrpm()
 	build_package $@
 }
 
+# Set REBUILDLIST according TARGETPATH, existing REBUILDLIST and some heruistic
+set_rebuildlist()
+{
+	if [ -n "$REBUILDLIST" ] ; then
+		if [ -r "$KORINFETC/lists/$REBUILDLIST" ] ; then
+			REBUILDLIST=$KORINFETC/lists/$REBUILDLIST
+			echo "Build for distros from $REBUILDLIST"
+		else
+			echo "Build for $REBUILDLIST"
+		fi
+	elif [ -n "$TARGETPATH" ] ; then
+		if [ -r "$TARGETPATH/distro.list" ] ; then
+			REBUILDLIST=$TARGETPATH/distro.list
+			echo "Build according to distro.list from $TARGETPATH"
+		else
+			REBUILDLIST=$KORINFETC/lists/all
+			echo "Build for distros from $REBUILDLIST"
+		fi
+	fi
+}
 
 # args: 1) path to project dir (where versions) 2) package name [3) target subdir ] [ 4) other project version ]
 build_project()
@@ -96,20 +116,7 @@ build_project()
 	[ -n "$TARGETPATH" ] || fatal "Cannot find $SP, check it"
 	[ -z "$3" ] || TARGETPATH=$TARGETPATH/$3
 
-	if [ -n "$REBUILDLIST" ] ; then
-		if [ -r "$KORINFETC/lists/$REBUILDLIST" ] ; then
-			REBUILDLIST=$KORINFETC/lists/$REBUILDLIST
-		fi
-		echo "Build for $REBUILDLIST"
-	else
-		if [ -r "$TARGETPATH/distro.list" ] ; then
-			REBUILDLIST=$TARGETPATH/distro.list
-			echo "Build according to distro.list from $TARGETPATH"
-		else
-			REBUILDLIST=$KORINFETC/lists/all
-			echo "Build for distros from $REBUILDLIST"
-		fi
-	fi
+	set_rebuildlist
 
 	build_package $2
 }
