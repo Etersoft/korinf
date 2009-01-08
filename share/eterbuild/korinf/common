@@ -141,7 +141,7 @@ get_distro_list()
 		echo "$@"
 		return
 	fi
-	cat "$LIST" | grep -v "^#" | sort | sed -e "s|[ 	].*||g"
+	cat "$LIST" | grep -v "^#" | sed -e "s|[ 	].*||g"
 
 }
 
