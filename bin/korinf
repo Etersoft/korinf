@@ -45,7 +45,7 @@ else
 		REBUILDLIST=$BUILDFARMDIR/distro.list
 		echo "Build $BUILDNAME according to distro.list from $BUILDFARMDIR"
 	else
-		REBUILDLIST=$KORINFETC/lists/rebuild.list.all
+		REBUILDLIST=$KORINFETC/lists/all
 		echo "Build $BUILDNAME for distros from $REBUILDLIST"
 	fi
 fi
@@ -55,8 +55,5 @@ TARGETPATH=$BUILDFARMDIR/$BUILDNAME
 
 # debug mode
 #ADEBUG=1
-
-# install packages after build
-#BOOTSTRAP=1
 
 build_package $BUILDNAME

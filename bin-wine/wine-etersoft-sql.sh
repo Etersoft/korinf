@@ -8,9 +8,6 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
-#BOOTSTRAP=1
-#ADEBUG=1
-
 # Не отдавать с таким кодом
 ETERREGNUM=EEEE-C0DE
 # ETERREGNUM=EEEE-0003

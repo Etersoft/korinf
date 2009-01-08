@@ -97,13 +97,16 @@ build_project()
 	[ -z "$3" ] || TARGETPATH=$TARGETPATH/$3
 
 	if [ -n "$REBUILDLIST" ] ; then
+		if [ -r "$KORINFETC/lists/$REBUILDLIST" ] ; then
+			REBUILDLIST=$KORINFETC/lists/$REBUILDLIST
+		fi
 		echo "Build for $REBUILDLIST"
 	else
 		if [ -r "$TARGETPATH/distro.list" ] ; then
 			REBUILDLIST=$TARGETPATH/distro.list
 			echo "Build according to distro.list from $TARGETPATH"
 		else
-			REBUILDLIST=$KORINFETC/lists/rebuild.list.all
+			REBUILDLIST=$KORINFETC/lists/all
 			echo "Build for distros from $REBUILDLIST"
 		fi
 	fi
