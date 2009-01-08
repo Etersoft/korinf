@@ -8,4 +8,4 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
-build_project $WINEPUB_PATH wine-etersoft $@
+build_project $WINEPUB_PATH wine-etersoft WINE $@
