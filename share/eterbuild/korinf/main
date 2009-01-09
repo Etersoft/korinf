@@ -60,6 +60,9 @@ main_build_phase()
 	#	rpm --checksig $BUILDSRPM || warning "GPG check failed"
 	#fi
 
+	# fill after hasher
+	BUILTBINPKGLIST=
+
 	if [ -n "$MAKESPKG" ] ; then
 		build_src_pkg || return 1
 	else
