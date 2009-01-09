@@ -61,6 +61,9 @@ fi
 
 [ -r "$BUILDSRPM" ] || fatal "Package $BUILDSRPM is not readable"
 
+PACKAGEVERSION=$(rpm -qp $BUILDSRPM --queryformat="%{VERSION}")
+[ -n "$PACKAGEVERSION" ] || fatal "Can't get version from $BUILDSRPM package"
+
 # FIXME:
 #if [ -z "$NIGHTBUILD" ] ; then
 #	rpm --checksig $BUILDSRPM || warning "GPG check failed"
