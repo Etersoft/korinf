@@ -74,12 +74,12 @@ fi
 	if [ -n "$WITHOUTEBU" ] ; then
 		echo "Use emergency or first build mode"
 		# FIXME: add buildroot?
-		CMDBUILD="LANG=C $NICE rpmbuild -bb --nodeps ~/RPM/SPECS/$BUILDNAME.spec"
+		CMDBUILD="rpmbuild -bb --nodeps ~/RPM/SPECS/$BUILDNAME.spec"
 	else
 		if [ -z "$NOREPL" ] ; then
-			CMDBUILD="LANG=C $NICE rpmbph -v ~/RPM/SPECS/$BUILDNAME.spec"
+			CMDBUILD="rpmbph -v ~/RPM/SPECS/$BUILDNAME.spec"
 		else
-			CMDBUILD="LANG=C $NICE rpmbb ~/RPM/SPECS/$BUILDNAME.spec"
+			CMDBUILD="rpmbb ~/RPM/SPECS/$BUILDNAME.spec"
 		fi
 	fi
 
@@ -97,19 +97,19 @@ fi
 	# awk 'BEGIN{desk=0}{print;if(/^%build/&&desk==0){printf("%s\n\n", text);desk++}}' text="$RECONFT"
 
         LOGFAILFILE="$BUILDERHOME/RPM/log/$BUILDNAME.log.failed"
-	rm -f $LOGFAILFILE
+	rm -f "$LOGFAILFILE"
 
 	echo Chrooting as $INTUSER...
 	# copy src.rpm into build system and build
 	RPMCOMMAND=rpm
 	# Use rpm.static if exist (due ALT's src.rpm has too old version)"
 	[ -x "$BUILDROOT/usr/bin/rpm.static" ] && RPMCOMMAND=/usr/bin/rpm.static
-	setarch $BUILDARCH $SUDO chroot $BUILDROOT su - $INTUSER -c "umask 002 ; mkdir -p ~/RPM/SRPMS ; $RPMCOMMAND -i ~/tmp/$BUILDNAME.src.rpm ; $CMDREPORT ; subst 's|@ETERREGNUM@|${ETERREGNUM}|g' ~/RPM/SPECS/$BUILDNAME.spec ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERREPORT"
+	nice setarch $BUILDARCH $SUDO chroot $BUILDROOT \
+		su - $INTUSER -c "export LANG=C ; umask 002 ; mkdir -p ~/RPM/SRPMS ; $RPMCOMMAND -i ~/tmp/$BUILDNAME.src.rpm ; $CMDREPORT ; subst 's|@ETERREGNUM@|${ETERREGNUM}|g' ~/RPM/SPECS/$BUILDNAME.spec ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERREPORT"
 
 	cat $BUILDERHOME/buildenv.txt | sed -e "s|[0-9A-F]\{4\}-[0-9A-F]\{4\}|XxXX-XxXX|g" >$LOGDIR/$BUILDNAME.cenv.log
 
-	[ -e "$LOGFAILFILE" ] && { rm -f "$LOGFAILFILE" ; warning "build failed" ; return 1 ; }
-
+	[ -r "$LOGFAILFILE" ] && { rm -f "$LOGFAILFILE" ; warning "build failed" ; return 1 ; }
 
 	# workaround again flow target dirs
 	pushd $BUILTRPM
