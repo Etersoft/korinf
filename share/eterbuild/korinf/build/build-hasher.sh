@@ -21,8 +21,11 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+load_mod rpm
+
 function build_in_hasher()
 {
+	local BUILTSRPM
 	# default for ALT Linux
 	TARGET="rpm"
 
@@ -33,11 +36,11 @@ function build_in_hasher()
 		sed -e "s|4\.0|M40|g" | sed -e "s|4\.1|M41|g" | sed -e "s|Sisyphus|SS|g"`
 	set_target_type $dist_mod
 	detect_target_env >>$LOGFILE 2>&1
-	BUILTRPM=$HASHERDIR$MENVARG/repo/i586/RPMS.hasher
+	BUILTRPM=$HASHERDIR$MENVARG/repo/$DEFAULTARCH/RPMS.hasher
 
 	test -n "$MENV" || fatal "build_in_hasher: Call me with correct MENV variable"
 	echo "Build in hasher: $MENV for $dist ..."
-	if [ -n "$NIGHTBUILD" ] && [ $BUILDNAME = "rpm-build-altlinux-compat" ] ; then
+	if [ -n "$NIGHTBUILD" ] ; then
 		echo "Clean hasher's rpms before nightbuild"
 		rm -rf $BUILTRPM/*
 	else
@@ -48,6 +51,7 @@ function build_in_hasher()
 	rm -f $BUILDERHOME/buildenv.txt
 
 	# FIXME: rewrite spec in hasher?
+	# FIXME: install rpm package in temp dir
 	# we need .rpmmacros for rpmbph/rpmbsh
 	#sed -e "s|$INTUSER|$USER|g" < $WINEETER_PATH/sources/rpmmacros >~/.rpmmacros || fatal "Can't copy macros"
 if [ ! -r ~/.rpmmacros ] ; then
@@ -73,6 +77,8 @@ fi
 	#detect_target_env
 	# We install here in builder user home
 	rpm -iv $BUILDSRPM || return 1;
+
+	# FIXME: it is hack, we need remove it
 	subst "s|@ETERREGNUM@|${ETERREGNUM}|g" $RPMDIR/SPECS/$BUILDNAME.spec
 
 # FIXME: ebconfig is obsolete
@@ -156,4 +162,16 @@ fi
 		[ "$MENV" != "M23" ] && subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
 		rpmbph $MENVARG $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot hashered" ; return 1 ; }
 	fi
+
+	BUILTSRPM=$(ls -1 $HASHERDIR$MENVARG/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm)
+	BUILTBINPKGLIST=`get_binpkg_list $BUILTRPM $(basename $BUILTSRPM)`
+	echo "For $BUILTSRPM follow packages is found: $BUILTBINPKGLIST"
+
+	# if build extra files and we have name from hasher (some hack for rpm-build-compat)
+	if [ -z "$MAINFILESLIST" ] ; then
+		if [ -n "$BUILTBINPKGLIST" ] ; then
+			EXTRAFILESLIST=$(rpm -qp $BUILTBINPKGLIST --queryformat="%{NAME}")
+		fi
+	fi
 }
+
