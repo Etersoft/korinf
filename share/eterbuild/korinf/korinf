@@ -30,6 +30,49 @@
 kormod main
 
 
+# check package existing by REBUILDLIST
+check_package()
+{
+	local NAME FILEDATE FILESIZE BASENAME FILENAME
+	local PATHTO=$TARGETPATH CHECKFILE=$2 PATHPKG
+	if [ ! -d "$PATHTO" ] ; then
+		echo "Path '$PATHTO' is missed"
+		return 1
+	fi
+
+	for i in $(get_distro_list $REBUILDLIST) ; do
+		NAME=$i
+
+		if [ -n "$MAINFILESLIST" ] ; then
+			PATHPKG=$PATHTO/$i
+		else
+			PATHPKG=$PATHTO/$i/extra
+		fi
+
+		test -L $PATHPKG && NAME="$NAME [L]"
+		FILENAME=$(ls -1 $PATHPKG/${CHECKFILE}* 2>/dev/null | sort -n | head -n1)
+		#echo $FILENAME
+		if [ -r "$FILENAME" ] ; then
+			FILEDATE=`stat -c"%y" $FILENAME | sed -e "s|\..*$||"`
+			FILESIZE=`stat -c"%s" $FILENAME`
+			BASENAME=`basename $FILENAME`
+		else
+			if [ -d "$PATHPKG/" ] ; then
+				FILEDATE="MISSED"
+			else
+				FILEDATE="MISDIR"
+			fi
+			FILESIZE=""
+			BASENAME=$NAME
+		fi
+
+		printf "%22s: %20s  %7s  %s" "$NAME" "$FILEDATE" "$FILESIZE" "$BASENAME"
+		test -L $PATHPKG && echo -n " (link to `readlink $PATHPKG`)"
+		echo
+	done
+}
+
+
 # build binary packages according to REBUILDLIST
 # arg: package_name [HELPER]
 build_package()
@@ -66,6 +109,11 @@ build_package()
 
 	if [ -z "$SOURCEPATH" ] || [ -z "$TARGETPATH" ] ; then
 		fatal "Source or target path is not set"
+	fi
+
+	if [ -n "$CHECKPACKAGE" ] ; then
+		check_package "${BUILDNAME}[-_]"
+		return $?
 	fi
 
 	main_build
