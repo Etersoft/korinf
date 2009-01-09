@@ -15,7 +15,7 @@ kormod korinf
 
 build_extrapkg()
 {
-	EXTRAFILESLIST="$1"
+	EXTRAFILES="$1"
 	build_project $WINEPUB_PATH $1 WINE $PROJVER
 }
 
@@ -28,8 +28,8 @@ if [ "$1" = "-s" ] ; then
 	shift
 fi
 
- Using arg 1 as rebuild list
-if [ -n "$2" ] ; then
+# Using arg 1 as rebuild list
+if [ -n "$1" ] ; then
 	REBUILDLIST="$1"
 	shift
 fi
@@ -40,7 +40,7 @@ if [ -n "$1" ] ; then
 fi
 
 
-if [ -n "WITHOUTEBU" ] ; then
+if [ -n "$WITHOUTEBU" ] ; then
 	# Build without etersoft-build-utils using (just rpm -bb)
 	build_extrapkg rpm-build-altlinux-compat
 	build_extrapkg etersoft-build-utils
