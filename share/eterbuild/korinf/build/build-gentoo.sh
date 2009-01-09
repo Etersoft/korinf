@@ -48,7 +48,7 @@ copying_emerge()
 {
 	prepare_copying
 
-	cp -f $BUILDROOT/usr/portage/packages/All/$EPACKAGE*.tbz2 $DESTDIR || { warning "Cannot copy packages" ; return 1; }
+	cp -f $BUILDROOT/usr/portage/packages/All/$PACKAGE*.tbz2 $DESTDIR || { warning "Cannot copy packages" ; return 1; }
 
 	chmod g+rw -R $DESTDIR/* || true
 
@@ -68,7 +68,7 @@ copying_gentoo2007()
 {
         prepare_copying
 
-	scp $REMOTESSHG7:/usr/portage/packages/All/$EPACKAGE*.tbz2 $DESTDIR
+	scp $REMOTESSHG7:/usr/portage/packages/All/$PACKAGE*.tbz2 $DESTDIR
         chmod g+rw -R $DESTDIR/* || true
 }
 

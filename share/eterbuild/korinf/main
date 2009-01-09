@@ -41,9 +41,6 @@ main_build_phase()
 	# TODO: remove BUILDNAME or PACKAGE
 	[ "$BUILDNAME" = "wine" ] && PACKAGE="wine-etersoft-public" || PACKAGE=$BUILDNAME
 
-	# TODO: remove
-	[ -n "$PRODUCT" ] && EPACKAGE=$PACKAGE-$PRODUCT || EPACKAGE=$PACKAGE
-
 	# Do use direct package name?
 	if echo $BUILDNAME | grep -q "\.src\.rpm" ; then
 		BUILDSRPM="$SOURCEPATH/$BUILDNAME"
