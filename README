@@ -1,7 +1,18 @@
 Korinf project.
 
+=== build script variables description
+Use ADEBUG=1 variable for enable additional output
+
 Use BOOTSTRAP=1 variable for build package without etersoft-build-utils
 (needed only for build etersoft-build-utils and rpm-build-altlinux-compat).
+
+Use NIGHTBUILD=1 variable for enabble Stop on errors mode
+
+
+Use REBUILDLIST for set target systems. Examples:
+REBUILDLIST="Ubuntu/8.10 Mandriva/2009"
+REBUILDLIST="alt" (use list /etc/eterbuild/lists/all)
+REBUILDLIST="/path/to/file"
 
 Req: etersoft-build-utils >= 1.1, alien >= 8.63
 

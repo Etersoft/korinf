@@ -1,3 +1,4 @@
+Для перепаковки src.rpm ставить во временный каталог (это больше к rpmbph относится, но и здесь к hasher тоже)
 PACKAGE
 EPACKAGE
 BUILDSRPM move?
