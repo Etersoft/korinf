@@ -163,6 +163,10 @@ build_project()
 	SOURCEPATH=$TARGETPATH/sources
 
 	[ -n "$TARGETPATH" ] || fatal "Cannot find $SP, check it"
+
+	PROJECTVERSION=$(basename $TARGETPATH)
+	[ -n "$ADEBUG" ] && echo "PROJECTVERSION=$PROJECTVERSION"
+
 	[ -z "$3" ] || TARGETPATH=$TARGETPATH/$3
 
 	set_rebuildlist
