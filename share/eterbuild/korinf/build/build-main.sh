@@ -44,7 +44,7 @@ prepare_filelist()
 
 }
 
-build_in_dist()
+build_dist_pkg()
 {
 	case $dist_name in
 		"FreeBSD")
@@ -107,43 +107,16 @@ build_in_dist()
 			logit "mount $dist" mount_linux || return 1
 			logit "build $dist" build_rpms $dist || return 1
 			prepare_filelist
-			if [ "$TARGET" != "rpm" ] ; then
+
+			if [ "$TARGET" != "rpm" ] && [ -z "$MAKESPKG" ] ; then
 				logit "convert RPM to $TARGET" convert_rpm || return 1
 			fi
 
-			if [ -n "$BOOTSTRAP" ] ; then
+			if [ -n "$BOOTSTRAP" ] && [ -z "$MAKESPKG" ]; then
 				logit "install built" install_built || return 1
 			fi
 
 			logit "copying to $dist" copying_packages || return 1
-			logit "umount" end_umount || return 1
-			;;
-	esac
-}
-
-
-build_src_pkg()
-{
-	case $dist_name in
-		"FreeBSD"|"OpenSolaris"|"Gentoo")
-			warning "src build for $dist_name is unsupported"
-			return 1
-			;;
-
-		"ALTLinux")
-			kormod_build hasher
-			logit "build src.rpm" build_in_hasher || return 1
-			prepare_filelist
-			logit "copying to $dist" copying_packages || return 1
-			;;
-
-		*)
-			kormod_build rpm
-			logit "mount $dist" mount_linux || return 1
-			logit "build src.rpm" build_rpms $dist || return 1
-			prepare_filelist
-
-			logit "copy built packages to $dist" copying_packages || return 1
 			logit "umount" end_umount || return 1
 			;;
 	esac

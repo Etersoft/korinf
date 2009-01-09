@@ -85,7 +85,7 @@ fi
 
 	if [ -n "$MAKESPKG" ] ; then
 		BUILTRPM=$BUILDERHOME/RPM/SRPMS
-		CMDBUILD="LANG=C $NICE rpmbph -n -v ~/RPM/SPECS/$BUILDNAME.spec"
+		CMDBUILD="rpmbph -n -v ~/RPM/SPECS/$BUILDNAME.spec"
 	fi
 
 	#CMDREPORT="( LANG=C winelog -c ; cat ~/.rpmmacros ) >~/buildenv.txt"

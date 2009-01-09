@@ -34,41 +34,6 @@ exit_handler()
     exit $rc
 }
 
-
-main_build_phase()
-{
-	# On systems with portage change wine package name
-	# TODO: remove BUILDNAME or PACKAGE
-	[ "$BUILDNAME" = "wine" ] && PACKAGE="wine-etersoft-public" || PACKAGE=$BUILDNAME
-
-	# Do use direct package name?
-	if echo $BUILDNAME | grep -q "\.src\.rpm" ; then
-		BUILDSRPM="$SOURCEPATH/$BUILDNAME"
-	else
-		BUILDSRPM="$SOURCEPATH/$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm | last_rpm).src.rpm"
-	fi
-
-	[ -r "$BUILDSRPM" ] || fatal "Package $BUILDSRPM is not readable"
-
-	logit "`basename $BUILDSRPM .src.rpm`"
-	
-	# FIXME: move it to log_it?
-	#if [ -z "$NIGHTBUILD" ] ; then
-	#	rpm --checksig $BUILDSRPM || warning "GPG check failed"
-	#fi
-
-	# fill after hasher
-	BUILTBINPKGLIST=
-
-	if [ -n "$MAKESPKG" ] ; then
-		build_src_pkg || return 1
-	else
-		build_in_dist || return 1
-	fi
-	logit "copying log" copying_log || return 1
-}
-
-
 main_build()
 {
 
@@ -83,11 +48,32 @@ trap exit_handler EXIT HUP INT QUIT PIPE TERM
 # HACK: Url for remote building
 SOURCEURL=$(echo $SOURCEPATH | sed -e "s|/var/ftp/|ftp://server/|g")
 
+# On systems with portage change wine package name
+# FIXME: set PACKAGE individually
+[ "$BUILDNAME" = "wine" ] && PACKAGE="wine-etersoft-public" || PACKAGE=$BUILDNAME
+
+# Do use direct package name?
+if echo $BUILDNAME | grep -q "\.src\.rpm" ; then
+	BUILDSRPM="$SOURCEPATH/$BUILDNAME"
+else
+	BUILDSRPM="$SOURCEPATH/$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm | last_rpm).src.rpm"
+fi
+
+[ -r "$BUILDSRPM" ] || fatal "Package $BUILDSRPM is not readable"
+
+# FIXME:
+#if [ -z "$NIGHTBUILD" ] ; then
+#	rpm --checksig $BUILDSRPM || warning "GPG check failed"
+#fi
+
 
 CMDRE=$(get_distro_list $REBUILDLIST)
 [ -z "$CMDRE" ] && fatal "build list is empty"
 
 for dist in $CMDRE ; do
+
+	# fill after hasher
+	BUILTBINPKGLIST=
 
 	# Set target dir for built packages
 	DESTDIR=$TARGETPATH/$dist
@@ -100,9 +86,12 @@ for dist in $CMDRE ; do
 
 	# Initialize LOGDIR and LOGFILE variables
 	init_dist_log "$dist"
+	logit "`basename $BUILDSRPM .src.rpm`"
 
 	# Run build and check result
-	if ! main_build_phase ; then
+	if build_dist_pkg ; then
+		logit "copying log" copying_log || return 1
+	else
 		# Get error, umount if do not need debug
 		if [ -z "$ADEBUG" ] ; then
 			logit "umount" end_umount
