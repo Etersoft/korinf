@@ -8,6 +8,7 @@ Use BOOTSTRAP=1 variable for build package without etersoft-build-utils
 
 Use NIGHTBUILD=1 variable for enabble Stop on errors mode
 
+Use CHECKPACKAGE=1 variable for check built status instead build
 
 Use REBUILDLIST for set target systems. Examples:
 REBUILDLIST="Ubuntu/8.10 Mandriva/2009"
