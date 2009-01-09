@@ -10,6 +10,8 @@ Use NIGHTBUILD=1 variable for enabble Stop on errors mode
 
 Use CHECKPACKAGE=1 variable for check built status instead build
 
+You can set distro independent target via TARGETPRIVPATH variable
+
 Use REBUILDLIST for set target systems. Examples:
 REBUILDLIST="Ubuntu/8.10 Mandriva/2009"
 REBUILDLIST="alt" (use list /etc/eterbuild/lists/all)

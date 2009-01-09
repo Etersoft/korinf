@@ -34,7 +34,7 @@ kormod main
 check_package()
 {
 	local NAME FILEDATE FILESIZE BASENAME FILENAME
-	local PATHTO=$TARGETPATH CHECKFILE=$2 PATHPKG
+	local PATHTO=$TARGETPATH CHECKFILE=$1 PATHPKG
 	if [ ! -d "$PATHTO" ] ; then
 		echo "Path '$PATHTO' is missed"
 		return 1

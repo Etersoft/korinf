@@ -2,7 +2,7 @@
 ##
 #  Korinf project
 #
-#  Arch Linux build related functions
+#  Main build cycle functions
 #
 #  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009
 #  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
@@ -24,6 +24,7 @@
 kormod mount copying install log
 kormod_build main
 
+
 exit_handler()
 {
     local rc=$?
@@ -32,7 +33,6 @@ exit_handler()
     end_umount
     exit $rc
 }
-
 
 
 main_build_phase()
@@ -83,14 +83,16 @@ trap exit_handler EXIT HUP INT QUIT PIPE TERM
 
 [ -n "$ADEBUG" ] && echo "BUILDNAME: $BUILDNAME"
 
-CMDRE=$(get_distro_list $REBUILDLIST)
-[ -z "$CMDRE" ] && fatal "build list is empty"
-
 # HACK: Url for remote building
 SOURCEURL=$(echo $SOURCEPATH | sed -e "s|/var/ftp/|ftp://server/|g")
 
+
+CMDRE=$(get_distro_list $REBUILDLIST)
+[ -z "$CMDRE" ] && fatal "build list is empty"
+
 for dist in $CMDRE ; do
-	# Куда будем складывать собранные пакеты
+
+	# Set target dir for built packages
 	DESTDIR=$TARGETPATH/$dist
 	# FIXME: Hack
 	[ "$TARGETPRIVPATH" ] && DESTDIR=$TARGETPRIVPATH
@@ -104,14 +106,14 @@ for dist in $CMDRE ; do
 
 	# Run build and check result
 	if ! main_build_phase ; then
-		# Размонтируем при ошибке, если не указано обратное
+		# Get error, umount if do not need debug
 		if [ -z "$ADEBUG" ] ; then
 			logit "umount" end_umount
 		fi
-		# Если сборка с автоспеком провалилась, опубликуем логи
+
 		logit "copying log from broken build" copying_log
 
-		# Если автосборка, останавливаемся на ошибке
+		# Stop immediately if we in auto build
 		if [ -n "$NIGHTBUILD" ] ; then
 			echo `date` $dist FATAL | write_report
 			fatal "Fatal autobuild"
@@ -119,7 +121,6 @@ for dist in $CMDRE ; do
 	fi
 
 	echo `date` $dist DONE | write_report
-
 done
 
 # disable trap before exit
