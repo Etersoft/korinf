@@ -31,7 +31,7 @@ build_pkgbuild()
 	local RET
 	echo "Copying to $BUILDROOT/tmp"
 	cp -f $KORINFDIR/korinf/remote-scripts/remote-archlinux.sh $BUILDROOT/tmp || { warning "Cannot copy script" ; return 1 ; }
-	$SUDO chroot $BUILDROOT su -l $INTUSER -c "$NICE sh -x /tmp/remote-archlinux.sh \"$PACKAGE\" \"$WINENUMVERSION\" \"$PRODUCT\" \"$ETERREGNUM\" \"$SOURCEURL\""
+	$SUDO chroot $BUILDROOT su -l $INTUSER -c "$NICE sh -x /tmp/remote-archlinux.sh \"$PACKAGE\" \"$WINENUMVERSION\" \"$ETERREGNUM\" \"$SOURCEURL\""
 	RET=$?
 	if [ $RET != 0 ] ; then
 		warning "Can't build"
@@ -48,7 +48,6 @@ convert_archlinux()
 	cp -f  $KORINFDIR/korinf/remote-scripts/remote-archlinux-rpm.sh $BUILDROOT/tmp || { warning "Cannot copy script" ; return 1 ; }
 	echo "chrooting and converting"
 	$SUDO chroot $BUILDROOT /bin/sh -c '/bin/su -l -c "$NICE sh -x /tmp/remote-archlinux-rpm.sh \"$BUILDNAME\"" lav'
-	#\"$PACKAGE\" \"$WINENUMVERSION\" \"$PRODUCT\" \"$ETERREGNUM\" \"$SOURCEURL\""
 	RET=$?
 	if [ $RET != 0 ] ; then
 		warning "Can't build"

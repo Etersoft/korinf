@@ -78,14 +78,4 @@ do
     rm -f PKGBUILD
 done
 
-
-# for pvt-part
-#sed -i 's|@ETERREGNUM@|${ETERREGNUM}|g' $EPACKAGE/*.ebuild
-#export ETERREGNUM WINENUMVERSION
-# Hack:
-#sed -i "1iETERREGNUM=$ETERREGNUM" $EPACKAGE/*.ebuild || exit 1
-#sed -i "1iWINENUMVERSION=$WINENUMVERSION" $EPACKAGE/*.ebuild || exit 1
-
-
-
 exit 0

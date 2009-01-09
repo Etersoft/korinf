@@ -7,33 +7,23 @@
 # positional parameters
 PACKAGE="$1"
 WINENUMVERSION="$2"
-PRODUCT="$3"
 ETERREGNUM="$4"
 SOURCEURL="$5"
 
-echo "Start with PACKAGE: $PACKAGE WINENUMVERSION: $WINENUMVERSION PRODUCT: $PRODUCT ETERREGNUM: $ETERREGNUM, SOURCEURL - $SOURCEURL"
+echo "Start with PACKAGE: $PACKAGE WINENUMVERSION: $WINENUMVERSION ETERREGNUM: $ETERREGNUM, SOURCEURL - $SOURCEURL"
 mkdir -p /home/lav/abs/$PACKAGE
 cd /home/lav/abs/$PACKAGE || exit 1
 
-[ -n "$PRODUCT" ] && EPACKAGE=$PACKAGE-$PRODUCT || EPACKAGE=$PACKAGE
-
 # remove old files
-rm -rf $EPACKAGE || exit 1
+rm -rf $PACKAGE || exit 1
 rm -f /home/lav/abs/$PACKAGE/$PACKAGE-*
-rm -f /home/lav/abs/$PACKAGE/$EPACKAGE*.tbz2
+rm -f /home/lav/abs/$PACKAGE/$PACKAGE*.tbz2
 
 # get ebuild file
-portfile="archlinux-$EPACKAGE.tar.bz2"
+portfile="archlinux-$PACKAGE.tar.bz2"
 #porturl="ftp://server/$CAT/Etersoft/WINE@Etersoft-$WINENUMVERSION/sources/$portfile"
 porturl="$SOURCEURL/$portfile"
 rm -f $portfile && wget $porturl && tar xvfj $portfile || exit 1
-
-#sed -i 's|@ETERREGNUM@|${ETERREGNUM}|g' $EPACKAGE/*.ebuild
-#export ETERREGNUM WINENUMVERSION
-
-# Hack:
-#sed -i "1iETERREGNUM=$ETERREGNUM" $EPACKAGE/*.ebuild || exit 1
-#sed -i "1iWINENUMVERSION=$WINENUMVERSION" $EPACKAGE/*.ebuild || exit 1
 
 # do not export PACKAGE here
 export WINENUMVERSION

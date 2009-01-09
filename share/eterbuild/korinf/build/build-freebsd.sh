@@ -34,7 +34,7 @@ build_bsd()
 	ssh $FREEBSDKEY $FREEBSDSSH "mkdir -p $PREF/$FREEBSDPATH/" || { warning "Cannot create dir $FREEBSDPATH" ; return 1 ; }
 	scp  $KORINFDIR/korinf/remote-scripts/remote-freebsd.sh $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy script" ; return 1 ; }
 	echo "Building package..."
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $PACKAGE $WINENUMVERSION \"$PRODUCT\" \"$ETERREGNUM\" $SOURCEURL" || { warning "Can't build" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $PACKAGE $WINENUMVERSION \"$ETERREGNUM\" $SOURCEURL" || { warning "Can't build" ; return 1 ; }
 	true
 }
 
@@ -53,12 +53,12 @@ cleaning_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh clean $PACKAGE $WINENUMVERSION $PRODUCT $ETERREGNUM" || { warning "Can't clean" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh clean $PACKAGE $WINENUMVERSION $ETERREGNUM" || { warning "Can't clean" ; return 1 ; }
 }
 
 install_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh install $PACKAGE $WINENUMVERSION $PRODUCT $ETERREGNUM" || { warning "Can't install" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh install $PACKAGE $WINENUMVERSION $ETERREGNUM" || { warning "Can't install" ; return 1 ; }
 }
