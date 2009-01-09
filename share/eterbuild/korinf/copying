@@ -48,7 +48,7 @@ prepare_copying()
 
 copying_packages()
 {
-	RC=0
+	RC=1
 	prepare_copying
 
 	echo "Copying built packages to $DESTDIR (cd to $BUILTRPM)..."
@@ -58,11 +58,11 @@ copying_packages()
 	rm -f *${BUILDNAME}-debuginfo* *${BUILDNAME}-debug-*
 
 	if [ -n "$MAINFILESLIST" ] ; then
-		cp -v $EXPMAINFILES $DESTDIR/ || { warning "Cannot copy new packages $EXPMAINFILES" ; RC=1 ; }
+		cp -v $EXPMAINFILES $DESTDIR/ && RC=0 || warning "Cannot copy new packages $EXPMAINFILES"
 	fi
 
 	if [ -n "$EXTRAFILESLIST" ] ; then
-		cp -v $EXPEXTRAFILES $DESTDIR/extra/ || { warning "Cannot copy extra packages $EXPEXTRAFILES" ; RC=1 ; }
+		cp -v $EXPEXTRAFILES $DESTDIR/extra/ && RC=0 || warning "Cannot copy extra packages $EXPEXTRAFILES"
 	fi
 
 	popd >/dev/null
