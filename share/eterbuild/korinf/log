@@ -71,16 +71,16 @@ init_dist_log()
 
 copying_log()
 {
-	local DESTLOGFILE
-	#if [ "$BUILDNAME" != "wine" ] && [ "$REPL" != "yes" ] ; then
-	#	echo -e " SKIPPING "
-	#	return 0
-	#fi
-	mkdir -p $DESTDIR/log/
-	DESTLOGFILE=$DESTDIR/log/`basename $LOGFILE`
-	cp $LOGFILE $DESTLOGFILE
+	local DESTLOGFILE DESTLOGDIR
+	if [ -n "$MAINFILESLIST" ] ; then
+		DESTLOGDIR=$DESTDIR/log/
+	else
+		DESTLOGDIR=$DESTDIR/extra/log/
+	fi
+	mkdir -p $DESTLOGDIR
+	DESTLOGFILE=$DESTLOGDIR/`basename $LOGFILE`
 	rm -f $DESTLOGFILE.bz2
-	bzip $DESTLOGFILE
+	cp $LOGFILE $DESTLOGFILE && bzip $DESTLOGFILE
 }
 
 
