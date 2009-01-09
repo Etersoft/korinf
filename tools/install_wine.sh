@@ -1,10 +1,13 @@
 #!/bin/sh
 
-VERSION=1.0.9
-RELEASE=39
-#cd /var/ftp/pub/Etersoft/WINE@Etersoft/$VERSION/WINE/ALTLinux/4.1
-cd /var/ftp/pub/Etersoft/WINE@Etersoft/$VERSION-eter$RELEASE/WINE/ALTLinux/Sisyphus
-#cd /var/ftp/pub/Etersoft/WINE@Etersoft/current/WINE/ALTLinux/Sisyphus
+# load common functions, compatible with local and installed script
+. `dirname $0`/../share/eterbuild/korinf/common
+
+VERSION=$1
+RELEASE=$2
+NAME=$WINEPUB_PATH/$VERSION
+
+cd $WINEPUB_PATH/$VERSION-eter$RELEASE/WINE/ALTLinux/Sisyphus || fatal "Can't cd"
 
 
 LIST=
@@ -17,5 +20,5 @@ for i in libwine-devel libwine-twain libwine-gl ; do
 done
 
 echo $LIST
-rpmU $LIST $@ --force
+rpmU $LIST $3 --force
 
