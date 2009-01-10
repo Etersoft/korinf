@@ -5,3 +5,5 @@ Create log subdirectory for log write or check logs in $TMPDIR/korinf-log.
 In ETERREGNUM variable we set registration number for proprietary part of
 WINE@Etersoft.
 
+Using example:
+REBUILDLIST=Ubuntu/8.10 ./wine-etersoft.sh unstable

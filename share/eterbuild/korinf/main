@@ -69,6 +69,8 @@ PACKAGEVERSION=$(rpm -qp $BUILDSRPM --queryformat="%{VERSION}")
 #	rpm --checksig $BUILDSRPM || warning "GPG check failed"
 #fi
 
+# disable gear using due pre hasher repacking problem
+export IGNOREGEAR=1
 
 CMDRE=$(get_distro_list $REBUILDLIST)
 [ -z "$CMDRE" ] && fatal "build list is empty"
