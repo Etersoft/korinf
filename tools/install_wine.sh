@@ -5,10 +5,10 @@
 
 VERSION=$1
 RELEASE=$2
-NAME=$WINEPUB_PATH/$VERSION
+[ -n "$3" ] && PROJECTVERSION=$3 || PROJECTVERSION=$VERSION-eter$RELEASE
 
-cd $WINEPUB_PATH/$VERSION-eter$RELEASE/WINE/ALTLinux/Sisyphus || fatal "Can't cd"
-
+cd $WINEPUB_PATH/$PROJECTVERSION/WINE/ALTLinux/Sisyphus || fatal "Can't cd"
+pwd
 
 LIST=
 for i in wine libwine libwine-devel libwine-twain libwine-gl ; do
@@ -20,5 +20,5 @@ for i in libwine-devel libwine-twain libwine-gl ; do
 done
 
 echo $LIST
-rpmU $LIST $3 --force
+rpmU $LIST --force
 
