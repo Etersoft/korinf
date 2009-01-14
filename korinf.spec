@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.5
+Version: 1.6
 Release: alt1
 
 Summary: Korinf build system
@@ -39,6 +39,9 @@ This package contains Korinf build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Wed Jan 14 2009 Vitaly Lipatov <lav@altlinux.ru> 1.6-alt1
+- update version
+
 * Tue Jan 06 2009 Vitaly Lipatov <lav@altlinux.ru> 1.5-alt1
 - update to lastest source, big restructure
 - change License to GPLv3
