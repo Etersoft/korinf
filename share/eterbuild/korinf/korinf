@@ -131,7 +131,7 @@ build_project()
 		shift
 	fi
 
-	TARGETPATH=$(realpath $SP)
+	TARGETPATH=$(readlink -f $SP)
 	SOURCEPATH=$TARGETPATH/sources
 
 	[ -n "$TARGETPATH" ] || fatal "Cannot find $SP, check it"
