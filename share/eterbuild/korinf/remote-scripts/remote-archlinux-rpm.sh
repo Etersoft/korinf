@@ -9,7 +9,8 @@
 
 #end of testing
 
-BUILDNAME=$1
+PACKAGE=$1
+BUILDNAME=$2
 
 querypackage()
 {
@@ -23,7 +24,7 @@ make_pkgbuild()
         sed -i "2cpkgver=$PKGVERSION" $PKGDIR/PKGBUILD
         sed -i "3cpkgrel=$PKGREL" $PKGDIR/PKGBUILD
         sed -i "5curl=$PKGURL" $PKGDIR/PKGBUILD
-        sed -i "6carch=($ARCH)" $PKGDIR/PKGBUILD
+        sed -i "6carch=(i686)" $PKGDIR/PKGBUILD
         sed -i "7clicense=('$LICENSE')" $PKGDIR/PKGBUILD
 # inserting dependencies
 #       sed -i "7adepends="  $BUILDERHOME/abs/$PACKAGE/PKGBUILD
@@ -33,19 +34,17 @@ make_pkgbuild()
 
 BUILDERHOME=/home/lav
 ABSDIR=$BUILDERHOME/abs
+PKGDIR=$ABSDIR/$BUILDNAME
 
 # get draft PKGBUILD file
-#cd $BUILDERHOME/abs/$PACKAGENAME
 mkdir -p $ABSDIR
 cd $ABSDIR
 portfile="archlinux-PKGBUILD.tar.bz2"
-rm -f $BUILDERHOME/abs/$portfile && cp /var/local/abs/$portfile $ABSDIR && tar xvfj $portfile || exit 1
+rm -f $ABSDIR/$portfile && cp /var/local/abs/$portfile $ABSDIR && tar xvfj $portfile || exit 1
 
 cd $BUILDERHOME/RPM/RPMS
 for i in *$BUILDNAME*.rpm
 do
-    cd $BUILDERHOME/RPM/RPMS
-
     # setting up variables
     PACKAGENAME=`querypackage "$i" NAME`
     PKGVERSION=`querypackage "$i" VERSION`
@@ -55,7 +54,7 @@ do
     ARCH=i686 #`querypackage "$i" ARCH`
     LICENSE=`querypackage "$i" LICENSE`
 
-    PKGDIR=$BUILDERHOME/abs/$PACKAGENAME
+#    PKGDIR=$ABSDIR/$PACKAGENAME
 
     # remove old files
     rm -f $PKGDIR
@@ -73,9 +72,10 @@ do
     make_pkgbuild
 
     # build package
-#    $SUDO su -l -c "cd $PKGDIR && makepkg" lav || exit 1
-    makepkg #--asroot
+    makepkg
     rm -f PKGBUILD
+
+    cd $BUILDERHOME/RPM/RPMS
 done
 
 exit 0
