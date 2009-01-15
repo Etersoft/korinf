@@ -7,7 +7,22 @@ VERSION=$1
 RELEASE=$2
 [ -n "$3" ] && PROJECTVERSION=$3 || PROJECTVERSION=$VERSION-eter$RELEASE
 
-cd $WINEPUB_PATH/$PROJECTVERSION/WINE/ALTLinux/Sisyphus || fatal "Can't cd"
+[ -n "$VERSION" ] || PROJECTVERSION=last
+
+BUILDNAME=wine
+TARGETPATH=$WINEPUB_PATH/$PROJECTVERSION/WINE/ALTLinux/Sisyphus
+SOURCEPATH=$WINEPUB_PATH/$PROJECTVERSION/sources
+
+if [ -z "$VERSION" ] ; then
+	BUILDSRPM="$SOURCEPATH/$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm | last_rpm).src.rpm"
+	# почему-то не последний пакет
+	echo $BUILDSRPM
+	exit 1
+	# здесь получить версию и релиз пакета
+fi
+
+
+cd $TARGETPATH || fatal "Can't cd"
 pwd
 
 LIST=
