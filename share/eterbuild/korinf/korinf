@@ -109,11 +109,26 @@ set_rebuildlist()
 # args: 1) path to project dir (where versions) 2) package name [3) target subdir ] [ 4) other project version ]
 build_project()
 {
-	local SP
-	if [ -z "$4" ] ; then
-		SP=$1/last
+	local SP=$1
+	local PACKAGE=$2
+	local TP=$3
+	shift 3
+
+	if [ "$1" = "-c" ] ; then
+		CHECKPACKAGE=1
+		shift
+	fi
+
+	if [ -n "$2" ] ; then
+		REBUILDLIST=$1
+		shift
+	fi
+
+	if [ -z "$1" ] ; then
+		SP=$SP/last
 	else
-		SP=$1/$4
+		SP=$SP/$1
+		shift
 	fi
 
 	TARGETPATH=$(realpath $SP)
@@ -124,9 +139,9 @@ build_project()
 	PROJECTVERSION=$(basename $TARGETPATH)
 	[ -n "$ADEBUG" ] && echo "PROJECTVERSION=$PROJECTVERSION"
 
-	[ -z "$3" ] || TARGETPATH=$TARGETPATH/$3
+	[ -z "$TP" ] || TARGETPATH=$TARGETPATH/$TP
 
 	set_rebuildlist
 
-	build_package $2
+	build_package $PACKAGE
 }
