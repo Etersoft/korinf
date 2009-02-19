@@ -2,6 +2,23 @@ This directory contains build scripts for Wine related packages.
 
 Create log subdirectory for log write or check logs in $TMPDIR/korinf-log.
 
+Using:
+./wine-etersoft.sh [-c] [PROJECTVERSION] | [ SYSTEM PROJECTVERSION ]
+
+
 In ETERREGNUM variable we set registration number for proprietary part of
 WINE@Etersoft.
 
+Using example:
+
+Build for all system in unstable dir:
+./wine-etersoft.sh unstable
+
+Build for all system for last version:
+./wine-etersoft.sh
+
+Check for build result:
+./wine-etersoft.sh -c
+
+Build for Ubuntu/8.10 distro for unstable:
+./wine-etersoft.sh Ubuntu/8.10 unstable

@@ -104,7 +104,7 @@ fi
 	RPMCOMMAND=rpm
 	# Use rpm.static if exist (due ALT's src.rpm has too old version)"
 	[ -x "$BUILDROOT/usr/bin/rpm.static" ] && RPMCOMMAND=/usr/bin/rpm.static
-	nice setarch $BUILDARCH $SUDO chroot $BUILDROOT \
+	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
 		su - $INTUSER -c "export LANG=C ; umask 002 ; mkdir -p ~/RPM/SRPMS ; $RPMCOMMAND -i ~/tmp/$BUILDNAME.src.rpm ; $CMDREPORT ; subst 's|@ETERREGNUM@|${ETERREGNUM}|g' ~/RPM/SPECS/$BUILDNAME.spec ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERREPORT"
 
 	cat $BUILDERHOME/buildenv.txt | sed -e "s|[0-9A-F]\{4\}-[0-9A-F]\{4\}|XxXX-XxXX|g" >$LOGDIR/$BUILDNAME.cenv.log

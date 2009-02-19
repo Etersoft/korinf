@@ -8,9 +8,9 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
-NAME=wine-vanilla
+NAME=wine
 
 MAINFILES="$NAME[-_][0-9] lib$NAME[-_][0-9]"
 EXTRAFILES="lib$NAME-[!0-9]"
 
-build_project $WINEPUB_PATH/../Wine-vanilla $NAME "" $@
+build_project $WINEPUB_PATH/../Wine-public $NAME "" $@

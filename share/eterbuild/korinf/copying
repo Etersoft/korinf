@@ -27,6 +27,7 @@ prepare_copying()
 {
 	# Remove old packages from main dir
 	if [ -n "$MAINFILESLIST" ] ; then
+		mkdir -p $DESTDIR || sleep 100
 		mkdir -p $DESTDIR || fatal "Can't create $DESTDIR"
 		echo "Removing old '$MAINFILESLIST' from $DESTDIR..."
 		pushd $DESTDIR >/dev/null || return 1
@@ -36,6 +37,7 @@ prepare_copying()
 
 	# Remove old packages from extra dir
 	if [ -n "$EXTRAFILESLIST" ] ; then
+		mkdir -p $DESTDIR/extra || sleep 100
 		mkdir -p $DESTDIR/extra || fatal "Can't create $DESTDIR/extra"
 		echo "Removing old '$EXTRAFILESLIST' from $DESTDIR/extra..."
 		pushd $DESTDIR/extra >/dev/null || return 1
@@ -48,7 +50,7 @@ prepare_copying()
 
 copying_packages()
 {
-	RC=1
+	local RC=1
 	prepare_copying
 
 	echo "Copying built packages to $DESTDIR (cd to $BUILTRPM)..."

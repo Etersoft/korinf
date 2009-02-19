@@ -153,14 +153,14 @@ fi
 	if [ "$MENV" = "SS" ] ; then
 		# disable 20.07.06 due prelink orphaned in Sisyphus, 04.04.07 prelink returned
 		subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
-		rpmbsh $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot hashered" ; return 1 ; }
+		rpmbsh $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot hashered" ; [ -n "$ADEBUG" ] || loginhsh -c ; return 1 ; }
 	else
 		# TODO для M?? собираем пока из спека а не из пакета...
 		# но из спека пользователя builder :)
 		#myhsh $MENVARG $BUILDSRPM
 		# FIXME: if_with does not work in Debian, Special...
 		[ "$MENV" != "M23" ] && subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
-		rpmbph $MENVARG $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot hashered" ; return 1 ; }
+		rpmbph $MENVARG $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot hashered" ; [ -n "$ADEBUG" ] || loginhsh -c $MENVARG ; return 1 ; }
 	fi
 
 	BUILTSRPM=$(ls -1 $HASHERDIR$MENVARG/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm)
