@@ -7,8 +7,8 @@
 # positional parameters
 PACKAGE="$1"
 WINENUMVERSION="$2"
-ETERREGNUM="$4"
-SOURCEURL="$5"
+ETERREGNUM="$3"
+SOURCEURL="$4"
 
 echo "Start with PACKAGE: $PACKAGE WINENUMVERSION: $WINENUMVERSION ETERREGNUM: $ETERREGNUM, SOURCEURL - $SOURCEURL"
 mkdir -p /usr/portage/app-emulation
@@ -36,9 +36,9 @@ sed -i "1iWINENUMVERSION=$WINENUMVERSION" $PACKAGE/*.ebuild || exit 1
 # --buildpkgonly 
 export WINENUMVERSION
 if [ -e /usr/bin/sudo ] ; then 
-    FEATURES="nostrip noclean" sudo emerge --verbose --digest --buildpkg $PACKAGE || exit 1
+    FEATURES="nostrip noclean" sudo emerge --verbose --digest --buildpkgonly $PACKAGE || exit 1
 else 
-    FEATURES="nostrip noclean" emerge --verbose --digest --buildpkg $PACKAGE || exit 1
+    FEATURES="nostrip noclean" emerge --verbose --digest --buildpkgonly $PACKAGE || exit 1
 fi
 
 exit 0
