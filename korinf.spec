@@ -4,7 +4,7 @@ Release: alt1
 
 Summary: Korinf build system
 
-License: GPLv3
+License: AGPLv3
 Group: Development/Other
 Url: http://freesource.info/wiki/korinf
 
