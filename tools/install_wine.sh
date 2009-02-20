@@ -1,12 +1,15 @@
 #!/bin/sh
 
+# Script to install WINE@Etersoft to Sisyphus based system
+
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
 PROJECTVERSION=$1
 [ -n "$PROJECTVERSION" ] || PROJECTVERSION=last
 
-BUILDNAME=wine
+[ -n "$BUILDNAME" ] || BUILDNAME=wine-etersoft
+
 TARGETPATH=$WINEPUB_PATH/$PROJECTVERSION/WINE/ALTLinux/Sisyphus
 SOURCEPATH=$WINEPUB_PATH/$PROJECTVERSION/sources
 
@@ -23,11 +26,11 @@ cd $TARGETPATH || fatal "Can't cd"
 pwd
 
 LIST=
-for i in wine libwine libwine-devel libwine-twain libwine-gl ; do
+for i in $BUILDNAME lib$BUILDNAME lib$BUILDNAME-devel lib$BUILDNAME-twain lib$BUILDNAME-gl ; do
 	rpm -q $i &>/dev/null && LIST="$LIST $i-$VERSION-*$RELEASE.*.rpm"
 done
 
-for i in libwine-devel libwine-twain libwine-gl ; do
+for i in lib$BUILDNAME-devel lib$BUILDNAME-twain lib$BUILDNAME-gl ; do
 	rpm -q $i &>/dev/null && LIST="$LIST extra/$i-$VERSION-*$RELEASE.*.rpm"
 done
 
