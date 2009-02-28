@@ -1,4 +1,5 @@
-#
+# Etersoft specific paths
+
 # Linux builder
 # LINUXHOST=/net/os/stable
 
