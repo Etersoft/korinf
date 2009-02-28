@@ -153,7 +153,7 @@ get_distro_list()
 	# get list included files
 	LIST=`cat "$LIST" | grep "^\." | sed -e "s|^\. ||g"`
 	for i in $LIST ; do
-		test -f "$i" || continue
+		test -f "$DIR/$i" || continue
 		get_distro_list $DIR/$i
 	done
 }
