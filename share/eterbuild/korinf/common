@@ -123,9 +123,14 @@ last_rpm()
 }
 
 # get distro list from arg/directory/file
+# from DIR/distro.list if arg is dir
+# from FILE if arg is file name
+# from ARG if arg is list
 get_distro_list()
 {
+	local i
 	local LIST
+	local DIR
 
 	# get list from directory
 	if [ -d "$1" ] ; then
@@ -133,16 +138,24 @@ get_distro_list()
 		if [ ! -r "$LIST" ] ; then
 			fatal "get_distro_list: $LIST is not found"
 		fi
+		DIR=$1
 	# get list from file
 	elif [ -r "$1" ] ; then
 		LIST="$1"
+		DIR=`dirname $1`
 	# list in the variable
 	else
 		echo "$@"
 		return
 	fi
-	cat "$LIST" | grep -v "^#" | sed -e "s|[ 	].*||g"
 
+	cat "$LIST" | grep -v "^#" | grep -v "^\." | sed -e "s|[ 	].*||g" | grep -v "^\$"
+	# get list included files
+	LIST=`cat "$LIST" | grep "^\." | sed -e "s|^\. ||g"`
+	for i in $LIST ; do
+		test -f "$i" || continue
+		get_distro_list $DIR/$i
+	done
 }
 
 kormod config log
