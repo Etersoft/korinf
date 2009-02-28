@@ -4,8 +4,16 @@
 . gen
 . alt
 . bsd
-. x86_64
 
 # We need it for SELTA
 Windows
 
+
+#x86_64 systems (with prefix x86_64)
+x86_64/Ubuntu/8.04
+x86_64/Ubuntu/8.10
+x86_64/SUSE/10.1
+x86_64/Mandriva/2009.0
+x86_64/CentOS/5.2
+x86_64/Debian/4.0
+x86_64/Debian/5.0
