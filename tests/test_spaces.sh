@@ -5,10 +5,6 @@
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
-. $KORINFDIR/korinf/config.in || fatal "Can't locate config.in"
-
-load_kormod log
-
 check()
 {
 	local REPL
