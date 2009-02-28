@@ -139,9 +139,10 @@ build_project()
 	PROJECTVERSION=$(basename $TARGETPATH)
 	[ -n "$ADEBUG" ] && echo "PROJECTVERSION=$PROJECTVERSION"
 
-	[ -z "$TP" ] || TARGETPATH=$TARGETPATH/$TP
-
+	# set according to base TARGETPATH, so set before TP
 	set_rebuildlist
+
+	[ -z "$TP" ] || TARGETPATH=$TARGETPATH/$TP
 
 	build_package $PACKAGE
 }
