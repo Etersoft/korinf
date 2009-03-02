@@ -26,6 +26,12 @@ else
 	shift
 fi
 OLDUSER=$1
+shift
+if [ -z $1] ; then
+	OLDGROUP=$OLDUSER
+else
+	OLDGROUP=$1
+fi
 
 set_rebuild_list
 CMDRE=$(get_distro_list $REBUILDLIST)
@@ -34,22 +40,22 @@ CMDRE=$(get_distro_list $REBUILDLIST)
 
 for i in $CMDRE ; do
 	echo Mount $i ...
-#        $SUDO mount $LINUXHOST/$i $TESTDIR --bind || exit 1
+        $SUDO mount $LINUXHOST/$i $TESTDIR --bind || exit 1
 
-#	mkdir -p $TESTDIR/tmp
-#        cp -f  ./remote-$UCMD-user.sh $TESTDIR/tmp || { warning "Cannot copy script" ; return 1 ; }
+	mkdir -p $TESTDIR/tmp
+        cp -f  ./remote-$UCMD-user.sh $TESTDIR/tmp || { warning "Cannot copy script" ; return 1 ; }
 	echo Chrooting and executing...
-#        $SUDO chroot $TESTDIR su - -c "sh -x /tmp/remote-$UCMD-user.sh \"$CHUSER\" \"$CHGROUP\" \"$OLDUSER\""
+        $SUDO chroot $TESTDIR su - -c "sh -x /tmp/remote-$UCMD-user.sh \"$CHUSER\" \"$CHGROUP\" \"$OLDUSER\" \"$OLDGROUP\""
 
 #test
 #	$SUDO chroot $TESTDIR su - -c "mkdir -p /tmp/add-user-$CHUSER"
-	echo "command $UCMD"
-	echo "new user $CHUSER"
-	echo "new group $CHGROUP"
-	echo "old user $OLDUSER"
-	echo "system $i"
+#	echo "command $UCMD"
+#	echo "new user $CHUSER"
+#	echo "new group $CHGROUP"
+#	echo "old user $OLDUSER"
+#	echo "system $i"
 #end of test
-
+	rm -f $TESTDIR/tmp/remote-$UCMD-user.sh
 	$SUDO umount $TESTDIR && echo "Unmount $i"
 done
 
