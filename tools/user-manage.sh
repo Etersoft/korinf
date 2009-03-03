@@ -40,7 +40,7 @@ CMDRE=$(get_distro_list $REBUILDLIST)
 
 for i in $CMDRE ; do
 	echo Mount $i ...
-        $SUDO mount $LINUXHOST/$i $TESTDIR --bind || exit 1
+        $SUDO mount $LOCALLINUXFARM/$i $TESTDIR --bind || exit 1
 
 	mkdir -p $TESTDIR/tmp
         cp -f  ./remote-$UCMD-user.sh $TESTDIR/tmp || { warning "Cannot copy script" ; return 1 ; }

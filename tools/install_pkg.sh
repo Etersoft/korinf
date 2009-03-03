@@ -47,17 +47,17 @@ run_command()
 	export TMPDIR=/tmp
 	TESTDIR=`mktemp -d /tmp/autobuild/chroot-$USER-XXXXXX`
 	echo Mount $SYS from local...
-	$SUDO mount $LINUXHOST/$SYS $TESTDIR --bind || return 0
+	$SUDO mount $LOCALLINUXFARM/$SYS $TESTDIR --bind || return 0
 	#echo Chrooting...
 	export HOSTNAME=$SYS
 	export PS1="[\u@$SYS \W]\$"
 
 # Package names
 #export VENDOR=`ROOTDIR=$LINUXHOST/$SYS distr_vendor -s`
-export DISTRVERSION=`ROOTDIR=$LINUXHOST/$SYS distr_vendor -v`
+export DISTRVERSION=`ROOTDIR=$LOCALLINUXFARM/$SYS distr_vendor -v`
 #PACKAGING=`ROOTDIR=$LINUXHOST/$SYS distr_vendor -p`
 
-LIST=`ROOTDIR=$LINUXHOST/$SYS print_pkgrepl_list`
+LIST=`ROOTDIR=$LOCALLINUXFARM/$SYS print_pkgrepl_list`
 #LIST="libreadline5-dev"
 
 
@@ -74,8 +74,8 @@ echo $LIST
 #exit 1
 
 # Script for run internal chroot
-touch $LINUXHOST/$SYS/tmp/run_sc.sh || exit 1
-cat >$LINUXHOST/$SYS/tmp/run_sc.sh <<EOF
+touch $LOCALLINUXFARM/$SYS/tmp/run_sc.sh || exit 1
+cat >$LOCALLINUXFARM/$SYS/tmp/run_sc.sh <<EOF
 #!/bin/sh
 export LC_MESSAGES=C
 PACKAGING=\$(distr_vendor -p)

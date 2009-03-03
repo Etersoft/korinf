@@ -38,7 +38,7 @@ fi
 if [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
 	echo "Login in chrooted system as builder user"
 	echo "	-r - login as root"
-	echo "	-n - login via network (unsupported now"
+	echo "	-n - login via network (unsupported now)"
 	exit 0
 fi
 
@@ -48,7 +48,7 @@ SYS="$1"
 shift
 
 USERCO="su -"
-[ "$1" = "-r" ] && shift || USERCO="su - lav"
+[ "$1" = "-r" ] && shift || USERCO="su - $INTUSER"
 # TODO:
 [ -n "$1" ] && COMMANDTO="-c '$@\'"
 
@@ -64,12 +64,12 @@ if [ -n "$NETBUILD" ] ; then
 	$SUDO mount borroman:/mnt/$SYS $TESTDIR -o soft || exit 1
 else
 	echo Mount $SYS from local...
-	$SUDO mount $LINUXHOST/$SYS $TESTDIR --bind || exit 1
+	$SUDO mount $LOCALLINUXFARM/$SYS $TESTDIR --bind || exit 1
 fi
-$SUDO mkdir -p $TESTDIR/{srv/wine,proc,home/lav,dev/pts}
+$SUDO mkdir -p $TESTDIR/{srv/wine,proc,home/$INTUSER,dev/pts}
 
 echo Mount local home...
-$SUDO mount /srv/builder-login $TESTDIR/home/lav --bind #|| exit 1
+$SUDO mount /srv/builder-login $TESTDIR/home/$INTUSER --bind #|| exit 1
 echo Mount swine...
 #$SUDO mount /usr/local/ $TESTDIR/usr/local --bind
 #$SUDO mount /net/wine/ $TESTDIR/srv/wine --bind
@@ -80,7 +80,7 @@ export PS1="[\u@$SYS \W]\$"
 $SUDO chroot $TESTDIR su -c "mount /proc"
 $SUDO chroot $TESTDIR su -c "mount /dev/pts"
 $SUDO chroot $TESTDIR $USERCO $COMMANDTO
-$SUDO umount $TESTDIR/home/lav && echo "Unmount home"
+$SUDO umount $TESTDIR/home/$INTUSER && echo "Unmount home"
 #$SUDO umount $TESTDIR/usr/local $TESTDIR/srv/wine  && echo "Unmount swine"
 $SUDO chroot $TESTDIR su -c "umount /proc"
 $SUDO chroot $TESTDIR su -c "umount /dev/pts"

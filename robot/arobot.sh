@@ -53,7 +53,7 @@ umask 0002
 export BUILDERHOME=/srv/arobot
 
 # Системы для сборки (стабильная)
-export LINUXHOST=/net/os/stable
+#export LINUXHOST=/net/os/stable
 #export LINUXHOST=/net/os
 # Для какой версии отгружаем
 

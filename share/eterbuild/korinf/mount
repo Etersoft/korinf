@@ -36,10 +36,12 @@ mount_linux()
 	# FIXME: why LOCUSER??
 	$SUDO chown $LOCUSER $BUILDERHOME -R
 
-	echo "Mount $LINUXHOST/$dist to $BUILDROOT..."
+	echo "Mount $LOCALLINUXFARM/$dist to $BUILDROOT..."
 	[ -z "$BUILDROOT" ] && echo "Skip mount due empty BUILDROOT" && return 1
-	[ -d $LINUXHOST ] && MOUNTPARAM="--bind" || MOUNTPARAM="-o soft"
-	$SUDO mount $LINUXHOST/$dist $BUILDROOT $MOUNTPARAM || { warning "Cannot mount..." ; return 1 ; }
+
+	# FIXME:
+	[ -d $LOCALLINUXFARM ] && MOUNTPARAM="--bind" || MOUNTPARAM="-o soft"
+	$SUDO mount $LOCALLINUXFARM/$dist $BUILDROOT $MOUNTPARAM || { warning "Cannot mount..." ; return 1 ; }
 	$SUDO chmod o+rx $BUILDROOT
 	ls -l $BUILDROOT
 	test -d $BUILDROOT/etc/ || fatal "Linux system is missed in $BUILDROOT"

@@ -3,7 +3,7 @@
 # Author: Vitaly Lipatov <lav@etersoft.ru>
 # GNU Public License version 3
 
-# do not include again
+# do not execute again
 if [ -z "$CHROOTDIR" ] ; then
 
 # Нужно отделить общий конфиг он частного WINE
@@ -17,7 +17,7 @@ export LC_ALL=C
 # FIXME: User in local system (with the same uid as INTUSER)
 LOCUSER=builder
 
-# User in remote(build) system
+# User in remote (build, chrooted) system
 INTUSER=lav
 
 # Path to chroot dir (remote system mounted)
@@ -25,15 +25,16 @@ CHROOTDIR=/tmp/autobuild
 # FIXME
 mkdir -p $CHROOTDIR
 
-# FIXME: change name and move to etc/korinf?
-# Linux builder
-LINUXHOST=/net/os/stable
-
 # FIXME: more universal way?
 # FreeBSD builder
 FREEBSDSSH=$LOCUSER@freebsd
-[ "$USER" = "lav" ] && FREEBSDKEY="-i /home/lav/.ssh/id_dsa.builder"
+
+if [ -r "$HOME/.ssh/id_dsa.builder" ] ; then
+	FREEBSDKEY="-i $HOME/.ssh/id_dsa.builder"
+fi
+
 FREEBSDPATH=home/$LOCUSER/work-$$
+
 
 # load Korinf config
 test -f $KORINFETC/korinf && . $KORINFETC/korinf

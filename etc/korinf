@@ -1,7 +1,7 @@
 # Etersoft specific paths
 
 # Linux builder
-# LINUXHOST=/net/os/stable
+LOCALLINUXFARM=/net/os/stable
 
 # Каталог с деревом пакетов свободного WINE и файлов к нему
 WINEPUB_PATH=/var/ftp/pub/Etersoft/WINE@Etersoft
