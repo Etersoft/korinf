@@ -23,14 +23,14 @@
 
 # We hope here BUILDERHOME is clean already
 
-INTBUILT=/home/$INTUSER/RPM/RPMS
+INTBUILT=/home/$INTUSER/$RPMSDIR
 
 build_rpms()
 {
 	local dist
 	dist=$1
 
-	BUILTRPM=$BUILDERHOME/RPM/RPMS
+	BUILTRPM=$BUILDERHOME/$RPMSDIR
 	TARGET=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -p`
 	[ -z "$TARGET" ] && { warning "TARGET is empty" ; return 1 ; }
 	BUILDARCH="i586"
@@ -84,12 +84,12 @@ fi
 	fi
 
 	if [ -n "$MAKESPKG" ] ; then
-		BUILTRPM=$BUILDERHOME/RPM/SRPMS
+		BUILTRPM=$BUILDERHOME/BP/RPM/SRPMS
 		CMDBUILD="rpmbph -n -v ~/RPM/SPECS/$BUILDNAME.spec"
 	fi
 
 	#CMDREPORT="( LANG=C winelog -c ; cat ~/.rpmmacros ) >~/buildenv.txt"
-	CMDAFTERREPORT="( head -n 5 /usr/bin/rpmbph ; cat ~/RPM/SPECS/LOCAL/$BUILDNAME.spec ; echo "-------" ; rpm --showrc ; echo "-----"; cat ~/RPM/BUILD/${BUILDNAME}*/config.log ; cat ~/RPM/BUILD/${BUILDNAME}*/include/config.h ; rpm -qa )  >>~/buildenv.txt"
+	CMDAFTERREPORT="( head -n 5 /usr/bin/rpmbph ; cat ~/RPM/BP/SPECS/$BUILDNAME.spec ; echo "-------" ; rpm --showrc ; echo "-----"; cat ~/RPM/BUILD/${BUILDNAME}*/config.log ; cat ~/RPM/BUILD/${BUILDNAME}*/include/config.h ; rpm -qa )  >>~/buildenv.txt"
 	#CMDREPORT="echo; cat ~/RPM/SPECS/$BUILDNAME.spec ; echo"
 	CMDREPORT="true"
 

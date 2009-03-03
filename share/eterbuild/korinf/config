@@ -18,7 +18,10 @@ export LC_ALL=C
 LOCUSER=builder
 
 # User in remote (build, chrooted) system
-INTUSER=lav
+INTUSER=korinf
+
+# Path to built packages inside home
+RPMSDIR=RPM/BP/RPMS
 
 # Path to chroot dir (remote system mounted)
 CHROOTDIR=/tmp/autobuild
