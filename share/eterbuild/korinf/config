@@ -17,9 +17,6 @@ export LC_ALL=C
 # FIXME: User in local system (with the same uid as INTUSER)
 LOCUSER=builder
 
-# User in remote (build, chrooted) system
-INTUSER=korinf
-
 # Path to built packages inside home
 RPMSDIR=RPM/BP/RPMS
 
@@ -27,17 +24,6 @@ RPMSDIR=RPM/BP/RPMS
 CHROOTDIR=/tmp/autobuild
 # FIXME
 mkdir -p $CHROOTDIR
-
-# FIXME: more universal way?
-# FreeBSD builder
-FREEBSDSSH=$LOCUSER@freebsd
-
-if [ -r "$HOME/.ssh/id_dsa.builder" ] ; then
-	FREEBSDKEY="-i $HOME/.ssh/id_dsa.builder"
-fi
-
-FREEBSDPATH=home/$LOCUSER/work-$$
-
 
 # load Korinf config
 test -f $KORINFETC/korinf && . $KORINFETC/korinf

@@ -26,8 +26,8 @@
 
 # TODO: user dist_ver
 
-REMOTESSHG7=builder@gentoo
-REMOTEPATHG7=/home/builder/work
+REMOTESSHG7=$LOCUSER@gentoo
+REMOTEPATHG7=/home/$LOCUSER/work
 
 build_emerge()
 {
@@ -57,10 +57,10 @@ copying_emerge()
 build_gentoo2007()
 {
         echo "Copying to Gentoo 2007"
-        ssh $REMOTESSHG7 "mkdir -p $REMOTEPATHG7" || { warning "Cannot create dir $REMOTEPATHG7" ; return 1 ; }
-        scp  $KORINFDIR/korinf/remote-scripts/remote-gentoo.sh $REMOTESSHG7:$REMOTEPATHG7/ || { warning "Cannot copy script to remote server" ; return 1 ; }
+        ssh -i $PRIVATESSHKEY $REMOTESSHG7 "mkdir -p $REMOTEPATHG7" || { warning "Cannot create dir $REMOTEPATHG7" ; return 1 ; }
+        scp -i $PRIVATESSHKEY $KORINFDIR/korinf/remote-scripts/remote-gentoo.sh $REMOTESSHG7:$REMOTEPATHG7/ || { warning "Cannot copy script to remote server" ; return 1 ; }
         echo "Building package..."
-        ssh $REMOTESSHG7 "bash $REMOTEPATHG7/remote-gentoo.sh \"$PACKAGE\" \"$WINENUMVERSION\" \"$ETERREGNUM\" \"$SOURCEURL\"" || { warning "Can't build" ; return 1 ; }
+        ssh -i $PRIVATESSHKEY $REMOTESSHG7 "bash $REMOTEPATHG7/remote-gentoo.sh \"$PACKAGE\" \"$WINENUMVERSION\" \"$ETERREGNUM\" \"$SOURCEURL\"" || { warning "Can't build" ; return 1 ; }
         true
 }
 
@@ -68,7 +68,7 @@ copying_gentoo2007()
 {
         prepare_copying
 
-	scp $REMOTESSHG7:/usr/portage/packages/All/$PACKAGE*.tbz2 $DESTDIR
+        scp -i $PRIVATESSHKEY $REMOTESSHG7:/usr/portage/packages/All/$PACKAGE*.tbz2 $DESTDIR
         chmod g+rw -R $DESTDIR/* || true
 }
 

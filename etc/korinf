@@ -15,3 +15,9 @@ BUILDFARMDIR=/var/ftp/pub/Etersoft/BuildFarm
 # for robot script
 # Path for mount tasks
 export TASKDIR=$HOME/sales
+
+# User in remote (build, chrooted) system
+INTUSER=korinf
+
+# Private SSH key for login to remote build system (key without password)
+PRIVATESSHKEY=$KORINFETC/id_dsa.korinf
