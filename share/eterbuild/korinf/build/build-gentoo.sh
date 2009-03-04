@@ -34,7 +34,7 @@ build_emerge()
 	local RET
 	echo "Copying to $BUILDROOT/tmp"
 	cp -f  $KORINFDIR/korinf/remote-scripts/remote-gentoo.sh $BUILDROOT/tmp || { warning "Cannot copy script" ; return 1 ; }
-	$SUDO chroot $BUILDROOT su - -c "$NICE sh /tmp/remote-gentoo.sh \"$PACKAGE\" \"$WINENUMVERSION\" \"$ETERREGNUM\" \"$SOURCEURL\""
+	$SUDO chroot $BUILDROOT su - -c "$NICE sh /tmp/remote-gentoo.sh \"$PACKAGE\" \"$ETERREGNUM\" \"$SOURCEURL\""
 	RET=$?
 	if [ $RET != 0 ] ; then
 		warning "Can't build"
@@ -60,7 +60,7 @@ build_gentoo2007()
         ssh -i $PRIVATESSHKEY $REMOTESSHG7 "mkdir -p $REMOTEPATHG7" || { warning "Cannot create dir $REMOTEPATHG7" ; return 1 ; }
         scp -i $PRIVATESSHKEY $KORINFDIR/korinf/remote-scripts/remote-gentoo.sh $REMOTESSHG7:$REMOTEPATHG7/ || { warning "Cannot copy script to remote server" ; return 1 ; }
         echo "Building package..."
-        ssh -i $PRIVATESSHKEY $REMOTESSHG7 "bash $REMOTEPATHG7/remote-gentoo.sh \"$PACKAGE\" \"$WINENUMVERSION\" \"$ETERREGNUM\" \"$SOURCEURL\"" || { warning "Can't build" ; return 1 ; }
+        ssh -i $PRIVATESSHKEY $REMOTESSHG7 "bash $REMOTEPATHG7/remote-gentoo.sh \"$PACKAGE\" \"$ETERREGNUM\" \"$SOURCEURL\"" || { warning "Can't build" ; return 1 ; }
         true
 }
 

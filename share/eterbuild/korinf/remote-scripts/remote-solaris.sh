@@ -4,16 +4,15 @@
 # GNU Public License
 #
 #
+# TODO: WINENUMVERSION is not used now
 
 # например, wine-etersoft
 PACKAGE="$1"
-# например, 1.0.8
-WINENUMVERSION="$2"
 # например, network
 # например, EEEE-C0DE
-ETERREGNUM="$3"
-SOURCEURL=$4
-BUILDSRPM=$5
+ETERREGNUM="$2"
+SOURCEURL=$3
+BUILDSRPM=$4
 SRPM=`basename $BUILDSRPM`
 PATCH="/usr/bin/patch"
 WGET="/usr/bin/wget"
@@ -26,10 +25,7 @@ ARCH=`arch`
 [ -x $WGET ] || exit 1
 [ -x $TAR ] || exit 1
 
-BASEVER="1.0.9" #hack for error in publish tarballs
-if [ $WINENUMVERSION = 'current' ] ; then
-    WINENUMVERSION=$BASEVER
-fi
+BASEVER="1.0.9"
 
 export PACKAGE
 PRODUCT=`echo $PACKAGE | sed 's/wine-etersoft-\(.*\)/\1/g'`

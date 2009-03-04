@@ -8,14 +8,13 @@
 # positional parameters
 COMMAND="$1"
 PACKAGE="$2"
-WINENUMVERSION="$3"
-ETERREGNUM="$4"
-SOURCEURL="$5"
+ETERREGNUM="$3"
+SOURCEURL="$4"
 
 umask 0002
 UID=`id -u`
 
-echo "Start with PACKAGE: $PACKAGE WINENUMVERSION: $WINENUMVERSION ETERREGNUM: $ETERREGNUM, command - $COMMAND, sourceurl - $SOURCEURL"
+echo "Start with PACKAGE: $PACKAGE ETERREGNUM: $ETERREGNUM, command - $COMMAND, sourceurl - $SOURCEURL"
 
 
 cd `dirname $0`
@@ -29,7 +28,6 @@ if [ "$COMMAND" = "clean" ] ; then
 fi
 
 if [ "$COMMAND" = "install" ] ; then
-	#  WINENUMVERSION=$WINENUMVERSION 
 #	echo "Trying to cd into `pwd`/`find . -type d -depth 1 -name "$PACKAGE*"`"
 	cd /usr/ports/packages/All
 #	cd `find . -type d -depth 1 -name "$PACKAGE*"` || exit $?
@@ -63,9 +61,7 @@ tar xjvf freebsd-$PACKAGE.tar.bz2 > /dev/null || exit $?
 echo "Trying to cd into `pwd`/`find . -type d -depth 1 -name "$PACKAGE*"`"
 cd `find . -type d -depth 1 -name "$PACKAGE*"` || exit $?
 	
-export WINENUMVERSION
 mv pkg-descr pkg-in
 sed -e "s/XXXX-XXXX/$ETERREGNUM/" <pkg-in >pkg-descr
-#echo && echo && echo $WINENUMVERSION && echo && echo
 make makesum || exit $?
 env ETERREGNUM=$ETERREGNUM make package || exit $?

@@ -34,8 +34,8 @@ build_solaris()
 	ssh -i $PRIVATESSHKEY $REMOTESSH "mkdir -p $REMOTEPATH" || { warning "Cannot create dir $REMOTEPATH" ; return 1 ; }
 	scp -i $PRIVATESSHKEY $KORINFDIR/korinf/remote-scripts/remote-solaris.sh $REMOTESSH:$REMOTEPATH/ || { warning "Cannot copy script" ; return 1 ; }
 	echo "Building package with:"
-	echo "PACKAGE:$PACKAGE WINENUMVERSION:$WINENUMVERSION ETERREGNUM:$ETERREGNUM SOURCEURL:$SOURCEURL"
-	ssh -i $PRIVATESSHKEY $REMOTESSH "bash $REMOTEPATH/remote-solaris.sh $PACKAGE $WINENUMVERSION \"$ETERREGNUM\" $SOURCEURL" || { warning "Can't build" ; return 1 ; }
+	echo "PACKAGE:$PACKAGE ETERREGNUM:$ETERREGNUM SOURCEURL:$SOURCEURL"
+	ssh -i $PRIVATESSHKEY $REMOTESSH "bash $REMOTEPATH/remote-solaris.sh $PACKAGE \"$ETERREGNUM\" $SOURCEURL" || { warning "Can't build" ; return 1 ; }
 	true
 }
 
