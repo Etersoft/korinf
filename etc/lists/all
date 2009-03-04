@@ -4,6 +4,7 @@
 . gen
 . alt
 . bsd
+. rem
 . x86_64
 
 # We need it for SELTA

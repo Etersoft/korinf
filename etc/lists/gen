@@ -13,7 +13,7 @@ SUSE/11
 
 # Потом остальные
 # Linux online
-LinuxXP/2006
+#LinuxXP/2006
 LinuxXP/2007
 LinuxXP/2008
 
@@ -55,8 +55,8 @@ Ubuntu/7.04
 Ubuntu/7.10
 
 # Novell
-SUSE/10
-SUSE/10.1
+#SUSE/10
+#SUSE/10.1
 SUSE/10.3
 #NLD/9
 
@@ -66,7 +66,6 @@ SUSE/10.3
 #MOPSLinux/4.0
 #MOPSLinux/5.0
 MOPSLinux/6.0
-
 
 #ArchLinux/2007.08
 
