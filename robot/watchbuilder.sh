@@ -2,7 +2,7 @@
 ##
 #  Korinf project
 #
-#  
+#  Watcher
 #
 #  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009
 #  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
@@ -80,7 +80,7 @@ fi
 # Не смонтирован каталог
 #if ! mount -l | grep $TASKDIR >/dev/null ; then
 if [ ! -r "$TASKDIR/SALESDIR" ] ; then
-	mutt -s "Build system failed" lav@etersoft.ru boris@etersoft.ru <<EOF
+	mutt -s "Build system failed" lav@etersoft.ru <<EOF
 Build directory $TASKDIR is unmounted.
 Check it immediately.
 

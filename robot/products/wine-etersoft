@@ -1,0 +1,193 @@
+#!/bin/sh -x
+##
+#  Korinf project
+#
+#  Publish WINE@Etersoft product for client by task file
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+# Выполняет сборку по первому заказу в списке
+# Отправляет на реальный адрес только с параметром --real /путь
+# Также отладку можно включить, создав файл arobot.sh.debug
+# (c) Etersoft
+# 08.06.2006, 09.06.06, 28.02.07, 09.03.07, 15.12.07, 2008
+# FIXME: если в имени запятая, разделяет на два адреса
+#
+
+# TARGETDIR - user download dir on the site
+# TYPE - SQL/Network/Local/Network Lite/SQL Unique
+prepare_wine_etersoft()
+{
+	# PRODUCT_name - sql/networklite
+	PRODUCT_name=`echo "$TYPE" | sed -e "s| ||g" | tr A-Z a-z`
+	# FIXME: corp
+	license_type=""
+
+	PRIVFILES=`find -L $PVTLOCAL/$DIST -maxdepth 1 -type f`
+	PUBLFILES=`find -L $PUBLOCAL/WINE/$DIST -maxdepth 1 -type f ; find -L $PUBLOCAL/fonts/$DIST -maxdepth 1 -type f`
+
+	# due ( below
+	export FTPDIR=$TARGETDIR/$TYPE-$WINENUMVERSION/$DIST
+
+	# Можем стирать только каталог дистрибутива, а не весь
+	test -e $FTPDIR && rm -rf $FTPDIR
+	mkdir -p $FTPDIR/
+	# || fatal "Can't clean dest dir"
+	echo >> $ALOGDIR/autobuild.report.log
+	echo "Build $TYPE for $ETERREGNUM in $DIST" >> $ALOGDIR/autobuild.report.log
+
+	# Нужно скопировать файлы
+	for i in $PRIVFILES $PUBLFILES ; do
+		cp -fl $i $FTPDIR || cp -f $i $FTPDIR
+	done
+
+	create_license $FTPDIR/wine-etersoft.lic $AROBOTDIR/dsa/wine-etersoft.dsa
+
+	#EFILE=$(ls -1 $FTPDIR/$DIST/$BUILDNAME[-_][0-9]* | head -n1)
+
+	# вставить номер в readme и в каталог
+	DOCS=$PVTLOCAL/../docs
+	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/README_$TYPE.html >$FTPDIR/README.html || fatal "readme copying"
+	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/license_${PRODUCT_name}$licensetype.html >$FTPDIR/license.html || fatal "license copying"
+	cp -f $DOCS/${PRODUCT_name}_manual.html $FTPDIR/manual.html || fatal "manual copying"
+}
+
+
+# Ошибка: не ловятся ошибки отсюда
+prepare_wine_etersoft_mail()
+{
+	local FILETO BETA
+	FILETO=$1
+	>$FILETO
+	NAME=`get_name "$FULLNAME"`
+	BETA=""
+	# FIXME: is it used?
+	if [ "$RELEASECANDIDAT" = "1" ] ; then
+		BETA="!! Это бета-версия продукта, используйте её с осторожностью !!
+!! Устанавливайте в повседневное использование только после тестирования !!
+!! Создавайте резервные копии чаще !!"
+	fi
+
+CIFSTEXT=""
+if [ "$TYPE" != "Local" ] ; then
+CIFSTEXT="
+Для обеспечения взаимодействия по протоколу CIFS с сервером
+SAMBA - пакет с модулем ядра Linux CIFS:
+	$PUBDOWNLOAD1CIFS
+"
+fi
+
+	cat >>$FILETO <<EOF
+${DEAR} ${NAME}!
+
+Ваш заказ по сборке Продукта ${PRODUCT} (релиз $WINENUMVERSION)
+для системы ${TEXTDIST} выполнен.
+${BETA}
+Регистрационный номер Продукта: ${ETERREGNUM}.
+
+Для получения Продукта необходимо скачать файлы по приведённым ссылкам, в их числе:
+ - документацию (файл manual.html)
+ - пакеты Продукта (wine-etersoft, libwine-etersoft, wine-etersoft-$PRODUCT_name)
+ - пакет haspd с драйверами аппаратных ключей защиты
+HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel;
+ - пакет со свободными шрифтами Liberation (fonts-tts-liberation).
+
+$CIFSTEXT
+
+Для полного соответствия шрифтов в программах
+рекомендуется скачать и установить пакет fonts-ttf-ms,
+содержащий шрифты MS Core Fonts:
+	$PUBDOWNLOAD1FONTS
+
+Ссылки для скачивания файлов вашего экземпляра Продукта:
+EOF
+	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$WINENUMVERSION/$DIST" `( cd $FTPDIR ; find -L ./ -maxdepth 1 -type f | sed -e "s|\./||g" )` >>$FILETO || fatal "Error with files (files are missed) "
+
+	cat >>$FILETO <<EOF
+(действительны в течение 4 суток)
+
+При необходимости эти же файлы могут быть получены через http: замените ftp:// на http:// в пути.
+Также Вы можете напрямую зайти в каталог, чтобы загрузить файлы открытой и закрытой части:
+	$DOWNLOADDIR/$TYPE-$WINENUMVERSION/$DIST
+
+Обязательно ознакомьтесь с известными проблемами в текущей сборке:
+http://wiki.etersoft.ru/WINE/knownbugs
+
+Ответы на основные вопросы смотрите на http://etersoft.ru/wine/faq
+
+При возникновении затруднений со скачиванием файлов просим привести
+описание проблемы в ответе на данное письмо.
+
+Благодарим Вас за покупку!
+-- 
+Команда разработчиков
+Etersoft, 2009
+EOF
+}
+
+build_wine_etersoft()
+{
+	PROJECTNAME="WINE@Etersoft"
+	VERNAME=$PROJECTNAME/$WINENUMVERSION
+
+	TARGETDIR="/var/ftp/pub/download/WINE@Etersoft/$TARGETDIRNAME"
+	DOWNLOADDIR="ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/$TARGETDIRNAME"
+	
+	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME"
+
+	# Use real path if possible
+	if [ -L "$PUBLOCAL" ] ; then
+		PUBLOCAL=`readlink -f "$PUBLOCAL"`
+		VERNAME=$PROJECTNAME/`basename $PUBLOCAL`
+	fi
+
+	PVTLOCAL="/var/ftp/pvt/Etersoft/$VERNAME/WINE-$(get_product_type "$PRODUCT")"
+
+	if [ ! -d "$PUBLOCAL/WINE/$DIST" ] ; then
+		warning "System $DIST not supported for build ($PUBLOCAL/WINE/$DIST does not exist)"
+		do_broken
+	fi
+	
+	TEXTDIST=$DIST
+	# Check for linked system (собираем для основной системы)
+	if [ -L "$PUBLOCAL/WINE/$DIST" ] ; then
+		DIST=`readlink $PUBLOCAL/WINE/$DIST | sed -e "s|\.\./||g"`
+		TEXTDIST="$TEXTDIST (фактически сборка выполнена для $DIST)"
+	fi
+	
+	
+	PUBDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/$VERNAME"
+	PUBDOWNLOAD1HTTP="http://updates.etersoft.ru/pub/Etersoft/$VERNAME"
+	PUBDOWNLOAD1FONTS="http://updates.etersoft.ru/pub/Etersoft/$VERNAME/fonts/$DIST"
+	PUBDOWNLOAD1CIFS="http://updates.etersoft.ru/pub/Etersoft/$VERNAME/CIFS/$DIST"
+
+	TYPE="$(get_product_type "$PRODUCT")"
+
+	prepare_wine_etersoft
+
+	# Для отправки писем обязательно нужна локаль!
+	locale
+	TMPMAIL=`mktemp`
+	prepare_wine_etersoft_mail $TMPMAIL || fatal "Can't prepare letter"
+	locale
+	export LANG=ru_RU.UTF-8
+	locale
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "wine@etersoft.ru" -s "Сборка $PRODUCT" || fatal "Can't send"
+	rm -f $TMPMAIL
+}
+

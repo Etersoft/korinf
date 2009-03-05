@@ -1,0 +1,48 @@
+#!/bin/sh -x
+##
+#  Korinf project
+#
+#  Publish product functions
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+GENERATE_SIG=$AROBOTDIR/dsa/generate_sig
+
+# Create license from variables
+# args: filename, dsakey
+create_license()
+{
+	local LICENSE_FILE="$1"
+	local DSAKEY="$2"
+	test -r "$LICENSE_FILE" && fatal "Some license file already exists"
+	rm -f "$LICENSE_FILE.tmp" "$LICENSE_FILE"
+cat <<EOF >"$LICENSE_FILE.tmp"
+PRODUCT=$PRODUCT
+VERSION=$WINENUMVERSION
+LICENSE_NUMBER=$ETERREGNUM
+OWNER=$OWNER
+RESPONSIBLE=$FULLNAME
+TYPE_LICENSE=$TYPE_LICENSE
+DATE_START=$DATE_START
+DATE_END=$DATE_END
+EOF
+	echo "Create license for $WINENUMVERSION"
+	$GENERATE_SIG "$LICENSE_FILE.tmp" "$DSAKEY" "$LICENSE_FILE" | iconv -f koi8-r -r
+	test -r "$LICENSE_FILE" || fatal "Can't sign license file"
+	rm -f "$LICENSE_FILE.tmp"
+}

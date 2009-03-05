@@ -41,7 +41,7 @@ prepareSeltaMail()
 	cat >>$FILETO <<EOF
 ${DEAR} ${NAME}!
 
-Ваш заказ Продукта ${PRODUCTVAR} (релиз $WINENUMVERSION) выполнен.
+Ваш заказ Продукта ${PRODUCT} (релиз $WINENUMVERSION) выполнен.
 ${BETA}
 Регистрационный номер Продукта: ${ETERREGNUM}.
 
@@ -173,7 +173,7 @@ EOF
 	export LANG=ru_RU.UTF-8
 	TMPMAIL=`mktemp`
 	prepareSeltaMail $TMPMAIL || fatal "Can't prepare letter"
-	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "wine@etersoft.ru" -s "Сборка $PRODUCTVAR" || fatal "Can't send"
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "wine@etersoft.ru" -s "Сборка $PRODUCT" || fatal "Can't send"
 	rm -f $TMPMAIL
 }
 

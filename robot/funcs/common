@@ -1,0 +1,112 @@
+#!/bin/sh -x
+##
+#  Korinf project
+#
+#  Publish product functions
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+# Выполняет сборку по первому заказу в списке
+# Отправляет на реальный адрес только с параметром --real /путь
+# Также отладку можно включить, создав файл arobot.sh.debug
+# (c) Etersoft
+# 08.06.2006, 09.06.06, 28.02.07, 09.03.07, 15.12.07, 2008
+# FIXME: если в имени запятая, разделяет на два адреса
+#
+
+exit_now()
+{
+	[ -n "$1" ] && exit $1 || exit 0
+}
+
+warning()
+{
+	test -n "$@" && echo "Warning: $@"
+}
+
+# TODO: вынести во внешний код
+# Фамилия должна быть на первом месте
+get_name()
+{
+    local name
+    LN=`echo $1 | awk '{print $1}'`
+    FN=`echo $1 | awk '{print $2}'`
+    SN=`echo $1 | awk '{print $3}'`
+    # Если неизвестно, к кому обращаемся
+    if [ -z "$1" ] ; then
+       echo "покупатель"
+       return 0
+    fi
+
+    if [ `expr index  "$FN" '.'` != 0  -o `expr index  "$SN" '.'` != 0  ] ; then  # если Петров И. А. или Петров И.
+	    
+	name=`echo $LN $FN $SN`
+	#echo $name
+    else
+        # FI
+	if [ -z "$SN"  ] ; then 
+	    name=`echo $FN`
+	    #name=$2 $1
+	    #echo $name	
+	else
+	#FIO
+    	    name=`echo $FN $SN`
+	    #name=$2 $3
+	fi
+    fi
+    if [ -z "$name" ] ; then
+        name=$1
+    fi
+    echo $name
+    return 0
+}
+
+fatal()
+{
+	LOGFILE=$ALOGDIR/$DIST/$BUILDNAME.log
+	[ -r "$LOGFILE" ] && PARAMMUTT="-a $LOGFILE" || PARAMMUTT=""
+	send_fatal "$@"
+
+	echo "$@" >&2
+	DATE=`date`
+	echo "# built FAILED at $DATE (Error: ${@})" >>$TASK
+	[ -e "$TASK" ] && mv -f $TASK $TASK.failed
+	exit_now 1
+}
+
+
+printURL()
+{
+	local FILE
+	local LDIR=$1
+	local DDIR=$2
+	shift
+	shift
+	[ -n "$1" ] || return 1
+	for i in $@ ; do
+		FILE=`basename $i`
+		# Размер файла в байтах
+		FSIZE=`stat "--printf=%s" $LDIR/$FILE || echo 0`
+		let KSIZE=$FSIZE/1024
+		[ "$KSIZE" -lt "1" ] && KSIZE=1
+		printf "[ %5d Кб]  " $KSIZE
+		echo $DDIR/$FILE
+	done
+	return 0
+}
+

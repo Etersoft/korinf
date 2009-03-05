@@ -27,10 +27,8 @@
 # (c) Etersoft
 # 08.06.2006, 09.06.06, 28.02.07, 09.03.07, 15.12.07, 2008
 # FIXME: если в имени запятая, разделяет на два адреса
-#
-#export LANG=ru_RU.UTF-8
-#export LC_ALL=ru_RU.UTF-8
 
+AROBOTDIR=`dirname $0`
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
@@ -39,63 +37,28 @@ set_log_dir /`date "+%Y%m%d"`
 
 umask 0002
 
-. `dirname $0`/../share/eterbuild/robot/arobot-functions.sh
-. `dirname $0`/../share/eterbuild/robot/arobot-wine.sh
-. `dirname $0`/../share/eterbuild/robot/arobot-selta.sh
+. $AROBOTDIR/funcs/common
+. $AROBOTDIR/funcs/license
+. $AROBOTDIR/funcs/task
+. $AROBOTDIR/funcs/etersoft
+. $AROBOTDIR/funcs/mail
+. $AROBOTDIR/products/wine-compat
+. $AROBOTDIR/products/wine-etersoft
+. $AROBOTDIR/products/selta
 
 
-
-# Path to chroot dir (remote system mounted)
-#export BUILD=/net/abuild
-# User in remote(build) system
-#export INTUSER=arobot
 # Local path to remote user home
 export BUILDERHOME=/srv/arobot
 
-# Системы для сборки (стабильная)
-#export LINUXHOST=/net/os/stable
-#export LINUXHOST=/net/os
-# Для какой версии отгружаем
-
-# clear version (get in TASK)
-export WINENUMVERSION=
 DEAR="Здравствуйте,"
+
 
 REALRUN="$1"
 if [ "$REALRUN" = "--real" ] ; then
 	shift
 fi
 
-TASK="$1"
-[ -e "$TASK" ] || { warning "Have not any tasks..." ; sleep 1 ; exit_now ; }
-
-#test -w "$TASK" || { do_removed ; fatal "Can't touch $TASK file, check permissions" ; }
-test -w "$TASK" || do_removed
-
-# Why recode TASK if all in utf8?
-cat $TASK | iconv -f utf8 -t koi8-r -r
-
-# WARNING!!! execute file!!!
-# load all vars (DIST, MAILTO, PRODUCT, ETERREGNUM, FULLNAME)
-. $TASK
-
-cat $TARGETDIR && do_removed
-
-# TODO: ��������� TARGETDIRNAME � TASK
-export TARGETDIRNAME=`basename $TARGETDIR`
-
-[ -z "$WINENUMVERSION" ] && { do_broken "Empty WINENUMVERSION" ; }
-
-export BASEPATH=$WINEETER_PATH/$WINENUMVERSION
-
-# Из-за проблемы с переназначением $PRODUCT при ошибке.
-PRODUCTVAR=$PRODUCT
-#BUILDNAME=wine-etersoft-$PRODUCT
-#unset PRODUCT
-
-echo "Build for $TASK (on $DIST)"
-
-[ -z "$DIST" ] && [ -e "$TASK" ] && do_removed
+load_task "$1"
 
 if [ "$REALRUN" = "--real" ] && [ ! -f $0.debug ] ; then
 	FULLMAILTO="\"$FULLNAME\" <$MAILTO>"
@@ -105,25 +68,27 @@ fi
 export FULLMAILTO
 export EMAIL="Система отгрузки Etersoft <support@etersoft.ru>"
 
-
-# Выходить при любой неприятности
-# TODO:
-#CAREBUILD=1
-# TODO: изменить название. очищать каталог hasher
 export NIGHTBUILD=1
 
-#fatal "По техническим причинам отгрузка приостановлена."
-
+# Run product specific function
+# It can used:
+# * variables from the task
+# * TARGETDIRNAME - dir to place files (TODO: remove it)
 # split to subscript
-case $PRODUCTVAR in
+case $PRODUCT in
 	*WINE@Etersoft*)
-		build_wine
+		# Compat
+		if [ "$WINENUMVERSION" = "1.0.8" ] || [ "$WINENUMVERSION" = "1.0.9" ] ; then
+			build_wine
+		else
+			build_wine_etersoft
+		fi
 		;;
 	*SELTA@Etersoft*)
 		build_selta
 		;;
 	*)
-		fatal "Unknown product $PRODUCTVAR"
+		fatal "Unsupported product $PRODUCT"
 		;;
 esac
 

@@ -1,0 +1,64 @@
+#!/bin/sh -x
+##
+#  Korinf project
+#
+#  Publish product functions
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+do_broken()
+{
+	mv -f $TASK $TASK.broken
+	test -n "$@" && echo "FATAL: $@"
+	exit 1
+}
+
+do_removed()
+{
+	mv -f $TASK $TASK.removed
+	test -n "$@" && echo "FATAL: $@"
+        exit 1
+}
+
+
+# Load task info in the script variables
+# set global: TASK, TARGETDIRNAME and vars from task
+load_task()
+{
+	TASK="$1"
+	[ -e "$TASK" ] || { warning "Have not any tasks..." ; sleep 1 ; exit_now ; }
+
+	test -w "$TASK" || do_removed
+
+	#echo "Load task file $TASK"
+	# WARNING!!! execute file!!!
+	# load all vars (DIST, MAILTO, PRODUCT, ETERREGNUM, FULLNAME)
+	. $TASK
+
+	#cat $TARGETDIR && do_removed
+
+	# FIXME
+	TARGETDIRNAME=`basename $TARGETDIR`
+
+	# Check for product version
+	[ -z "$WINENUMVERSION" ] && { do_broken "Empty WINENUMVERSION" ; }
+
+	echo "Loaded $TASK for $DIST"
+
+	[ -z "$DIST" ] && [ -e "$TASK" ] && do_broken "Unexisted DIST $DIST"
+}

@@ -1,0 +1,477 @@
+++ dirname /home/lav/Projects/git/korinf/robot/test/../arobot.sh
++ AROBOTDIR=/home/lav/Projects/git/korinf/robot/test/..
+++ dirname /home/lav/Projects/git/korinf/robot/test/../arobot.sh
++ . /home/lav/Projects/git/korinf/robot/test/../../share/eterbuild/korinf/common
++++ dirname /home/lav/Projects/git/korinf/robot/test/../arobot.sh
+++ LOCETERBUILDDIR=/home/lav/Projects/git/korinf/robot/test/../../share/eterbuild/functions
+++ RELETERBUILDDIR=../../etersoft-build-utils/share/eterbuild/functions
+++ '[' '!' -d /home/lav/Projects/git/korinf/robot/test/../../share/eterbuild/functions ']'
+++ . /home/lav/Projects/git/korinf/robot/test/../../share/eterbuild/functions/common
++++ set_eterbuilddir
++++ '[' -z '' ']'
++++ dirname /home/lav/Projects/git/korinf/robot/test/../arobot.sh
++++ grep '^/usr'
++++++ dirname /home/lav/Projects/git/korinf/robot/test/../arobot.sh
+++++ realpath /home/lav/Projects/git/korinf/robot/test/../../share/eterbuild
++++ ETERBUILDDIR=/srv/lav/Projects/git/korinf/share/eterbuild
++++++ dirname /home/lav/Projects/git/korinf/robot/test/../arobot.sh
+++++ realpath /home/lav/Projects/git/korinf/robot/test/../../etc
++++ ETERBUILDETC=/srv/lav/Projects/git/korinf/etc
++++ '[' -r /srv/lav/Projects/git/korinf/etc/../AUTHORS ']'
++++ '[' -n '' ']'
++++ test -n /srv/lav/Projects/git/korinf/share/eterbuild
++++ '[' 502 = 0 ']'
++++ load_mod config gettext alt spec
++++ local i
++++ for i in '$@'
++++ . /srv/lav/Projects/git/korinf/share/eterbuild/functions/config
+++++ SUDO=sudo
+++++ test -z 502
+++++ '[' 502 = 0 ']'
+++++ OURTMPDIR=/tmp/.private/lav
+++++ '[' -z /tmp/.private/lav ']'
+++++ '[' -d /tmp/.private/lav ']'
+++++ '[' -n '' ']'
+++++ DEFAULTARCH=i586
++++++ uname -m
+++++ '[' i686 = x86_64 ']'
+++++ NICE=nice
+++++ RPMBUILD=rpmbuild
+++++ RPMDIR=/home/lav/RPM
+++++ '[' -n '' ']'
+++++ RPMTOPDIR=/home/lav/RPM
+++++ '[' -n '' ']'
+++++ APTCONFBASE=/srv/lav/Projects/git/korinf/etc/apt/apt.conf
++++++ rpm --eval %packager
+++++ OWNERMAIL='Vitaly Lipatov <lav@altlinux.ru>'
+++++ UPLOADDIR=/home/lav/RPM/upload
+++++ LOGDIR=/home/lav/RPM/log
+++++ REMOTERPMDIR=
+++++ HASHERDIR=/home/lav/hasher
+++++ HASHER_NOCHECK=nvr,gpg,packager,buildtime
+++++ HASHERARG=--eager-cleanup
+++++ '[' -n '' ']'
+++++ RSYNCSISYPHUS=rsync.altlinux.org::ALTLinux/Sisyphus
+++++ RSYNCINCOMING=devel:/incoming
+++++ BUILDSERVER=
+++++ PKGREPLBASE=/srv/lav/Projects/git/korinf/share/eterbuild/pkgrepl
+++++ test -f /etc/eterbuild/config
+++++ . /etc/eterbuild/config
++++++ HASHERDIR=/tmp/.private/lav/hasher
++++++ NICE='nice -n 9'
++++++ HASHER_NOCHECK=nvr,gpg,packager,buildtime,deps
+++++ '[' -f /home/lav/.config/eterbuild ']'
+++++ . /home/lav/.config/eterbuild
++++++ HASHER_NOCHECK=nvr,gpg,packager,changelog,deps
++++++ APTCONFBASE=/home/lav/Projects/git/etersoft-build-utils/etc/apt/apt.conf
++++ for i in '$@'
++++ . /srv/lav/Projects/git/korinf/share/eterbuild/functions/gettext
+++++ which gettext.sh
+++++ . gettext.sh
++++++ test 'X\t' = 'X\t'
++++++ echo=echo
++++++ test -z ''
++++++ case "$0" in
+++++ TEXTDOMAIN=etersoft-build-utils
+++++ export TEXTDOMAIN
+++++ TEXTDOMAINDIR=/usr/share/locale
+++++ export TEXTDOMAINDIR
++++ for i in '$@'
++++ . /srv/lav/Projects/git/korinf/share/eterbuild/functions/alt
++++ for i in '$@'
++++ . /srv/lav/Projects/git/korinf/share/eterbuild/functions/spec
+++ KORINFETC=/etc/eterbuild
+++ KORINFDIR=/usr/share/eterbuild
+++ dirname /home/lav/Projects/git/korinf/robot/test/../arobot.sh
+++ grep '^/usr/share'
+++++ dirname /home/lav/Projects/git/korinf/robot/test/../arobot.sh
++++ readlink -f /home/lav/Projects/git/korinf/robot/test/../../share/eterbuild
+++ KORINFDIR=/srv/lav/Projects/git/korinf/share/eterbuild
+++++ dirname /home/lav/Projects/git/korinf/robot/test/../arobot.sh
++++ readlink -f /home/lav/Projects/git/korinf/robot/test/../../etc
+++ KORINFETC=/srv/lav/Projects/git/korinf/etc
+++ '[' -r /srv/lav/Projects/git/korinf/etc/../AUTHORS ']'
+++ '[' -n '' ']'
+++ LC_ALL=C
+++ unset DISPLAY
++++ hostname
+++ test builder.office.etersoft.ru = builder.office.etersoft.ru
+++ kormod config log
+++ local i
+++ for i in '$@'
+++ . /srv/lav/Projects/git/korinf/share/eterbuild/korinf/config
++++ '[' -z '' ']'
++++ umask 0002
++++ export LANG=C
++++ LANG=C
++++ export LC_ALL=C
++++ LC_ALL=C
++++ LOCUSER=builder
++++ RPMSDIR=RPM/RPMS
++++ CHROOTDIR=/tmp/autobuild
++++ mkdir -p /tmp/autobuild
++++ test -f /srv/lav/Projects/git/korinf/etc/korinf
++++ . /srv/lav/Projects/git/korinf/etc/korinf
+++++ LOCALLINUXFARM=/net/os/stable
+++++ WINEPUB_PATH=/var/ftp/pub/Etersoft/WINE@Etersoft
+++++ WINEETER_PATH=/var/ftp/pvt/Etersoft/WINE@Etersoft
+++++ BUILDFARMDIR=/var/ftp/pub/Etersoft/BuildFarm
+++++ export TASKDIR=/home/lav/sales
+++++ TASKDIR=/home/lav/sales
+++++ INTUSER=lav
+++++ PRIVATESSHKEY=/srv/lav/Projects/git/korinf/etc/id_dsa.korinf
++++ test -f /home/lav/.config/korinf
+++ for i in '$@'
+++ . /srv/lav/Projects/git/korinf/share/eterbuild/korinf/log
++++ export COLUMNS=80
++++ COLUMNS=80
++++ kormod outformat
++++ local i
++++ for i in '$@'
++++ . /srv/lav/Projects/git/korinf/share/eterbuild/korinf/outformat
+++++ '[' -n xterm ']'
+++++ export TERM
+++++ : '{RES_OFFSET:=8}'
+++++ '[' -n '' ']'
+++++ RES_OFFSET=8
+++++ : 0 1 2 3 4 5 6 7
++++ PREVSYSTEMLOGIT=
++ kormod korinf
++ local i
++ for i in '$@'
++ . /srv/lav/Projects/git/korinf/share/eterbuild/korinf/korinf
+++ kormod main check_built
+++ local i
+++ for i in '$@'
+++ . /srv/lav/Projects/git/korinf/share/eterbuild/korinf/main
++++ kormod mount copying install log
++++ local i
++++ for i in '$@'
++++ . /srv/lav/Projects/git/korinf/share/eterbuild/korinf/mount
+++++ MOUNT_MODULE_INCLUDED=1
++++ for i in '$@'
++++ . /srv/lav/Projects/git/korinf/share/eterbuild/korinf/copying
++++ for i in '$@'
++++ . /srv/lav/Projects/git/korinf/share/eterbuild/korinf/install
++++ for i in '$@'
++++ . /srv/lav/Projects/git/korinf/share/eterbuild/korinf/log
+++++ export COLUMNS=80
+++++ COLUMNS=80
+++++ kormod outformat
+++++ local i
+++++ for i in '$@'
+++++ . /srv/lav/Projects/git/korinf/share/eterbuild/korinf/outformat
++++++ '[' -n xterm ']'
++++++ export TERM
++++++ : '{RES_OFFSET:=8}'
++++++ '[' -n 8 ']'
++++++ '[' 8 -gt 0 ']'
++++++ : 0 1 2 3 4 5 6 7
+++++ PREVSYSTEMLOGIT=
++++ kormod_build main
++++ local i
++++ for i in '$@'
++++ . /srv/lav/Projects/git/korinf/share/eterbuild/korinf/build/build-main.sh
+++ for i in '$@'
+++ . /srv/lav/Projects/git/korinf/share/eterbuild/korinf/check_built
+++ date +%Y%m%d
++ set_log_dir /20090305
+++ pwd
++ ALOGDIR=/home/lav/Projects/git/korinf/robot/test/log
++ '[' -w /home/lav/Projects/git/korinf/robot/test/log ']'
++ ALOGDIR=/tmp/.private/lav/korinf-log
++ '[' -z /20090305 ']'
++ ALOGDIR=/tmp/.private/lav/korinf-log/20090305
++ '[' -z '' ']'
++ mkdir -p /tmp/.private/lav/korinf-log/20090305
++ umask 0002
++ . /home/lav/Projects/git/korinf/robot/test/../funcs/common
++ . /home/lav/Projects/git/korinf/robot/test/../funcs/license
+++ GENERATE_SIG=/home/lav/Projects/git/korinf/robot/test/../dsa/generate_sig
++ . /home/lav/Projects/git/korinf/robot/test/../funcs/task
++ . /home/lav/Projects/git/korinf/robot/test/../funcs/etersoft
++ . /home/lav/Projects/git/korinf/robot/test/../funcs/mail
++ . /home/lav/Projects/git/korinf/robot/test/../products/wine-compat
++ . /home/lav/Projects/git/korinf/robot/test/../products/wine-etersoft
++ . /home/lav/Projects/git/korinf/robot/test/../products/selta
++ export BUILDERHOME=/srv/arobot
++ BUILDERHOME=/srv/arobot
++ DEAR=$'\320\227\320\264\321\200\320\260\320\262\321\201\321\202\320\262\321\203\320\271\321\202\320\265,'
++ REALRUN=try.task
++ '[' try.task = --real ']'
++ load_task try.task
++ TASK=try.task
++ '[' -e try.task ']'
++ test -w try.task
++ . try.task
+++ PRODUCT='WINE@Etersoft 1.0 Local (коробочная версия, локальная лицензия)'
+++ ETERREGNUM=7ED1-FE1D
+++ DIST=SUSE/10.3
+++ TARGETDIR=/var/www/site/downloads/7ED1-FE1D-2u8lmjf09q
+++ DOWNLOADDIR=http://sales.etersoft.ru/downloads/7ED1-FE1D-2u8lmjf09q
+++ MAILTO=teh3@mail.ru
+++ FULLNAME='Мельников Максим'
+++ WINENUMVERSION=1.0.10
+++ RELEASECANDIDAT=0
+++ TYPE_LICENSE=Base
+++ OWNER='Мельников Максим'
+++ DATE_START=15/08/2008
+++ DATE_END=unlimit
+++ basename /var/www/site/downloads/7ED1-FE1D-2u8lmjf09q
++ TARGETDIRNAME=7ED1-FE1D-2u8lmjf09q
++ '[' -z 1.0.10 ']'
++ echo 'Loaded try.task for SUSE/10.3'
++ '[' -z SUSE/10.3 ']'
++ '[' try.task = --real ']'
++ FULLMAILTO='Испытание <lav@etersoft.ru>'
++ export FULLMAILTO
++ export 'EMAIL=Система отгрузки Etersoft <support@etersoft.ru>'
++ EMAIL='Система отгрузки Etersoft <support@etersoft.ru>'
++ export NIGHTBUILD=1
++ NIGHTBUILD=1
++ case $PRODUCT in
++ '[' 1.0.10 = 1.0.8 ']'
++ '[' 1.0.10 = 1.0.9 ']'
++ build_wine_etersoft
++ PROJECTNAME=WINE@Etersoft
++ VERNAME=WINE@Etersoft/1.0.10
++ TARGETDIR=/var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q
++ DOWNLOADDIR=ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q
++ PUBLOCAL=/var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10
++ '[' -L /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10 ']'
+++ get_product_type 'WINE@Etersoft 1.0 Local (коробочная версия, локальная лицензия)'
+++ local TYPE
+++ local 'PRODUCT=WINE@Etersoft 1.0 Local (коробочная версия, локальная лицензия)'
+++ case "$PRODUCT" in
+++ TYPE=Local
+++ echo Local
++ PVTLOCAL=/var/ftp/pvt/Etersoft/WINE@Etersoft/1.0.10/WINE-Local
++ '[' '!' -d /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3 ']'
++ TEXTDIST=SUSE/10.3
++ '[' -L /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3 ']'
++ PUBDOWNLOAD1=ftp://updates.etersoft.ru/pub/Etersoft/WINE@Etersoft/1.0.10
++ PUBDOWNLOAD1HTTP=http://updates.etersoft.ru/pub/Etersoft/WINE@Etersoft/1.0.10
++ PUBDOWNLOAD1FONTS=http://updates.etersoft.ru/pub/Etersoft/WINE@Etersoft/1.0.10/fonts/SUSE/10.3
++ PUBDOWNLOAD1CIFS=http://updates.etersoft.ru/pub/Etersoft/WINE@Etersoft/1.0.10/CIFS/SUSE/10.3
+++ get_product_type 'WINE@Etersoft 1.0 Local (коробочная версия, локальная лицензия)'
+++ local TYPE
+++ local 'PRODUCT=WINE@Etersoft 1.0 Local (коробочная версия, локальная лицензия)'
+++ case "$PRODUCT" in
+++ TYPE=Local
+++ echo Local
++ TYPE=Local
++ prepare_wine_etersoft
+++ echo Local
+++ sed -e 's| ||g'
+++ tr A-Z a-z
++ PRODUCT_name=local
++ license_type=
+++ find -L /var/ftp/pvt/Etersoft/WINE@Etersoft/1.0.10/WINE-Local/SUSE/10.3 -maxdepth 1 -type f
++ PRIVFILES=/var/ftp/pvt/Etersoft/WINE@Etersoft/1.0.10/WINE-Local/SUSE/10.3/wine-etersoft-local-1.0.10-eter7suse.i586.rpm
+++ find -L /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3 -maxdepth 1 -type f
+++ find -L /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/fonts/SUSE/10.3 -maxdepth 1 -type f
++ PUBLFILES='/var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/haspd-2.0-eter12.1suse.i586.rpm
+/var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/haspd-modules-2.0-eter12.1suse.i586.rpm
+/var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/fonts-ttf-liberation-1.04-eter1suse.noarch.rpm
+/var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/wine-etersoft-1.0.10-eter11suse.i586.rpm
+/var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/libwine-etersoft-1.0.10-eter11suse.i586.rpm
+/var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/fonts/SUSE/10.3/fonts-ttf-ms-1.0-eter4suse.noarch.rpm'
++ export FTPDIR=/var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
++ FTPDIR=/var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
++ test -e /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
++ rm -rf /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
++ mkdir -p /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/
++ echo
++ echo 'Build Local for 7ED1-FE1D in SUSE/10.3'
++ for i in '$PRIVFILES' '$PUBLFILES'
++ cp -fl /var/ftp/pvt/Etersoft/WINE@Etersoft/1.0.10/WINE-Local/SUSE/10.3/wine-etersoft-local-1.0.10-eter7suse.i586.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
+cp: cannot create link `/var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft-local-1.0.10-eter7suse.i586.rpm': Invalid cross-device link
++ cp -f /var/ftp/pvt/Etersoft/WINE@Etersoft/1.0.10/WINE-Local/SUSE/10.3/wine-etersoft-local-1.0.10-eter7suse.i586.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
++ for i in '$PRIVFILES' '$PUBLFILES'
++ cp -fl /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/haspd-2.0-eter12.1suse.i586.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
++ for i in '$PRIVFILES' '$PUBLFILES'
++ cp -fl /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/haspd-modules-2.0-eter12.1suse.i586.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
++ for i in '$PRIVFILES' '$PUBLFILES'
++ cp -fl /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/fonts-ttf-liberation-1.04-eter1suse.noarch.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
++ for i in '$PRIVFILES' '$PUBLFILES'
++ cp -fl /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/wine-etersoft-1.0.10-eter11suse.i586.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
++ for i in '$PRIVFILES' '$PUBLFILES'
++ cp -fl /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/libwine-etersoft-1.0.10-eter11suse.i586.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
++ for i in '$PRIVFILES' '$PUBLFILES'
++ cp -fl /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/fonts/SUSE/10.3/fonts-ttf-ms-1.0-eter4suse.noarch.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
++ create_license /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic /home/lav/Projects/git/korinf/robot/test/../dsa/wine-etersoft.dsa
++ local LICENSE_FILE=/var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic
++ local DSAKEY=/home/lav/Projects/git/korinf/robot/test/../dsa/wine-etersoft.dsa
++ test -r /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic
++ rm -f /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic.tmp /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic
++ cat
++ echo 'Create license for 1.0.10'
++ /home/lav/Projects/git/korinf/robot/test/../dsa/generate_sig /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic.tmp /home/lav/Projects/git/korinf/robot/test/../dsa/wine-etersoft.dsa /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic
++ iconv -f koi8-r -r
++ test -r /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic
++ rm -f /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic.tmp
++ DOCS=/var/ftp/pvt/Etersoft/WINE@Etersoft/1.0.10/WINE-Local/../docs
++ sed -e s/XXXX-XXXX/7ED1-FE1D/g
++ sed -e s/XXXX-XXXX/7ED1-FE1D/g
++ cp -f /var/ftp/pvt/Etersoft/WINE@Etersoft/1.0.10/WINE-Local/../docs/local_manual.html /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/manual.html
++ locale
+++ mktemp
++ TMPMAIL=/tmp/.private/lav/tmp.dwMm1yj9WH
++ prepare_wine_etersoft_mail /tmp/.private/lav/tmp.dwMm1yj9WH
++ local FILETO BETA
++ FILETO=/tmp/.private/lav/tmp.dwMm1yj9WH
+++ get_name 'Мельников Максим'
+++ local name
++++ echo $'\320\234\320\265\320\273\321\214\320\275\320\270\320\272\320\276\320\262' $'\320\234\320\260\320\272\321\201\320\270\320\274'
++++ awk '{print $1}'
+++ LN=$'\320\234\320\265\320\273\321\214\320\275\320\270\320\272\320\276\320\262'
++++ echo $'\320\234\320\265\320\273\321\214\320\275\320\270\320\272\320\276\320\262' $'\320\234\320\260\320\272\321\201\320\270\320\274'
++++ awk '{print $2}'
+++ FN=$'\320\234\320\260\320\272\321\201\320\270\320\274'
++++ echo $'\320\234\320\265\320\273\321\214\320\275\320\270\320\272\320\276\320\262' $'\320\234\320\260\320\272\321\201\320\270\320\274'
++++ awk '{print $3}'
+++ SN=
+++ '[' -z 'Мельников Максим' ']'
++++ expr index $'\320\234\320\260\320\272\321\201\320\270\320\274' .
++++ expr index '' .
+++ '[' 0 '!=' 0 -o 0 '!=' 0 ']'
+++ '[' -z '' ']'
++++ echo $'\320\234\320\260\320\272\321\201\320\270\320\274'
+++ name=$'\320\234\320\260\320\272\321\201\320\270\320\274'
+++ '[' -z $'\320\234\320\260\320\272\321\201\320\270\320\274' ']'
+++ echo $'\320\234\320\260\320\272\321\201\320\270\320\274'
+++ return 0
++ NAME=$'\320\234\320\260\320\272\321\201\320\270\320\274'
++ BETA=
++ '[' 0 = 1 ']'
++ CIFSTEXT=
++ '[' Local '!=' Local ']'
++ cat
+++ cd /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
+++ find -L ./ -maxdepth 1 -type f
+++ sed -e 's|\./||g'
++ printURL /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3 ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3 wine-etersoft-local-1.0.10-eter7suse.i586.rpm haspd-2.0-eter12.1suse.i586.rpm haspd-modules-2.0-eter12.1suse.i586.rpm fonts-ttf-liberation-1.04-eter1suse.noarch.rpm wine-etersoft-1.0.10-eter11suse.i586.rpm libwine-etersoft-1.0.10-eter11suse.i586.rpm fonts-ttf-ms-1.0-eter4suse.noarch.rpm wine-etersoft.lic README.html license.html manual.html
++ local FILE
++ local LDIR=/var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
++ local DDIR=ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
++ shift
++ shift
++ '[' -n wine-etersoft-local-1.0.10-eter7suse.i586.rpm ']'
++ for i in '$@'
+++ basename wine-etersoft-local-1.0.10-eter7suse.i586.rpm
++ FILE=wine-etersoft-local-1.0.10-eter7suse.i586.rpm
+++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft-local-1.0.10-eter7suse.i586.rpm
++ FSIZE=9115233
++ let KSIZE=9115233/1024
++ '[' 8901 -lt 1 ']'
++ printf '[ %5d Кб]  ' 8901
++ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft-local-1.0.10-eter7suse.i586.rpm
++ for i in '$@'
+++ basename haspd-2.0-eter12.1suse.i586.rpm
++ FILE=haspd-2.0-eter12.1suse.i586.rpm
+++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/haspd-2.0-eter12.1suse.i586.rpm
++ FSIZE=1470261
++ let KSIZE=1470261/1024
++ '[' 1435 -lt 1 ']'
++ printf '[ %5d Кб]  ' 1435
++ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/haspd-2.0-eter12.1suse.i586.rpm
++ for i in '$@'
+++ basename haspd-modules-2.0-eter12.1suse.i586.rpm
++ FILE=haspd-modules-2.0-eter12.1suse.i586.rpm
+++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/haspd-modules-2.0-eter12.1suse.i586.rpm
++ FSIZE=47886
++ let KSIZE=47886/1024
++ '[' 46 -lt 1 ']'
++ printf '[ %5d Кб]  ' 46
++ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/haspd-modules-2.0-eter12.1suse.i586.rpm
++ for i in '$@'
+++ basename fonts-ttf-liberation-1.04-eter1suse.noarch.rpm
++ FILE=fonts-ttf-liberation-1.04-eter1suse.noarch.rpm
+++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/fonts-ttf-liberation-1.04-eter1suse.noarch.rpm
++ FSIZE=817642
++ let KSIZE=817642/1024
++ '[' 798 -lt 1 ']'
++ printf '[ %5d Кб]  ' 798
++ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/fonts-ttf-liberation-1.04-eter1suse.noarch.rpm
++ for i in '$@'
+++ basename wine-etersoft-1.0.10-eter11suse.i586.rpm
++ FILE=wine-etersoft-1.0.10-eter11suse.i586.rpm
+++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft-1.0.10-eter11suse.i586.rpm
++ FSIZE=13166192
++ let KSIZE=13166192/1024
++ '[' 12857 -lt 1 ']'
++ printf '[ %5d Кб]  ' 12857
++ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft-1.0.10-eter11suse.i586.rpm
++ for i in '$@'
+++ basename libwine-etersoft-1.0.10-eter11suse.i586.rpm
++ FILE=libwine-etersoft-1.0.10-eter11suse.i586.rpm
+++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/libwine-etersoft-1.0.10-eter11suse.i586.rpm
++ FSIZE=8371562
++ let KSIZE=8371562/1024
++ '[' 8175 -lt 1 ']'
++ printf '[ %5d Кб]  ' 8175
++ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/libwine-etersoft-1.0.10-eter11suse.i586.rpm
++ for i in '$@'
+++ basename fonts-ttf-ms-1.0-eter4suse.noarch.rpm
++ FILE=fonts-ttf-ms-1.0-eter4suse.noarch.rpm
+++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/fonts-ttf-ms-1.0-eter4suse.noarch.rpm
++ FSIZE=7316639
++ let KSIZE=7316639/1024
++ '[' 7145 -lt 1 ']'
++ printf '[ %5d Кб]  ' 7145
++ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/fonts-ttf-ms-1.0-eter4suse.noarch.rpm
++ for i in '$@'
+++ basename wine-etersoft.lic
++ FILE=wine-etersoft.lic
+++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic
++ FSIZE=528
++ let KSIZE=528/1024
++ '[' 0 -lt 1 ']'
++ KSIZE=1
++ printf '[ %5d Кб]  ' 1
++ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic
++ for i in '$@'
+++ basename README.html
++ FILE=README.html
+++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/README.html
++ FSIZE=9960
++ let KSIZE=9960/1024
++ '[' 9 -lt 1 ']'
++ printf '[ %5d Кб]  ' 9
++ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/README.html
++ for i in '$@'
+++ basename license.html
++ FILE=license.html
+++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/license.html
++ FSIZE=6100
++ let KSIZE=6100/1024
++ '[' 5 -lt 1 ']'
++ printf '[ %5d Кб]  ' 5
++ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/license.html
++ for i in '$@'
+++ basename manual.html
++ FILE=manual.html
+++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/manual.html
++ FSIZE=108237
++ let KSIZE=108237/1024
++ '[' 105 -lt 1 ']'
++ printf '[ %5d Кб]  ' 105
++ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/manual.html
++ return 0
++ cat
++ locale
++ export LANG=ru_RU.UTF-8
++ LANG=ru_RU.UTF-8
++ locale
++ cat /tmp/.private/lav/tmp.dwMm1yj9WH
++ mutt 'Испытание <lav@etersoft.ru>' -b wine@etersoft.ru -s 'Сборка WINE@Etersoft 1.0 Local (коробочная версия, локальная лицензия)'
++ rm -f /tmp/.private/lav/tmp.dwMm1yj9WH
++ mkdir -p /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/../done/
++ mv -f try.task /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/../done/
+++ date
++ DATE='Thu Mar  5 23:29:30 MSK 2009'
++ echo '# built done at Thu Mar  5 23:29:30 MSK 2009'
+++ basename try.task
++ exit_now
++ '[' -n '' ']'
++ exit 0

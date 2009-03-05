@@ -33,7 +33,10 @@ build_pre()
 {
 	type=`echo $TYPE | tr A-Z a-z`
 	export ETERREGNUM
-	export FTPDIR=$TARGETDIR/$TYPE-$WINENUMVERSION
+	# FIXME: For wine
+	export SOURCEPATH=$WINEETER_PATH/$WINENUMVERSION/sources
+
+	FTPDIR=$TARGETDIR/$TYPE-$WINENUMVERSION
 	# Можем стирать только каталог дистрибутива, а не весь
 	test -d $FTPDIR/$DIST && rm -rf $FTPDIR/$DIST || mkdir -p $FTPDIR/ || fatal ""
 	echo >> $ALOGDIR/autobuild.report.log
@@ -41,8 +44,8 @@ build_pre()
 	#link_wine_etersoft $type
 	# Вывод скрипта не записывается в лог
 	export BUILDSTRAP=
-	# ���� �������� ����. ������
 
+	TARGETPATH=$FTPDIR
 	export BUILDNAME=wine-etersoft-$type$licensetype
 	build_package $BUILDNAME || fatal "Build failed"
 
@@ -115,7 +118,7 @@ fi
 	cat >>$FILETO <<EOF
 ${DEAR} ${NAME}!
 
-Ваш заказ по сборке Продукта ${PRODUCTVAR} (релиз $WINENUMVERSION)
+Ваш заказ по сборке Продукта ${PRODUCT} (релиз $WINENUMVERSION)
 для системы ${TEXTDIST} выполнен.
 ${BETA}
 Регистрационный номер Продукта: ${ETERREGNUM}.
@@ -226,8 +229,8 @@ build_wine()
  
 	#PUBDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/$PRNAME/WINE/$DIST"
 	
-	# grep line for DIST
-	export REBUILDLIST=`grep -v "^#" lists/rebuild.list.all | grep "^$DIST" | head -n1`
+	# FIXME: Мы должны проверить, действительно ли существует такая система?
+	REBUILDLIST=$DIST
 	
 	if [ -z "$REBUILDLIST" ] ; then
 		warning "Destination $DIST is not supported for build (missed in $REBUILDLIST)"
@@ -236,8 +239,8 @@ build_wine()
 	
 	echo "Work with $TASK for $REBUILDLIST"
 
-	case $PRODUCTVAR in
-		*Lite*)
+	case "$PRODUCT" in
+		*Network\ Lite*)
 			build_networklite
 			;;
 		*Network*)
@@ -250,7 +253,7 @@ build_wine()
 			build_sql
 			;;
 		*)
-			fatal "Unknown product $PRODUCTVAR"
+			fatal "Unknown product $PRODUCT"
 			;;
 	esac
 
@@ -261,7 +264,7 @@ build_wine()
 	export LANG=ru_RU.UTF-8
 	TMPMAIL=`mktemp`
 	prepareMail $TMPMAIL || fatal "Can't prepare letter"
-	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "wine@etersoft.ru" -s "Сборка $PRODUCTVAR" || fatal "Can't send"
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "wine@etersoft.ru" -s "Сборка $PRODUCT" || fatal "Can't send"
 	rm -f $TMPMAIL
 }
 
