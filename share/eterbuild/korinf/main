@@ -82,6 +82,10 @@ for dist in $CMDRE ; do
 
 	# Set target dir for built packages
 	DESTDIR=$TARGETPATH/$dist
+
+	# skip linked destination
+	[ -L "$DESTDIR" ] && continue
+
 	# FIXME: Hack
 	[ "$TARGETPRIVPATH" ] && DESTDIR=$TARGETPRIVPATH
 
