@@ -69,7 +69,9 @@ fi
 $SUDO mkdir -p $TESTDIR/{srv/wine,proc,home/$INTUSER,dev/pts}
 
 echo Mount local home...
-$SUDO mount /srv/builder-login $TESTDIR/home/$INTUSER --bind #|| exit 1
+BUILDERHOME=$TESTDIR/home/$INTUSER
+$SUDO mount /srv/builder-login $BUILDERHOME --bind #|| exit 1
+init_home
 echo Mount swine...
 #$SUDO mount /usr/local/ $TESTDIR/usr/local --bind
 #$SUDO mount /net/wine/ $TESTDIR/srv/wine --bind
