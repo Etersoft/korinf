@@ -1,0 +1,78 @@
+#!/bin/sh -x
+##
+#  Korinf project
+#
+#  Publish product functions
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+# arg: src.rpm target_file
+# Check if target is older then src.rpm and build if needed
+
+kormod korinf
+
+check_and_refresh_package()
+{
+	# Etersoft/WINE@Etersoft/last/WINE/SUSE/12
+	local TARGETPATH=$1
+	# Etersoft/WINE@Etersoft/last/sources
+	local SOURCEPATH=`readlink -f $TARGETPATH/$2`
+	# Etersoft/WINE@Etersoft
+	local PUBPATH=`readlink -f $SOURCEPATH/../..`
+	# WINE
+	local PUBPART=`basename $(readlink -f $TARGETPATH/../..)`
+	# haspd
+	local BUILDNAME=$3
+
+	# FIXMEP get_..._package always returns true
+	local SRCRPM=`get_src_package $BUILDNAME || fatal "Source package for $BUILDNAME is not found"`
+	local BINPKG=`get_bin_package $BUILDNAME || fatal "Binary package $BUILDNAME is not found"`
+
+	echo $BINPKG
+	echo $SRCRPM
+
+	test $BINPKG -nt $SRCRPM && return 0
+
+	#build_project $PUBPATH $BUILDNAME $PUBPART $DIST $WINENUMVERSION && return 0
+	$AROBOTDIR/../bin-wine/$4 $DIST $WINENUMVERSION && return 0
+
+	return 1
+}
+
+check_and_refresh_package_wine()
+{
+	# Etersoft/WINE@Etersoft/last/WINE/SUSE/12
+	local TARGETPATH=$1
+	# Etersoft/WINE@Etersoft/last/sources
+	local SOURCEPATH=`readlink -f $TARGETPATH/../../../sources`
+	# haspd
+	local BUILDNAME=$2
+
+	# FIXMEP get_..._package always returns true
+	local SRCRPM=`get_src_package $BUILDNAME || fatal "Source package for $BUILDNAME is not found"`
+	local BINPKG=`get_bin_package $BUILDNAME || fatal "Binary package $BUILDNAME is not found"`
+
+	echo $BINPKG
+	echo $SRCRPM
+
+	test $BINPKG -nt $SRCRPM && return 0
+
+	$AROBOTDIR/../bin-wine/$BUILDNAME.sh $DIST $WINENUMVERSION && return 0
+
+	return 1
+}

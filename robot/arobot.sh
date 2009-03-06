@@ -33,7 +33,8 @@ AROBOTDIR=`dirname $0`
 . `dirname $0`/../share/eterbuild/korinf/common
 
 kormod korinf
-set_log_dir /`date "+%Y%m%d"`
+set_log_dir
+# /`date "+%Y%m%d"`
 
 umask 0002
 
@@ -42,6 +43,7 @@ umask 0002
 . $AROBOTDIR/funcs/task
 . $AROBOTDIR/funcs/etersoft
 . $AROBOTDIR/funcs/mail
+. $AROBOTDIR/funcs/build
 . $AROBOTDIR/products/wine-compat
 . $AROBOTDIR/products/wine-etersoft
 . $AROBOTDIR/products/selta
