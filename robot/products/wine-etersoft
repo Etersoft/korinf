@@ -57,6 +57,11 @@ prepare_wine_etersoft()
 	echo >> $ALOGDIR/autobuild.report.log
 	echo "Build $TYPE for $ETERREGNUM in $DIST" >> $ALOGDIR/autobuild.report.log
 
+	check_and_refresh_package_wine $PVTLOCAL/$DIST wine-etersoft-${PRODUCT_name}
+	check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST wine-etersoft
+	check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST haspd
+	#check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST fonts-ttf-liberation
+
 	# Нужно скопировать файлы
 	for i in $PRIVFILES $PUB1FILES $PUB2FILES; do
 		cp -fl $i $FTPDIR || cp -f $i $FTPDIR || fatal "Can't copy $i"
