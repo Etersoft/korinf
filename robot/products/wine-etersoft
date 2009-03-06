@@ -119,7 +119,7 @@ HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel;
 
 $CIFSTEXT
 
-Файл лицензии необходимо расположить в каталоге /etc/wine, ~/.wine или
+Файл лицензии wine-etersoft.lic необходимо расположить в каталоге /etc/wine, ~/.wine или
 C:\WINDOWS\INF.
 
 Для полного соответствия шрифтов в программах
