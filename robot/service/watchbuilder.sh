@@ -1,2 +1,2 @@
 #!/bin/sh
-su - builder -c "/home/builder/Projects/eterbuild/robot/watchbuilder.sh $1"
+su - builder -c "/home/builder/Projects/korinf/robot/watchbuilder.sh $1"
