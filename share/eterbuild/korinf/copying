@@ -54,7 +54,7 @@ copying_packages()
 	prepare_copying
 
 	echo "Copying built packages to $DESTDIR (cd to $BUILTRPM)..."
-	pushd $BUILTRPM >/dev/null
+	pushd $BUILTRPM >/dev/null || warning "Can't cd to built rpm dir"
 
 	# Don't public debug packages now (it may contain source files)
 	rm -f *${BUILDNAME}-debuginfo* *${BUILDNAME}-debug-*

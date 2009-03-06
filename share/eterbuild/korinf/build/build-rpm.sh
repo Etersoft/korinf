@@ -23,14 +23,11 @@
 
 # We hope here BUILDERHOME is clean already
 
-INTBUILT=/home/$INTUSER/$RPMSDIR
-
 build_rpms()
 {
 	local dist
 	dist=$1
 
-	BUILTRPM=$BUILDERHOME/$RPMSDIR
 	TARGET=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -p`
 	[ -z "$TARGET" ] && { warning "TARGET is empty" ; return 1 ; }
 	BUILDARCH="i586"
@@ -39,34 +36,12 @@ build_rpms()
 	fi
 	echo "Build '$BUILDSRPM' in chrooted $BUILDARCH system for $dist"
 
+	# TODO: more correctly
 	cp -f $BUILDSRPM $BUILDERHOME/tmp/$BUILDNAME.src.rpm || { warning "Can't copy src.rpm" ; return 1 ; }
 	$SUDO chown $LOCUSER $BUILDERHOME/tmp/$BUILDNAME.src.rpm
 
-	# FIXME: ebconfig is obsolete
-	[ -r $BUILDERHOME/.ebconfig ] || echo "RPMBUILD=rpmbuild" > $BUILDERHOME/.ebconfig
-
-if [ ! -r $BUILDERHOME/.rpmmacros ] ; then
-cat <<EOF >$BUILDERHOME/.rpmmacros || fatal "Can't copy macros"
-# Etersoft's default macros
-%_topdir        /home/$INTUSER/RPM
-%_tmppath       /home/$INTUSER/tmp
-%_sourcedir %_topdir/SOURCES
-%vendor Etersoft
-%distribution WINE@Etersoft
-#%_target_cpu i586
-%buildhost builder.etersoft.ru
-# do wrong (crossed with --buildroot?
-#%BuildRoot: %_tmppath/%{name}-%{version}
-#%buildroot: %_tmppath/%{name}-%{version}
-%packager Etersoft Builder <support@etersoft.ru>
-
-# see http://wiki.sisyphus.ru/devel/RpmSetup
-%_build_name_fmt %{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}.rpm
-EOF
-fi
-
-	# TODO: rewrite
-	#KERVERFILE=$BUILDROOT/etc/rpm/kernel_version
+	# create needed files in home directory
+	init_home
 
 	# For log purposes
 	ls -l $BUILDROOT/etc/rpm
@@ -75,6 +50,7 @@ fi
 		echo "Use emergency or first build mode"
 		# FIXME: add buildroot?
 		CMDBUILD="rpmbuild -bb --nodeps ~/RPM/SPECS/$BUILDNAME.spec"
+		RPMSDIR=RPM/RPMS
 	else
 		if [ -z "$NOREPL" ] ; then
 			CMDBUILD="rpmbph -v ~/RPM/SPECS/$BUILDNAME.spec"
@@ -83,10 +59,13 @@ fi
 		fi
 	fi
 
+	BUILTRPM=$BUILDERHOME/$RPMSDIR
 	if [ -n "$MAKESPKG" ] ; then
 		BUILTRPM=$BUILDERHOME/BP/RPM/SRPMS
 		CMDBUILD="rpmbph -n -v ~/RPM/SPECS/$BUILDNAME.spec"
 	fi
+	INTBUILT=/home/$INTUSER/$RPMSDIR
+
 
 	#CMDREPORT="( LANG=C winelog -c ; cat ~/.rpmmacros ) >~/buildenv.txt"
 	CMDAFTERREPORT="( head -n 5 /usr/bin/rpmbph ; cat ~/RPM/BP/SPECS/$BUILDNAME.spec ; echo "-------" ; rpm --showrc ; echo "-----"; cat ~/RPM/BUILD/${BUILDNAME}*/config.log ; cat ~/RPM/BUILD/${BUILDNAME}*/include/config.h ; rpm -qa )  >>~/buildenv.txt"
@@ -99,21 +78,22 @@ fi
         LOGFAILFILE="$BUILDERHOME/RPM/log/$BUILDNAME.log.failed"
 	rm -f "$LOGFAILFILE"
 
-	echo Chrooting as $INTUSER...
+	echo "Chrooting as $INTUSER and run $CMDBUILD command"
 	# copy src.rpm into build system and build
 	RPMCOMMAND=rpm
 	# Use rpm.static if exist (due ALT's src.rpm has too old version)"
 	[ -x "$BUILDROOT/usr/bin/rpm.static" ] && RPMCOMMAND=/usr/bin/rpm.static
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-		su - $INTUSER -c "export LANG=C ; umask 002 ; mkdir -p ~/RPM/SRPMS ; $RPMCOMMAND -i ~/tmp/$BUILDNAME.src.rpm ; $CMDREPORT ; subst 's|@ETERREGNUM@|${ETERREGNUM}|g' ~/RPM/SPECS/$BUILDNAME.spec ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERREPORT"
+		su - $INTUSER -c "export LANG=C ; umask 002 ; mkdir -p ~/RPM/SOURCES ; $RPMCOMMAND -i ~/tmp/$BUILDNAME.src.rpm ; $CMDREPORT ; subst 's|@ETERREGNUM@|${ETERREGNUM}|g' ~/RPM/SPECS/$BUILDNAME.spec ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERREPORT"
 
 	cat $BUILDERHOME/buildenv.txt | sed -e "s|[0-9A-F]\{4\}-[0-9A-F]\{4\}|XxXX-XxXX|g" >$LOGDIR/$BUILDNAME.cenv.log
 
 	[ -r "$LOGFAILFILE" ] && { rm -f "$LOGFAILFILE" ; warning "build failed" ; return 1 ; }
 
 	# workaround again flow target dirs
-	pushd $BUILTRPM
+	pushd $BUILTRPM || { warning "can't chdir to $BUILTRPM" ; return 1; }
 	test -d i586 && mv -f i586/* ./
+	test -d x86_64 && mv -f x86_64/* ./
 	test -d noarch && mv -f noarch/* ./
 	popd
 	return 0
