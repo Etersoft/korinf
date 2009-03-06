@@ -53,6 +53,9 @@ Etersoft, 2009
 send_fatal()
 {
 	export LANG=ru_RU.UTF-8
+	if [ -z "$TASK" ] ; then
+		return 1
+	fi
 	[ -z "$TMPMAIL" ] && TMPMAIL=/dev/null
 
 # Письмо в support
@@ -94,6 +97,6 @@ Etersoft, 2009
 " ;
 ) | mutt -s "Ошибка при сборке $ETERREGNUM" "${FULLMAILTO}" -b "support@etersoft.ru"
 fi
-
+	return 0
 }
 

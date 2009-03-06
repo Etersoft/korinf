@@ -27,7 +27,7 @@ check_built_package()
 	local NAME FILEDATE FILESIZE BASENAME FILENAME
 	local PATHTO=$TARGETPATH CHECKFILE=$1 PATHPKG
 	if [ ! -d "$PATHTO" ] ; then
-		echo "Path '$PATHTO' is missed"
+		echo "Path PATHTO:'$PATHTO' is missed"
 		return 1
 	fi
 

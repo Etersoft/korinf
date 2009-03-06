@@ -52,9 +52,9 @@ SOURCEURL=$(echo $SOURCEPATH | sed -e "s|/var/ftp/|ftp://server/|g")
 # FIXME: set PACKAGE individually
 [ "$BUILDNAME" = "wine" ] && PACKAGE="wine-etersoft-public" || PACKAGE=$BUILDNAME
 
-BUILDSRPM=$(get_src_package $BUILDNAME)
+BUILDSRPM=$(get_src_package $BUILDNAME || fatal "Can't find package for $BUILDNAME")
 
-PACKAGEVERSION=$(rpm -qp $BUILDSRPM --queryformat="%{VERSION}")
+PACKAGEVERSION=$(rpm -qp "$BUILDSRPM" --queryformat="%{VERSION}")
 [ -n "$PACKAGEVERSION" ] || fatal "Can't get version from $BUILDSRPM package"
 
 rpm --checksig $BUILDSRPM || warning "GPG check failed"

@@ -29,6 +29,8 @@
 # FIXME: если в имени запятая, разделяет на два адреса
 #
 
+. $AROBOTDIR/funcs/mail
+
 exit_now()
 {
 	[ -n "$1" ] && exit $1 || exit 0
@@ -80,9 +82,11 @@ fatal()
 {
 	LOGFILE=$ALOGDIR/$DIST/$BUILDNAME.log
 	[ -r "$LOGFILE" ] && PARAMMUTT="-a $LOGFILE" || PARAMMUTT=""
-	send_fatal "$@"
 
 	echo "$@" >&2
+
+	send_fatal "$@" || exit_now 1
+
 	DATE=`date`
 	echo "# built FAILED at $DATE (Error: ${@})" >>$TASK
 	[ -e "$TASK" ] && mv -f $TASK $TASK.failed
@@ -126,9 +130,7 @@ check_dist()
 # Check for package in target path
 check_package()
 {
-	local DEST=$1
 	local NAME=$2
-	local EFILE
-	EFILE=$(ls -1 $DEST/$NAME[-_][0-9]* | head -n1)
-	test -r "$EFILE" || fatal "Can't find $NAME file"
+	local TARGETPATH=$1
+	get_bin_package $NAME >/dev/null
 }
