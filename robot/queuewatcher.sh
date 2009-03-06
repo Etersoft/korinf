@@ -44,15 +44,15 @@ fatal()
 
 echo $$ >$PIDFILE
 
-cd `dirname $0`/..
+AROBOT=`dirname $0`
 # load common functions, compatible with local and installed script
-. `dirname $0`/share/eterbuild/korinf/common
+. $AROBOT/../share/eterbuild/korinf/common
 kormod korinf
 
-ALOGDIR=$ALOGDIR-arobot
+#ALOGDIR=$ALOGDIR-arobot
 
-mkdir -p $ALOGDIR
-touch $ALOGDIR/autobuild.batch.log || fatal "Can't append to log"
+#mkdir -p $ALOGDIR
+#touch $ALOGDIR/autobuild.batch.log || fatal "Can't append to log"
 
 if ! mount -l | grep $TASKDIR >/dev/null ; then
     test -r $TASKDIR/SKIPMOUNT || sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT || fatal "Can't mount"
@@ -69,7 +69,7 @@ if false ; then
 		# | grep "\.task\$"
 	else
 		inotifywait -q -m -e close_write --format "%w%f" $TASKDIR | grep "\.task\$" |
-			xargs --no-run-if-empty -P1 -n1 robot/arobot.sh --real 2>&1 >> $ALOGDIR/autobuild.task.log
+			xargs --no-run-if-empty -P1 -n1 $AROBOT/arobot.sh --real 2>&1 #>> $ALOGDIR/autobuild.task.log
 	fi
 else
 	while true ; do
@@ -77,7 +77,7 @@ else
 		    sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT
 		fi
 		if [ "$1" = "debug" ] ; then
-			ls -l robot/arobot.sh
+			ls -l $AROBOT/arobot.sh
 			find $TASKDIR -maxdepth 1 -name "*.task" | head -n1
 		else
 
@@ -86,7 +86,7 @@ else
 			#flock 200
 			TASKTORUN=`find $TASKDIR -maxdepth 1 -name "*.task" | head -n1`
 			if [ -e "$TASKTORUN" ] ; then
-				robot/arobot.sh --real $TASKTORUN 2>&1 >> $ALOGDIR/autobuild.task.log
+				$AROBOT/arobot.sh --real $TASKTORUN 2>&1 #>> $ALOGDIR/autobuild.task.log
 			fi
 			#find $TASKDIR -maxdepth 1 -name "*.task" | head -n1 | \
 			#	xargs --no-run-if-empty -P1 -n1 robot/arobot.sh --real 2>&1 >> $ALOGDIR/autobuild.task.log
