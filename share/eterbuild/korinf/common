@@ -122,6 +122,38 @@ last_rpm()
 	echo $lastrpm
 }
 
+# print out full path to src.rpm (get from BUILDNAME on SOURCEPATH)
+get_src_package()
+{
+	local BUILDSRPM
+	local BUILDNAME="$1"
+	# Do use direct package name?
+	if echo $BUILDNAME | grep -q "\.src\.rpm" ; then
+		BUILDSRPM="$SOURCEPATH/$BUILDNAME"
+	else
+		BUILDSRPM="$SOURCEPATH/$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm | last_rpm).src.rpm"
+	fi
+
+	[ -r "$BUILDSRPM" ] || fatal "Package $BUILDSRPM is not readable"
+	echo $BUILDSRPM
+}
+
+# print out full path to binary package (get from BUILDNAME on TARGETPATH)
+get_bin_package()
+{
+	local BUILDPKG
+	local BUILDNAME="$1"
+	# Do use direct package name?
+#	if echo $BUILDNAME | grep -q "\.src\.rpm" ; then
+#		BUILDSRPM="$SOURCEPATH/$BUILDNAME"
+#	else
+	BUILDPKG="$(ls -1 $TARGETPATH/$BUILDNAME[-_][0-9]* | head -n1)"
+#	fi
+
+	[ -r "$BUILDPKG" ] || fatal "Package $BUILDPKG is not readable"
+	echo $BUILDPKG
+}
+
 # get distro list from arg/directory/file
 # from DIR/distro.list if arg is dir
 # from FILE if arg is file name

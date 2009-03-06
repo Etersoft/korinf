@@ -52,22 +52,12 @@ SOURCEURL=$(echo $SOURCEPATH | sed -e "s|/var/ftp/|ftp://server/|g")
 # FIXME: set PACKAGE individually
 [ "$BUILDNAME" = "wine" ] && PACKAGE="wine-etersoft-public" || PACKAGE=$BUILDNAME
 
-# Do use direct package name?
-if echo $BUILDNAME | grep -q "\.src\.rpm" ; then
-	BUILDSRPM="$SOURCEPATH/$BUILDNAME"
-else
-	BUILDSRPM="$SOURCEPATH/$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm | last_rpm).src.rpm"
-fi
-
-[ -r "$BUILDSRPM" ] || fatal "Package $BUILDSRPM is not readable"
+BUILDSRPM=$(get_src_package $BUILDNAME)
 
 PACKAGEVERSION=$(rpm -qp $BUILDSRPM --queryformat="%{VERSION}")
 [ -n "$PACKAGEVERSION" ] || fatal "Can't get version from $BUILDSRPM package"
 
-# FIXME:
-#if [ -z "$NIGHTBUILD" ] ; then
-#	rpm --checksig $BUILDSRPM || warning "GPG check failed"
-#fi
+rpm --checksig $BUILDSRPM || warning "GPG check failed"
 
 # disable gear using due pre hasher repacking problem
 export IGNOREGEAR=1
