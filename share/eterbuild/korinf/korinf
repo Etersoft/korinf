@@ -69,7 +69,7 @@ build_package()
 	fi
 
 	if [ -n "$CHECKPACKAGE" ] ; then
-		check_built_package "${BUILDNAME}[-_]"
+		check_built_package "$BUILDNAME"
 		return $?
 	fi
 

@@ -25,12 +25,14 @@
 check_built_package()
 {
 	local NAME FILEDATE FILESIZE BASENAME FILENAME
-	local PATHTO=$TARGETPATH CHECKFILE=$1 PATHPKG
+	local PATHTO=$TARGETPATH BUILDNAME=$1 PATHPKG
+	local SRCPKG
 	if [ ! -d "$PATHTO" ] ; then
 		echo "Path PATHTO:'$PATHTO' is missed"
 		return 1
 	fi
-
+	SRCPKG=$(get_src_package $BUILDNAME)
+	echo $SRCPKG
 	for i in $(get_distro_list $REBUILDLIST) ; do
 		NAME=$i
 
@@ -40,13 +42,15 @@ check_built_package()
 			PATHPKG=$PATHTO/$i/extra
 		fi
 
+		ST="   "
 		test -L $PATHPKG && NAME="$NAME [L]"
-		FILENAME=$(ls -1 $PATHPKG/${CHECKFILE}* 2>/dev/null | sort -n | head -n1)
+		FILENAME=$(TARGETPATH=$PATHPKG get_bin_package $BUILDNAME)
 		#echo $FILENAME
 		if [ -r "$FILENAME" ] ; then
 			FILEDATE=`stat -c"%y" $FILENAME | sed -e "s|\..*$||"`
 			FILESIZE=`stat -c"%s" $FILENAME`
 			BASENAME=`basename $FILENAME`
+			[ "$SRCPKG" -nt "$FILENAME" ] && ST="OBS"
 		else
 			if [ -d "$PATHPKG/" ] ; then
 				FILEDATE="MISSED"
@@ -54,10 +58,10 @@ check_built_package()
 				FILEDATE="MISDIR"
 			fi
 			FILESIZE=""
-			BASENAME=$NAME
+			BASENAME=""
 		fi
 
-		printf "%22s: %20s  %7s  %s" "$NAME" "$FILEDATE" "$FILESIZE" "$BASENAME"
+		printf "%22s: %20s  %7s %s %s" "$NAME" "$FILEDATE" "$FILESIZE" "$ST" "$BASENAME"
 		test -L $PATHPKG && echo -n " (link to `readlink $PATHPKG`)"
 		echo
 	done
