@@ -46,3 +46,31 @@ EOF
 	test -r "$LICENSE_FILE" || fatal "Can't sign license file"
 	rm -f "$LICENSE_FILE.tmp"
 }
+
+create_compat_license()
+{
+	local DEST="$1"
+	# Подпись
+	unset DISPLAY
+	# Ключ в private_key.dsa
+	cd /home/builder/Projects/eterbuild/sig
+	#LICENSE_FILE=$TARGETDIRNAME.lic
+	LICENSE_FILE=selta.lic
+	test -r $LICENSE_FILE && fatal "Some license file already exists"
+#TYPE_LICENSE=Corporate
+cat <<EOF >$LICENSE_FILE
+VERSION=$WINENUMVERSION
+LICENSE_NUMBER=$ETERREGNUM
+OWNER=$OWNER
+RESPONSIBLE=$FULLNAME
+TYPE_LICENSE=$TYPE_LICENSE
+DATE_START=$DATE_START
+DATE_END=$DATE_END
+EOF
+	rm -f $LICENSE_FILE.sig
+	wine generate_sig.exe $LICENSE_FILE
+	rm -f $LICENSE_FILE
+	test -r $LICENSE_FILE.sig || fatal "Can't sign license file"
+	mv -f $LICENSE_FILE.sig $DEST || fatal "Can't move license file to $DEST"
+	cd -
+}
