@@ -89,7 +89,7 @@ fatal()
 	exit_now 1
 }
 
-
+# TODO: add URL checking (touch it via GET?)
 printURL()
 {
 	local FILE
@@ -101,6 +101,7 @@ printURL()
 	for i in $@ ; do
 		FILE=`basename $i`
 		# Размер файла в байтах
+		test -r "$LDIR/$FILE" || fatal "can't open $LDIR/$FILE"
 		FSIZE=`stat "--printf=%s" $LDIR/$FILE || echo 0`
 		let KSIZE=$FSIZE/1024
 		[ "$KSIZE" -lt "1" ] && KSIZE=1
@@ -110,3 +111,24 @@ printURL()
 	return 0
 }
 
+
+check_dist()
+{
+	local DIST=$1
+	REBUILDLIST=`get_distro_list $KORINFETC/lists/all | grep $DIST`
+	
+	if [ -z "$REBUILDLIST" ] ; then
+		warning "Destination $DIST is not supported for build (missed in $REBUILDLIST)"
+		do_broken
+	fi
+}
+
+# Check for package in target path
+check_package()
+{
+	local DEST=$1
+	local NAME=$2
+	local EFILE
+	EFILE=$(ls -1 $DEST/$NAME[-_][0-9]* | head -n1)
+	test -r "$EFILE" || fatal "Can't find $NAME file"
+}

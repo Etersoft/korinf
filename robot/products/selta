@@ -51,15 +51,15 @@ ${BETA}
 EOF
 	LOCALFILES=selta.msi
 	printURL $PUBLOCAL $PUBDOWNLOAD1 $LOCALFILES >>$FILETO || fatal "Error with mirror 1 ($PUBLOCAL with '$LOCALFILES') (possible files are missed!)"
-	printURL $FTPDIR $DOWNLOADDIR/$WINENUMVERSION `( cd $FTPDIR && find -L ./ -maxdepth 1 -type f | sed -e "s|\./||g" )` >>$FILETO || fatal "Error with private part (files are missed) "
+	printURL $FTPDIR $DOWNLOADDIR/$WINENUMVERSION `find -L  $FTPDIR -maxdepth 1 -type f ` >>$FILETO || fatal "Error with private part (files are missed) "
 
 	cat >>$FILETO <<EOF
 
 Пакеты PostgreSQL для системы ${TEXTDIST} (файлы postgresql*):
 EOF
 
-	LOCALFILES=`( cd $PGLOCAL ; find -L $DIST -maxdepth 1 -type f)`
-	printURL $PGLOCAL $PGDOWNLOAD1 $LOCALFILES >>$FILETO || fatal "Error with mirror 1 ($PGLOCAL with '$LOCALFILES') (possible files are missed!)"
+	LOCALFILES=`find -L $PGLOCAL/$DIST -maxdepth 1 -type f`
+	printURL $PGLOCAL/$DIST $PGDOWNLOAD1/$DIST $LOCALFILES >>$FILETO || fatal "Error with mirror 1 ($PGLOCAL with '$LOCALFILES') (possible files are missed!)"
 
 
 	cat >>$FILETO <<EOF
@@ -78,7 +78,7 @@ http://wiki.etersoft.ru/SELTA
 Благодарим Вас за покупку!
 -- 
 Команда разработчиков
-Etersoft, 2008
+Etersoft, 2009
 EOF
 }
 
@@ -109,14 +109,8 @@ build_selta()
 		TEXTDIST="$TEXTDIST (фактически сборка выполнена для $DIST)"
 	fi
 	
-	# grep line for DIST
-	export REBUILDLIST=`grep -v "^#" lists/rebuild.list.all | grep $DIST`
-	
-	if [ -z "$REBUILDLIST" ] ; then
-		warning "Destination $DIST is not supported for build (missed in $REBUILDLIST)"
-		do_broken
-	fi
-
+	check_dist $DIST
+	REBUILDLIST=$DIST
 	echo "Work with $TASK for $REBUILDLIST"
 
 	export FTPDIR=$TARGETDIR/$WINENUMVERSION
@@ -131,46 +125,10 @@ build_selta()
 	# Вывод скрипта не записывается в лог
 	export BUILDSTRAP=
 	#
-
-# Подпись
-	unset DISPLAY
-	# Ключ в private_key.dsa
-	cd sig
-	#LICENSE_FILE=$TARGETDIRNAME.lic
-	LICENSE_FILE=selta.lic
-	test -r $LICENSE_FILE && fatal "Some license file already exists"
-#TYPE_LICENSE=Corporate
-cat <<EOF >$LICENSE_FILE
-VERSION=$WINENUMVERSION
-LICENSE_NUMBER=$ETERREGNUM
-OWNER=$OWNER
-RESPONSIBLE=$FULLNAME
-TYPE_LICENSE=$TYPE_LICENSE
-DATE_START=$DATE_START
-DATE_END=$DATE_END
-EOF
-	rm -f $LICENSE_FILE.sig
-	wine generate_sig.exe $LICENSE_FILE
-	rm -f $LICENSE_FILE
-	test -r $LICENSE_FILE.sig || fatal "Can't sign license file"
-	mv -f $LICENSE_FILE.sig $FTPDIR/$LICENSE_FILE || fatal "Can't move license file to $FTPDIR"
-	cd -
-	#export BUILDNAME=wine-etersoft-$type
-	#build_rpm $BUILDNAME || fatal "Build failed"
-
-	# Каталог уже создаётся сборкой пакета
-	#cd $FTPDIR && { md5sum *.* >MD5SUM ; cd - ; }
-	# вставить номер в readme и в каталог
-# поменять
-	#sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$WINEETER_PATH-$WINENUMVERSION/docs/README_$TYPE.html >$FTPDIR/README.html || fatal "readme copying"
-	#sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$WINEETER_PATH-$WINENUMVERSION/docs/license_$type.html >$FTPDIR/license.html || fatal "license copying"
-	#cp -f $WINEETER_PATH-$WINENUMVERSION/docs/${type}_manual.html $FTPDIR/manual.html || fatal "manual copying"
-
-	# Проверяем, действительно ли создался целевой файл
-	#[ -r "$EFILE" ] || fatal "Can't find result file $EFILE"
+	create_license $FTPDIR/selta.lic $AROBOTDIR/dsa/selta.dsa
 
 	# Для отправки писем обязательно нужна локаль!
-	export LANG=ru_RU.UTF-8
+	export LC_ALL=ru_RU.UTF-8
 	TMPMAIL=`mktemp`
 	prepareSeltaMail $TMPMAIL || fatal "Can't prepare letter"
 	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "wine@etersoft.ru" -s "Сборка $PRODUCT" || fatal "Can't send"

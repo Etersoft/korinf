@@ -36,10 +36,16 @@ prepare_wine_etersoft()
 	# PRODUCT_name - sql/networklite
 	PRODUCT_name=`echo "$TYPE" | sed -e "s| ||g" | tr A-Z a-z`
 	# FIXME: corp
-	license_type=""
+	if [ "$TYPE_LICENSE" = "Corporate" ] ; then
+		license_type="_corp"
+	else
+		license_type=""
+	fi
 
+	# Get file list
 	PRIVFILES=`find -L $PVTLOCAL/$DIST -maxdepth 1 -type f`
-	PUBLFILES=`find -L $PUBLOCAL/WINE/$DIST -maxdepth 1 -type f ; find -L $PUBLOCAL/fonts/$DIST -maxdepth 1 -type f`
+	PUB1FILES=`find -L $PUBLOCAL/WINE/$DIST -maxdepth 1 -type f`
+	PUB2FILES=`find -L $PUBLOCAL/fonts/$DIST -maxdepth 1 -type f`
 
 	# due ( below
 	export FTPDIR=$TARGETDIR/$TYPE-$WINENUMVERSION/$DIST
@@ -47,18 +53,21 @@ prepare_wine_etersoft()
 	# Можем стирать только каталог дистрибутива, а не весь
 	test -e $FTPDIR && rm -rf $FTPDIR
 	mkdir -p $FTPDIR/
-	# || fatal "Can't clean dest dir"
+
 	echo >> $ALOGDIR/autobuild.report.log
 	echo "Build $TYPE for $ETERREGNUM in $DIST" >> $ALOGDIR/autobuild.report.log
 
 	# Нужно скопировать файлы
-	for i in $PRIVFILES $PUBLFILES ; do
-		cp -fl $i $FTPDIR || cp -f $i $FTPDIR
+	for i in $PRIVFILES $PUB1FILES $PUB2FILES; do
+		cp -fl $i $FTPDIR || cp -f $i $FTPDIR || fatal "Can't copy $i"
 	done
 
 	create_license $FTPDIR/wine-etersoft.lic $AROBOTDIR/dsa/wine-etersoft.dsa
 
-	#EFILE=$(ls -1 $FTPDIR/$DIST/$BUILDNAME[-_][0-9]* | head -n1)
+	# Check package files
+	check_package $FTPDIR wine-etersoft
+	check_package $FTPDIR libwine-etersoft
+	check_package $FTPDIR wine-etersoft-${PRODUCT_name}
 
 	# вставить номер в readme и в каталог
 	DOCS=$PVTLOCAL/../docs
@@ -102,12 +111,16 @@ ${BETA}
 
 Для получения Продукта необходимо скачать файлы по приведённым ссылкам, в их числе:
  - документацию (файл manual.html)
+ - файл лицензии wine-etersoft.lic
  - пакеты Продукта (wine-etersoft, libwine-etersoft, wine-etersoft-$PRODUCT_name)
  - пакет haspd с драйверами аппаратных ключей защиты
 HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel;
  - пакет со свободными шрифтами Liberation (fonts-tts-liberation).
 
 $CIFSTEXT
+
+Файл лицензии необходимо расположить в каталоге /etc/wine, ~/.wine или
+C:\WINDOWS\INF.
 
 Для полного соответствия шрифтов в программах
 рекомендуется скачать и установить пакет fonts-ttf-ms,
@@ -116,7 +129,7 @@ $CIFSTEXT
 
 Ссылки для скачивания файлов вашего экземпляра Продукта:
 EOF
-	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$WINENUMVERSION/$DIST" `( cd $FTPDIR ; find -L ./ -maxdepth 1 -type f | sed -e "s|\./||g" )` >>$FILETO || fatal "Error with files (files are missed) "
+	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$WINENUMVERSION/$DIST" `find -L $FTPDIR -maxdepth 1 -type f` >>$FILETO || fatal "Error with files (files are missed) "
 
 	cat >>$FILETO <<EOF
 (действительны в течение 4 суток)
@@ -169,7 +182,7 @@ build_wine_etersoft()
 		DIST=`readlink $PUBLOCAL/WINE/$DIST | sed -e "s|\.\./||g"`
 		TEXTDIST="$TEXTDIST (фактически сборка выполнена для $DIST)"
 	fi
-	
+	check_dist $DIST
 	
 	PUBDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/$VERNAME"
 	PUBDOWNLOAD1HTTP="http://updates.etersoft.ru/pub/Etersoft/$VERNAME"
@@ -181,12 +194,10 @@ build_wine_etersoft()
 	prepare_wine_etersoft
 
 	# Для отправки писем обязательно нужна локаль!
-	locale
 	TMPMAIL=`mktemp`
 	prepare_wine_etersoft_mail $TMPMAIL || fatal "Can't prepare letter"
-	locale
-	export LANG=ru_RU.UTF-8
-	locale
+
+	export LC_ALL=ru_RU.UTF-8
 	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "wine@etersoft.ru" -s "Сборка $PRODUCT" || fatal "Can't send"
 	rm -f $TMPMAIL
 }

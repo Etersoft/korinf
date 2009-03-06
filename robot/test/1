@@ -175,15 +175,15 @@
 ++ for i in '$@'
 ++ . /srv/lav/Projects/git/korinf/share/eterbuild/korinf/check_built
 ++ date +%Y%m%d
-+ set_log_dir /20090305
++ set_log_dir /20090306
 ++ pwd
 + ALOGDIR=/home/lav/Projects/git/korinf/robot/test/log
 + '[' -w /home/lav/Projects/git/korinf/robot/test/log ']'
 + ALOGDIR=/tmp/.private/lav/korinf-log
-+ '[' -z /20090305 ']'
-+ ALOGDIR=/tmp/.private/lav/korinf-log/20090305
++ '[' -z /20090306 ']'
++ ALOGDIR=/tmp/.private/lav/korinf-log/20090306
 + '[' -z '' ']'
-+ mkdir -p /tmp/.private/lav/korinf-log/20090305
++ mkdir -p /tmp/.private/lav/korinf-log/20090306
 + umask 0002
 + . /home/lav/Projects/git/korinf/robot/test/../funcs/common
 + . /home/lav/Projects/git/korinf/robot/test/../funcs/license
@@ -204,24 +204,24 @@
 + '[' -e try.task ']'
 + test -w try.task
 + . try.task
-++ PRODUCT='WINE@Etersoft 1.0 Local (коробочная версия, локальная лицензия)'
-++ ETERREGNUM=7ED1-FE1D
-++ DIST=SUSE/10.3
-++ TARGETDIR=/var/www/site/downloads/7ED1-FE1D-2u8lmjf09q
-++ DOWNLOADDIR=http://sales.etersoft.ru/downloads/7ED1-FE1D-2u8lmjf09q
-++ MAILTO=teh3@mail.ru
-++ FULLNAME='Мельников Максим'
-++ WINENUMVERSION=1.0.10
+++ PRODUCT='SELTA@Etersoft 1.0 (электронная версия, базовая лицензия)'
+++ ETERREGNUM=0D23-A26B
+++ DIST=Mandriva/2008.1
+++ TARGETDIR=/var/www/site/downloads/0D23-A26B-ahi3haf2cp
+++ DOWNLOADDIR=http://sales.etersoft.ru/downloads/0D23-A26B-ahi3haf2cp
+++ MAILTO=gomonov_max@mail.ru
+++ FULLNAME='Гомонов Максим Викторович'
+++ WINENUMVERSION=1.0.3
 ++ RELEASECANDIDAT=0
 ++ TYPE_LICENSE=Base
-++ OWNER='Мельников Максим'
-++ DATE_START=15/08/2008
-++ DATE_END=unlimit
-++ basename /var/www/site/downloads/7ED1-FE1D-2u8lmjf09q
-+ TARGETDIRNAME=7ED1-FE1D-2u8lmjf09q
-+ '[' -z 1.0.10 ']'
-+ echo 'Loaded try.task for SUSE/10.3'
-+ '[' -z SUSE/10.3 ']'
+++ OWNER='ЗАО «С.Е.Д.-СПб»'
+++ DATE_START=30/07/2008
+++ DATE_END=30/09/2008
+++ basename /var/www/site/downloads/0D23-A26B-ahi3haf2cp
++ TARGETDIRNAME=0D23-A26B-ahi3haf2cp
++ '[' -z 1.0.3 ']'
++ echo 'Loaded try.task for Mandriva/2008.1'
++ '[' -z Mandriva/2008.1 ']'
 + '[' try.task = --real ']'
 + FULLMAILTO='Испытание <lav@etersoft.ru>'
 + export FULLMAILTO
@@ -230,247 +230,340 @@
 + export NIGHTBUILD=1
 + NIGHTBUILD=1
 + case $PRODUCT in
-+ '[' 1.0.10 = 1.0.8 ']'
-+ '[' 1.0.10 = 1.0.9 ']'
-+ build_wine_etersoft
-+ PROJECTNAME=WINE@Etersoft
-+ VERNAME=WINE@Etersoft/1.0.10
-+ TARGETDIR=/var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q
-+ DOWNLOADDIR=ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q
-+ PUBLOCAL=/var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10
-+ '[' -L /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10 ']'
-++ get_product_type 'WINE@Etersoft 1.0 Local (коробочная версия, локальная лицензия)'
-++ local TYPE
-++ local 'PRODUCT=WINE@Etersoft 1.0 Local (коробочная версия, локальная лицензия)'
-++ case "$PRODUCT" in
-++ TYPE=Local
-++ echo Local
-+ PVTLOCAL=/var/ftp/pvt/Etersoft/WINE@Etersoft/1.0.10/WINE-Local
-+ '[' '!' -d /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3 ']'
-+ TEXTDIST=SUSE/10.3
-+ '[' -L /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3 ']'
-+ PUBDOWNLOAD1=ftp://updates.etersoft.ru/pub/Etersoft/WINE@Etersoft/1.0.10
-+ PUBDOWNLOAD1HTTP=http://updates.etersoft.ru/pub/Etersoft/WINE@Etersoft/1.0.10
-+ PUBDOWNLOAD1FONTS=http://updates.etersoft.ru/pub/Etersoft/WINE@Etersoft/1.0.10/fonts/SUSE/10.3
-+ PUBDOWNLOAD1CIFS=http://updates.etersoft.ru/pub/Etersoft/WINE@Etersoft/1.0.10/CIFS/SUSE/10.3
-++ get_product_type 'WINE@Etersoft 1.0 Local (коробочная версия, локальная лицензия)'
-++ local TYPE
-++ local 'PRODUCT=WINE@Etersoft 1.0 Local (коробочная версия, локальная лицензия)'
-++ case "$PRODUCT" in
-++ TYPE=Local
-++ echo Local
-+ TYPE=Local
-+ prepare_wine_etersoft
-++ echo Local
-++ sed -e 's| ||g'
-++ tr A-Z a-z
-+ PRODUCT_name=local
-+ license_type=
-++ find -L /var/ftp/pvt/Etersoft/WINE@Etersoft/1.0.10/WINE-Local/SUSE/10.3 -maxdepth 1 -type f
-+ PRIVFILES=/var/ftp/pvt/Etersoft/WINE@Etersoft/1.0.10/WINE-Local/SUSE/10.3/wine-etersoft-local-1.0.10-eter7suse.i586.rpm
-++ find -L /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3 -maxdepth 1 -type f
-++ find -L /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/fonts/SUSE/10.3 -maxdepth 1 -type f
-+ PUBLFILES='/var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/haspd-2.0-eter12.1suse.i586.rpm
-/var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/haspd-modules-2.0-eter12.1suse.i586.rpm
-/var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/fonts-ttf-liberation-1.04-eter1suse.noarch.rpm
-/var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/wine-etersoft-1.0.10-eter11suse.i586.rpm
-/var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/libwine-etersoft-1.0.10-eter11suse.i586.rpm
-/var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/fonts/SUSE/10.3/fonts-ttf-ms-1.0-eter4suse.noarch.rpm'
-+ export FTPDIR=/var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
-+ FTPDIR=/var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
-+ test -e /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
-+ rm -rf /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
-+ mkdir -p /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/
++ build_selta
++ PROJECTNAME=SELTA@Etersoft
++ VERNAME=SELTA@Etersoft/1.0.3
++ PUBLOCAL=/var/ftp/pub/Etersoft/SELTA@Etersoft/1.0.3/Windows
++ PUBDOWNLOAD1=ftp://updates.etersoft.ru/pub/Etersoft/SELTA@Etersoft/1.0.3/Windows
++ PGLOCAL=/var/ftp/pub/Etersoft/PostgreSQL/8.2
++ PGDOWNLOAD1=ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/8.2
++ TARGETDIR=/var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp
++ DOWNLOADDIR=http://updates.etersoft.ru/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp
++ '[' '!' -d /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1 ']'
++ TEXTDIST=Mandriva/2008.1
++ '[' -L /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1 ']'
++ check_dist Mandriva/2008.1
++ local DIST=Mandriva/2008.1
+++ get_distro_list /srv/lav/Projects/git/korinf/etc/lists/all
+++ local i
+++ local LIST
+++ local DIR
+++ '[' -d /srv/lav/Projects/git/korinf/etc/lists/all ']'
+++ '[' -r /srv/lav/Projects/git/korinf/etc/lists/all ']'
+++ LIST=/srv/lav/Projects/git/korinf/etc/lists/all
++++ dirname /srv/lav/Projects/git/korinf/etc/lists/all
+++ DIR=/srv/lav/Projects/git/korinf/etc/lists
+++ cat /srv/lav/Projects/git/korinf/etc/lists/all
+++ grep Mandriva/2008.1
+++ grep -v '^#'
+++ grep -v '^\.'
+++ sed -e 's|[ 	].*||g'
+++ grep -v '^$'
++++ cat /srv/lav/Projects/git/korinf/etc/lists/all
++++ grep '^\.'
++++ sed -e 's|^\. ||g'
+++ LIST='gen
+alt
+bsd
+rem
+x86_64'
+++ for i in '$LIST'
+++ test -f /srv/lav/Projects/git/korinf/etc/lists/gen
+++ get_distro_list /srv/lav/Projects/git/korinf/etc/lists/gen
+++ local i
+++ local LIST
+++ local DIR
+++ '[' -d /srv/lav/Projects/git/korinf/etc/lists/gen ']'
+++ '[' -r /srv/lav/Projects/git/korinf/etc/lists/gen ']'
+++ LIST=/srv/lav/Projects/git/korinf/etc/lists/gen
++++ dirname /srv/lav/Projects/git/korinf/etc/lists/gen
+++ DIR=/srv/lav/Projects/git/korinf/etc/lists
+++ cat /srv/lav/Projects/git/korinf/etc/lists/gen
+++ grep -v '^#'
+++ grep -v '^\.'
+++ sed -e 's|[ 	].*||g'
+++ grep -v '^$'
++++ cat /srv/lav/Projects/git/korinf/etc/lists/gen
++++ grep '^\.'
++++ sed -e 's|^\. ||g'
+++ LIST=
+++ for i in '$LIST'
+++ test -f /srv/lav/Projects/git/korinf/etc/lists/alt
+++ get_distro_list /srv/lav/Projects/git/korinf/etc/lists/alt
+++ local i
+++ local LIST
+++ local DIR
+++ '[' -d /srv/lav/Projects/git/korinf/etc/lists/alt ']'
+++ '[' -r /srv/lav/Projects/git/korinf/etc/lists/alt ']'
+++ LIST=/srv/lav/Projects/git/korinf/etc/lists/alt
++++ dirname /srv/lav/Projects/git/korinf/etc/lists/alt
+++ DIR=/srv/lav/Projects/git/korinf/etc/lists
+++ cat /srv/lav/Projects/git/korinf/etc/lists/alt
+++ grep -v '^#'
+++ grep -v '^\.'
+++ sed -e 's|[ 	].*||g'
+++ grep -v '^$'
++++ cat /srv/lav/Projects/git/korinf/etc/lists/alt
++++ grep '^\.'
++++ sed -e 's|^\. ||g'
+++ LIST=
+++ for i in '$LIST'
+++ test -f /srv/lav/Projects/git/korinf/etc/lists/bsd
+++ get_distro_list /srv/lav/Projects/git/korinf/etc/lists/bsd
+++ local i
+++ local LIST
+++ local DIR
+++ '[' -d /srv/lav/Projects/git/korinf/etc/lists/bsd ']'
+++ '[' -r /srv/lav/Projects/git/korinf/etc/lists/bsd ']'
+++ LIST=/srv/lav/Projects/git/korinf/etc/lists/bsd
++++ dirname /srv/lav/Projects/git/korinf/etc/lists/bsd
+++ DIR=/srv/lav/Projects/git/korinf/etc/lists
+++ cat /srv/lav/Projects/git/korinf/etc/lists/bsd
+++ grep -v '^#'
+++ grep -v '^\.'
+++ sed -e 's|[ 	].*||g'
+++ grep -v '^$'
++++ cat /srv/lav/Projects/git/korinf/etc/lists/bsd
++++ grep '^\.'
++++ sed -e 's|^\. ||g'
+++ LIST=
+++ for i in '$LIST'
+++ test -f /srv/lav/Projects/git/korinf/etc/lists/rem
+++ continue
+++ for i in '$LIST'
+++ test -f /srv/lav/Projects/git/korinf/etc/lists/x86_64
+++ get_distro_list /srv/lav/Projects/git/korinf/etc/lists/x86_64
+++ local i
+++ local LIST
+++ local DIR
+++ '[' -d /srv/lav/Projects/git/korinf/etc/lists/x86_64 ']'
+++ '[' -r /srv/lav/Projects/git/korinf/etc/lists/x86_64 ']'
+++ LIST=/srv/lav/Projects/git/korinf/etc/lists/x86_64
++++ dirname /srv/lav/Projects/git/korinf/etc/lists/x86_64
+++ DIR=/srv/lav/Projects/git/korinf/etc/lists
+++ cat /srv/lav/Projects/git/korinf/etc/lists/x86_64
+++ grep -v '^#'
+++ grep -v '^\.'
+++ sed -e 's|[ 	].*||g'
+++ grep -v '^$'
++++ cat /srv/lav/Projects/git/korinf/etc/lists/x86_64
++++ grep '^\.'
++++ sed -e 's|^\. ||g'
+++ LIST=
++ REBUILDLIST=Mandriva/2008.1
++ '[' -z Mandriva/2008.1 ']'
++ REBUILDLIST=Mandriva/2008.1
++ echo 'Work with try.task for Mandriva/2008.1'
++ export FTPDIR=/var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3
++ FTPDIR=/var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3
++ test -d /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3
++ rm -rf /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3
++ mkdir -p /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3
++ export ETERREGNUM
 + echo
-+ echo 'Build Local for 7ED1-FE1D in SUSE/10.3'
-+ for i in '$PRIVFILES' '$PUBLFILES'
-+ cp -fl /var/ftp/pvt/Etersoft/WINE@Etersoft/1.0.10/WINE-Local/SUSE/10.3/wine-etersoft-local-1.0.10-eter7suse.i586.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
-cp: cannot create link `/var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft-local-1.0.10-eter7suse.i586.rpm': Invalid cross-device link
-+ cp -f /var/ftp/pvt/Etersoft/WINE@Etersoft/1.0.10/WINE-Local/SUSE/10.3/wine-etersoft-local-1.0.10-eter7suse.i586.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
-+ for i in '$PRIVFILES' '$PUBLFILES'
-+ cp -fl /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/haspd-2.0-eter12.1suse.i586.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
-+ for i in '$PRIVFILES' '$PUBLFILES'
-+ cp -fl /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/haspd-modules-2.0-eter12.1suse.i586.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
-+ for i in '$PRIVFILES' '$PUBLFILES'
-+ cp -fl /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/fonts-ttf-liberation-1.04-eter1suse.noarch.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
-+ for i in '$PRIVFILES' '$PUBLFILES'
-+ cp -fl /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/wine-etersoft-1.0.10-eter11suse.i586.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
-+ for i in '$PRIVFILES' '$PUBLFILES'
-+ cp -fl /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/WINE/SUSE/10.3/libwine-etersoft-1.0.10-eter11suse.i586.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
-+ for i in '$PRIVFILES' '$PUBLFILES'
-+ cp -fl /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.10/fonts/SUSE/10.3/fonts-ttf-ms-1.0-eter4suse.noarch.rpm /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
-+ create_license /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic /home/lav/Projects/git/korinf/robot/test/../dsa/wine-etersoft.dsa
-+ local LICENSE_FILE=/var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic
-+ local DSAKEY=/home/lav/Projects/git/korinf/robot/test/../dsa/wine-etersoft.dsa
-+ test -r /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic
-+ rm -f /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic.tmp /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic
++ echo 'Build  for 0D23-A26B in /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3'
++ export BUILDSTRAP=
++ BUILDSTRAP=
++ create_license /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3/selta.lic /home/lav/Projects/git/korinf/robot/test/../dsa/selta.dsa
++ local LICENSE_FILE=/var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3/selta.lic
++ local DSAKEY=/home/lav/Projects/git/korinf/robot/test/../dsa/selta.dsa
++ test -r /home/lav/Projects/git/korinf/robot/test/../dsa/selta.dsa
++ rm -f /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3/selta.lic.tmp /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3/selta.lic
 + cat
-+ echo 'Create license for 1.0.10'
-+ /home/lav/Projects/git/korinf/robot/test/../dsa/generate_sig /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic.tmp /home/lav/Projects/git/korinf/robot/test/../dsa/wine-etersoft.dsa /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic
++ echo 'Create license for 1.0.3'
++ LC_ALL=ru_RU.UTF-8
++ /home/lav/Projects/git/korinf/robot/test/../dsa/generate_sig /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3/selta.lic.tmp /home/lav/Projects/git/korinf/robot/test/../dsa/selta.dsa /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3/selta.lic
 + iconv -f koi8-r -r
-+ test -r /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic
-+ rm -f /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic.tmp
-+ DOCS=/var/ftp/pvt/Etersoft/WINE@Etersoft/1.0.10/WINE-Local/../docs
-+ sed -e s/XXXX-XXXX/7ED1-FE1D/g
-+ sed -e s/XXXX-XXXX/7ED1-FE1D/g
-+ cp -f /var/ftp/pvt/Etersoft/WINE@Etersoft/1.0.10/WINE-Local/../docs/local_manual.html /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/manual.html
-+ locale
++ test -r /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3/selta.lic
++ rm -f /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3/selta.lic.tmp
++ export LC_ALL=ru_RU.UTF-8
++ LC_ALL=ru_RU.UTF-8
 ++ mktemp
-+ TMPMAIL=/tmp/.private/lav/tmp.dwMm1yj9WH
-+ prepare_wine_etersoft_mail /tmp/.private/lav/tmp.dwMm1yj9WH
++ TMPMAIL=/tmp/.private/lav/tmp.Ai6VJQ6yMO
++ prepareSeltaMail /tmp/.private/lav/tmp.Ai6VJQ6yMO
 + local FILETO BETA
-+ FILETO=/tmp/.private/lav/tmp.dwMm1yj9WH
-++ get_name 'Мельников Максим'
++ FILETO=/tmp/.private/lav/tmp.Ai6VJQ6yMO
+++ get_name 'Гомонов Максим Викторович'
 ++ local name
-+++ echo $'\320\234\320\265\320\273\321\214\320\275\320\270\320\272\320\276\320\262' $'\320\234\320\260\320\272\321\201\320\270\320\274'
++++ echo $'\320\223\320\276\320\274\320\276\320\275\320\276\320\262' $'\320\234\320\260\320\272\321\201\320\270\320\274' $'\320\222\320\270\320\272\321\202\320\276\321\200\320\276\320\262\320\270\321\207'
 +++ awk '{print $1}'
-++ LN=$'\320\234\320\265\320\273\321\214\320\275\320\270\320\272\320\276\320\262'
-+++ echo $'\320\234\320\265\320\273\321\214\320\275\320\270\320\272\320\276\320\262' $'\320\234\320\260\320\272\321\201\320\270\320\274'
+++ LN=$'\320\223\320\276\320\274\320\276\320\275\320\276\320\262'
++++ echo $'\320\223\320\276\320\274\320\276\320\275\320\276\320\262' $'\320\234\320\260\320\272\321\201\320\270\320\274' $'\320\222\320\270\320\272\321\202\320\276\321\200\320\276\320\262\320\270\321\207'
 +++ awk '{print $2}'
 ++ FN=$'\320\234\320\260\320\272\321\201\320\270\320\274'
-+++ echo $'\320\234\320\265\320\273\321\214\320\275\320\270\320\272\320\276\320\262' $'\320\234\320\260\320\272\321\201\320\270\320\274'
++++ echo $'\320\223\320\276\320\274\320\276\320\275\320\276\320\262' $'\320\234\320\260\320\272\321\201\320\270\320\274' $'\320\222\320\270\320\272\321\202\320\276\321\200\320\276\320\262\320\270\321\207'
 +++ awk '{print $3}'
-++ SN=
-++ '[' -z 'Мельников Максим' ']'
+++ SN=$'\320\222\320\270\320\272\321\202\320\276\321\200\320\276\320\262\320\270\321\207'
+++ '[' -z 'Гомонов Максим Викторович' ']'
 +++ expr index $'\320\234\320\260\320\272\321\201\320\270\320\274' .
-+++ expr index '' .
++++ expr index $'\320\222\320\270\320\272\321\202\320\276\321\200\320\276\320\262\320\270\321\207' .
 ++ '[' 0 '!=' 0 -o 0 '!=' 0 ']'
-++ '[' -z '' ']'
-+++ echo $'\320\234\320\260\320\272\321\201\320\270\320\274'
-++ name=$'\320\234\320\260\320\272\321\201\320\270\320\274'
-++ '[' -z $'\320\234\320\260\320\272\321\201\320\270\320\274' ']'
-++ echo $'\320\234\320\260\320\272\321\201\320\270\320\274'
+++ '[' -z $'\320\222\320\270\320\272\321\202\320\276\321\200\320\276\320\262\320\270\321\207' ']'
++++ echo $'\320\234\320\260\320\272\321\201\320\270\320\274' $'\320\222\320\270\320\272\321\202\320\276\321\200\320\276\320\262\320\270\321\207'
+++ name='Максим Викторович'
+++ '[' -z 'Максим Викторович' ']'
+++ echo $'\320\234\320\260\320\272\321\201\320\270\320\274' $'\320\222\320\270\320\272\321\202\320\276\321\200\320\276\320\262\320\270\321\207'
 ++ return 0
-+ NAME=$'\320\234\320\260\320\272\321\201\320\270\320\274'
++ NAME='Максим Викторович'
 + BETA=
-+ '[' 0 = 1 ']'
-+ CIFSTEXT=
-+ '[' Local '!=' Local ']'
 + cat
-++ cd /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
-++ find -L ./ -maxdepth 1 -type f
-++ sed -e 's|\./||g'
-+ printURL /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3 ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3 wine-etersoft-local-1.0.10-eter7suse.i586.rpm haspd-2.0-eter12.1suse.i586.rpm haspd-modules-2.0-eter12.1suse.i586.rpm fonts-ttf-liberation-1.04-eter1suse.noarch.rpm wine-etersoft-1.0.10-eter11suse.i586.rpm libwine-etersoft-1.0.10-eter11suse.i586.rpm fonts-ttf-ms-1.0-eter4suse.noarch.rpm wine-etersoft.lic README.html license.html manual.html
++ LOCALFILES=selta.msi
++ printURL /var/ftp/pub/Etersoft/SELTA@Etersoft/1.0.3/Windows ftp://updates.etersoft.ru/pub/Etersoft/SELTA@Etersoft/1.0.3/Windows selta.msi
 + local FILE
-+ local LDIR=/var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
-+ local DDIR=ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3
++ local LDIR=/var/ftp/pub/Etersoft/SELTA@Etersoft/1.0.3/Windows
++ local DDIR=ftp://updates.etersoft.ru/pub/Etersoft/SELTA@Etersoft/1.0.3/Windows
 + shift
 + shift
-+ '[' -n wine-etersoft-local-1.0.10-eter7suse.i586.rpm ']'
++ '[' -n selta.msi ']'
 + for i in '$@'
-++ basename wine-etersoft-local-1.0.10-eter7suse.i586.rpm
-+ FILE=wine-etersoft-local-1.0.10-eter7suse.i586.rpm
-++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft-local-1.0.10-eter7suse.i586.rpm
-+ FSIZE=9115233
-+ let KSIZE=9115233/1024
-+ '[' 8901 -lt 1 ']'
-+ printf '[ %5d Кб]  ' 8901
-+ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft-local-1.0.10-eter7suse.i586.rpm
+++ basename selta.msi
++ FILE=selta.msi
++ test -r /var/ftp/pub/Etersoft/SELTA@Etersoft/1.0.3/Windows/selta.msi
+++ stat --printf=%s /var/ftp/pub/Etersoft/SELTA@Etersoft/1.0.3/Windows/selta.msi
++ FSIZE=2170368
++ let KSIZE=2170368/1024
++ '[' 2119 -lt 1 ']'
++ printf '[ %5d Кб]  ' 2119
++ echo ftp://updates.etersoft.ru/pub/Etersoft/SELTA@Etersoft/1.0.3/Windows/selta.msi
++ return 0
+++ find -L /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3 -maxdepth 1 -type f
++ printURL /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3 http://updates.etersoft.ru/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3 /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3/selta.lic
++ local FILE
++ local LDIR=/var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3
++ local DDIR=http://updates.etersoft.ru/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3
++ shift
++ shift
++ '[' -n /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3/selta.lic ']'
 + for i in '$@'
-++ basename haspd-2.0-eter12.1suse.i586.rpm
-+ FILE=haspd-2.0-eter12.1suse.i586.rpm
-++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/haspd-2.0-eter12.1suse.i586.rpm
-+ FSIZE=1470261
-+ let KSIZE=1470261/1024
-+ '[' 1435 -lt 1 ']'
-+ printf '[ %5d Кб]  ' 1435
-+ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/haspd-2.0-eter12.1suse.i586.rpm
-+ for i in '$@'
-++ basename haspd-modules-2.0-eter12.1suse.i586.rpm
-+ FILE=haspd-modules-2.0-eter12.1suse.i586.rpm
-++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/haspd-modules-2.0-eter12.1suse.i586.rpm
-+ FSIZE=47886
-+ let KSIZE=47886/1024
-+ '[' 46 -lt 1 ']'
-+ printf '[ %5d Кб]  ' 46
-+ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/haspd-modules-2.0-eter12.1suse.i586.rpm
-+ for i in '$@'
-++ basename fonts-ttf-liberation-1.04-eter1suse.noarch.rpm
-+ FILE=fonts-ttf-liberation-1.04-eter1suse.noarch.rpm
-++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/fonts-ttf-liberation-1.04-eter1suse.noarch.rpm
-+ FSIZE=817642
-+ let KSIZE=817642/1024
-+ '[' 798 -lt 1 ']'
-+ printf '[ %5d Кб]  ' 798
-+ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/fonts-ttf-liberation-1.04-eter1suse.noarch.rpm
-+ for i in '$@'
-++ basename wine-etersoft-1.0.10-eter11suse.i586.rpm
-+ FILE=wine-etersoft-1.0.10-eter11suse.i586.rpm
-++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft-1.0.10-eter11suse.i586.rpm
-+ FSIZE=13166192
-+ let KSIZE=13166192/1024
-+ '[' 12857 -lt 1 ']'
-+ printf '[ %5d Кб]  ' 12857
-+ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft-1.0.10-eter11suse.i586.rpm
-+ for i in '$@'
-++ basename libwine-etersoft-1.0.10-eter11suse.i586.rpm
-+ FILE=libwine-etersoft-1.0.10-eter11suse.i586.rpm
-++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/libwine-etersoft-1.0.10-eter11suse.i586.rpm
-+ FSIZE=8371562
-+ let KSIZE=8371562/1024
-+ '[' 8175 -lt 1 ']'
-+ printf '[ %5d Кб]  ' 8175
-+ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/libwine-etersoft-1.0.10-eter11suse.i586.rpm
-+ for i in '$@'
-++ basename fonts-ttf-ms-1.0-eter4suse.noarch.rpm
-+ FILE=fonts-ttf-ms-1.0-eter4suse.noarch.rpm
-++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/fonts-ttf-ms-1.0-eter4suse.noarch.rpm
-+ FSIZE=7316639
-+ let KSIZE=7316639/1024
-+ '[' 7145 -lt 1 ']'
-+ printf '[ %5d Кб]  ' 7145
-+ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/fonts-ttf-ms-1.0-eter4suse.noarch.rpm
-+ for i in '$@'
-++ basename wine-etersoft.lic
-+ FILE=wine-etersoft.lic
-++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic
-+ FSIZE=528
-+ let KSIZE=528/1024
+++ basename /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3/selta.lic
++ FILE=selta.lic
++ test -r /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3/selta.lic
+++ stat --printf=%s /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3/selta.lic
++ FSIZE=532
++ let KSIZE=532/1024
 + '[' 0 -lt 1 ']'
 + KSIZE=1
 + printf '[ %5d Кб]  ' 1
-+ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/wine-etersoft.lic
-+ for i in '$@'
-++ basename README.html
-+ FILE=README.html
-++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/README.html
-+ FSIZE=9960
-+ let KSIZE=9960/1024
-+ '[' 9 -lt 1 ']'
-+ printf '[ %5d Кб]  ' 9
-+ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/README.html
-+ for i in '$@'
-++ basename license.html
-+ FILE=license.html
-++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/license.html
-+ FSIZE=6100
-+ let KSIZE=6100/1024
-+ '[' 5 -lt 1 ']'
-+ printf '[ %5d Кб]  ' 5
-+ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/license.html
-+ for i in '$@'
-++ basename manual.html
-+ FILE=manual.html
-++ stat --printf=%s /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/manual.html
-+ FSIZE=108237
-+ let KSIZE=108237/1024
-+ '[' 105 -lt 1 ']'
-+ printf '[ %5d Кб]  ' 105
-+ echo ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/Local-1.0.10/SUSE/10.3/manual.html
++ echo http://updates.etersoft.ru/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/1.0.3/selta.lic
 + return 0
 + cat
-+ locale
-+ export LANG=ru_RU.UTF-8
-+ LANG=ru_RU.UTF-8
-+ locale
-+ cat /tmp/.private/lav/tmp.dwMm1yj9WH
-+ mutt 'Испытание <lav@etersoft.ru>' -b wine@etersoft.ru -s 'Сборка WINE@Etersoft 1.0 Local (коробочная версия, локальная лицензия)'
-+ rm -f /tmp/.private/lav/tmp.dwMm1yj9WH
-+ mkdir -p /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/../done/
-+ mv -f try.task /var/ftp/pub/download/WINE@Etersoft/7ED1-FE1D-2u8lmjf09q/../done/
+++ find -L /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1 -maxdepth 1 -type f
++ LOCALFILES='/var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-devel-8.2.11-eter1mdv.i586.rpm
+/var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-docs-8.2.11-eter1mdv.i586.rpm
+/var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-plperl-8.2.11-eter1mdv.i586.rpm
+/var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-plpython-8.2.11-eter1mdv.i586.rpm
+/var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-test-8.2.11-eter1mdv.i586.rpm
+/var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-8.2.11-eter1mdv.i586.rpm
+/var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-contrib-8.2.11-eter1mdv.i586.rpm
+/var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-libs-8.2.11-eter1mdv.i586.rpm
+/var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-server-8.2.11-eter1mdv.i586.rpm'
++ printURL /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1 ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1 /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-devel-8.2.11-eter1mdv.i586.rpm /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-docs-8.2.11-eter1mdv.i586.rpm /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-plperl-8.2.11-eter1mdv.i586.rpm /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-plpython-8.2.11-eter1mdv.i586.rpm /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-test-8.2.11-eter1mdv.i586.rpm /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-8.2.11-eter1mdv.i586.rpm /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-contrib-8.2.11-eter1mdv.i586.rpm /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-libs-8.2.11-eter1mdv.i586.rpm /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-server-8.2.11-eter1mdv.i586.rpm
++ local FILE
++ local LDIR=/var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1
++ local DDIR=ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1
++ shift
++ shift
++ '[' -n /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-devel-8.2.11-eter1mdv.i586.rpm ']'
++ for i in '$@'
+++ basename /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-devel-8.2.11-eter1mdv.i586.rpm
++ FILE=postgresql-8.2eter-devel-8.2.11-eter1mdv.i586.rpm
++ test -r /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-devel-8.2.11-eter1mdv.i586.rpm
+++ stat --printf=%s /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-devel-8.2.11-eter1mdv.i586.rpm
++ FSIZE=1142361
++ let KSIZE=1142361/1024
++ '[' 1115 -lt 1 ']'
++ printf '[ %5d Кб]  ' 1115
++ echo ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-devel-8.2.11-eter1mdv.i586.rpm
++ for i in '$@'
+++ basename /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-docs-8.2.11-eter1mdv.i586.rpm
++ FILE=postgresql-8.2eter-docs-8.2.11-eter1mdv.i586.rpm
++ test -r /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-docs-8.2.11-eter1mdv.i586.rpm
+++ stat --printf=%s /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-docs-8.2.11-eter1mdv.i586.rpm
++ FSIZE=9225909
++ let KSIZE=9225909/1024
++ '[' 9009 -lt 1 ']'
++ printf '[ %5d Кб]  ' 9009
++ echo ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-docs-8.2.11-eter1mdv.i586.rpm
++ for i in '$@'
+++ basename /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-plperl-8.2.11-eter1mdv.i586.rpm
++ FILE=postgresql-8.2eter-plperl-8.2.11-eter1mdv.i586.rpm
++ test -r /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-plperl-8.2.11-eter1mdv.i586.rpm
+++ stat --printf=%s /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-plperl-8.2.11-eter1mdv.i586.rpm
++ FSIZE=37044
++ let KSIZE=37044/1024
++ '[' 36 -lt 1 ']'
++ printf '[ %5d Кб]  ' 36
++ echo ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-plperl-8.2.11-eter1mdv.i586.rpm
++ for i in '$@'
+++ basename /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-plpython-8.2.11-eter1mdv.i586.rpm
++ FILE=postgresql-8.2eter-plpython-8.2.11-eter1mdv.i586.rpm
++ test -r /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-plpython-8.2.11-eter1mdv.i586.rpm
+++ stat --printf=%s /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-plpython-8.2.11-eter1mdv.i586.rpm
++ FSIZE=31146
++ let KSIZE=31146/1024
++ '[' 30 -lt 1 ']'
++ printf '[ %5d Кб]  ' 30
++ echo ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-plpython-8.2.11-eter1mdv.i586.rpm
++ for i in '$@'
+++ basename /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-test-8.2.11-eter1mdv.i586.rpm
++ FILE=postgresql-8.2eter-test-8.2.11-eter1mdv.i586.rpm
++ test -r /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-test-8.2.11-eter1mdv.i586.rpm
+++ stat --printf=%s /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-test-8.2.11-eter1mdv.i586.rpm
++ FSIZE=1207775
++ let KSIZE=1207775/1024
++ '[' 1179 -lt 1 ']'
++ printf '[ %5d Кб]  ' 1179
++ echo ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-test-8.2.11-eter1mdv.i586.rpm
++ for i in '$@'
+++ basename /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-8.2.11-eter1mdv.i586.rpm
++ FILE=postgresql-8.2eter-8.2.11-eter1mdv.i586.rpm
++ test -r /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-8.2.11-eter1mdv.i586.rpm
+++ stat --printf=%s /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-8.2.11-eter1mdv.i586.rpm
++ FSIZE=1676054
++ let KSIZE=1676054/1024
++ '[' 1636 -lt 1 ']'
++ printf '[ %5d Кб]  ' 1636
++ echo ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-8.2.11-eter1mdv.i586.rpm
++ for i in '$@'
+++ basename /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-contrib-8.2.11-eter1mdv.i586.rpm
++ FILE=postgresql-8.2eter-contrib-8.2.11-eter1mdv.i586.rpm
++ test -r /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-contrib-8.2.11-eter1mdv.i586.rpm
+++ stat --printf=%s /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-contrib-8.2.11-eter1mdv.i586.rpm
++ FSIZE=6342201
++ let KSIZE=6342201/1024
++ '[' 6193 -lt 1 ']'
++ printf '[ %5d Кб]  ' 6193
++ echo ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-contrib-8.2.11-eter1mdv.i586.rpm
++ for i in '$@'
+++ basename /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-libs-8.2.11-eter1mdv.i586.rpm
++ FILE=postgresql-8.2eter-libs-8.2.11-eter1mdv.i586.rpm
++ test -r /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-libs-8.2.11-eter1mdv.i586.rpm
+++ stat --printf=%s /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-libs-8.2.11-eter1mdv.i586.rpm
++ FSIZE=196577
++ let KSIZE=196577/1024
++ '[' 191 -lt 1 ']'
++ printf '[ %5d Кб]  ' 191
++ echo ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-libs-8.2.11-eter1mdv.i586.rpm
++ for i in '$@'
+++ basename /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-server-8.2.11-eter1mdv.i586.rpm
++ FILE=postgresql-8.2eter-server-8.2.11-eter1mdv.i586.rpm
++ test -r /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-server-8.2.11-eter1mdv.i586.rpm
+++ stat --printf=%s /var/ftp/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-server-8.2.11-eter1mdv.i586.rpm
++ FSIZE=4328388
++ let KSIZE=4328388/1024
++ '[' 4226 -lt 1 ']'
++ printf '[ %5d Кб]  ' 4226
++ echo ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/8.2/Mandriva/2008.1/postgresql-8.2eter-server-8.2.11-eter1mdv.i586.rpm
++ return 0
++ cat
++ cat /tmp/.private/lav/tmp.Ai6VJQ6yMO
++ mutt 'Испытание <lav@etersoft.ru>' -b wine@etersoft.ru -s 'Сборка SELTA@Etersoft 1.0 (электронная версия, базовая лицензия)'
++ rm -f /tmp/.private/lav/tmp.Ai6VJQ6yMO
++ mkdir -p /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/../done/
++ mv -f try.task /var/ftp/pub/download/SELTA@Etersoft/0D23-A26B-ahi3haf2cp/../done/
 ++ date
-+ DATE='Thu Mar  5 23:29:30 MSK 2009'
-+ echo '# built done at Thu Mar  5 23:29:30 MSK 2009'
++ DATE='Птн Мар  6 01:22:51 MSK 2009'
++ echo '# built done at Птн Мар  6 01:22:51 MSK 2009'
 ++ basename try.task
 + exit_now
 + '[' -n '' ']'
