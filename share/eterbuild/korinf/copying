@@ -53,17 +53,18 @@ copying_packages()
 	local RC=1
 	prepare_copying
 
-	echo "Copying built packages to $DESTDIR (cd to $BUILTRPM)..."
 	pushd $BUILTRPM >/dev/null || warning "Can't cd to built rpm dir"
 
 	# Don't public debug packages now (it may contain source files)
 	rm -f *${BUILDNAME}-debuginfo* *${BUILDNAME}-debug-*
 
 	if [ -n "$MAINFILESLIST" ] ; then
+		echo "Copying built packages to $DESTDIR (cd to $BUILTRPM)..."
 		cp -v $EXPMAINFILES $DESTDIR/ && RC=0 || warning "Cannot copy new packages $EXPMAINFILES"
 	fi
 
 	if [ -n "$EXTRAFILESLIST" ] ; then
+		echo "Copying built packages to $DESTDIR/extra (cd to $BUILTRPM)..."
 		cp -v $EXPEXTRAFILES $DESTDIR/extra/ && RC=0 || warning "Cannot copy extra packages $EXPEXTRAFILES"
 	fi
 

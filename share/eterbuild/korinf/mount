@@ -36,8 +36,8 @@ mount_linux()
 	# FIXME: why LOCUSER??
 	$SUDO chown $LOCUSER $BUILDERHOME -R
 
-	echo "Mount $LOCALLINUXFARM/$dist to $BUILDROOT..."
 	[ -z "$BUILDROOT" ] && echo "Skip mount due empty BUILDROOT" && return 1
+	echo "Mount $LOCALLINUXFARM/$dist to $BUILDROOT (user $INTUSER)..."
 
 	# FIXME:
 	[ -d $LOCALLINUXFARM ] && MOUNTPARAM="--bind" || MOUNTPARAM="-o soft"
