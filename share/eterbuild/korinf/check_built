@@ -31,8 +31,9 @@ check_built_package()
 		echo "Path PATHTO:'$PATHTO' is missed"
 		return 1
 	fi
-	SRCPKG=$(get_src_package $BUILDNAME)
-	echo $SRCPKG
+	SRCPKG=$(get_src_package "$SOURCEPATH" $BUILDNAME)
+	echo "Source package: $SRCPKG"
+
 	for i in $(get_distro_list $REBUILDLIST) ; do
 		NAME=$i
 
@@ -44,7 +45,7 @@ check_built_package()
 
 		ST="   "
 		test -L $PATHPKG && NAME="$NAME [L]"
-		FILENAME=$(TARGETPATH=$PATHPKG get_bin_package $BUILDNAME)
+		FILENAME=$(get_bin_package "$PATHPKG" $BUILDNAME)
 		#echo $FILENAME
 		if [ -r "$FILENAME" ] ; then
 			FILEDATE=`stat -c"%y" $FILENAME | sed -e "s|\..*$||"`

@@ -126,7 +126,8 @@ last_rpm()
 get_src_package()
 {
 	local BUILDSRPM
-	local BUILDNAME="$1"
+	local SOURCEPATH="$1"
+	local BUILDNAME="$2"
 	# Do use direct package name?
 	if echo $BUILDNAME | grep -q "\.src\.rpm" ; then
 		BUILDSRPM="$SOURCEPATH/$BUILDNAME"
@@ -142,7 +143,8 @@ get_src_package()
 get_bin_package()
 {
 	local BUILDPKG
-	local BUILDNAME="$1"
+	local TARGETPATH="$1"
+	local BUILDNAME="$2"
 	BUILDPKG="$(ls -1 $TARGETPATH/$BUILDNAME[-_][0-9]* 2>/dev/null | head -n1)"
 
 	echo $BUILDPKG
