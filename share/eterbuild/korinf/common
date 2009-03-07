@@ -94,14 +94,6 @@ kormod()
 	done
 }
 
-kormod_build()
-{
-	local i
-	for i in $@ ; do
-		. $KORINFDIR/korinf/build/build-$i.sh
-	done
-}
-
 # Returns the newest package from the pkg list (without extension .src.rpm)
 last_rpm()
 {
