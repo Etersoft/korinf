@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.6
+Version: 1.7
 Release: alt1
 
 Summary: Korinf build system
@@ -16,7 +16,7 @@ Source: %name-%version.tar
 
 BuildArchitectures: noarch
 
-Requires: etersoft-build-utils >= 1.5.2
+Requires: etersoft-build-utils >= 1.5.6
 
 %description
 This package contains Korinf build system.
@@ -39,6 +39,9 @@ This package contains Korinf build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Sat Mar 07 2009 Vitaly Lipatov <lav@altlinux.ru> 1.7-alt1
+- improve code, fix to user etersoft-build-utils 1.5.6
+
 * Wed Jan 14 2009 Vitaly Lipatov <lav@altlinux.ru> 1.6-alt1
 - update version
 
