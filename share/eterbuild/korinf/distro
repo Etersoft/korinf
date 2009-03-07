@@ -36,8 +36,8 @@ expand_filelist()
 prepare_filelist()
 {
 	[ -z "$MAINFILESLIST$EXTRAFILESLIST" ] && fatal "Logical error with MAINFILESLIST EXTRAFILESLIST"
-	EXPMAINFILES=`expand_filelist $MAINFILESLIST`
-	EXPEXTRAFILES=`expand_filelist $EXTRAFILESLIST`
+	EXPMAINFILES=$(expand_filelist $MAINFILESLIST)
+	EXPEXTRAFILES=$(expand_filelist $EXTRAFILESLIST)
 
 	[ -n "$ADEBUG" ] && echo "EXPMAINFILES: $EXPMAINFILES EXPEXTRAFILES: $EXPEXTRAFILES"
 	[ -z "$EXPMAINFILES$EXPEXTRAFILES" ] && fatal "Logical error with EXPMAINFILES EXPEXTRAFILES"
@@ -46,79 +46,79 @@ prepare_filelist()
 
 build_dist_pkg()
 {
-	case $dist_name in
-		"FreeBSD")
-			kormod build/freebsd
-			logit "build in FreeBSD $dist_ver" build_bsd || return 1
-			prepare_filelist
-			logit "copying built packages to $dist" copying_bsd || return 1
-			[ -n "$BOOTSTRAP" ] && logit "install built" install_bsd
-			logit "cleaning" cleaning_bsd || return 1
-			;;
+case $dist_name in
+"FreeBSD")
+	kormod build/freebsd
+	logit "build in FreeBSD $dist_ver" build_bsd || return 1
+	prepare_filelist
+	logit "copying built packages to $dist" copying_bsd || return 1
+	[ -n "$BOOTSTRAP" ] && logit "install built" install_bsd
+	logit "cleaning" cleaning_bsd || return 1
+	;;
 
-		"OpenSolaris")
-			kormod build/solaris
-			logit "build in Solaris $dist_ver" build_solaris || return 1
-			prepare_filelist
-			logit "copying built packages to $dist" copying_solaris || return 1
-			logit "cleaning" cleaning_solaris || return 1
-			;;
+"OpenSolaris")
+	kormod build/solaris
+	logit "build in Solaris $dist_ver" build_solaris || return 1
+	prepare_filelist
+	logit "copying built packages to $dist" copying_solaris || return 1
+	logit "cleaning" cleaning_solaris || return 1
+	;;
 
-		"Gentoo")
-			kormod build/gentoo
-			case $dist_ver in
-			    "2007")
-				logit "build in Gentoo $dist_ver" build_gentoo2007 || return 1
-				prepare_filelist
-				logit "copying built packages to $dist" copying_gentoo2007 || return 1
-				logit "cleaning in Gentoo $dist_ver" clean_gentoo2007 || return 1
-				;;
+"Gentoo")
+	kormod build/gentoo
+	case $dist_ver in
+	    "2007")
+		logit "build in Gentoo $dist_ver" build_gentoo2007 || return 1
+		prepare_filelist
+		logit "copying built packages to $dist" copying_gentoo2007 || return 1
+		logit "cleaning in Gentoo $dist_ver" clean_gentoo2007 || return 1
+		;;
 
-			    "2006.1")
-				logit "mount $dist" mount_linux || continue
-				logit "build in Gentoo $dist_ver" build_emerge || return 1
-				prepare_filelist
-				logit "copying built packages to $dist" copying_emerge || return 1
-				logit "umount" end_umount || return 1
-				;;
-			esac
-			;;
-
-		"ArchLinux")
-			kormod build/archlinux
-			kormod build/rpm
-			logit "mount $dist" mount_linux || return 1
-			logit "build $dist" build_rpms $dist || return 1
-			logit "convert RPM to $TARGET" convert_archlinux || return 1
-			prepare_filelist
-			logit "copying built packages to $dist" copying_pkgbuild || return 1
-			logit "umount" end_umount || return 1
-			;;
-
-		"ALTLinux")
-			kormod build/hasher
-			logit "build in hasher $dist_ver" build_in_hasher || return 1
-			prepare_filelist
-			logit "copying built packages to $dist" copying_packages || return 1
-			;;
-
-		*)
-			kormod build/rpm
-			logit "mount $dist" mount_linux || return 1
-			logit "build $dist" build_rpms $dist || return 1
-			prepare_filelist
-
-			if [ "$TARGET" != "rpm" ] && [ -z "$MAKESPKG" ] ; then
-				logit "convert RPM to $TARGET" convert_rpm || return 1
-			fi
-
-			if [ -n "$BOOTSTRAP" ] && [ -z "$MAKESPKG" ]; then
-				logit "install built" install_built || return 1
-			fi
-
-			logit "copying to $dist" copying_packages || return 1
-			logit "umount" end_umount || return 1
-			;;
+	    "2006.1")
+		logit "mount $dist" mount_linux || continue
+		logit "build in Gentoo $dist_ver" build_emerge || return 1
+		prepare_filelist
+		logit "copying built packages to $dist" copying_emerge || return 1
+		logit "umount" end_umount || return 1
+		;;
 	esac
+	;;
+
+"ArchLinux")
+	kormod build/archlinux
+	kormod build/rpm
+	logit "mount $dist" mount_linux || return 1
+	logit "build $dist" build_rpms $dist || return 1
+	logit "convert RPM to $TARGET" convert_archlinux || return 1
+	prepare_filelist
+	logit "copying built packages to $dist" copying_pkgbuild || return 1
+	logit "umount" end_umount || return 1
+	;;
+
+"ALTLinux")
+	kormod build/hasher
+	logit "build in hasher $dist_ver" build_in_hasher || return 1
+	prepare_filelist
+	logit "copying built packages to $dist" copying_packages || return 1
+	;;
+
+*)
+	kormod build/rpm
+	logit "mount $dist" mount_linux || return 1
+	logit "build $dist" build_rpms $dist || return 1
+	prepare_filelist
+
+	if [ "$TARGET" != "rpm" ] && [ -z "$MAKESPKG" ] ; then
+		logit "convert RPM to $TARGET" convert_rpm || return 1
+	fi
+
+	if [ -n "$BOOTSTRAP" ] && [ -z "$MAKESPKG" ]; then
+		logit "install built" install_built || return 1
+	fi
+
+	logit "copying to $dist" copying_packages || return 1
+	logit "umount" end_umount || return 1
+	;;
+esac
 }
 
