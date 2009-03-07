@@ -28,3 +28,4 @@ fi
 ./haspd.sh $OPT $CHECKONLY $DISTR $RELEASEVERSION
 ./fonts-ttf-ms.sh $OPT $CHECKONLY $DISTR $RELEASEVERSION
 ./fonts-ttf-liberation.sh $OPT $CHECKONLY $DISTR $RELEASEVERSION
+../bin-common/build-strap.sh $OPT $CHECKONLY $DISTR $RELEASEVERSION
