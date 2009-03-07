@@ -30,6 +30,8 @@
 #
 
 kormod korinf
+# load our message file
+. $AROBOTDIR/funcs/message
 
 build_pre()
 {
@@ -47,8 +49,8 @@ build_pre()
 	# Вывод скрипта не записывается в лог
 	export BUILDSTRAP=
 
-	TARGETPATH=$FTPDIR
-	export BUILDNAME=wine-etersoft-$type$licensetype
+	export TARGETPATH=$FTPDIR
+	BUILDNAME=wine-etersoft-$type$licensetype
 	build_package $BUILDNAME || fatal "Build failed"
 
 	EFILE=$(ls -1 $FTPDIR/$DIST/$BUILDNAME[-_][0-9]* | head -n1)
