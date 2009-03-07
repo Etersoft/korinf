@@ -29,12 +29,7 @@ function build_in_hasher()
 	# default for ALT Linux
 	TARGET="rpm"
 
-	# FIXME: where is function?
-	# convert to etersoft-build-utils notation
-	dist_mod=`echo $dist_ver | sed -e "s|2\.4|M24|g" |
-		sed -e "s|2\.3|M23|g" | sed -e "s|3\.0|M30|g" |
-		sed -e "s|4\.0|M40|g" | sed -e "s|4\.1|M41|g" | sed -e "s|Sisyphus|SS|g"`
-	set_target_type $dist_mod
+	set_target_type $(get_altdistr_mod $dist_ver)
 	detect_target_env >>$LOGFILE 2>&1
 	BUILTRPM=$HASHERDIR$MENVARG/repo/$DEFAULTARCH/RPMS.hasher
 
