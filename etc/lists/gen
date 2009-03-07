@@ -7,8 +7,6 @@
 Fedora/9
 Fedora/10
 Mandriva/2008.1
-Ubuntu/8.04
-Ubuntu/8.10
 SUSE/11
 
 # Потом остальные
@@ -42,17 +40,8 @@ Mandriva/2009.0
 
 PCLinux/2007
 
-# Debian based
-#Debian/3.1
-Debian/4.0
-Debian/5.0
-
-#Ubuntu/5.10
-Ubuntu/6.06
-# not supported
-#Ubuntu/6.10
-Ubuntu/7.04
-Ubuntu/7.10
+# Load deb system list
+. deb
 
 # Novell
 #SUSE/10
@@ -72,5 +61,3 @@ MOPSLinux/6.0
 Gentoo/2007
 
 #Special/3.0
-
-
