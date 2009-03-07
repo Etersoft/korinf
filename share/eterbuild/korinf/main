@@ -37,10 +37,6 @@ exit_handler()
 main_build()
 {
 
-# Try to set clear environment
-export LC_ALL=C
-unset DISPLAY
-
 trap exit_handler EXIT HUP INT QUIT PIPE TERM
 
 [ -n "$ADEBUG" ] && echo "BUILDNAME: $BUILDNAME"

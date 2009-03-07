@@ -1,0 +1,46 @@
+#!/bin/bash
+##
+#  Korinf project
+#
+#  Message functions
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005-2009
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+
+fatal()
+{
+	echo "FATAL: $@" >&2
+	[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount
+	# disable trap before exit
+	trap - EXIT
+	exit 1
+}
+
+warning()
+{
+	echo "WARNING: $@" >&2
+#	continue
+	echo "`date` $dist WARNING: $@" | write_report
+	if [ -n "$CAREBUILD" ] ; then
+		[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount
+		# disable trap before exit
+		trap - EXIT
+		exit 1
+	fi
+}
+

@@ -27,7 +27,7 @@
 #  build_package your-package-name
 
 
-kormod main check_built
+kormod message main check_built
 
 
 # build binary packages according to REBUILDLIST

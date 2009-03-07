@@ -24,7 +24,8 @@
 # arg: src.rpm target_file
 # Check if target is older then src.rpm and build if needed
 
-kormod korinf
+# is not recommended include directly due message function intersection
+#kormod korinf
 
 # do not used
 check_and_refresh_package()

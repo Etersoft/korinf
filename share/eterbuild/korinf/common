@@ -64,28 +64,6 @@ unset DISPLAY
 
 test `hostname` = builder.office.etersoft.ru || warning "It is tested only at Etersoft builder host!"
 
-fatal()
-{
-	echo "FATAL: $@" >&2
-	[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount
-	# disable trap before exit
-	trap - EXIT
-	exit 1
-}
-
-warning()
-{
-	echo "WARNING: $@" >&2
-#	continue
-	echo "`date` $dist WARNING: $@" | write_report
-	if [ -n "$CAREBUILD" ] ; then
-		[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount
-		# disable trap before exit
-		trap - EXIT
-		exit 1
-	fi
-}
-
 kormod()
 {
 	local i
