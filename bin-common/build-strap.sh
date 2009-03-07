@@ -16,7 +16,8 @@ kormod korinf
 build_extrapkg()
 {
 	EXTRAFILES="$1"
-	build_project $WINEPUB_PATH $1 WINE $PROJVER
+	shift
+	build_project $WINEPUB_PATH "$EXTRAFILES" WINE $PROJVER $@
 }
 
 # install packages after build
@@ -28,25 +29,13 @@ if [ "$1" = "-s" ] ; then
 	shift
 fi
 
-# Using arg 1 as rebuild list
-if [ -n "$1" ] ; then
-	REBUILDLIST="$1"
-	shift
-fi
-
-if [ -n "$1" ] ; then
-	PROJVER=$1
-	shift
-fi
-
-
 if [ -n "$WITHOUTEBU" ] ; then
 	# Build without etersoft-build-utils using (just rpm -bb)
-	build_extrapkg rpm-build-altlinux-compat
-	build_extrapkg etersoft-build-utils
+	build_extrapkg rpm-build-altlinux-compat $@
+	build_extrapkg etersoft-build-utils $@
 fi
 
 # Build with etersoft-build-utils (rpmbb using)
 WITHOUTEBU=
-build_extrapkg rpm-build-altlinux-compat
-build_extrapkg etersoft-build-utils
+build_extrapkg rpm-build-altlinux-compat $@
+build_extrapkg etersoft-build-utils $@
