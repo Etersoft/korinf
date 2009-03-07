@@ -96,7 +96,7 @@ ${DEAR} ${NAME}!
 Команда разработчиков
 Etersoft, 2009
 " ;
-) | mutt -s "Ошибка при сборке $ETERREGNUM" "${FULLMAILTO}" -b "support@etersoft.ru"
+) | mutt -s "Ошибка при сборке ${ETERREGNUM} на ${DIST}" "${FULLMAILTO}" -b "support@etersoft.ru"
 fi
 	return 0
 }
