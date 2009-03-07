@@ -53,7 +53,11 @@ BUILDSRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME || fatal "Can't find packag
 PACKAGEVERSION=$(rpm -qp "$BUILDSRPM" --queryformat="%{VERSION}")
 [ -n "$PACKAGEVERSION" ] || fatal "Can't get version from $BUILDSRPM package"
 
-rpm --checksig $BUILDSRPM || warning "GPG check failed"
+if [ -n "$NIGHTBUILD" ] ; then
+	rpm --checksig $BUILDSRPM || fatal "GPG check failed"
+else
+	rpm --checksig $BUILDSRPM || warning "GPG check failed"
+fi
 
 # disable gear using due pre hasher repacking problem
 export IGNOREGEAR=1
