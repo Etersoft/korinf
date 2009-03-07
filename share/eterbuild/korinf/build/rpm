@@ -103,34 +103,30 @@ build_rpms()
 # Only with $TARGET
 convert_rpm()
 {
+	local RES=0
 	pushd $BUILTRPM
 	ls -l
 	echo "Make target packages for $TARGET"
-	TODEL=`echo *${BUILDNAME}*`
-	#echo "To del: $TODEL"
-	# FIXME: do not return result code
+
 	case $TARGET in
 		"deb")
-			$SUDO chroot $BUILDROOT su - $INTUSER -c "cd $INTBUILT; ls -l ; fakeroot alien --keep-version --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm ; ls -l" || { warning "alien problem with deb"; popd ; return 1 ; }
+			#$SUDO chroot $BUILDROOT su - $INTUSER -c "cd $INTBUILT; ls -l ; fakeroot alien --keep-version --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm" || { warning "alien problem with deb"; popd ; return 1 ; }
+			fakeroot alien --keep-version --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with deb"; RES=1 ; }
 			;;
 		"tgz")
 			# Slackware
-			fakeroot alien --keep-version --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with tgz"; popd; return 1 ; }
+			fakeroot alien --keep-version --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with tgz"; RES=1 ; }
 			;;
 		"tar.gz")
 			# ArchLinux
-			fakeroot alien --keep-version --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tar.gz"; popd; return 1 ; }
-			for i in *${BUILDNAME}*.tgz ; do mv $i `basename $i .tgz`.tar.gz ; done
+			fakeroot alien --keep-version --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tar.gz"; RES=11 ; }
+			for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`.tar.gz ; done
 			;;
 		*)
-			warning "unknown $TARGET" ; popd; return 1;
+			fatal "unknown $TARGET"
 	esac
-	#echo "To del: $TODEL"
-	#[ "$TARGET" = "deb" ] && $SUDO chroot $BUILD su - $INTUSER /usr/bin/dpkg -i $INTBUILT/*${BUILDNAME}*.$TARGET
-	# uncomment me!
-	#rm -f $TODEL
+
 	popd
-	echo "fakeroot do not returns correct result"
-	return 0
+	return $RES
 }
 
