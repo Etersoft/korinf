@@ -29,6 +29,8 @@ mkdir -p $CHROOTDIR
 test -f $KORINFETC/korinf && . $KORINFETC/korinf
 test -f ~/.config/korinf  && . ~/.config/korinf
 
+[ -n "$EMAILNOTIFY" ] || EMAILNOTIFY=$USER
+
 init_home()
 {
 	if [ ! -d $BUILDERHOME/ ] ; then

@@ -74,7 +74,7 @@ Prepared mail in $TMPMAIL:
 Eterbuild: $Id: arobot.sh,v 1.72 2008/12/28 21:35:29 builder Exp $
 " ;
 [ -r "$LOGFILE" ] && echo "Лог сборки $LOGFILE приложен." || echo "Лог сборки $LOGFILE не был создан. "
-) | mutt -s "Ошибка при сборке $ETERREGNUM" lav@etersoft.ru boris@etersoft.ru $PARAMMUTT
+) | mutt -s "Ошибка при сборке $ETERREGNUM" $EMAILNOTIFY $PARAMMUTT
 
 # Письмо клиенту
 NAME=`get_name "$FULLNAME"`
