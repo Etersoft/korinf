@@ -60,9 +60,11 @@ build_package()
 		fi
 	fi
 
-	echo "Build $BUILDNAME package"
-	echo "Source dir: $SOURCEPATH"
-	echo "Target dir: $TARGETPATH"
+	if [ -z "$QUIET" ] ; then
+		echo "Build $BUILDNAME package"
+		echo "Source dir: $SOURCEPATH"
+		echo "Target dir: $TARGETPATH"
+	fi
 
 	if [ -z "$SOURCEPATH" ] || [ -z "$TARGETPATH" ] ; then
 		fatal "Source or target path is not set"
@@ -88,22 +90,24 @@ build_srcrpm()
 # Set REBUILDLIST according TARGETPATH, existing REBUILDLIST and some heruistic
 set_rebuildlist()
 {
+	local RESULT
 	if [ -n "$REBUILDLIST" ] ; then
 		if [ -r "$KORINFETC/lists/$REBUILDLIST" ] ; then
 			REBUILDLIST=$KORINFETC/lists/$REBUILDLIST
-			echo "Build for distros from $REBUILDLIST"
+			RESULT="Build for distros from $REBUILDLIST"
 		else
-			echo "Build for $REBUILDLIST"
+			RESULT="Build for $REBUILDLIST"
 		fi
 	elif [ -n "$TARGETPATH" ] ; then
 		if [ -r "$TARGETPATH/distro.list" ] ; then
 			REBUILDLIST=$TARGETPATH/distro.list
-			echo "Build according to distro.list from $TARGETPATH"
+			RESULT="Build according to distro.list from $TARGETPATH"
 		else
 			REBUILDLIST=$KORINFETC/lists/all
-			echo "Build for distros from $REBUILDLIST"
+			RESULT="Build for distros from $REBUILDLIST"
 		fi
 	fi
+	[ -n "$QUIET" ] || echo $RESULT
 }
 
 # args: 1) path to project dir (where versions) 2) package name [3) target subdir ] [ 4) other project version ]
@@ -113,6 +117,11 @@ build_project()
 	local PACKAGE=$2
 	local TP=$3
 	shift 3
+
+	if [ "$1" = "-q" ] ; then
+		QUIET=1
+		shift
+	fi
 
 	if [ "$1" = "-c" ] ; then
 		CHECKPACKAGE=1

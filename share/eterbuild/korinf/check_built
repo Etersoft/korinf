@@ -32,7 +32,7 @@ check_built_package()
 		return 1
 	fi
 	SRCPKG=$(get_src_package "$SOURCEPATH" $BUILDNAME)
-	echo "Source package: $SRCPKG"
+	[ -n "$QUIET" ] || echo "Source package: $SRCPKG"
 
 	for i in $(get_distro_list $REBUILDLIST) ; do
 		NAME=$i
@@ -48,7 +48,7 @@ check_built_package()
 		FILENAME=$(get_bin_package "$PATHPKG" $BUILDNAME)
 		#echo $FILENAME
 		if [ -r "$FILENAME" ] ; then
-			FILEDATE=`stat -c"%y" $FILENAME | sed -e "s|\..*$||"`
+			FILEDATE=`stat -c"%y" $FILENAME | sed -e "s|:[0-9][0-9]\..*$||"`
 			FILESIZE=`stat -c"%s" $FILENAME`
 			BASENAME=`basename $FILENAME`
 			[ "$SRCPKG" -nt "$FILENAME" ] && ST="OBS"
@@ -59,10 +59,10 @@ check_built_package()
 				FILEDATE="MISDIR"
 			fi
 			FILESIZE=""
-			BASENAME=""
+			BASENAME="$BUILDNAME"
 		fi
 
-		printf "%22s: %20s  %7s %s %s" "$NAME" "$FILEDATE" "$FILESIZE" "$ST" "$BASENAME"
+		printf "%22s: %17s  %8s %s %s" "$NAME" "$FILEDATE" "$FILESIZE" "$ST" "$BASENAME"
 		test -L $PATHPKG && echo -n " (link to `readlink $PATHPKG`)"
 		echo
 	done

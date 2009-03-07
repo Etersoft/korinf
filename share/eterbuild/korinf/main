@@ -56,7 +56,11 @@ PACKAGEVERSION=$(rpm -qp "$BUILDSRPM" --queryformat="%{VERSION}")
 if [ -n "$NIGHTBUILD" ] ; then
 	rpm --checksig $BUILDSRPM || fatal "GPG check failed"
 else
-	rpm --checksig $BUILDSRPM || warning "GPG check failed"
+	if [ -n "$QUIET" ] ; then
+		rpm --checksig $BUILDSRPM >/dev/null || warning "GPG check failed"
+	else
+		rpm --checksig $BUILDSRPM || warning "GPG check failed"
+	fi
 fi
 
 # disable gear using due pre hasher repacking problem
