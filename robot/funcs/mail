@@ -31,7 +31,7 @@ export EMAIL="Система отгрузки Etersoft <support@etersoft.ru>"
 (	echo "
 ${DEAR} ${NAME}!
 
-Вы заказали сборку продукта ${PRODUCT} (релиз $WINENUMVERSION)
+Вы заказали сборку продукта ${PRODUCT} (релиз $PROJECTVERSION)
 для системы ${DIST}.
 
 К сожалению, в настоящий момент по причине подготовки
@@ -62,7 +62,7 @@ send_fatal()
 # Письмо в support
 (	echo "
 Произошла ошибка '${@}' при сборке
-продукта $PRODUCT (релиз $WINENUMVERSION) с номером $ETERREGNUM
+продукта $PRODUCT (релиз $PROJECTVERSION) с номером $ETERREGNUM
 для платформы $DIST. Получатель: $FULLMAILTO.
 Каталог результата: $TARGETDIR.
 Задание отложено до исправления проблемы.
@@ -83,7 +83,7 @@ if tail -n1 $TASK | grep -v FAILED ; then
 (	echo "
 ${DEAR} ${NAME}!
 
-Вы заказали сборку продукта ${PRODUCT} (релиз $WINENUMVERSION)
+Вы заказали сборку продукта ${PRODUCT} (релиз $PROJECTVERSION)
 для системы ${DIST}.
 
 К сожалению, произошла ошибка при сборке пакета для Вас.

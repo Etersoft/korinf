@@ -11,7 +11,7 @@ cp tasks/test-wine-etersoft.task ./try.task
 load_task ./try.task
 
 PROJECTNAME="WINE@Etersoft"
-VERNAME=$PROJECTNAME/$WINENUMVERSION
+VERNAME=$PROJECTNAME/$PROJECTVERSION
 PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME"
 PVTLOCAL="/var/ftp/pvt/Etersoft/$VERNAME/WINE-$(get_product_type "$PRODUCT")"
 

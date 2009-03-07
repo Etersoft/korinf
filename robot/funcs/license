@@ -32,7 +32,7 @@ create_license()
 	test -r "$DSAKEY" || fatal "Private DSA key $DSAKEY is missed"
 	rm -f "$LICENSE_FILE.tmp" "$LICENSE_FILE"
 cat <<EOF >"$LICENSE_FILE.tmp"
-VERSION=$WINENUMVERSION
+VERSION=$PROJECTVERSION
 PRODUCT=$PRODUCT
 LICENSE_NUMBER=$ETERREGNUM
 OWNER=$OWNER
@@ -41,7 +41,7 @@ TYPE_LICENSE=$TYPE_LICENSE
 DATE_START=$DATE_START
 DATE_END=$DATE_END
 EOF
-	echo "Create license for $WINENUMVERSION"
+	echo "Create license for $PROJECTVERSION with $ETERREGNUM"
 	LC_ALL=ru_RU.UTF-8 $GENERATE_SIG "$LICENSE_FILE.tmp" "$DSAKEY" "$LICENSE_FILE" | iconv -f koi8-r -r
 	test -r "$LICENSE_FILE" || fatal "Can't sign license file"
 	rm -f "$LICENSE_FILE.tmp"
@@ -54,12 +54,11 @@ create_compat_license()
 	unset DISPLAY
 	# Ключ в private_key.dsa
 	cd /home/builder/Projects/eterbuild/sig
-	#LICENSE_FILE=$TARGETDIRNAME.lic
 	LICENSE_FILE=selta.lic
 	test -r $LICENSE_FILE && fatal "Some license file already exists"
 #TYPE_LICENSE=Corporate
 cat <<EOF >$LICENSE_FILE
-VERSION=$WINENUMVERSION
+VERSION=$PROJECTVERSION
 LICENSE_NUMBER=$ETERREGNUM
 OWNER=$OWNER
 RESPONSIBLE=$FULLNAME

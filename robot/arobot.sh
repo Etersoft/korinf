@@ -82,7 +82,7 @@ export NIGHTBUILD=1
 case $PRODUCT in
 	*WINE@Etersoft*)
 		# Compat
-		if [ "$WINENUMVERSION" = "1.0.8" ] || [ "$WINENUMVERSION" = "1.0.9" ] ; then
+		if [ "$PROJECTVERSION" = "1.0.8" ] || [ "$PROJECTVERSION" = "1.0.9" ] ; then
 			build_wine
 		else
 			build_wine_etersoft

@@ -34,9 +34,9 @@ build_pre()
 	type=`echo $TYPE | tr A-Z a-z`
 	export ETERREGNUM
 	# FIXME: For wine
-	export SOURCEPATH=$WINEETER_PATH/$WINENUMVERSION/sources
+	export SOURCEPATH=$WINEETER_PATH/$PROJECTVERSION/sources
 
-	FTPDIR=$TARGETDIR/$TYPE-$WINENUMVERSION
+	FTPDIR=$TARGETDIR/$TYPE-$PROJECTVERSION
 	# Можем стирать только каталог дистрибутива, а не весь
 	test -d $FTPDIR/$DIST && rm -rf $FTPDIR/$DIST || mkdir -p $FTPDIR/ || fatal ""
 	echo >> $ALOGDIR/autobuild.report.log
@@ -54,7 +54,7 @@ build_pre()
 	FTPDIR=$FTPDIR/$DIST
 	#cd $FTPDIR && { md5sum *.* >MD5SUM ; cd - ; }
 	# вставить номер в readme и в каталог
-	DOCS=$WINEETER_PATH/$WINENUMVERSION/docs
+	DOCS=$WINEETER_PATH/$PROJECTVERSION/docs
 	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/README_$TYPE.html >$FTPDIR/README.html || fatal "readme copying"
 	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/license_$type$licensetype.html >$FTPDIR/license.html || fatal "license copying"
 	cp -f $DOCS/${type}_manual.html $FTPDIR/manual.html || fatal "manual copying"
@@ -118,7 +118,7 @@ fi
 	cat >>$FILETO <<EOF
 ${DEAR} ${NAME}!
 
-Ваш заказ по сборке Продукта ${PRODUCT} (релиз $WINENUMVERSION)
+Ваш заказ по сборке Продукта ${PRODUCT} (релиз $PROJECTVERSION)
 для системы ${TEXTDIST} выполнен.
 ${BETA}
 Регистрационный номер Продукта: ${ETERREGNUM}.
@@ -140,7 +140,7 @@ $CIFSTEXT
 
 -> Ссылки для скачивания файлов вашего экземпляра Продукта:
 EOF
-	printURL $FTPDIR $DOWNLOADDIR/$TYPE-$WINENUMVERSION/$DIST `( cd $FTPDIR ; find -L ./ -maxdepth 1 -type f | sed -e "s|\./||g" )` >>$FILETO || fatal "Error with private part (files are missed) "
+	printURL $FTPDIR $DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST `( cd $FTPDIR ; find -L ./ -maxdepth 1 -type f | sed -e "s|\./||g" )` >>$FILETO || fatal "Error with private part (files are missed) "
 
 	cat >>$FILETO <<EOF
 (действительны в течение 4 суток)
@@ -165,7 +165,7 @@ EOF
 При необходимости эти же файлы могут быть получены через http: замените ftp:// на http:// в пути.
 Также Вы можете напрямую зайти в каталог, чтобы загрузить файлы открытой и закрытой части:
 	$PUBDOWNLOAD1HTTP
-	$DOWNLOADDIR/$TYPE-$WINENUMVERSION/$DIST
+	$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST
 
 Обязательно ознакомьтесь с известными проблемами в текущей сборке:
 http://wiki.etersoft.ru/WINE/knownbugs
@@ -185,12 +185,12 @@ EOF
 build_wine()
 {
 	PROJECTNAME="WINE@Etersoft"
-	VERNAME=$PROJECTNAME/$WINENUMVERSION
+	VERNAME=$PROJECTNAME/$PROJECTVERSION
 
 	TARGETDIR=/var/ftp/pub/download/WINE@Etersoft/$TARGETDIRNAME
 	DOWNLOADDIR="ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/$TARGETDIRNAME"
 	
-	# FIXME: use $WINEPUB_PATH-$WINENUMVERSION here
+	# FIXME: use $WINEPUB_PATH-$PROJECTVERSION here
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME"
 
 	# Use real path if possible

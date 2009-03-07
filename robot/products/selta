@@ -41,7 +41,7 @@ prepareSeltaMail()
 	cat >>$FILETO <<EOF
 ${DEAR} ${NAME}!
 
-Ваш заказ Продукта ${PRODUCT} (релиз $WINENUMVERSION) выполнен.
+Ваш заказ Продукта ${PRODUCT} (релиз $PROJECTVERSION) выполнен.
 ${BETA}
 Регистрационный номер Продукта: ${ETERREGNUM}.
 
@@ -51,7 +51,7 @@ ${BETA}
 EOF
 	LOCALFILES=selta.msi
 	printURL $PUBLOCAL $PUBDOWNLOAD1 $LOCALFILES >>$FILETO || fatal "Error with mirror 1 ($PUBLOCAL with '$LOCALFILES') (possible files are missed!)"
-	printURL $FTPDIR $DOWNLOADDIR/$WINENUMVERSION `find -L  $FTPDIR -maxdepth 1 -type f ` >>$FILETO || fatal "Error with private part (files are missed) "
+	printURL $FTPDIR $DOWNLOADDIR/$PROJECTVERSION `find -L  $FTPDIR -maxdepth 1 -type f ` >>$FILETO || fatal "Error with private part (files are missed) "
 
 	cat >>$FILETO <<EOF
 
@@ -85,7 +85,7 @@ EOF
 build_selta()
 {
 	PROJECTNAME="SELTA@Etersoft"
-	VERNAME=$PROJECTNAME/$WINENUMVERSION
+	VERNAME=$PROJECTNAME/$PROJECTVERSION
 	
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Windows"
 	PUBDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/$VERNAME/Windows"
@@ -113,7 +113,7 @@ build_selta()
 	REBUILDLIST=$DIST
 	echo "Work with $TASK for $REBUILDLIST"
 
-	export FTPDIR=$TARGETDIR/$WINENUMVERSION
+	export FTPDIR=$TARGETDIR/$PROJECTVERSION
 	# Можем стирать только каталог дистрибутива, а не весь
 	test -d $FTPDIR && rm -rf $FTPDIR
 	mkdir -p $FTPDIR || fatal "error with $FTPDIR creating"

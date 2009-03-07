@@ -72,7 +72,7 @@ check_and_refresh_package_wine()
 	# if binary is newer than src.rpm, return OK
 	test "$BINPKG" -nt "$SRCRPM" && return 0
 
-	$AROBOTDIR/../bin-wine/$BUILDNAME.sh $DIST $WINENUMVERSION && return 0
+	$AROBOTDIR/../bin-wine/$BUILDNAME.sh $DIST $PROJECTVERSION && return 0
 
 	return 1
 }
