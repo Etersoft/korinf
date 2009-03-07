@@ -46,10 +46,6 @@ umask 0002
 . $AROBOTDIR/funcs/mail
 . $AROBOTDIR/funcs/build
 
-. $AROBOTDIR/products/wine-compat
-. $AROBOTDIR/products/wine-etersoft
-. $AROBOTDIR/products/selta
-
 
 # Local path to remote user home
 export BUILDERHOME=/srv/arobot
@@ -83,12 +79,15 @@ case $PRODUCT in
 	*WINE@Etersoft*)
 		# Compat
 		if [ "$PROJECTVERSION" = "1.0.8" ] || [ "$PROJECTVERSION" = "1.0.9" ] ; then
+			. $AROBOTDIR/products/wine-compat
 			build_wine
 		else
+			. $AROBOTDIR/products/wine-etersoft
 			build_wine_etersoft
 		fi
 		;;
 	*SELTA@Etersoft*)
+		. $AROBOTDIR/products/selta
 		build_selta
 		;;
 	*)

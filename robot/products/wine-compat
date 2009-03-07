@@ -29,6 +29,8 @@
 # FIXME: если в имени запятая, разделяет на два адреса
 #
 
+kormod korinf
+
 build_pre()
 {
 	type=`echo $TYPE | tr A-Z a-z`
