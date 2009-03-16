@@ -34,7 +34,7 @@ convert_archlinux()
 	cp -f  $KORINFDIR/korinf/remote-scripts/remote-archlinux-rpm.sh $BUILDROOT/tmp || { warning "Cannot copy script" ; return 1 ; }
 	echo "chrooting and converting"
 #	$SUDO chroot $BUILDROOT /bin/sh -c '/bin/su -l -c "$NICE sh -x /tmp/remote-archlinux-rpm.sh \"$PACKAGE\"" lav'
-	$SUDO chroot $BUILDROOT su -l -c "sh -x /tmp/remote-archlinux-rpm.sh \"$PACKAGE\" \"$BUILDNAME\"" $INTUSER
+	$SUDO chroot $BUILDROOT su -l -c "sh -x /tmp/remote-archlinux-rpm.sh \"$PACKAGE\" \"$BUILDNAME\" \"$INTUSER\"" korinfer
 	RET=$?
 	if [ $RET != 0 ] ; then
 		warning "Can't build"
@@ -48,7 +48,7 @@ copying_pkgbuild()
 {
 	prepare_copying
 
-	cp -f $BUILDROOT/home/lav/abs/$BUILDNAME/*$BUILDNAME*.pkg* $DESTDIR || { warning "Cannot copy packages" ; return 1; }
+	cp -f $BUILDERHOME/abs/$BUILDNAME/*$BUILDNAME*.pkg* $DESTDIR || { warning "Cannot copy packages" ; return 1; }
 
 	chmod g+rw -R $DESTDIR/* || true
 
