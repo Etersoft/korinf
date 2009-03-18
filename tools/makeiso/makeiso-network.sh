@@ -9,5 +9,6 @@ cd ../`dirname $0`
 
 export PRODUCT=Network
 export WINENUMVERSION=1.0.9
+export CPRODUCT=network
 
 build_packages
