@@ -39,7 +39,7 @@ build_system()
 	echo "Build $SYS on builder"
 	BUSER=builder
 	ssh $BUSER@builder "export ETERREGNUM=$ETERREGNUM &&\
-		/home/$BUSER/Projects/korinf/makeiso/build-wine-package.sh "" $SYS $WINENUMVERSION/network"
+		/home/$BUSER/Projects/korinf/makeiso/build-wine-package.sh $CPRODUCT "" $SYS $WINENUMVERSION/network"
 	[ $? != 0 ] && echo "FAIL with $SYS" >>$FILERES
 }
 
