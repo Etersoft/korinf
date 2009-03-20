@@ -47,8 +47,9 @@ makeiso()
 	-m "$WINEETER_PATH$ALPHAP/source*" \
 	-m "*Special*" \
 	-publisher "Etersoft, wine@etersoft.ru" \
-	-sysid LINUX -o $PATHTOFTP/$FILENAME.building  -r -J -graft-points -quiet \
-	-f $WINEPUB_PATH$ALPHA $WINEETER_PATH$ALPHAP || exit 1
+	-sysid LINUX -o $PATHTOFTP/$FILENAME.building  -r -J -f -graft-points WINE=$WINEETER_PATH$ALPHAP \
+	$WINEPUB_PATH$ALPHA || exit 1
+	#$WINEETER_PATH$ALPHAP || exit 1
 	mv -f $PATHTOFTP/$FILENAME.building $PATHTOFTP/$FILENAME
 #	-m "*_Network*" -m "network_*" \
 #	-m "*_Local*" -m "local_*" \
@@ -60,7 +61,6 @@ build_packages()
 	PRODUCTBASE=`echo $PRODUCT | tr '[:upper:]' '[:lower:]'`
 
 #trap exit_handler EXIT HUP INT QUIT PIPE TERM
-for i in `cat makeiso/$0.nums` ; do
 	echo
 	echo
 	echo "Build $PRODUCTBASE iso"
@@ -81,7 +81,5 @@ for i in `cat makeiso/$0.nums` ; do
 	ALPHAP=/$WINENUMVERSION/WINE-$PRODUCT
 
 	makeiso || exit 1
-	echo "Built $ETERREGNUM at `date`" >> $FILEREP
-done
 #trap - EXIT
 }
