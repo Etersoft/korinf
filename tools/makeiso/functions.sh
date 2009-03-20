@@ -64,7 +64,7 @@ build_packages()
 	echo
 	echo
 	echo "Build $PRODUCTBASE iso"
-	FILENAME=wine$PRODUCTBASE.iso
+	FILENAME=wine$PRODUCTBASE-$WINENUMVERSION.iso
 	if [ -f $PATHTOFTP/$FILENAME ] ; then
 		echo "Already exists: $FILENAME. Skipping..."
 		continue
