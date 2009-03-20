@@ -43,8 +43,8 @@ install_built()
 			RES=$?
 			;;
 		"tar.gz") # Hack for ArchLinux
-			#$SUDO chroot $BUILDROOT su - -c "$NICE pacman -A --force --nodeps $INTBUILT/*${BUILDNAME}*.$TARGET"
-			$SUDO chroot $BUILDROOT su - -c "cd / ; ls -1 $INTBUILT/*${BUILDNAME}*.$TARGET | xargs -n1 --no-run-if-empty $NICE tar xfvz "
+			$SUDO chroot $BUILDROOT su - -c "$NICE pacman -U --force --nodeps /home/$INTUSER/abs/$PACKAGE/*${BUILDNAME}*.pkg.$TARGET"
+			#$SUDO chroot $BUILDROOT su - -c "cd / ; ls -1 $INTBUILT/*${BUILDNAME}*.$TARGET | xargs -n1 --no-run-if-empty $NICE tar xfvz "
 			RES=$?
 			;;
 		*)

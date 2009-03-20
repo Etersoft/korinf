@@ -11,6 +11,12 @@
 
 PACKAGE=$1
 BUILDNAME=$2
+INTUSER=$3
+
+BUILDERHOME=/home/$INTUSER
+ABSDIR=$BUILDERHOME/abs
+PKGDIR=$ABSDIR/$BUILDNAME
+RPMTEMPDIR=$BUILDERHOME/RPM/BP
 
 querypackage()
 {
@@ -31,18 +37,14 @@ make_pkgbuild()
 #       sed -i ""  $BUILDERHOME/abs/$PACKAGE/PKGBUILD
 }
 
-
-BUILDERHOME=/home/lav
-ABSDIR=$BUILDERHOME/abs
-PKGDIR=$ABSDIR/$BUILDNAME
-
 # get draft PKGBUILD file
 mkdir -p $ABSDIR
 cd $ABSDIR
 portfile="archlinux-PKGBUILD.tar.bz2"
 rm -f $ABSDIR/$portfile && cp /var/local/abs/$portfile $ABSDIR && tar xvfj $portfile || exit 1
 
-cd $BUILDERHOME/RPM/RPMS
+#convert rpms to pkg
+cd $RPMTEMPDIR/RPMS
 for i in *$BUILDNAME*.rpm
 do
     # setting up variables
@@ -75,7 +77,7 @@ do
     makepkg
     rm -f PKGBUILD
 
-    cd $BUILDERHOME/RPM/RPMS
+    cd $RPMTEMPDIR/RPMS
 done
 
 exit 0

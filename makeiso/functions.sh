@@ -6,7 +6,8 @@
 
 # For compatibility: If not included jet
 if [ -z "$CHROOTDIR" ] ; then
-	. functions/config.in || fatal "Can't locate config.in"
+	. /srv/yurifil/Projects/korinf/etc/korinf
+#functions/config.in || fatal "Can't locate config.in"
 fi
 
 check_key || exit 1
@@ -37,12 +38,9 @@ build_system()
 	SYS=$1
 	echo "Build $SYS on builder"
 	BUSER=builder
-	ALOGDIR=/home/builder/Projects/eterbuild/log/`date "+%Y%m%d"`
-	export ALOGDIR
-	ssh $BUSER@builder REBUILDLIST=lists/rebuild.list.$SYS ETERREGNUM=$ETERREGNUM PRODUCT=$PRODUCTBASE WINENUMVERSION=$WINENUMVERSION \
-		/home/$BUSER/Projects/eterbuild/makeiso/build-wine-package.sh
-	[ $? != 0 ] && { echo "FAIL with $SYS" >>$FILERES ; tail -n 3 $ALOGDIR/autobuild.report.log ; }
-	# </dev/stdin >/dev/stdout
+	ssh $BUSER@builder "export ETERREGNUM=$ETERREGNUM &&\
+		/home/$BUSER/Projects/korinf/makeiso/build-wine-package.sh "" $SYS $WINENUMVERSION/network"
+	[ $? != 0 ] && echo "FAIL with $SYS" >>$FILERES
 }
 
 makeiso()
@@ -84,7 +82,7 @@ for i in `cat makeiso/$0.nums` ; do
 	# echo "Running all builds ..."
 	>$FILERES
 	if [ -z "$TESTBUILDDIST" ] ; then
-		build_system bsd &
+#		build_system bsd &
 		build_system alt &
 		build_system gen &
 #		echo
