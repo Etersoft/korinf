@@ -47,7 +47,7 @@ makeiso()
 	-m "$WINEETER_PATH$ALPHAP/source*" \
 	-m "*Special*" \
 	-publisher "Etersoft, wine@etersoft.ru" \
-	-sysid LINUX -o $PATHTOFTP/$FILENAME.building  -r -J -f -graft-points WINE=$WINEETER_PATH$ALPHAP \
+	-sysid LINUX -o $PATHTOFTP/$FILENAME.building  -r -J -f -quiet -graft-points WINE=$WINEETER_PATH$ALPHAP \
 	$WINEPUB_PATH$ALPHA || exit 1
 	#$WINEETER_PATH$ALPHAP || exit 1
 	mv -f $PATHTOFTP/$FILENAME.building $PATHTOFTP/$FILENAME
