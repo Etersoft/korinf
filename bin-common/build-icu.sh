@@ -19,4 +19,4 @@ export EXTRAFILES="libicu38[-_][0-9] libicu38-devel[-_][0-9] icu38-samples[-_][0
 # install packages after build
 export BOOTSTRAP=1
 
-build_project $POSTGRESDIR icu38 "" ${major}.${minor} $@
+build_project $POSTGRESDIR icu38 "" $@

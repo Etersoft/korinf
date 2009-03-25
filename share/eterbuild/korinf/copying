@@ -50,7 +50,8 @@ prepare_copying()
 
 copying_packages()
 {
-	local RC=1
+	local RC=0
+	local i
 	prepare_copying
 
 	pushd $BUILTRPM >/dev/null || warning "Can't cd to built rpm dir"
@@ -60,13 +61,18 @@ copying_packages()
 
 	if [ -n "$MAINFILESLIST" ] ; then
 		echo "Copying built packages to $DESTDIR (cd to $BUILTRPM)..."
-		cp -v $EXPMAINFILES $DESTDIR/ && RC=0 || warning "Cannot copy new packages $EXPMAINFILES"
+		cp -v $EXPMAINFILES $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
 	fi
 
 	if [ -n "$EXTRAFILESLIST" ] ; then
 		echo "Copying built packages to $DESTDIR/extra (cd to $BUILTRPM)..."
-		cp -v $EXPEXTRAFILES $DESTDIR/extra/ && RC=0 || warning "Cannot copy extra packages $EXPEXTRAFILES"
+		cp -v $EXPEXTRAFILES $DESTDIR/extra/ || { RC=1 ; warning "Cannot copy extra packages $EXPEXTRAFILES" ; }
 	fi
+
+	# Return OK if one of files is exists
+	for i in $EXPMAINFILES $EXPEXTRAFILES ; do
+		test -r $i && RC=0
+	done
 
 	popd >/dev/null
 
