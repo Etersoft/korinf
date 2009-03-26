@@ -22,19 +22,7 @@
 ##
 
 
-DIRNAME=`dirname $0`
-[ "$DIRNAME" = "." ] && DIRNAME=`pwd`
-cd $DIRNAME/..
-
-. functions/helpers.sh
-ALOGDIR=$ALOGDIR-arobot
-
-switch_to_builder $DIRNAME/`basename $0`
-
-#pwd
-cd ~/sales
-#ls -l
-#exit 1
+cd ~/sales || exit 1
 
 if [ -z "$1" ] ; then
 	for i in *.failed ; do
