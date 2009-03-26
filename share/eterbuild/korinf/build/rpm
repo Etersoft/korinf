@@ -40,6 +40,21 @@ build_rpms()
 	cp -f $BUILDSRPM $BUILDERHOME/tmp/$BUILDNAME.src.rpm || { warning "Can't copy src.rpm" ; return 1 ; }
 	$SUDO chown $LOCUSER $BUILDERHOME/tmp/$BUILDNAME.src.rpm
 
+	# HACK: create strip workaround
+	mkdir -p $BUILDERHOME/bin-korinf
+	chgrp builder $BUILDERHOME/bin-korinf || { warning "Not in builder group" ; return 1; }
+	chmod ug+rwX $BUILDERHOME/bin-korinf
+	cat >$BUILDERHOME/bin-korinf/strip <<EOF
+	# Skip hasplmd due broken strip
+	if echo "\$1" | grep hasplmd >/dev/null ; then
+		true
+	else
+		/usr/bin/strip \$@
+	fi
+EOF
+	chmod a+x $BUILDERHOME/bin-korinf/strip
+	$SUDO chown $LOCUSER $BUILDERHOME/bin-korinf/strip
+
 	# create needed files in home directory
 	init_home
 
@@ -84,7 +99,7 @@ build_rpms()
 	# Use rpm.static if exist (due ALT's src.rpm has too old version)"
 	[ -x "$BUILDROOT/usr/bin/rpm.static" ] && RPMCOMMAND=/usr/bin/rpm.static
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-		su - $INTUSER -c "export LANG=C ; umask 002 ; mkdir -p ~/RPM/SOURCES ; $RPMCOMMAND -i ~/tmp/$BUILDNAME.src.rpm ; $CMDREPORT ; subst 's|@ETERREGNUM@|${ETERREGNUM}|g' ~/RPM/SPECS/$BUILDNAME.spec ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERREPORT"
+		su - $INTUSER -c "export LANG=C ; umask 002 ; export PATH=~/bin-korinf:$PATH ; mkdir -p ~/RPM/SOURCES ; $RPMCOMMAND -i ~/tmp/$BUILDNAME.src.rpm ; $CMDREPORT ; subst 's|@ETERREGNUM@|${ETERREGNUM}|g' ~/RPM/SPECS/$BUILDNAME.spec ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERREPORT"
 
 	cat $BUILDERHOME/buildenv.txt | sed -e "s|[0-9A-F]\{4\}-[0-9A-F]\{4\}|XxXX-XxXX|g" >$LOGDIR/$BUILDNAME.cenv.log
 
