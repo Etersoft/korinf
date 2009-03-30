@@ -47,6 +47,7 @@ PCLinux/2007
 #SUSE/10
 #SUSE/10.1
 SUSE/10.3
+SUSE/11.1
 #NLD/9
 
 # Slackware based
@@ -58,6 +59,6 @@ MOPSLinux/6.0
 
 #ArchLinux/2007.08
 
-Gentoo/2007
+#Gentoo/2007
 
 #Special/3.0
