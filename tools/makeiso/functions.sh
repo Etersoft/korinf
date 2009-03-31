@@ -43,12 +43,12 @@ makeiso()
 	-m "*update-from*" \
 	-m "*MD5SUM*" \
 	-m "*/log/*" \
-	-m "README_*" -m "license_*" \
+	-m "license_*" \
 	-m "$WINEETER_PATH$ALPHAP/source*" \
 	-m "*Special*" \
 	-publisher "Etersoft, wine@etersoft.ru" \
 	-sysid LINUX -o $PATHTOFTP/$FILENAME.building  -r -J -f -quiet -graft-points WINE=$WINEETER_PATH$ALPHAP \
-	$WINEPUB_PATH$ALPHA || exit 1
+	$WINEPUB_PATH$ALPHA $WINEETER_PATH$ALPHA/{autorun*,docs/README_$PRODUCT.html,docs/license_$CPRODUCT.html} || exit 1
 	#$WINEETER_PATH$ALPHAP || exit 1
 	mv -f $PATHTOFTP/$FILENAME.building $PATHTOFTP/$FILENAME
 #	-m "*_Network*" -m "network_*" \
