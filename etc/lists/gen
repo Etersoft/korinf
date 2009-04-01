@@ -19,12 +19,13 @@ LinuxXP/2008
 #ASPLinux/10
 ASPLinux/11
 ASPLinux/12
+ASPLinux/14
 
 # obsoleted libxml
 #RedHat/9
 Scientific/4.1
 CentOS/5
-#CentOS/5.2
+CentOS/5.3
 #FedoraCore/4
 #FedoraCore/5
 #FedoraCore/6
