@@ -85,7 +85,7 @@ last_rpm()
 		LR=`rpmvercmp $pkgver $lastrpm `
 		#echo "RES=$LR"
 		#LR=$?
-		if [ $LR -gt 0 ] ; then
+		if [ "$LR" -gt 0 ] ; then
 			lastrpm=$pkgver
 		fi
 	done
