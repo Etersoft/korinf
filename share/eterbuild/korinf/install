@@ -51,6 +51,7 @@ install_built()
 			# First time install without dependences
 			# DURING_INSTALL for disable start_service
 			[ -n "$WITHOUTEBU" ] && NODEPS=--nodeps
+			[ -n "$BOOTSTRAP" ] && NODEPS=--nodeps
 			$SUDO chroot $BUILDROOT su - -c "cd $INTBUILT && DURING_INSTALL=1 $NICE rpm -Uvh ${EXPMAINFILES} ${EXPEXTRAFILES} --force $NODEPS"
 			RES=$?
 			#[ "$RES" = "0" ] || warning "install status: failed"
