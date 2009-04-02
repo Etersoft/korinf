@@ -40,21 +40,6 @@ build_rpms()
 	cp -f $BUILDSRPM $BUILDERHOME/tmp/$BUILDNAME.src.rpm || { warning "Can't copy src.rpm" ; return 1 ; }
 	$SUDO chown $LOCUSER $BUILDERHOME/tmp/$BUILDNAME.src.rpm
 
-	# HACK: create strip workaround
-	mkdir -p $BUILDERHOME/bin-korinf
-	chgrp builder $BUILDERHOME/bin-korinf || { warning "Not in builder group" ; return 1; }
-	chmod ug+rwX $BUILDERHOME/bin-korinf
-	cat >$BUILDERHOME/bin-korinf/strip <<EOF
-	# Skip hasplmd due broken strip
-	if echo "\$1" | grep hasplmd >/dev/null ; then
-		true
-	else
-		/usr/bin/strip \$@
-	fi
-EOF
-	chmod a+x $BUILDERHOME/bin-korinf/strip
-	$SUDO chown $LOCUSER $BUILDERHOME/bin-korinf/strip
-
 	# create needed files in home directory
 	init_home
 

@@ -40,6 +40,25 @@ init_home()
 	# FIXME: ebconfig is obsolete
 	[ -r $BUILDERHOME/.ebconfig ] || echo "RPMBUILD=rpmbuild" > $BUILDERHOME/.ebconfig
 
+
+# HACK: create strip workaround
+# FIXME: run this script inside chroot? under korinfer user
+	mkdir -p $BUILDERHOME/bin-korinf
+	chgrp builder $BUILDERHOME/bin-korinf || { warning "Not in builder group" ; return 1; }
+	chmod ug+rwX $BUILDERHOME/bin-korinf
+	cat >$BUILDERHOME/bin-korinf/strip <<EOF
+	# Skip hasplmd due broken strip
+	if echo "\$1" | grep hasplmd >/dev/null ; then
+		true
+	else
+		/usr/bin/strip \$@
+	fi
+EOF
+	chmod a+x $BUILDERHOME/bin-korinf/strip
+	$SUDO chown $LOCUSER $BUILDERHOME/bin-korinf/strip
+
+
+# create rpmmacros if missed
 	if [ -r $BUILDERHOME/.rpmmacros ] ; then
 		return
 	fi
@@ -61,6 +80,7 @@ cat <<EOF >$BUILDERHOME/.rpmmacros || fatal "Can't copy macros"
 # see http://wiki.sisyphus.ru/devel/RpmSetup
 %_build_name_fmt %{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}.rpm
 EOF
+
 }
 
 fi
