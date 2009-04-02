@@ -119,7 +119,7 @@ ${BETA}
 Для получения Продукта необходимо скачать файлы по приведённым ссылкам, в их числе:
  - документацию (файл manual.html)
  - файл лицензии wine-etersoft.lic
- - пакеты Продукта (wine-etersoft, libwine-etersoft, wine-etersoft-$PRODUCT_name)
+ - пакеты Продукта (wine-etersoft, wine-etersoft-$PRODUCT_name)
  - пакет haspd с драйверами аппаратных ключей защиты
 HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel;
  - пакет со свободными шрифтами Liberation (fonts-tts-liberation).
