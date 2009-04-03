@@ -4,10 +4,7 @@
 # Список для сборки основных систем при создании ISO
 
 # Сначала самые приоритетные
-Fedora/9
-Fedora/10
-Mandriva/2008.1
-SUSE/11
+CentOS/5.3
 
 # Потом остальные
 # Linux online
@@ -19,23 +16,26 @@ LinuxXP/2008
 #ASPLinux/10
 ASPLinux/11
 ASPLinux/12
+ASPLinux/14
 
 # obsoleted libxml
 #RedHat/9
 Scientific/4.1
 CentOS/5
-#CentOS/5.2
 #FedoraCore/4
 #FedoraCore/5
 #FedoraCore/6
 Fedora/7
 Fedora/8
+Fedora/9
+Fedora/10
 
 #Mandriva/2005
 # not supported
 #Mandriva/2006
 Mandriva/2007.1
 Mandriva/2008
+Mandriva/2008.1
 Mandriva/2009.0
 
 PCLinux/2007
@@ -47,6 +47,8 @@ PCLinux/2007
 #SUSE/10
 #SUSE/10.1
 SUSE/10.3
+SUSE/11
+SUSE/11.1
 #NLD/9
 
 # Slackware based
@@ -58,6 +60,6 @@ MOPSLinux/6.0
 
 #ArchLinux/2007.08
 
-Gentoo/2007
+#Gentoo/2007
 
 #Special/3.0

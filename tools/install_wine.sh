@@ -26,11 +26,11 @@ cd $TARGETPATH || fatal "Can't cd"
 pwd
 
 LIST=
-for i in $BUILDNAME lib$BUILDNAME lib$BUILDNAME-devel lib$BUILDNAME-twain lib$BUILDNAME-gl ; do
+for i in $BUILDNAME ; do
 	rpm -q $i &>/dev/null && LIST="$LIST $i-$VERSION-*$RELEASE.*.rpm"
 done
 
-for i in lib$BUILDNAME-devel lib$BUILDNAME-twain lib$BUILDNAME-gl ; do
+for i in lib$BUILDNAME-devel $BUILDNAME-twain $BUILDNAME-gl ; do
 	rpm -q $i &>/dev/null && LIST="$LIST extra/$i-$VERSION-*$RELEASE.*.rpm"
 done
 

@@ -65,7 +65,7 @@ echo "Old tasks: $OLDCOUNT"
 # Много застрявших заданий или поломанных сборок
 if [ $OLDCOUNT -ge 10 ] ||  [ $OLDFCOUNT -ge 7 ] ; then
 	echo Send mail...
-	mutt -s "Build system failed" sales@etersoft.ru <<EOF
+	mutt -s "Build system failed" sales@etersoft.ru yurifil@etersoft.ru <<EOF
 Build system is supended with $OLDCOUNT tasks:
 `print_tasks task`
 

@@ -108,10 +108,11 @@ fi
 			M41)
 				NEEDEDKERNEL="kernel-headers-modules-std-smp kernel-headers-modules-std-pae kernel-headers-modules-ovz-smp"
 				;;
-						#kernel-headers-modules-wks-smp"
+			M50)
+				NEEDEDKERNEL="kernel-headers-modules-std-pae kernel-headers-modules-std-srv kernel-headers-modules-ovz-rhel kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
+				;;
 			SS)
-				NEEDEDKERNEL="kernel-headers-modules-std-pae kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
-						#kernel-headers-modules-std-smp
+				NEEDEDKERNEL="kernel-headers-modules-std-pae kernel-headers-modules-std-srv kernel-headers-modules-ovz-rhel kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
 				;;
 		esac
 		# Add selected kernel requires
