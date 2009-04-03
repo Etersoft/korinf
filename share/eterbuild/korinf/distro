@@ -66,12 +66,16 @@ case $dist_name in
 
 "Gentoo")
 	kormod build/gentoo
+	kormod build/rpm
 	case $dist_ver in
 	    "2007")
-		logit "build in Gentoo $dist_ver" build_gentoo2007 || return 1
+		logit "mount $dist" mount_linux
+		logit "build $dist" build_rpms $dist || return 1
+		logit "convert RPM to tar" convert_gentoo || return 1
 		prepare_filelist
-		logit "copying built packages to $dist" copying_gentoo2007 || return 1
+		logit "copying built packages to $dist" copying_packages || return 1
 		logit "cleaning in Gentoo $dist_ver" clean_gentoo2007 || return 1
+		logit "umount" end_umount || return 1
 		;;
 
 	    "2006.1")
