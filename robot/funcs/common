@@ -111,5 +111,9 @@ check_package()
 {
 	local NAME=$2
 	local TARGETPATH=$1
-	get_bin_package $NAME >/dev/null
+	local FILENAME
+	FILENAME=$(get_bin_package "$TARGETPATH" $NAME)
+	if [ ! -r "$FILENAME" ] ; then
+		fatal "Package $NAME is missed in $TARGETPATH"
+	fi
 }
