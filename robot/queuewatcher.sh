@@ -49,6 +49,11 @@ AROBOT=`dirname $0`
 . $AROBOT/../share/eterbuild/korinf/common
 kormod korinf
 
+if [ "$1" = "mount" ] ; then
+	sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT
+	exit
+fi
+
 #ALOGDIR=$ALOGDIR-arobot
 
 #mkdir -p $ALOGDIR
