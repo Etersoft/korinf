@@ -90,9 +90,14 @@ build_selta()
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Windows"
 	PUBDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/$VERNAME/Windows"
 
-	PGLOCAL="/var/ftp/pub/Etersoft/PostgreSQL/8.2"
-	PGDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/8.2"
-	
+	if [ "$PROJECTVERSION" = "1.0.5" ] ; then
+		PGVERSION="8.2"
+	else
+		PGVERSION="8.3"
+	fi
+	PGLOCAL="/var/ftp/pub/Etersoft/PostgreSQL/$PGVERSION"
+	PGDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/$PGVERSION"
+
 	TARGETDIR=/var/ftp/pub/download/SELTA@Etersoft/$TARGETDIRNAME
 	DOWNLOADDIR="http://updates.etersoft.ru/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
 
@@ -125,11 +130,11 @@ build_selta()
 	# Вывод скрипта не записывается в лог
 	export BUILDSTRAP=
 	#
-	if [ "$WINENUMBERSION" = "1.0.5" ] ; then
-		create_compat_license $FTPDIR/selta.lic $AROBOTDIR/dsa/selta.dsa
-	else
+	#if [ "$PROJECTVERSION" = "1.0.5" ] ; then
+	#	create_compat_license $FTPDIR/selta.lic $AROBOTDIR/dsa/selta.dsa
+	#else
 		create_license $FTPDIR/selta.lic $AROBOTDIR/dsa/selta.dsa
-	fi
+	#fi
 
 	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8

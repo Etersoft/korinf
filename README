@@ -3,8 +3,10 @@ Korinf project.
 === build script variables description
 Use ADEBUG=1 variable for enable additional output
 
-Use BOOTSTRAP=1 variable for build package without etersoft-build-utils
+Use WITHOUTEBU=1 variable for build package without etersoft-build-utils
 (needed only for build etersoft-build-utils and rpm-build-altlinux-compat).
+
+Use BOOTSTRAP=1 variable for install built packages
 
 Use NIGHTBUILD=1 variable for enabble Stop on errors mode
 

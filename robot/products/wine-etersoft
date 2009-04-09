@@ -47,7 +47,7 @@ prepare_wine_etersoft()
 
 	# Можем стирать только каталог дистрибутива, а не весь
 	test -e $FTPDIR && rm -rf $FTPDIR
-	mkdir -p $FTPDIR/
+	mkdir -p $FTPDIR/ $FTPDIR/extra
 
 	echo >> $ALOGDIR/autobuild.report.log
 	echo "Build $TYPE for $ETERREGNUM in $DIST" >> $ALOGDIR/autobuild.report.log
@@ -60,18 +60,23 @@ prepare_wine_etersoft()
 	# Get file list
 	PRIVFILES=`find -L $PVTLOCAL/$DIST -maxdepth 1 -type f`
 	PUB1FILES=`find -L $PUBLOCAL/WINE/$DIST -maxdepth 1 -type f`
-	PUB2FILES=`find -L $PUBLOCAL/fonts/$DIST -maxdepth 1 -type f`
+	#PUB2FILES=`find -L $PUBLOCAL/fonts/$DIST -maxdepth 1 -type f`
+	PUB2FILES=
+	PUB3FILES=`find -L $PUBLOCAL/WINE/$DIST/extra -maxdepth 1 -type f`
 
 	# Нужно скопировать файлы
 	for i in $PRIVFILES $PUB1FILES $PUB2FILES; do
 		cp -fl $i $FTPDIR || cp -f $i $FTPDIR || fatal "Can't copy $i"
+	done
+	for i in $PUB3FILES; do
+		cp -fl $i $FTPDIR/extra || cp -f $i $FTPDIR/extra || fatal "Can't copy $i"
 	done
 
 	create_license $FTPDIR/wine-etersoft.lic $AROBOTDIR/dsa/wine-etersoft.dsa
 
 	# Check package files
 	check_package $FTPDIR wine-etersoft
-	check_package $FTPDIR libwine-etersoft
+	check_package $FTPDIR haspd
 	check_package $FTPDIR wine-etersoft-${PRODUCT_name}
 
 	# вставить номер в readme и в каталог
@@ -119,13 +124,14 @@ ${BETA}
 Для получения Продукта необходимо скачать файлы по приведённым ссылкам, в их числе:
  - документацию (файл manual.html)
  - файл лицензии wine-etersoft.lic
- - пакеты Продукта (wine-etersoft, libwine-etersoft, wine-etersoft-$PRODUCT_name)
+ - пакеты Продукта (wine-etersoft, wine-etersoft-$PRODUCT_name)
  - пакет haspd с драйверами аппаратных ключей защиты
 HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel;
  - пакет со свободными шрифтами Liberation (fonts-tts-liberation).
 
 $CIFSTEXT
 
+ОБРАТИТЕ ВНИМАНИЕ!
 Файл лицензии wine-etersoft.lic необходимо расположить в каталоге /etc/wine, ~/.wine или
 C:\WINDOWS\INF.
 
