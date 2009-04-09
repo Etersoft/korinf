@@ -182,7 +182,8 @@ build_wine_etersoft()
 		VERNAME=$PROJECTNAME/`basename $PUBLOCAL`
 	fi
 
-	PVTLOCAL="/var/ftp/pvt/Etersoft/$VERNAME/WINE-$(get_product_type "$PRODUCT")"
+	# Not: use original project version (other path, not pub)
+	PVTLOCAL="/var/ftp/pvt/Etersoft/$PROJECTNAME/$PROJECTVERSION/WINE-$(get_product_type "$PRODUCT")"
 
 	if [ ! -d "$PUBLOCAL/WINE/$DIST" ] ; then
 		warning "System $DIST not supported for build ($PUBLOCAL/WINE/$DIST does not exist)"
