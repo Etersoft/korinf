@@ -35,6 +35,10 @@ if [ -n "$WITHOUTEBU" ] ; then
 	build_extrapkg etersoft-build-utils $@
 fi
 
+
+# Hack due overrides from WITHOUTEBU mode
+RPMSDIR=RPM/BP/RPMS
+
 # Build with etersoft-build-utils (rpmbb using)
 WITHOUTEBU=
 build_extrapkg rpm-build-altlinux-compat $@
