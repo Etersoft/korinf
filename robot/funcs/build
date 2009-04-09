@@ -43,8 +43,8 @@ check_and_refresh_package()
 
 	return 1
 	# FIXMEP get_..._package always returns true
-	local SRCRPM=$(get_src_package $BUILDNAME || fatal "Source package for $BUILDNAME is not found")
-	local BINPKG=$(get_bin_package $BUILDNAME || fatal "Binary package $BUILDNAME is not found")
+	#local SRCRPM=$(get_src_package $BUILDNAME || fatal "Source package for $BUILDNAME is not found")
+	#local BINPKG=$(get_bin_package $BUILDNAME || fatal "Binary package $BUILDNAME is not found")
 
 	# if binary is newer than src.rpm, return OK
 	test $BINPKG -nt $SRCRPM && return 0
@@ -65,12 +65,19 @@ check_and_refresh_package_wine()
 	# haspd
 	local BUILDNAME=$2
 
-	# FIXMEP get_..._package always returns true
-	local SRCRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME || fatal "Source package for $BUILDNAME is not found")
-	local BINPKG=$(get_bin_package "$TARGETPATH" $BUILDNAME || fatal "Binary package $BUILDNAME is not found")
+	test -d "$SOURCEPATH" || fatal "Source path $SOURCEPATH is not exists"
+	test -d "$TARGETPATH" || fatal "Target path $SOURCEPATH is not exists"
 
-	# if binary is newer than src.rpm, return OK
-	test "$BINPKG" -nt "$SRCRPM" && return 0
+	# FIXMEP get_..._package always returns true
+	local SRCRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME)
+	test -r "$SRCRPM" || fatal "Source package for $BUILDNAME is not found"
+	local BINPKG=$(get_bin_package "$TARGETPATH" $BUILDNAME)
+
+	# if binary is exists
+	if [ -r "$BINPKG" ] ; then
+		# if binary is newer than src.rpm, return OK
+		test "$BINPKG" -nt "$SRCRPM" && return 0
+	fi
 
 	$AROBOTDIR/../bin-wine/$BUILDNAME.sh $DIST $PROJECTVERSION && return 0
 
