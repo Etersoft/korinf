@@ -8,6 +8,7 @@ cd ../`dirname $0`
 . makeiso/functions.sh
 
 export PRODUCT=Local
-export WINENUMVERSION=1.0.9
+export CPRODUCT=local
+export WINENUMVERSION=1.0.10
 
 build_packages
