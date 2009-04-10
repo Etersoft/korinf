@@ -26,6 +26,11 @@
 install_built()
 {	
 	local NODEPS
+	if [ -n "$WITHOUTEBU" ] ; then
+		echo "Skip install due boot strap mode"
+		return 0
+	fi
+
 	echo "Install built $TARGET packages to $BUILDROOT root dir..."
 	# Do not install debug packages
 	#rm -f $BUILTRPM/*debug*
