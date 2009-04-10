@@ -75,17 +75,23 @@ init_home
 echo Mount swine...
 #$SUDO mount /usr/local/ $TESTDIR/usr/local --bind
 #$SUDO mount /net/wine/ $TESTDIR/srv/wine --bind
-echo Chrooting...
+
+BUILDARCH=$DEFAULTARCH
+if echo $SYS | grep x86_64 >/dev/null ; then
+    BUILDARCH="x86_64"
+fi
+echo "Chrooting in $SYS system with $BUILDARCH arch"
+
 export HOSTNAME=$SYS
 export PS1="[\u@$SYS \W]\$"
 #[\u@\h \W]\$
 $SUDO chroot $TESTDIR su -c "mount /proc"
 $SUDO chroot $TESTDIR su -c "mount /dev/pts"
-$SUDO chroot $TESTDIR $USERCO $COMMANDTO
+setarch $BUILDARCH $SUDO chroot $TESTDIR $USERCO $COMMANDTO
 $SUDO umount $TESTDIR/home/$INTUSER && echo "Unmount home"
 #$SUDO umount $TESTDIR/usr/local $TESTDIR/srv/wine  && echo "Unmount swine"
-$SUDO chroot $TESTDIR su -c "umount /proc"
 $SUDO chroot $TESTDIR su -c "umount /dev/pts"
+$SUDO chroot $TESTDIR su -c "umount /proc"
 $SUDO umount $TESTDIR && echo "Unmount $SYS"
 # -f not supported
 rmdir $TESTDIR
