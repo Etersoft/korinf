@@ -29,8 +29,17 @@ build_rpms()
 	dist=$1
 
 	TARGET=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -p`
+
 	[ -z "$TARGET" ] && { warning "TARGET is empty" ; return 1 ; }
-	BUILDARCH="i586"
+
+	# HACK for Gentoo
+	if [ -n "$WITHOUTEBU" ] ; then
+	# FIXME
+	#if true ; then
+		[ "$TARGET" = "tbz2" ] && TARGET=rpm
+	fi
+
+	BUILDARCH=$DEFAULTARCH
 	if echo $dist | grep x86_64 >/dev/null ; then
 	    BUILDARCH="x86_64"
 	fi
@@ -121,6 +130,15 @@ convert_rpm()
 			# ArchLinux
 			fakeroot alien --keep-version --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tar.gz"; RES=11 ; }
 			for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`.tar.gz ; done
+			;;
+		"tbz2")
+			# Gentoo
+			fakeroot alien --keep-version --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tbz2"; RES=11 ; }
+			for i in *${BUILDNAME}*.tgz ; do
+				local TARBNAME=`basename $i .tgz`
+				cat "$i" | gunzip -c | bzip -c > "$TARBNAME.tbz2" || { warning "can't repack files" ; RES=11 ; }
+				rm -f "$i"
+			done
 			;;
 		*)
 			fatal "unknown $TARGET"
