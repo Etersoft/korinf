@@ -10,11 +10,12 @@ COMMAND="$1"
 PACKAGE="$2"
 ETERREGNUM="$3"
 SOURCEURL="$4"
+export WINENUMVERSION="$5"
 
 umask 0002
 UID=`id -u`
 
-echo "Start with PACKAGE: $PACKAGE ETERREGNUM: $ETERREGNUM, command - $COMMAND, sourceurl - $SOURCEURL"
+echo "Start with PACKAGE: $PACKAGE ETERREGNUM: $ETERREGNUM, command - $COMMAND, sourceurl - $SOURCEURL, version - $WINENUMVERSION"
 
 
 cd `dirname $0`

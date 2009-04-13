@@ -8,7 +8,7 @@ cd ../`dirname $0`
 . makeiso/functions.sh
 
 export PRODUCT=Network
-export WINENUMVERSION=1.0.9
+export WINENUMVERSION=1.0.10
 export CPRODUCT=network
 
 build_packages
