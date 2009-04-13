@@ -85,8 +85,8 @@ echo "Chrooting in $SYS system with $BUILDARCH arch"
 export HOSTNAME=$SYS
 export PS1="[\u@$SYS \W]\$"
 #[\u@\h \W]\$
-$SUDO chroot $TESTDIR su -c "mount /proc"
-$SUDO chroot $TESTDIR su -c "mount /dev/pts"
+$SUDO chroot $TESTDIR su -c "mount -t proc none /proc"
+$SUDO chroot $TESTDIR su -c "mount -t devpts none /dev/pts"
 setarch $BUILDARCH $SUDO chroot $TESTDIR $USERCO $COMMANDTO
 $SUDO umount $TESTDIR/home/$INTUSER && echo "Unmount home"
 #$SUDO umount $TESTDIR/usr/local $TESTDIR/srv/wine  && echo "Unmount swine"
