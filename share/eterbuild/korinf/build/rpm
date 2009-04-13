@@ -29,6 +29,7 @@ build_rpms()
 	dist=$1
 
 	TARGET=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -p`
+	TARGETPKGDISTRO=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -s`
 
 	[ -z "$TARGET" ] && { warning "TARGET is empty" ; return 1 ; }
 
@@ -93,7 +94,7 @@ build_rpms()
 	# Use rpm.static if exist (due ALT's src.rpm has too old version)"
 	[ -x "$BUILDROOT/usr/bin/rpm.static" ] && RPMCOMMAND=/usr/bin/rpm.static
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-		su - $INTUSER -c "export LANG=C ; umask 002 ; export PATH=~/bin-korinf:$PATH ; mkdir -p ~/RPM/SOURCES ; $RPMCOMMAND -i ~/tmp/$BUILDNAME.src.rpm ; $CMDREPORT ; subst 's|@ETERREGNUM@|${ETERREGNUM}|g' ~/RPM/SPECS/$BUILDNAME.spec ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERREPORT"
+		su - $INTUSER -c "export LANG=C ; umask 002 ; mkdir -p ~/RPM/SOURCES ; $RPMCOMMAND -i ~/tmp/$BUILDNAME.src.rpm ; $CMDREPORT ; subst 's|@ETERREGNUM@|${ETERREGNUM}|g' ~/RPM/SPECS/$BUILDNAME.spec ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERREPORT"
 
 	cat $BUILDERHOME/buildenv.txt | sed -e "s|[0-9A-F]\{4\}-[0-9A-F]\{4\}|XxXX-XxXX|g" >$LOGDIR/$BUILDNAME.cenv.log
 
@@ -112,6 +113,7 @@ build_rpms()
 # Only with $TARGET
 convert_rpm()
 {
+	local RELPKG=$PACKAGERELEASE$TARGETPKGDISTRO
 	local RES=0
 	pushd $BUILTRPM
 	ls -l
@@ -120,23 +122,24 @@ convert_rpm()
 	case $TARGET in
 		"deb")
 			#$SUDO chroot $BUILDROOT su - $INTUSER -c "cd $INTBUILT; ls -l ; fakeroot alien --keep-version --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm" || { warning "alien problem with deb"; popd ; return 1 ; }
-			fakeroot alien --keep-version --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with deb"; RES=1 ; }
+			fakeroot setarch $BUILDARCH alien --keep-version --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with deb"; RES=1 ; }
 			;;
 		"tgz")
 			# Slackware
 			fakeroot alien --keep-version --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with tgz"; RES=1 ; }
+			for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tgz ; done
 			;;
 		"tar.gz")
 			# ArchLinux
 			fakeroot alien --keep-version --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tar.gz"; RES=11 ; }
-			for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`.tar.gz ; done
+			for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tar.gz ; done
 			;;
 		"tbz2")
 			# Gentoo
 			fakeroot alien --keep-version --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tbz2"; RES=11 ; }
 			for i in *${BUILDNAME}*.tgz ; do
 				local TARBNAME=`basename $i .tgz`
-				cat "$i" | gunzip -c | bzip -c > "$TARBNAME.tbz2" || { warning "can't repack files" ; RES=11 ; }
+				cat "$i" | gunzip -c | bzip -c > "$TARBNAME-$RELPKG.tbz2" || { warning "can't repack files" ; RES=11 ; }
 				rm -f "$i"
 			done
 			;;
