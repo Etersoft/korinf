@@ -63,8 +63,8 @@ case $dist_name in
 	logit "copying built packages to $dist" copying_solaris || return 1
 	logit "cleaning" cleaning_solaris || return 1
 	;;
-
-"Gentoo")
+# Build in generic way
+"GentooNO")
 	kormod build/gentoo
 	kormod build/rpm
 	case $dist_ver in

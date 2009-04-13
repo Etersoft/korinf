@@ -33,7 +33,7 @@ convert_gentoo()
 	local RET
         echo "Copying to $BUILDROOT/tmp"
         cp -f  $KORINFDIR/korinf/remote-scripts/remote-gentoo-$BUILDCMD.sh $BUILDROOT/tmp || { warning "Cannot copy script" ; return 1 ; }
-        $SUDO chroot $BUILDROOT su -l -c "sh -x /tmp/remote-gentoo-$BUILDCMD.sh \"$PACKAGE\" \"$BUILDNAME\"" korinfer
+        $SUDO chroot $BUILDROOT su -l -c "sh -x /tmp/remote-gentoo-$BUILDCMD.sh \"$PACKAGE\" \"$BUILDNAME\" $RPMSDIR" korinfer
 	TARGET=tar.gz
         RET=$?
         if [ $RET != 0 ] ; then
