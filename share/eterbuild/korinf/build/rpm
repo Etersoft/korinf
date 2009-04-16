@@ -71,14 +71,14 @@ build_rpms()
 
 	BUILTRPM=$BUILDERHOME/$RPMSDIR
 	if [ -n "$MAKESPKG" ] ; then
-		BUILTRPM=$BUILDERHOME/BP/RPM/SRPMS
+		BUILTRPM=$BUILTRPM/../SRPMS
 		CMDBUILD="rpmbph -n -v ~/RPM/SPECS/$BUILDNAME.spec"
 	fi
 	INTBUILT=/home/$INTUSER/$RPMSDIR
 
 
 	#CMDREPORT="( LANG=C winelog -c ; cat ~/.rpmmacros ) >~/buildenv.txt"
-	CMDAFTERREPORT="( head -n 5 /usr/bin/rpmbph ; cat ~/RPM/BP/SPECS/$BUILDNAME.spec ; echo "-------" ; rpm --showrc ; echo "-----"; cat ~/RPM/BUILD/${BUILDNAME}*/config.log ; cat ~/RPM/BUILD/${BUILDNAME}*/include/config.h ; rpm -qa )  >>~/buildenv.txt"
+	CMDAFTERREPORT="( head -n 5 /usr/bin/rpmbph ; cat ~/$RPMSDIR/../SPECS/$BUILDNAME.spec ; echo "-------" ; rpm --showrc ; echo "-----"; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.log ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h ; rpm -qa )  >>~/buildenv.txt"
 	#CMDREPORT="echo; cat ~/RPM/SPECS/$BUILDNAME.spec ; echo"
 	CMDREPORT="true"
 
@@ -93,6 +93,7 @@ build_rpms()
 	RPMCOMMAND=rpm
 	# Use rpm.static if exist (due ALT's src.rpm has too old version)"
 	[ -x "$BUILDROOT/usr/bin/rpm.static" ] && RPMCOMMAND=/usr/bin/rpm.static
+	# TODO: rewrote for rebuild without install rpm package
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
 		su - $INTUSER -c "export LANG=C ; umask 002 ; mkdir -p ~/RPM/SOURCES ; $RPMCOMMAND -i ~/tmp/$BUILDNAME.src.rpm ; $CMDREPORT ; subst 's|@ETERREGNUM@|${ETERREGNUM}|g' ~/RPM/SPECS/$BUILDNAME.spec ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERREPORT"
 
@@ -113,7 +114,7 @@ build_rpms()
 # Only with $TARGET
 convert_rpm()
 {
-	local RELPKG=$PACKAGERELEASE$TARGETPKGDISTRO
+	local RELPKG=$PACKAGERELEASE$TARGETPKGDISTRO.$BUILDARCH
 	local RES=0
 	pushd $BUILTRPM
 	ls -l
