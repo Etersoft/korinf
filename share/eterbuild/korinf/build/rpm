@@ -33,11 +33,14 @@ build_rpms()
 
 	[ -z "$TARGET" ] && { warning "TARGET is empty" ; return 1 ; }
 
+
 	# HACK for Gentoo
 	if [ -n "$WITHOUTEBU" ] ; then
 	# FIXME
 	#if true ; then
 		[ "$TARGET" = "tbz2" ] && TARGET=rpm
+	else
+		[ "$TARGET" = "tbz2" ] && TARGET=tar.bz2
 	fi
 
 	BUILDARCH=$DEFAULTARCH
@@ -111,6 +114,31 @@ build_rpms()
 }
 
 
+convert_by_target()
+{
+	local RELPKG=$PACKAGERELEASE$TARGETPKGDISTRO
+	local RES=0
+	case $TARGET in
+	"deb")
+		#$SUDO chroot $BUILDROOT su - $INTUSER -c "cd $INTBUILT; ls -l ; fakeroot alien --keep-version --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm" || { warning "alien problem with deb"; popd ; return 1 ; }
+		fakeroot setarch $BUILDARCH alien --keep-version --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with deb"; RES=1 ; }
+		;;
+	"tgz")
+		# Slackware
+		fakeroot alien --keep-version --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with tgz"; RES=1 ; }
+		for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tgz ; done
+		;;
+	"tar.gz")
+		# ArchLinux
+		fakeroot alien --keep-version --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tar.gz"; RES=11 ; }
+		for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tar.gz ; done
+		;;
+	*)
+		fatal "unknown $TARGET"
+	esac
+	return $RES
+}
+
 # Only with $TARGET
 convert_rpm()
 {
@@ -118,35 +146,24 @@ convert_rpm()
 	local RES=0
 	pushd $BUILTRPM
 	ls -l
-	echo "Make target packages for $TARGET"
+	echo "Make target packages for $TARGET ($TARGETPKGDISTRO)"
 
-	case $TARGET in
-		"deb")
-			#$SUDO chroot $BUILDROOT su - $INTUSER -c "cd $INTBUILT; ls -l ; fakeroot alien --keep-version --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm" || { warning "alien problem with deb"; popd ; return 1 ; }
-			fakeroot setarch $BUILDARCH alien --keep-version --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with deb"; RES=1 ; }
-			;;
-		"tgz")
-			# Slackware
-			fakeroot alien --keep-version --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with tgz"; RES=1 ; }
-			for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tgz ; done
-			;;
-		"tar.gz")
-			# ArchLinux
-			fakeroot alien --keep-version --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tar.gz"; RES=11 ; }
-			for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tar.gz ; done
-			;;
-		"tbz2")
+	case $TARGETPKGDISTRO in
+		"gentoo")
 			# Gentoo
 			fakeroot alien --keep-version --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tbz2"; RES=11 ; }
+			#for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tar.gz ; done
 			for i in *${BUILDNAME}*.tgz ; do
 				local TARBNAME=`basename $i .tgz`
-				cat "$i" | gunzip -c | bzip -c > "$TARBNAME-$RELPKG.tbz2" || { warning "can't repack files" ; RES=11 ; }
+				cat "$i" | gunzip -c | bzip -c > "$TARBNAME-$RELPKG.tar.bz2" || { warning "can't repack files" ; RES=11 ; }
 				rm -f "$i"
 			done
 			;;
 		*)
-			fatal "unknown $TARGET"
+			convert_by_target
+			RES=$?
 	esac
+
 
 	popd
 	return $RES

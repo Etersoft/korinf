@@ -77,7 +77,9 @@ prepare_wine_etersoft()
 	# Check package files
 	check_package $FTPDIR wine-etersoft
 	check_package $FTPDIR haspd
+	check_package $FTPDIR haspd-modules
 	check_package $FTPDIR wine-etersoft-${PRODUCT_name}
+	check_package $FTPDIR fonts-ttf-liberation
 
 	# вставить номер в readme и в каталог
 	DOCS=$PVTLOCAL/../docs
@@ -133,16 +135,20 @@ ${BETA}
  - пакеты Продукта (wine-etersoft, wine-etersoft-$PRODUCT_name)
  - пакет haspd с драйверами аппаратных ключей защиты
 HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel;
- - пакет со свободными шрифтами Liberation (fonts-tts-liberation).
+ - пакет со свободными шрифтами Liberation (fonts-ttf-liberation).
+Во многих дистрибутивах он уже есть (в Ubuntu называется ttf-liberation).
 
 $CIFSTEXT
 
 ОБРАТИТЕ ВНИМАНИЕ!
 Файл лицензии wine-etersoft.lic необходимо расположить в каталоге /etc/wine, ~/.wine или
 C:\WINDOWS\INF.
+ОБРАТИТЕ ВНИМАНИЕ!
+Пакеты wine надо устанавливать одновременной, одной командой оба пакета
+wine-etersoft и wine-etersoft-$PRODUCT_name.
 
 Для полного соответствия шрифтов в программах
-рекомендуется скачать и установить пакет fonts-ttf-ms,
+можно скачать и установить пакет fonts-ttf-ms,
 содержащий шрифты MS Core Fonts:
 	$PUBDOWNLOAD1FONTS
 
@@ -188,7 +194,8 @@ build_wine_etersoft()
 		VERNAME=$PROJECTNAME/`basename $PUBLOCAL`
 	fi
 
-	PVTLOCAL="/var/ftp/pvt/Etersoft/$VERNAME/WINE-$(get_product_type "$PRODUCT")"
+	# Not: use original project version (other path, not pub)
+	PVTLOCAL="/var/ftp/pvt/Etersoft/$PROJECTNAME/$PROJECTVERSION/WINE-$(get_product_type "$PRODUCT")"
 
 	if [ ! -d "$PUBLOCAL/WINE/$DIST" ] ; then
 		warning "System $DIST not supported for build ($PUBLOCAL/WINE/$DIST does not exist)"
@@ -202,6 +209,7 @@ build_wine_etersoft()
 		TEXTDIST="$TEXTDIST (фактически сборка выполнена для $DIST)"
 	fi
 	check_dist $DIST
+	mkdir -p "$PVTLOCAL/$DIST"
 	
 	PUBDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/$VERNAME"
 	PUBDOWNLOAD1HTTP="http://updates.etersoft.ru/pub/Etersoft/$VERNAME"
