@@ -209,6 +209,7 @@ build_wine_etersoft()
 		TEXTDIST="$TEXTDIST (фактически сборка выполнена для $DIST)"
 	fi
 	check_dist $DIST
+	mkdir -p "$PVTLOCAL/$DIST"
 	
 	PUBDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/$VERNAME"
 	PUBDOWNLOAD1HTTP="http://updates.etersoft.ru/pub/Etersoft/$VERNAME"
