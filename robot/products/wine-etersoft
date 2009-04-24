@@ -72,6 +72,8 @@ prepare_wine_etersoft()
 		cp -fl $i $FTPDIR/extra || cp -f $i $FTPDIR/extra || fatal "Can't copy $i"
 	done
 
+	touch $FTPDIR/* $FTPDIR/extra/*
+
 	create_license $FTPDIR/wine-etersoft.lic $AROBOTDIR/dsa/wine-etersoft.dsa
 
 	# Check package files
