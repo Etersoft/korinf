@@ -24,13 +24,15 @@
 # check package existing by REBUILDLIST
 check_built_package()
 {
+	local BUILDNAME=$1
 	local NAME FILEDATE FILESIZE BASENAME FILENAME
-	local PATHTO=$TARGETPATH BUILDNAME=$1 PATHPKG
-	local SRCPKG
-	if [ ! -d "$PATHTO" ] ; then
-		echo "Path PATHTO:'$PATHTO' is missed"
+	local SRCPKG PATHPKG
+
+	if [ ! -d "$TARGETPATH" ] ; then
+		echo "Path TARGETPATH:'$TARGETPATH' is missed"
 		return 1
 	fi
+
 	SRCPKG=$(get_src_package "$SOURCEPATH" $BUILDNAME)
 	[ -n "$QUIET" ] || echo "Source package: $SRCPKG"
 
@@ -38,9 +40,9 @@ check_built_package()
 		NAME=$i
 
 		if [ -n "$MAINFILESLIST" ] ; then
-			PATHPKG=$PATHTO/$i
+			PATHPKG=$TARGETPATH/$i
 		else
-			PATHPKG=$PATHTO/$i/extra
+			PATHPKG=$TARGETPATH/$i/extra
 		fi
 
 		ST="   "
@@ -68,3 +70,24 @@ check_built_package()
 	done
 }
 
+# args: BUILDNAME
+# use external $BUILDSRPM $DESTDIR $MAINFILESLIST
+do_need_build_package()
+{
+	local BUILDNAME=$1
+	local FILENAME SRCPKG PATHPKG
+
+	if [ -n "$MAINFILESLIST" ] ; then
+		PATHPKG=$DESTDIR
+	else
+		PATHPKG=$DESTDIR/extra
+	fi
+
+	FILENAME=$(get_bin_package "$PATHPKG" $BUILDNAME)
+
+	if [ -r "$FILENAME" ] ; then
+		[ "$BUILDSRPM" -nt "$FILENAME" ] || return 1
+	fi
+
+	return 0
+}

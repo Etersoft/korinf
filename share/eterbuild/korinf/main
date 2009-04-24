@@ -89,7 +89,13 @@ for dist in $CMDRE ; do
 
 	# Initialize LOGDIR and LOGFILE variables
 	init_dist_log "$dist"
-	logit "`basename $BUILDSRPM .src.rpm`"
+	if do_need_build_package $BUILDNAME || [ -n "$REBUILDPACKAGE" ] ; then
+		logit "`basename $BUILDSRPM .src.rpm`"
+	else
+		logit "`basename $BUILDSRPM .src.rpm` is up-to-date, skipped"
+		echo `date` $dist PASSED | write_report
+		continue
+	fi
 
 	# Run build and check result
 	if build_dist_pkg ; then
