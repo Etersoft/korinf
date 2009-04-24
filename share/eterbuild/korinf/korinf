@@ -118,6 +118,18 @@ build_project()
 	local TP=$3
 	shift 3
 
+	if [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
+		echo "Korinf build script:"
+		echo "Usage: script [target_system] project_version"
+		echo "	target_system - Mandriva/2009 or test, all, deb, etc."
+		echo "	project_version - 1.0.10 or last"
+		echo "you can use following options:"
+		echo "	-q - enable quiet mode"
+		echo "	-c - print build status list"
+		echo "	-r - force rebuild package ever if it up-to-date"
+		fatal "Help message"
+	fi
+
 	if [ "$1" = "-q" ] ; then
 		QUIET=1
 		shift
@@ -125,6 +137,11 @@ build_project()
 
 	if [ "$1" = "-c" ] ; then
 		CHECKPACKAGE=1
+		shift
+	fi
+
+	if [ "$1" = "-r" ] ; then
+		REBUILDPACKAGE=1
 		shift
 	fi
 

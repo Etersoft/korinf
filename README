@@ -10,7 +10,9 @@ Use BOOTSTRAP=1 variable for install built packages
 
 Use NIGHTBUILD=1 variable for enabble Stop on errors mode
 
-Use CHECKPACKAGE=1 variable for check built status instead build
+Use CHECKPACKAGE=1 variable for check built status instead build (-c option to script)
+
+Use REBUILDPACKAGE=1 variable to force build ever if binary package is up-to-date (-r option to script)
 
 You can set distro independent target via TARGETPRIVPATH variable
 
