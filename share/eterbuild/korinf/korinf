@@ -126,7 +126,7 @@ build_project()
 		echo "you can use following options:"
 		echo "	-q - enable quiet mode"
 		echo "	-c - print build status list"
-		echo "	-r - force rebuild package ever if it up-to-date"
+		echo "	-f - force rebuild package ever if it up-to-date"
 		fatal "Help message"
 	fi
 
@@ -140,7 +140,7 @@ build_project()
 		shift
 	fi
 
-	if [ "$1" = "-r" ] ; then
+	if [ "$1" = "-f" ] ; then
 		REBUILDPACKAGE=1
 		shift
 	fi

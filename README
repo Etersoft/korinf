@@ -12,7 +12,7 @@ Use NIGHTBUILD=1 variable for enabble Stop on errors mode
 
 Use CHECKPACKAGE=1 variable for check built status instead build (-c option to script)
 
-Use REBUILDPACKAGE=1 variable to force build ever if binary package is up-to-date (-r option to script)
+Use REBUILDPACKAGE=1 variable to force build ever if binary package is up-to-date (-f option to script)
 
 You can set distro independent target via TARGETPRIVPATH variable
 
