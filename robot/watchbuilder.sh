@@ -43,14 +43,13 @@ print_tasks()
 {
 	local TASK EXT
 	EXT=$1
-	# load all vars (DIST, MAILTO, PRODUCT, ETERREGNUM, FULLNAME)
-	printf "%9s %20s   %s\n %s %s" Reg.number Distro Product Mail "Full name"
+	printf "%9s %20s   %s\n %s %s" Reg.number Distro Component Mail "Full name"
 	for TASK in `ls -1 $TASKDIR/*.$EXT` ; do
 		. $TASK
 		# Выводим название файла и дату создания
 		stat -c "%n %y"
 		echo
-		printf "%s %20s   %s\n %s %s\n" "$ETERREGNUM" "$DIST" "$PRODUCT" "$MAILTO" "$FULLNAME"
+		printf "%s %20s   %s\n %s %s\n" "$ETERREGNUM" "$DIST" "$COMPONENTNAME" "$MAILTO" "$FULLNAME"
 	done
 	#ls -l $TASKDIR/*.task
 }

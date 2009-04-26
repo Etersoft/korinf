@@ -18,6 +18,6 @@ load_task ./try.task
 PROJECTNAME="WINE@Etersoft"
 VERNAME=$PROJECTNAME/$PROJECTVERSION
 PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME/WINE"
-PVTLOCAL="/var/ftp/pvt/Etersoft/$VERNAME/WINE-$(get_product_type "$PRODUCT")"
+PVTLOCAL="/var/ftp/pvt/Etersoft/$VERNAME/WINE-$(get_product_type "$COMPONENTNAME")"
 
 check_built_package $PUBLOCAL/$DIST ../../../sources haspd

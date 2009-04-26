@@ -27,7 +27,7 @@
 # is not recommended include directly due message function intersection
 #kormod korinf
 
-# do not used
+# do not used, obsoleted
 check_and_refresh_package()
 {
 	# Etersoft/WINE@Etersoft/last/WINE/SUSE/12
@@ -55,7 +55,7 @@ check_and_refresh_package()
 	return 1
 }
 
-# Specially WINE@Etersoft case (use external DIST and WINENUMVERSION)
+# Specially WINE@Etersoft case (use external DIST and PROJECTVERSION)
 check_and_refresh_package_wine()
 {
 	# Etersoft/WINE@Etersoft/last/WINE/SUSE/12

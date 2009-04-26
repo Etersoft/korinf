@@ -40,26 +40,20 @@ do_removed()
 # set global: TASK, TARGETDIRNAME and vars from task
 load_task()
 {
-	local WINENUMVERSION
-	local TARGETDIR DOWNLOADDIR
+	# obsoleted
+	local WINENUMVERSION TARGETDIR NUMVERSION
 	TASK="$1"
 	[ -e "$TASK" ] || { warning "Have not any tasks..." ; sleep 1 ; exit_now ; }
 
 	test -w "$TASK" || do_removed
 
-	#echo "Load task file $TASK"
 	# WARNING!!! execute file!!!
 	# load all vars (DIST, MAILTO, PRODUCT, ETERREGNUM, FULLNAME)
 	PRODUCT=
+	COMPONENTNAME=
 	DIST=
 	PROJECTVERSION=
 	. $TASK
-
-	# FIXME: just random string for build path
-	TARGETDIRNAME=`basename $TARGETDIR`
-
-	# compat
-	[ -n "$PROJECTVERSION" ] || PROJECTVERSION=$WINENUMVERSION
 
 	# Check for product version
 	[ -z "$PROJECTVERSION" ] && { do_broken "Empty PROJECTVERSION" ; }

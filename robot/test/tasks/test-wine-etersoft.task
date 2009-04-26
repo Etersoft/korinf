@@ -1,11 +1,10 @@
 PRODUCT="WINE@Etersoft 1.0 Local (коробочная версия, локальная лицензия)"
+COMPONENTNAME="WINE@Etersoft"
 ETERREGNUM="7ED1-FE1D"
 DIST="SUSE/10.3"
-TARGETDIR="/var/www/site/downloads/7ED1-FE1D-2u8lmjf09q"
-DOWNLOADDIR="http://sales.etersoft.ru/downloads/7ED1-FE1D-2u8lmjf09q"
 MAILTO="teh3@mail.ru"
 FULLNAME="Мельников Максим"
-WINENUMVERSION="1.0.10"
+PROJECTVERSION="1.0.10"
 RELEASECANDIDAT=0
 TYPE_LICENSE=Base
 OWNER='Мельников Максим'

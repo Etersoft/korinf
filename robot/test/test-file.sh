@@ -13,7 +13,7 @@ load_task ./try.task
 PROJECTNAME="WINE@Etersoft"
 VERNAME=$PROJECTNAME/$PROJECTVERSION
 PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME"
-PVTLOCAL="/var/ftp/pvt/Etersoft/$VERNAME/WINE-$(get_product_type "$PRODUCT")"
+PVTLOCAL="/var/ftp/pvt/Etersoft/$VERNAME/WINE-$(get_product_type "$COMPONENTNAME")"
 
 echo "PUBLOCAL: $PUBLOCAL"
 echo "PVTLOCAL: $PVTLOCAL"

@@ -60,6 +60,10 @@ fi
 
 load_task "$1"
 
+PWGEN=`pwgen 10 1`
+[ -n "$PWGEN" ] || fatal "Can't get pwgen output"
+TARGETDIRNAME=$ETERREGNUM-$PWGEN
+
 if [ "$REALRUN" = "--real" ] && [ ! -f $0.debug ] ; then
 	FULLMAILTO="\"$FULLNAME\" <$MAILTO>"
 else
@@ -73,9 +77,9 @@ export NIGHTBUILD=1
 # Run product specific function
 # It can used:
 # * variables from the task
-# * TARGETDIRNAME - dir to place files (TODO: remove it)
+# * TARGETDIRNAME - dir to place files
 # split to subscript
-case $PRODUCT in
+case $COMPONENTNAME in
 	*WINE@Etersoft*)
 		# Compat
 		if [ "$PROJECTVERSION" = "1.0.8" ] || [ "$PROJECTVERSION" = "1.0.9" ] ; then
@@ -91,7 +95,9 @@ case $PRODUCT in
 		build_selta
 		;;
 	*)
-		fatal "Unsupported product $PRODUCT"
+		. $AROBOTDIR/products/component
+		build_anycomponent
+		#fatal "Unsupported component $COMPONENTNAME for product $PRODUCT"
 		;;
 esac
 
