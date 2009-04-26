@@ -1,5 +1,6 @@
 PRODUCT="SELTA@Etersoft 1.0 (электронная версия, базовая лицензия)"
 COMPONENTNAME="SELTA@Etersoft"
+DOWNLOADDIR="SELTA@Etersoft/1.0.3"
 ETERREGNUM="0D23-A26B"
 DIST="Mandriva/2008.1"
 MAILTO="gomonov_max@mail.ru"

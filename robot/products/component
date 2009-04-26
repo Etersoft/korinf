@@ -48,7 +48,8 @@ prepare_component_mail()
 	cat >>$FILETO <<EOF
 ${DEAR} ${NAME}!
 
-Ваш заказ компоненты ${COMPONENTNAME} (версия $PROJECTVERSION) выполнен.
+Ваш заказ компоненты ${COMPONENTNAME} (версия $PROJECTVERSION)
+для продукта ${PRODUCT} выполнен.
 ${BETA}
 Регистрационный номер Продукта: ${ETERREGNUM}.
 
@@ -88,9 +89,11 @@ build_anycomponent()
 	fi
 
 	# Use real path if possible
+	# NOTE: replace PROJECTVERSION with linked version
 	if [ -L "$LOCALDIR" ] ; then
 		LOCALDIR=`readlink -f "$LOCALDIR"`
-		PROJ=$COMPONENTNAME/`basename $LOCALDIR`
+		PROJECTVERSION=`basename $LOCALDIR`
+		PROJ=`dirname $PROJ`/$PROJECTVERSION
 	fi
 	FTPDIR="ftp://updates.etersoft.ru/pub/Etersoft/$PROJ"
 
@@ -115,7 +118,7 @@ build_anycomponent()
 
 	prepare_component_mail $TMPMAIL || fatal "Can't prepare letter"
 
-	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "support@etersoft.ru" -s "Сборка $COMPONENTNAME" || fatal "Can't send"
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "support@etersoft.ru" -s "Сборка $COMPONENTNAME $PROJECTVERSION" || fatal "Can't send"
 	rm -f $TMPMAIL
 }
 
