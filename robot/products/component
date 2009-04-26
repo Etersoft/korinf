@@ -78,8 +78,8 @@ EOF
 
 build_anycomponent()
 {
-	# TODO: use DOWNLOADDIR?
-	local PROJ="$COMPONENTNAME/$PROJECTVERSION"
+	#local PROJ="$COMPONENTNAME/$PROJECTVERSION"
+	local PROJ=$DOWNLOADDIR
 	LOCALDIR=/var/ftp/pub/Etersoft/$PROJ
 	
 	if [ ! -d "$LOCALDIR/$DIST" ] ; then
