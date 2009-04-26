@@ -101,8 +101,10 @@ case $COMPONENTNAME in
 		;;
 esac
 
-mkdir -p "$TARGETDIR/../done/"
-mv -f $TASK "$TARGETDIR/../done/" || fatal "Can't remove task"
+DONEDIR=$TARGETDIR/../done/
+[ -d "$DONEDIR" ] || DONEDIR=~/done
+mkdir -p "$DONEDIR"
+mv -f $TASK "$DONEDIR" || fatal "Can't remove task"
 DATE=`date`
-echo "# built done at $DATE" >>$TARGETDIR/../done/`basename $TASK`
+echo "# built done at $DATE" >>$DONEDIR/`basename $TASK`
 exit_now
