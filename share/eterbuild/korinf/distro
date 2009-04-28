@@ -118,7 +118,7 @@ case $dist_name in
 	prepare_filelist
 
 	if [ "$TARGET" != "rpm" ] && [ -z "$MAKESPKG" ] ; then
-		logit "convert RPM to $TARGET" convert_rpm || return 1
+		logit "convert RPM to $TARGET ($PACKAGERELEASE$TARGETPKGDISTRO)" convert_rpm || return 1
 	fi
 
 	if [ -n "$BOOTSTRAP" ] && [ -z "$MAKESPKG" ]; then

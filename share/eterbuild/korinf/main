@@ -53,6 +53,9 @@ BUILDSRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME || fatal "Can't find packag
 PACKAGEVERSION=$(rpm -qp "$BUILDSRPM" --queryformat="%{VERSION}")
 [ -n "$PACKAGEVERSION" ] || fatal "Can't get version from $BUILDSRPM package"
 
+PACKAGERELEASE=$(rpm -qp "$BUILDSRPM" --queryformat="%{RELEASE}" | sed -e "s|^alt|eter|g")
+[ -n "$PACKAGERELEASE" ] || fatal "Can't get release from $BUILDSRPM package"
+
 if [ -n "$NIGHTBUILD" ] ; then
 	rpm --checksig $BUILDSRPM || fatal "GPG check failed"
 else
