@@ -47,64 +47,46 @@ build_rpms()
 	if echo $dist | grep x86_64 >/dev/null ; then
 	    BUILDARCH="x86_64"
 	fi
-	echo "Build '$BUILDSRPM' in chrooted $BUILDARCH system for $dist"
 
-	# TODO: more correctly
-	cp -f $BUILDSRPM $BUILDERHOME/tmp/$BUILDNAME.src.rpm || { warning "Can't copy src.rpm" ; return 1 ; }
-	$SUDO chown $LOCUSER $BUILDERHOME/tmp/$BUILDNAME.src.rpm
+	# Use rpmbph for git repo if possible
+	[ -d "$ETERBUILDDIR/functions" ] && RPMBPH=$(readlink -f $ETERBUILDDIR/functions)/../../../bin/rpmbph || RPMBPH=rpmbph
+
+	echo "Build '$BUILDSRPM' for $dist distro"
+	rm -f $BUILDERHOME/tmp/$BUILDNAME*
+	if [ -n "$MAKESPKG" ] ; then
+		ROOTDIR=$BUILDROOT $RPMBPH -v -n -z $BUILDSRPM
+		BUILTRPM=~/$RPMSDIR
+		return 0
+	else
+		ROOTDIR=$BUILDROOT ETERDESTSRPM=$BUILDERHOME/tmp $RPMBPH -v -n -z $BUILDSRPM
+		BUILTRPM=$BUILDERHOME/$RPMSDIR
+	fi
+
+	# Get real src.rpm name
+	TARGETSRPM=`basename $(echo $BUILDERHOME/tmp/$BUILDNAME*.src.rpm | head -n1)`
+	[ -r "$BUILDERHOME/tmp/$TARGETSRPM" ] || { warning "Can't read target $TARGETSRPM src.rpm in $BUILDERHOME/tmp" ; return 1 ; }
+	$SUDO chown $LOCUSER $BUILDERHOME/tmp/$TARGETSRPM
 
 	# create needed files in home directory
 	init_home
-
-	# For log purposes
-	ls -l $BUILDROOT/etc/rpm
-
-	if [ -n "$WITHOUTEBU" ] ; then
-		echo "Use emergency or first build mode"
-		# FIXME: add buildroot?
-		CMDBUILD="rpmbuild -bb --nodeps ~/RPM/SPECS/$BUILDNAME.spec"
-		RPMSDIR=RPM/RPMS
-	else
-		if [ -z "$NOREPL" ] ; then
-			CMDBUILD="rpmbph -v ~/RPM/SPECS/$BUILDNAME.spec"
-		else
-			CMDBUILD="rpmbb ~/RPM/SPECS/$BUILDNAME.spec"
-		fi
-	fi
-
-	BUILTRPM=$BUILDERHOME/$RPMSDIR
-	if [ -n "$MAKESPKG" ] ; then
-		BUILTRPM=$BUILTRPM/../SRPMS
-		CMDBUILD="rpmbph -n -v ~/RPM/SPECS/$BUILDNAME.spec"
-	fi
 	INTBUILT=/home/$INTUSER/$RPMSDIR
 
+	# FIXME: problem if system's rpm does not recognize our src.rpm (as Mandriva 2007.1/2008)
+	RPMBUILDROOT="/home/$INTUSER/tmp/$BUILDNAME-buildroot"
+	RPMBUILDNODEPS=""
+	[ "$TARGET" != "rpm" ] && RPMBUILDNODEPS="--nodeps"
+	CMDBUILD="rpmbuild --rebuild $RPMBUILDNODEPS --buildroot $RPMBUILDROOT ~/tmp/$TARGETSRPM"
 
-	#CMDREPORT="( LANG=C winelog -c ; cat ~/.rpmmacros ) >~/buildenv.txt"
-	CMDAFTERREPORT="( head -n 5 /usr/bin/rpmbph ; cat ~/$RPMSDIR/../SPECS/$BUILDNAME.spec ; echo "-------" ; rpm --showrc ; echo "-----"; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.log ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h ; rpm -qa )  >>~/buildenv.txt"
-	#CMDREPORT="echo; cat ~/RPM/SPECS/$BUILDNAME.spec ; echo"
-	CMDREPORT="true"
-
-	# TODO: set defattr after each files section
-	# awk 'BEGIN{desk=0}{print;if(/^%build/&&desk==0){printf("%s\n\n", text);desk++}}' text="$RECONFT"
-
+	# Control file for check build result
         LOGFAILFILE="$BUILDERHOME/RPM/log/$BUILDNAME.log.failed"
 	rm -f "$LOGFAILFILE"
 
-	echo "Chrooting as $INTUSER and run $CMDBUILD command"
-	# copy src.rpm into build system and build
-	RPMCOMMAND=rpm
-	# Use rpm.static if exist (due ALT's src.rpm has too old version)"
-	[ -x "$BUILDROOT/usr/bin/rpm.static" ] && RPMCOMMAND=/usr/bin/rpm.static
-	# TODO: rewrote for rebuild without install rpm package
+	echo "Chrooting as $INTUSER and run $CMDBUILD command in $BUILDARCH system"
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-		su - $INTUSER -c "export LANG=C ; umask 002 ; mkdir -p ~/RPM/SOURCES ; $RPMCOMMAND -i ~/tmp/$BUILDNAME.src.rpm ; $CMDREPORT ; subst 's|@ETERREGNUM@|${ETERREGNUM}|g' ~/RPM/SPECS/$BUILDNAME.spec ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERREPORT"
-
-	cat $BUILDERHOME/buildenv.txt | sed -e "s|[0-9A-F]\{4\}-[0-9A-F]\{4\}|XxXX-XxXX|g" >$LOGDIR/$BUILDNAME.cenv.log
-
+		su - $INTUSER -c "export LANG=C ; umask 002 ; mkdir -p ~/RPM/log ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed"
 	[ -r "$LOGFAILFILE" ] && { rm -f "$LOGFAILFILE" ; warning "build failed" ; return 1 ; }
 
-	# workaround again flow target dirs
+	# Workaround again flow target dirs
 	pushd $BUILTRPM || { warning "can't chdir to $BUILTRPM" ; return 1; }
 	test -d i586 && mv -f i586/* ./
 	test -d x86_64 && mv -f x86_64/* ./
@@ -120,7 +102,7 @@ convert_by_target()
 	local RES=0
 	case $TARGET in
 	"deb")
-		#$SUDO chroot $BUILDROOT su - $INTUSER -c "cd $INTBUILT; ls -l ; fakeroot alien --keep-version --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm" || { warning "alien problem with deb"; popd ; return 1 ; }
+		# Debian/Ubuntu
 		fakeroot setarch $BUILDARCH alien --keep-version --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with deb"; RES=1 ; }
 		;;
 	"tgz")
@@ -152,7 +134,6 @@ convert_rpm()
 		"gentoo")
 			# Gentoo
 			fakeroot alien --keep-version --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tbz2"; RES=11 ; }
-			#for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tar.gz ; done
 			for i in *${BUILDNAME}*.tgz ; do
 				local TARBNAME=`basename $i .tgz`
 				cat "$i" | gunzip -c | bzip -c > "$TARBNAME-$RELPKG.tar.bz2" || { warning "can't repack files" ; RES=11 ; }

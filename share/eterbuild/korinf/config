@@ -18,7 +18,7 @@ export LC_ALL=C
 LOCUSER=builder
 
 # Path to built packages inside home
-RPMSDIR=RPM/BP/RPMS
+RPMSDIR=RPM/RPMS
 
 # Path to chroot dir (remote system mounted)
 CHROOTDIR=/tmp/autobuild
