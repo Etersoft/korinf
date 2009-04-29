@@ -83,3 +83,32 @@ check_and_refresh_package_wine()
 
 	return 1
 }
+
+check_and_refresh_component()
+{
+	local BUILDSCRIPT="$1"
+	# Etersoft/RX@Etersoft/last/SUSE/12
+	local TARGETPATH="$2"
+	# Etersoft/RX@Etersoft/last/sources
+	local SOURCEPATH="$(readlink -f "$TARGETPATH/../../sources")"
+	# haspd
+	local BUILDNAME=$3
+
+	test -d "$SOURCEPATH" || fatal "Source path $SOURCEPATH is not exists (run with incorrect target path $TARGETPATH)"
+	test -d "$TARGETPATH" || fatal "Target path $TARGETPATH is not exists"
+
+	# FIXMEP get_..._package always returns true
+	local SRCRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME)
+	test -r "$SRCRPM" || fatal "Source package for $BUILDNAME is not found"
+	local BINPKG=$(get_bin_package "$TARGETPATH" $BUILDNAME)
+
+	# if binary is exists
+	if [ -r "$BINPKG" ] ; then
+		# if binary is newer than src.rpm, return OK
+		test "$BINPKG" -nt "$SRCRPM" && return 0
+	fi
+
+	$AROBOTDIR/../$BUILDSCRIPT/$BUILDNAME.sh $DIST $PROJECTVERSION && return 0
+
+	return 1
+}
