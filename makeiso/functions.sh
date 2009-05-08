@@ -38,17 +38,24 @@ makeiso()
 {
 	#LANG=C ls -lR $WINE_PATH/ >$WINE_PATH/MANIFEST
 	echo "Creating ISO in $PATHTOFTP/$FILENAME"
-	mkisofs -V "WINE@Etersoft $WINENUMVERSION $PRODUCT" \
+	mkisofs -v -V "WINE@Etersoft $WINENUMVERSION $PRODUCT" \
 	-p "Plikus Alexander, $DATESTAMP" \
 	-m "*update-from*" \
 	-m "*MD5SUM*" \
 	-m "*/log/*" \
 	-m "license_*" \
+	-m "distro.list" \
 	-m "$WINEETER_PATH$ALPHAP/source*" \
 	-m "*Special*" \
 	-publisher "Etersoft, wine@etersoft.ru" \
-	-sysid LINUX -o $PATHTOFTP/$FILENAME.building  -r -J -f -quiet -graft-points WINE=$WINEETER_PATH$ALPHAP \
-	$WINEPUB_PATH$ALPHA $WINEETER_PATH$ALPHA/{autorun*,docs/README_$PRODUCT.html,docs/license_$CPRODUCT.html} || exit 1
+	-sysid LINUX -o $PATHTOFTP/$FILENAME.building  -r -J -f -quiet -graft-points \
+	WINE=$WINEETER_PATH$ALPHAP \
+	WINE=$WINEPUB_PATH$ALPHA/CIFS \
+	$WINEPUB_PATH$ALPHA $WINEETER_PATH$ALPHA/{autorun*,docs/license_$CPRODUCT.html} \
+	docs/=$WINEETER_PATH$ALPHA/docs/{README_$PRODUCT.html,${CPRODUCT}_manual.html,install.html,redist.html,images/etersoft.ico} \
+	docs/images/=$WINEETER_PATH$ALPHA/docs/images/etersoft.ico \
+	README.html=$WINEETER_PATH$ALPHA/docs/README_$PRODUCT.html \
+	|| exit 1
 	#$WINEETER_PATH$ALPHAP || exit 1
 	mv -f $PATHTOFTP/$FILENAME.building $PATHTOFTP/$FILENAME
 #	-m "*_Network*" -m "network_*" \
