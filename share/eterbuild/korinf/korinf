@@ -127,6 +127,7 @@ build_project()
 		echo "	-q - enable quiet mode"
 		echo "	-c - print build status list"
 		echo "	-f - force rebuild package ever if it up-to-date"
+		echo "	-r - install packages required for build package"
 		fatal "Help message"
 	fi
 
@@ -142,6 +143,11 @@ build_project()
 
 	if [ "$1" = "-f" ] ; then
 		REBUILDPACKAGE=1
+		shift
+	fi
+
+	if [ "$1" = "-r" ] ; then
+		INSTALLREQUIREDPACKAGE=1
 		shift
 	fi
 

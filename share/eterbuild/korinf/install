@@ -70,6 +70,40 @@ install_built()
 # install required packages for build
 install_req()
 {
-	# TODO
-	echo
+	local LISTPKG CMD LOGFAILFILE DISTRVENDOR
+	echo "Install build required packages"
+
+	load_mod repl
+
+	LISTPKG=$(rpmquery --requires -p $BUILDERHOME/tmp/$TARGETSRPM | clean_pkgreq)
+	DISTRVENDOR=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -d`
+	case $DISTRVENDOR in
+		"ALTLinux"|"Ubuntu"|"Debian"|"PCLinux")
+			CMD="apt-get -y --force-yes install $LISTPKG"
+			;;
+		"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific")
+			CMD="yum -y install $LISTPKG"
+			;;
+		"Mandriva")
+			CMD="urpmi -q $LISTPKG"
+			;;
+		"SUSE"|"NLD")
+			echo "?? yast -i \$PKGNAME?" || exit 1
+			CMD="yast2 -i $LISTPKG"
+			;;
+		*)
+			echo "Skipping unknown DISTRVENDOR $DISTRVENDOR"
+			;;
+	esac
+
+
+	# Control file for check build result
+        LOGFAILFILE="$BUILDERHOME/RPM/log/$BUILDNAME.log.failed"
+	rm -f "$LOGFAILFILE"
+
+	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
+		su - -c "export LANG=C ; export LC_ALL=C ; $CMD || touch /home/$INTUSER/RPM/log/$BUILDNAME.log.failed"
+
+	[ -r "$LOGFAILFILE" ] && { rm -f "$LOGFAILFILE" ; warning "install failed" ; return 1 ; }
+
 }
