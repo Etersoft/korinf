@@ -74,7 +74,7 @@ prepare_wine_etersoft()
 
 	touch $FTPDIR/* $FTPDIR/extra/*
 
-	create_license $FTPDIR/wine-etersoft.lic $AROBOTDIR/dsa/wine-etersoft.dsa
+	create_license $FTPDIR/WINE-ETERSOFT.LIC $AROBOTDIR/dsa/wine-etersoft.dsa
 
 	# Check package files
 	check_package $FTPDIR wine-etersoft
@@ -132,9 +132,9 @@ ${BETA}
 Регистрационный номер Продукта: ${ETERREGNUM}.
 
 Для получения Продукта необходимо скачать файлы по приведённым ссылкам, в их числе:
- - документацию (файл manual.html)
- - файл лицензии wine-etersoft.lic
  - пакеты Продукта (wine-etersoft, wine-etersoft-$PRODUCT_name)
+ - файл лицензии WINE-ETERSOFT.LIC
+ - документацию (файл manual.html)
  - пакет haspd с драйверами аппаратных ключей защиты
 HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel;
  - пакет со свободными шрифтами Liberation (fonts-ttf-liberation).
@@ -143,8 +143,12 @@ HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel;
 $CIFSTEXT
 
 ОБРАТИТЕ ВНИМАНИЕ!
-Файл лицензии wine-etersoft.lic необходимо расположить в каталоге /etc/wine, ~/.wine или
+Файл лицензии WINE-ETERSOFT.LIC необходимо расположить в каталоге /etc/wine, ~/.wine или
 C:\WINDOWS\INF.
+EOF
+	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" $FTPDIR/WINE-ETERSOFT.LIC >>$FILETO || fatal "Error with WINE-ETERSOFT.LIC "
+	cat >>$FILETO <<EOF
+
 ОБРАТИТЕ ВНИМАНИЕ!
 Пакеты wine надо устанавливать одновременной, одной командой оба пакета
 wine-etersoft и wine-etersoft-$PRODUCT_name.
