@@ -120,7 +120,7 @@ build_project()
 
 	if [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
 		echo "Korinf build script:"
-		echo "Usage: script [target_system] project_version"
+		echo "Usage: script [target_system] [project_version]"
 		echo "	target_system - Mandriva/2009 or test, all, deb, etc."
 		echo "	project_version - 1.0.10 or last"
 		echo "you can use following options:"
@@ -151,17 +151,17 @@ build_project()
 		shift
 	fi
 
-	if [ -n "$2" ] ; then
+	# do not shift args more
+	if [ -n "$1" ] ; then
 		REBUILDLIST=$1
-		shift
 	fi
 
-	if [ -z "$1" ] ; then
+	if [ -z "$2" ] ; then
 		SP=$SP/last
 	else
-		SP=$SP/$1
-		shift
+		SP=$SP/$2
 	fi
+
 
 	TARGETPATH=$(readlink -f $SP)
 	SOURCEPATH=$TARGETPATH/sources
