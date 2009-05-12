@@ -2,7 +2,8 @@
 ##
 #  Korinf project
 #
-#  Ставит провалившиеся задания опять на сборку
+#  Ставит провалившиеся задания опять на сборку.
+#  Нужно указать название системы или all для всех задач
 #
 #  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009
 #  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
@@ -24,16 +25,28 @@
 
 cd ~/sales || exit 1
 
-if [ -z "$1" ] ; then
-	for i in *.failed ; do
-		test -f $i || continue
-		mv -v $i `basename $i .failed` || exit 1
-	done
-else
-	for i in *.broken ; do
-		test -f $i || continue
-		mv -v $i `basename $i .broken` || exit 1
-	done
+DIST="$1"
+
+if [ -z "$DIST" ] ; then
+	echo "Run with target system name or 'all' for all tasks"
+	exit 1
 fi
-cd -
+
+echo "Reorder tasks for '$DIST' distro"
+
+if [ "$DIST" = "all" ] ; then
+	DIST=""
+fi
+
+for i in *.failed ; do
+	test -f $i || continue
+	[ -z "$DIST" ] || grep -q "DIST=\"$DIST\"" $i || continue
+	mv -v $i `basename $i .failed` || exit 1
+done
+
+for i in *.broken ; do
+	test -f $i || continue
+	[ -z "$DIST" ] || grep -q "DIST=\"$DIST\"" $i || continue
+	mv -v $i `basename $i .broken` || exit 1
+done
 
