@@ -48,9 +48,6 @@ build_rpms()
 	    BUILDARCH="x86_64"
 	fi
 
-	# Use rpmbph for git repo if possible
-	[ -d "$ETERBUILDDIR/functions" ] && RPMBPH=$(readlink -f $ETERBUILDDIR/functions)/../../../bin/rpmbph || RPMBPH=rpmbph
-
 	echo "Build '$BUILDSRPM' for $dist distro"
 	rm -f $BUILDERHOME/tmp/$BUILDNAME*
 	if [ -n "$MAKESPKG" ] ; then

@@ -31,6 +31,15 @@ test -f ~/.config/korinf  && . ~/.config/korinf
 
 [ -n "$EMAILNOTIFY" ] || EMAILNOTIFY=$USER
 
+# Use rpmbph, rpmbs from git repo if possible
+if [ -d "$ETERBUILDDIR/functions" ] ; then
+	ETERBUILDBINDIR=$(readlink -f $ETERBUILDDIR/functions)/../../../bin
+else
+	ETERBUILDBINDIR=$(dirname $(which rpmbph) )
+fi
+RPMBPH=$ETERBUILDBINDIR/rpmbph
+RPMBSH=$ETERBUILDBINDIR/rpmbsh
+RPMBS=$ETERBUILDBINDIR/rpmbs
 
 # HACK: create strip workaround
 create_strip_workaround()
