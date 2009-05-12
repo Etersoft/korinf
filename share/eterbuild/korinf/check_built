@@ -49,6 +49,7 @@ check_built_package()
 			FILESIZE=`stat -c"%s" $FILENAME`
 			BASENAME=`basename $FILENAME`
 			[ "$SRCPKG" -nt "$FILENAME" ] && ST="OBS"
+			[ -f "$TARGETPATH/$i//$BUILDNAME.autobuild.failed" ] && ST=" AF"
 		else
 			if [ -d "$TARGETPATH/$i/" ] ; then
 				FILEDATE="MISSED"
@@ -63,6 +64,7 @@ check_built_package()
 		test -L "$TARGETPATH/$i" && echo -n " (link to `readlink $TARGETPATH/$i`)"
 		echo
 	done
+	echo "OBS - obsoleted build, AF - autobuild failed"
 }
 
 # args: BUILDNAME
@@ -70,13 +72,16 @@ check_built_package()
 do_need_build_package()
 {
 	local BUILDNAME=$1
-	local FILENAME SRCPKG PATHPKG
+	local FILENAME
 
 	FILENAME=$(get_bin_package "$DESTDIR" $BUILDNAME check)
 
 	if [ -r "$FILENAME" ] ; then
 		[ "$BUILDSRPM" -nt "$FILENAME" ] || return 1
 	fi
+
+	# remove fatal flag if checking is passed
+	rm -f "$DESTDIR/$BUILDNAME.autobuild.failed"
 
 	return 0
 }

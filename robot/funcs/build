@@ -79,8 +79,10 @@ check_and_refresh_package_wine()
 		test "$BINPKG" -nt "$SRCRPM" && return 0
 	fi
 
+	[ -r "$TARGETPATH/$BUILDNAME.autobuild.failed" ] && fatal "Package $BUILDNAME need rebuild from $SRCRPM, but already was failed"
 	$AROBOTDIR/../bin-wine/$BUILDNAME.sh $DIST $PROJECTVERSION && return 0
 
+	touch $TARGETPATH/$BUILDNAME.autobuild.failed
 	fatal "Package $BUILDNAME cannot rebuild from $SRCRPM"
 	return 1
 }
@@ -108,6 +110,8 @@ check_and_refresh_component()
 		# if binary is newer than src.rpm, return OK
 		test "$BINPKG" -nt "$SRCRPM" && return 0
 	fi
+
+	[ -r "$TARGETPATH/$BUILDNAME.autobuild.failed" ] && fatal "Package $BUILDNAME need rebuild from $SRCRPM, but already was failed"
 
 	$AROBOTDIR/../$BUILDSCRIPT/$BUILDNAME.sh $DIST $PROJECTVERSION && return 0
 

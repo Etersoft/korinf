@@ -75,6 +75,9 @@ copying_packages()
 		test -r $i && RC=0
 	done
 
+	# remove fatal flag
+	rm -f $BUILDNAME.autobuild.failed
+
 	popd >/dev/null
 
 	# FIXME
