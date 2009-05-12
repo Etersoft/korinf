@@ -8,11 +8,13 @@ Use WITHOUTEBU=1 variable for build package without etersoft-build-utils
 
 Use BOOTSTRAP=1 variable for install built packages
 
-Use NIGHTBUILD=1 variable for enabble Stop on errors mode
+Use NIGHTBUILD=1 variable for enable 'Stop on errors' mode
 
 Use CHECKPACKAGE=1 variable for check built status instead build (-c option to script)
 
 Use REBUILDPACKAGE=1 variable to force build ever if binary package is up-to-date (-f option to script)
+
+User INSTALLREQUIREDPACKAGE=1 variable to install needed packages (-r option to script)
 
 You can set distro independent target via TARGETPRIVPATH variable
 
@@ -21,7 +23,10 @@ REBUILDLIST="Ubuntu/8.10 Mandriva/2009"
 REBUILDLIST="alt" (use list /etc/eterbuild/lists/all)
 REBUILDLIST="/path/to/file"
 
-Req: etersoft-build-utils >= 1.1, alien >= 8.63
+or just run
+$ build-script.sh Ubuntu/9.04
+
+Req: etersoft-build-utils >= 1.1, alien >= 8.63 on the host system
 
 ===Подготовка новой системы к сборке===
 1. установить необходимые для сборки пакеты (выводятся при попытке rpmbb в системе)
