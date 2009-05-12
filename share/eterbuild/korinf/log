@@ -47,10 +47,17 @@ failure()
 }
 
 
+# set log dir in current dir or in TMPDIR and create link from the root dir
 set_log_dir()
 {
 	ALOGDIR=`pwd`/log
-	[ -w "$ALOGDIR" ] || ALOGDIR=$TMPDIR/korinf-log
+	if [ ! -w "$ALOGDIR" ] ; then
+		ALOGDIR=$TMPDIR/korinf-log
+		if [ -n "$KORINFSOURCETREE" ] && [ ! -L "$KORINFSOURCETREE/log" ] ; then
+			ln -s $ALOGDIR "$KORINFSOURCETREE/log"
+		fi
+	fi
+
 	[ -z "$1" ] || ALOGDIR="$ALOGDIR$1"
 
 	[ -z "$ADEBUG" ] || echo "set_log_dir: Check me and disable. I create logdir in $ALOGDIR"
