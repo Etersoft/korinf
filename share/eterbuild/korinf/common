@@ -51,6 +51,7 @@ if ! dirname $0 | grep ^/usr/share >/dev/null ; then
 		if [ -n "$VERBOSE" ] ; then
 			echo "Note: run from source tree, datadir=$KORINFDIR, sysconfdir=$KORINFETC"
 		fi
+		KORINFSOURCETREE=$(readlink -f "$KORINFETC/..")
 	else
 		KORINFETC=/etc/eterbuild
 		KORINFDIR=/usr/share/eterbuild
