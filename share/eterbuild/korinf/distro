@@ -115,7 +115,7 @@ case $dist_name in
 *)
 	kormod build/rpm
 	logit "mount root dir" mount_linux || return 1
-	logit "convert src.rpm to target" convert_rpm_to_target $dist || return 1
+	logit "convert src.rpm to target $TARGETPKGDISTRO" convert_rpm_to_target $dist || return 1
 
 	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
 		logit "install requires" install_req $dist || return 1
@@ -123,7 +123,7 @@ case $dist_name in
 		return 0
 	fi
 
-	logit "build package" build_rpms $dist || return 1
+	logit "build RPM package" build_rpms $dist || return 1
 	prepare_filelist
 
 	if [ "$TARGET" != "rpm" ] && [ -z "$MAKESPKG" ] ; then
@@ -131,10 +131,10 @@ case $dist_name in
 	fi
 
 	if [ -n "$BOOTSTRAP" ] && [ -z "$MAKESPKG" ]; then
-		logit "install built" install_built || return 1
+		logit "install built packages" install_built || return 1
 	fi
 
-	logit "copying to $dist" copying_packages || return 1
+	logit "copying to FTP dir $dist" copying_packages || return 1
 	logit "umount" end_umount || return 1
 	;;
 esac

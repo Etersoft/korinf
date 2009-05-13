@@ -73,11 +73,11 @@ init_dist_log()
 	mkdir -p $LOGDIR || fatal "Can't create $LOGDIR"
 	LOGFILE=$LOGDIR/$BUILDNAME.log
 	>>$LOGFILE || fatal "Can't create log $LOGFILE"
+	PREVSYSTEMLOGIT=""
 }
 
 reset_dist_log()
 {
-	PREVSYSTEMLOGIT=""
 	>$LOGFILE || fatal "Can't create log $LOGFILE"
 }
 

@@ -50,9 +50,8 @@ convert_rpm_to_target()
 
 }
 
-build_rpms()
+set_target_var()
 {
-	local dist=$1
 	TARGET=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -p`
 	TARGETPKGDISTRO=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -s`
 
@@ -64,14 +63,14 @@ build_rpms()
 	else
 		[ "$TARGET" = "tbz2" ] && TARGET=tar.bz2
 	fi
+	return 0
+}
 
-	if [ "$INSTALLREQUIREDPACKAGE" ] ; then
-		convert_rpm_to_target $dist
-		# create needed files in home directory
-		init_home
-		install_req
-		return $?
-	fi
+build_rpms()
+{
+	local dist=$1
+
+	set_target_var || return 1
 
 	# create needed files in home directory
 	init_home
