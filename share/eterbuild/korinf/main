@@ -48,6 +48,7 @@ SOURCEURL=$(echo $SOURCEPATH | sed -e "s|/var/ftp/|ftp://server/|g")
 # FIXME: set PACKAGE individually
 [ "$BUILDNAME" = "wine" ] && PACKAGE="wine-etersoft-public" || PACKAGE=$BUILDNAME
 
+# IMPROVE: get src.rpm from some private dir
 BUILDSRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME || fatal "Can't find package for $BUILDNAME")
 
 PACKAGEVERSION=$(rpm -qp "$BUILDSRPM" --queryformat="%{VERSION}")
@@ -80,7 +81,7 @@ for dist in $CMDRE ; do
 	# Set target dir for built packages
 	DESTDIR=$TARGETPATH/$dist
 
-	# skip linked destination
+	# skip linked destination (TODO: do not handle it at all)
 	[ -L "$DESTDIR" ] && continue
 
 	# FIXME: Hack
@@ -94,9 +95,13 @@ for dist in $CMDRE ; do
 	init_dist_log "$dist"
 
 	if do_need_build_package $BUILDNAME || [ -n "$REBUILDPACKAGE" ] ; then
-		logit "`basename $BUILDSRPM .src.rpm`"
+		#logit "`basename $BUILDSRPM .src.rpm`"
+		logit "$BUILDNAME"
 	else
-		logit "`basename $BUILDSRPM .src.rpm` is up-to-date, skipped"
+		#logit "`basename $BUILDSRPM .src.rpm` is up-to-date, skipped"
+		logit "$BUILDNAME is up-to-date, skipped"
+		# remove fatal flag if checking is passed
+		rm -f "$DESTDIR/log/$BUILDNAME.autobuild.failed"
 		echo `date` $dist PASSED | write_report
 		continue
 	fi
