@@ -77,7 +77,6 @@ init_dist_log()
 
 reset_dist_log()
 {
-	init_dist_log
 	>$LOGFILE || fatal "Can't create log $LOGFILE"
 }
 
