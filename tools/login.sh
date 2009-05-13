@@ -30,6 +30,12 @@ if [ $UID = "0" ]; then
 fi
 
 if [ -z "$1" ] ; then
+	echo "Available system list:"
+	find $LOCALLINUXFARM -maxdepth 2 -type d | sed -e "s|$LOCALLINUXFARM/||g"
+	exit 0
+fi
+
+if [ -z "$1" ] ; then
 	echo "Login in build chroot." >&2
 	echo "Use --help for usage information" >&2
 	exit 1
@@ -37,12 +43,15 @@ fi
 
 if [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
 	echo "Login in chrooted system as builder user"
+	echo "Use: login.sh System/Version" >&2
+	echo "	run without params for get available systems"
 	echo "	-r - login as root"
 	echo "	-n - login via network (unsupported now)"
 	exit 0
 fi
 
 [ "$1" = "-n" ] && { shift ; NETBUILD=1 ; } || NETBUILD=
+
 
 SYS="$1"
 shift
