@@ -70,11 +70,14 @@ install_built()
 # install required packages for build
 install_req()
 {
-	local LISTPKG CMD LOGFAILFILE DISTRVENDOR
-
+	local LISTPKG CMD LOGFAILFILE DISTRVENDOR dist=$1
 	load_mod repl
 
-	LISTPKG=$(rpmquery --requires -p $BUILDERHOME/tmp/$TARGETSRPM | clean_pkgreq)
+	convert_rpm_to_target $dist
+	# create needed files in home directory
+	init_home
+
+	LISTPKG=$(rpmquery --requires -p $BUILDERHOME/tmp/$TARGETSRPM | clean_pkgreq | sed -e "s|rpm-build-altlinux-compat||g")
 	echo "Install build required packages $LISTPKG"
 	DISTRVENDOR=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -d`
 	case $DISTRVENDOR in
@@ -85,7 +88,7 @@ install_req()
 			CMD="yum -y install $LISTPKG"
 			;;
 		"Mandriva")
-			CMD="urpmi $LISTPKG"
+			CMD="urpmi --auto --no-verify-rpm $LISTPKG"
 			;;
 		"SUSE"|"NLD")
 			echo "?? yast -i \$PKGNAME?" || exit 1

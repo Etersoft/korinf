@@ -23,32 +23,11 @@
 
 # We hope here BUILDERHOME is clean already
 
-build_rpms()
+convert_rpm_to_target()
 {
-	local dist
-	dist=$1
+	local dist=$1
 
-	TARGET=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -p`
-	TARGETPKGDISTRO=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -s`
-
-	[ -z "$TARGET" ] && { warning "TARGET is empty" ; return 1 ; }
-
-
-	# HACK for Gentoo
-	if [ -n "$WITHOUTEBU" ] ; then
-	# FIXME
-	#if true ; then
-		[ "$TARGET" = "tbz2" ] && TARGET=rpm
-	else
-		[ "$TARGET" = "tbz2" ] && TARGET=tar.bz2
-	fi
-
-	BUILDARCH=$DEFAULTARCH
-	if echo $dist | grep x86_64 >/dev/null ; then
-	    BUILDARCH="x86_64"
-	fi
-
-	echo "Build '$BUILDSRPM' for $dist distro"
+	echo "Convert '$BUILDSRPM' for $dist distro"
 	rm -f $BUILDERHOME/tmp/$BUILDNAME*
 	if [ -n "$MAKESPKG" ] ; then
 		ROOTDIR=$BUILDROOT $RPMBPH -v -n -z $BUILDSRPM
@@ -64,20 +43,47 @@ build_rpms()
 	[ -r "$BUILDERHOME/tmp/$TARGETSRPM" ] || { warning "Can't read target $TARGETSRPM src.rpm in $BUILDERHOME/tmp" ; return 1 ; }
 	$SUDO chown $LOCUSER $BUILDERHOME/tmp/$TARGETSRPM
 
+	BUILDARCH=$DEFAULTARCH
+	if echo $dist | grep x86_64 >/dev/null ; then
+	    BUILDARCH="x86_64"
+	fi
+
+}
+
+build_rpms()
+{
+	local dist=$1
+	TARGET=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -p`
+	TARGETPKGDISTRO=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -s`
+
+	[ -z "$TARGET" ] && { warning "TARGET is empty" ; return 1 ; }
+
+	# HACK for Gentoo
+	if [ -n "$BOOTSTRAP" ] ; then
+		[ "$TARGET" = "tbz2" ] && TARGET=rpm
+	else
+		[ "$TARGET" = "tbz2" ] && TARGET=tar.bz2
+	fi
+
+	if [ "$INSTALLREQUIREDPACKAGE" ] ; then
+		convert_rpm_to_target $dist
+		# create needed files in home directory
+		init_home
+		install_req
+		return $?
+	fi
+
 	# create needed files in home directory
 	init_home
 	INTBUILT=/home/$INTUSER/$RPMSDIR
 
+	echo "Build '$BUILDSRPM' for $dist distro"
 	# FIXME: problem if system's rpm does not recognize our src.rpm (as Mandriva 2007.1/2008)
 	RPMBUILDROOT="/home/$INTUSER/tmp/$BUILDNAME-buildroot"
 	RPMBUILDNODEPS=""
 	[ "$TARGET" != "rpm" ] && RPMBUILDNODEPS="--nodeps"
 	CMDBUILD="rpmbuild -v --rebuild $RPMBUILDNODEPS --buildroot $RPMBUILDROOT /home/$INTUSER/tmp/$TARGETSRPM"
 	CMDAFTERBUILD="cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h"
-	if [ "$INSTALLREQUIREDPACKAGE" ] ; then
-		install_req
-		return $?
-	fi
 
 	# Control file for check build result
         LOGFAILFILE="$BUILDERHOME/RPM/log/$BUILDNAME.log.failed"

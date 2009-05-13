@@ -96,7 +96,7 @@ for dist in $CMDRE ; do
 
 	if do_need_build_package $BUILDNAME || [ -n "$REBUILDPACKAGE" ] ; then
 		#logit "`basename $BUILDSRPM .src.rpm`"
-		logit "$BUILDNAME"
+		logit "package $BUILDNAME"
 	else
 		#logit "`basename $BUILDSRPM .src.rpm` is up-to-date, skipped"
 		logit "$BUILDNAME is up-to-date, skipped"

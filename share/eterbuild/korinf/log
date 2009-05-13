@@ -77,6 +77,7 @@ init_dist_log()
 
 reset_dist_log()
 {
+	PREVSYSTEMLOGIT=""
 	>$LOGFILE || fatal "Can't create log $LOGFILE"
 }
 
