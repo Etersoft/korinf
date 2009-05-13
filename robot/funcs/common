@@ -112,8 +112,15 @@ check_package()
 	local NAME=$2
 	local TARGETPATH=$1
 	local FILENAME
+
 	FILENAME=$(get_bin_package "$TARGETPATH" $NAME)
 	if [ ! -r "$FILENAME" ] ; then
 		fatal "Package $NAME is missed in $TARGETPATH"
+	fi
+	if [ -r "$TARGETPATH/$NAME.autobuild.failed" ] ; then
+		fatal "Only autobuild.failed for $NAME is present"
+	fi
+	if [ -r "$TARGETPATH/log/$NAME.autobuild.failed" ] ; then
+		fatal "Note! autobuild.failed for $NAME is present in log"
 	fi
 }

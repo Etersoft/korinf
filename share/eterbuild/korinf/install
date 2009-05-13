@@ -71,11 +71,11 @@ install_built()
 install_req()
 {
 	local LISTPKG CMD LOGFAILFILE DISTRVENDOR
-	echo "Install build required packages"
 
 	load_mod repl
 
 	LISTPKG=$(rpmquery --requires -p $BUILDERHOME/tmp/$TARGETSRPM | clean_pkgreq)
+	echo "Install build required packages $LISTPKG"
 	DISTRVENDOR=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -d`
 	case $DISTRVENDOR in
 		"ALTLinux"|"Ubuntu"|"Debian"|"PCLinux")
@@ -85,7 +85,7 @@ install_req()
 			CMD="yum -y install $LISTPKG"
 			;;
 		"Mandriva")
-			CMD="urpmi -q $LISTPKG"
+			CMD="urpmi $LISTPKG"
 			;;
 		"SUSE"|"NLD")
 			echo "?? yast -i \$PKGNAME?" || exit 1

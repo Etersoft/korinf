@@ -22,20 +22,27 @@
 ##
 
 
+# TODO: works in only source tree mode
 # Load etersoft-build-utils part
 LOCETERBUILDDIR=`dirname $0`/../share/eterbuild/functions
 RELETERBUILDDIR=../../etersoft-build-utils/share/eterbuild/functions
 
 # Create link to etersoft-build-utils repo if not exists
-if [ ! -d "$LOCETERBUILDDIR" ] ; then
+if [ ! -L "$LOCETERBUILDDIR" ] ; then
 	if [ ! -d "`dirname $0`/$RELETERBUILDDIR" ] ; then
-		echo "Checkout etersoft-build-utils repository to the same directory as korinf checkouted" >&2
+		echo "Clone etersoft-build-utils git repository to the same directory as korinf checkouted" >&2
 		exit 1
 	else
 		rm -f $LOCETERBUILDDIR
 		ln -s ../$RELETERBUILDDIR $LOCETERBUILDDIR
 	fi
 fi
+
+# HACK: set to real path
+ETERBUILDDIR=$(realpath $RELETERBUILDDIR/../../../share/eterbuild)
+ETERBUILDETC=$(realpath $RELETERBUILDDIR/../../../etc)
+ETERBUILDBIN=$(realpath $ETERBUILDDIR/../../bin)
+# these variable will not override in eterbuild common
 . $LOCETERBUILDDIR/common
 
 

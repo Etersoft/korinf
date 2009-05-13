@@ -66,12 +66,15 @@ prepare_wine_etersoft()
 
 	# Нужно скопировать файлы
 	for i in $PRIVFILES $PUB1FILES $PUB2FILES; do
+		# try create hard link firstly
 		cp -fl $i $FTPDIR || cp -f $i $FTPDIR || fatal "Can't copy $i"
 	done
 	for i in $PUB3FILES; do
+		# try create hard link firstly
 		cp -fl $i $FTPDIR/extra || cp -f $i $FTPDIR/extra || fatal "Can't copy $i"
 	done
 
+	# update timestamp due autocleaner
 	touch $FTPDIR/* $FTPDIR/extra/*
 
 	create_license $FTPDIR/WINE-ETERSOFT.LIC $AROBOTDIR/dsa/wine-etersoft.dsa

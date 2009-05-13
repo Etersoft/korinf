@@ -76,7 +76,7 @@ copying_packages()
 	done
 
 	# remove fatal flag
-	rm -f $BUILDNAME.autobuild.failed
+	rm -f log/$BUILDNAME.autobuild.failed
 
 	popd >/dev/null
 
