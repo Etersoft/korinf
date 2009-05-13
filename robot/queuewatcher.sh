@@ -81,6 +81,11 @@ else
 		if ! mount -l | grep $TASKDIR >/dev/null ; then
 		    sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT
 		fi
+		if [ -f "$TASKDIR/STOP" ] ; then
+			echo "Stop build due STOP file"
+			sleep 60
+			continue
+		fi
 		if [ "$1" = "debug" ] ; then
 			ls -l $AROBOT/arobot.sh
 			find $TASKDIR -maxdepth 1 -name "*.task" | head -n1
