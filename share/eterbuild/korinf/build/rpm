@@ -90,7 +90,7 @@ build_rpms()
 
 	echo "Chrooting as $INTUSER and run $CMDBUILD command in $BUILDARCH system"
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-		su - $INTUSER -c "export LANG=C ; export LC_ALL=C ; umask 002 ; mkdir -p ~/RPM/log ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERBUILD"
+		su - $INTUSER -c "export LANG=C ; export LC_MESSAGES=C ;  umask 002 ; mkdir -p ~/RPM/log ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERBUILD"
 	[ -r "$LOGFAILFILE" ] && { rm -f "$LOGFAILFILE" ; warning "build failed" ; return 1 ; }
 
 	# Workaround again flow target dirs
