@@ -15,6 +15,11 @@ else
 	CHECKONLY="-c"
 fi
 
+if [ "$1" = "-c" ] ; then
+	CHECKONLY="-c"
+	shift
+fi
+
 if [ -n "$1" ] ; then
 	DISTR=$1
 	OPT="-q"
