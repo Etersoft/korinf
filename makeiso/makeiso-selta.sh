@@ -6,16 +6,16 @@ cd ../`dirname $0`
 . /etc/rpm/etersoft-build-functions
 
 # For compatibility: If not included jet
-if [ -z "$CHROOTDIR" ] ; then
-	. functions/config.in || fatal "Can't locate config.in"
-fi
+#if [ -z "$CHROOTDIR" ] ; then
+#	. functions/config.in || fatal "Can't locate config.in"
+#fi
 
 DATESTAMP=`date "+%Y%m%d"`
 
 # Path to hold ISOs
 PATHTOFTP=/var/local/iso
-WINENUMVERSION=1.0
-PGVERSION=8.2
+WINENUMVERSION=1.0.6
+PGVERSION=8.3
 
 SOURCE_PATH=/var/ftp/pub/Etersoft
 SELTAPUB_PATH=$SOURCE_PATH/SELTA@Etersoft/$WINENUMVERSION
@@ -45,6 +45,7 @@ makeiso()
 	SELTA@Etersoft=$SELTAPUB_PATH PostgreSQL=$PGPUB_PATH \
 	Updates.html=$SELTAPUB_PATH/docs/Updates.htm \
 	README.html=$SELTAPUB_PATH/docs/README.html \
+	autorun.inf=$SELTAPUB_PATH/docs/autorun.inf \
 	docs=$SELTAPUB_PATH/docs \
 	|| exit 1
 	mv -f $PATHTOFTP/$FILENAME.building $PATHTOFTP/$FILENAME
