@@ -43,7 +43,11 @@ NAME_LICENSE=$NAME_LICENSE
 DATE_START=$DATE_START
 DATE_END=$DATE_END
 EOF
-[ -z "$COUNT_LICENSE" ] || echo "COUNT_LICENSE=$COUNT_LICENSE" >> "$LICENSE_FILE.tmp"
+
+if [ -n "$COUNT_LICENSE" ] && [ ! "$COUNT_LICENSE" = "0" ] ; then
+	#echo "# Количество компьютеров" >> "$LICENSE_FILE.tmp"
+	echo "COUNT_LICENSE=$COUNT_LICENSE" >> "$LICENSE_FILE.tmp"
+fi
 
 	echo "Create license for $PROJECTVERSION with $ETERREGNUM"
 	LC_ALL=ru_RU.UTF-8 $GENERATE_SIG "$LICENSE_FILE.tmp" "$DSAKEY" "$LICENSE_FILE" | iconv -f koi8-r -r
