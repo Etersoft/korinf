@@ -30,6 +30,17 @@ create_license()
 	local LICENSE_FILE="$1"
 	local DSAKEY="$2"
 	test -r "$DSAKEY" || fatal "Private DSA key $DSAKEY is missed"
+
+	# Check all license fields
+	[ -n "$PROJECTVERSION" ] || fatal "PROJECTVERSION is empty"
+	[ -n "$PRODUCT" ] || fatal "PRODUCT is empty"
+	[ -n "$ETERREGNUM" ] || fatal "ETERREGNUM (LICENSE_NUMBER) is empty"
+	[ -n "$OWNER" ] || fatal "OWNER is empty"
+	#[ -n "$FULLNAME" || fatal "RESPONSIBLE is empty"
+	[ -n "$TYPE_LICENSE" ] || fatal "TYPE_LICENSE is empty"
+	[ -n "$DATE_START" ] || fatal "DATE_START is empty"
+	[ -n "$DATE_END" ] || fatal "DATE_END is empty"
+
 	rm -f "$LICENSE_FILE.tmp" "$LICENSE_FILE"
 LC_ALL=ru_RU.UTF-8 cat <<EOF >"$LICENSE_FILE.tmp"
 VERSION=$PROJECTVERSION
