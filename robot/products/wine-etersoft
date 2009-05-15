@@ -35,12 +35,7 @@ prepare_wine_etersoft()
 {
 	# PRODUCT_name - sql/networklite
 	PRODUCT_name=`echo "$TYPE" | sed -e "s| ||g" | tr A-Z a-z`
-	# FIXME: corp
-	if [ "$TYPE_LICENSE" = "Corporate" ] ; then
-		license_type="_corp"
-	else
-		license_type=""
-	fi
+	LICENSE_name=`echo "$TYPE_LICENSE" | sed -e "s| ||g" | tr A-Z a-z`
 
 	# due ( below
 	export FTPDIR=$TARGETDIR/$TYPE-$PROJECTVERSION/$DIST
@@ -89,7 +84,7 @@ prepare_wine_etersoft()
 	# вставить номер в readme и в каталог
 	DOCS=$PVTLOCAL/../docs
 	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/README_$TYPE.html >$FTPDIR/README.html || fatal "readme copying"
-	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/license_${PRODUCT_name}$licensetype.html >$FTPDIR/license.html || fatal "license copying"
+	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/license_${PRODUCT_name}_${LICENSE_name}.html >$FTPDIR/license.html || fatal "license copying"
 	cp -f $DOCS/${PRODUCT_name}_manual.html $FTPDIR/manual.html || fatal "manual copying"
 }
 
