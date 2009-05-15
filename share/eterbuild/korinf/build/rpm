@@ -40,14 +40,14 @@ convert_rpm_to_target()
 
 	# Get real src.rpm name
 	TARGETSRPM=`basename $(echo $BUILDERHOME/tmp/$BUILDNAME*.src.rpm | head -n1)`
-	[ -r "$BUILDERHOME/tmp/$TARGETSRPM" ] || { warning "Can't read target $TARGETSRPM src.rpm in $BUILDERHOME/tmp" ; return 1 ; }
+	[ -r "$BUILDERHOME/tmp/$TARGETSRPM" ] && [ -f "$BUILDERHOME/tmp/$TARGETSRPM" ] || { warning "Can't read target $TARGETSRPM src.rpm in $BUILDERHOME/tmp" ; return 1 ; }
 	$SUDO chown $LOCUSER $BUILDERHOME/tmp/$TARGETSRPM
 
 	BUILDARCH=$DEFAULTARCH
 	if echo $dist | grep x86_64 >/dev/null ; then
 	    BUILDARCH="x86_64"
 	fi
-
+	return 0
 }
 
 set_target_var()
