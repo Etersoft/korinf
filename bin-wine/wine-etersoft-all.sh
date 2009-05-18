@@ -16,10 +16,10 @@ build_project $WINEETER_PATH wine-etersoft-local WINE-Local $@
 
 build_project $WINEETER_PATH wine-etersoft-network WINE-Network $@
 
-build_project $WINEETER_PATH wine-etersoft-networklite WINE-NetworkLite $@
+#build_project $WINEETER_PATH wine-etersoft-networklite WINE-NetworkLite $@
 
-build_project $WINEETER_PATH wine-etersoft-networkunique WINE-NetworkUnique $@
+#build_project $WINEETER_PATH wine-etersoft-networkunique WINE-NetworkUnique $@
 
 build_project $WINEETER_PATH wine-etersoft-sql WINE-SQL $@
 
-build_project $WINEETER_PATH wine-etersoft-sqlunique WINE-SQLUnique $@
+#build_project $WINEETER_PATH wine-etersoft-sqlunique WINE-SQLUnique $@

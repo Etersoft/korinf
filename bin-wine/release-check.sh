@@ -30,7 +30,8 @@ fi
 
 ./wine-etersoft.sh $CHECKONLY $DISTR $RELEASEVERSION
 ./wine-etersoft-all.sh $OPT $CHECKONLY $DISTR $RELEASEVERSION
-./haspd.sh $OPT $CHECKONLY $DISTR $RELEASEVERSION
-./fonts-ttf-ms.sh $OPT $CHECKONLY $DISTR $RELEASEVERSION
-./fonts-ttf-liberation.sh $OPT $CHECKONLY $DISTR $RELEASEVERSION
-../bin-common/build-strap.sh $OPT $CHECKONLY $DISTR $RELEASEVERSION
+../bin-common/build-cifs.sh $CHECKONLY $DISTR $RELEASEVERSION
+./haspd.sh $CHECKONLY $DISTR $RELEASEVERSION
+./fonts-ttf-ms.sh $CHECKONLY $DISTR $RELEASEVERSION
+./fonts-ttf-liberation.sh $CHECKONLY $DISTR $RELEASEVERSION
+../bin-common/build-strap.sh $CHECKONLY $DISTR $RELEASEVERSION
