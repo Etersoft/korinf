@@ -39,9 +39,13 @@ if [ ! -L "$LOCETERBUILDDIR" ] ; then
 fi
 
 # HACK: set to real path
-ETERBUILDDIR=$(realpath $RELETERBUILDDIR/../../../share/eterbuild)
-ETERBUILDETC=$(realpath $RELETERBUILDDIR/../../../etc)
-ETERBUILDBIN=$(realpath $ETERBUILDDIR/../../bin)
+ETERBUILDDIR=$(realpath "`dirname $0`/$RELETERBUILDDIR/../../../share/eterbuild")
+ETERBUILDETC=$(realpath "$ETERBUILDDIR/../../etc")
+ETERBUILDBIN=$(realpath "$ETERBUILDDIR/../../bin")
+if [ ! -d "$ETERBUILDDIR" ] ; then
+	echo "Clone etersoft-build-utils git repository to the same directory as korinf checkouted" >&2
+	exit 1
+fi
 # these variable will not override in eterbuild common
 . $LOCETERBUILDDIR/common
 
