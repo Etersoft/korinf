@@ -162,6 +162,10 @@ build_project()
 		SP=$SP/$2
 	fi
 
+	# enable VERBOSE
+	if [ -z "$QUIET" ] ; then
+		export VERBOSE=1
+	fi
 
 	TARGETPATH=$(readlink -f $SP)
 	SOURCEPATH=$TARGETPATH/sources
