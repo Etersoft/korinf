@@ -12,13 +12,16 @@ PROJECTVERSION=$1
 
 SOURCEPATH=$WINEPUB_PATH/$PROJECTVERSION/sources
 
-if [ -z "$VERSION" ] ; then
-	BUILDSRPM="$SOURCEPATH/$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm | last_rpm).src.rpm"
-	# почему-то не последний пакет
-	echo $BUILDSRPM
-	VERSION=`rpm -qp --queryformat "%{VERSION}" $BUILDSRPM`
-	#RELEASE=`rpm -qp --queryformat "%{RELEASE}" $BUILDSRPM`
-fi
+add_and_remove()
+{
+	local i=$2
+	cd $1 || fatal "Can't cd"
+	ls -l
+	local LIST="$i-[0-9]*.*.rpm"
+	rm -fv $TP/$i-[0-9]*.rpm
+	cp -fv $LIST $TP
+	cd - >/dev/null
+}
 
 # FROM TARGET
 copy_to()
@@ -26,46 +29,15 @@ copy_to()
 	local FPU="$WINEPUB_PATH/$PROJECTVERSION/WINE/$1"
 	local TP="$2/i586/RPMS.nonfree"
 
-	cd "$FPU" || fatal "Can't cd"
-	LIST=
-	for i in wine-etersoft ; do
-		LIST="$LIST $i-$VERSION-*.*.rpm"
-		rm -fv $TP/$i-[0-9]*.rpm
-	done
+	add_and_remove "$FPU" wine-etersoft
+	add_and_remove "$FPU/extra" wine-etersoft-gl
 
-	for i in wine-etersoft-gl ; do
-		LIST="$LIST extra/$i-$VERSION-*.*.rpm"
-		rm -fv $TP/$i-[0-9]*.rpm
-	done
+	add_and_remove "$FPU" haspd
+	add_and_remove "$FPU" haspd-modules
 
-	cp -fv $LIST $TP
-
-	local FPV="$WINEETER_PATH/$PROJECTVERSION/WINE-SQL/$1"
-	cd "$FPV" || fatal "Can't cd"
-	LIST=
-	for i in wine-etersoft-sql ; do
-		LIST="$LIST $i-$VERSION-*.*.rpm"
-		rm -fv $TP/$i-[0-9]*.rpm
-	done
-	cp -fv $LIST $TP
-
-	local FPV="$WINEETER_PATH/$PROJECTVERSION/WINE-Network/$1"
-	cd "$FPV" || fatal "Can't cd"
-	LIST=
-	for i in wine-etersoft-network ; do
-		LIST="$LIST $i-$VERSION-*.*.rpm"
-		rm -fv $TP/$i-[0-9]*.rpm
-	done
-	cp -fv $LIST $TP
-
-	local FPV="$WINEETER_PATH/$PROJECTVERSION/WINE-Local/$1"
-	cd "$FPV" || fatal "Can't cd"
-	LIST=
-	for i in wine-etersoft-local ; do
-		LIST="$LIST $i-$VERSION-*.*.rpm"
-		rm -fv $TP/$i-[0-9]*.rpm
-	done
-	cp -fv $LIST $TP
+	add_and_remove "$WINEETER_PATH/$PROJECTVERSION/WINE-SQL/$1" wine-etersoft-sql
+	add_and_remove "$WINEETER_PATH/$PROJECTVERSION/WINE-Network/$1" wine-etersoft-network
+	add_and_remove "$WINEETER_PATH/$PROJECTVERSION/WINE-Local/$1" wine-etersoft-local
 
 	genbasedir -v --topdir=$2 i586 nonfree
 }
