@@ -60,7 +60,9 @@ prepare_wine_etersoft()
 	PRIVFILES=`find -L $PVTLOCAL/$DIST -maxdepth 1 -type f`
 	PUB1FILES=`find -L $PUBLOCAL/WINE/$DIST -maxdepth 1 -type f`
 	#PUB2FILES=`find -L $PUBLOCAL/fonts/$DIST -maxdepth 1 -type f`
-	PUB2FILES=
+	# CIFS
+	PUB2FILES=`find -L $PUBLOCAL/CIFS/$DIST -maxdepth 1 -type f`
+	# extra
 	PUB3FILES=`find -L $PUBLOCAL/WINE/$DIST/extra -maxdepth 1 -type f`
 
 	# Нужно скопировать файлы
@@ -74,7 +76,8 @@ prepare_wine_etersoft()
 	done
 
 	# update timestamp due autocleaner
-	touch $FTPDIR/* $FTPDIR/extra/*
+	# disable due hard links using
+	#touch $FTPDIR/* $FTPDIR/extra/*
 
 	create_license $FTPDIR/WINE-ETERSOFT.LIC $AROBOTDIR/dsa/wine-etersoft.dsa
 
