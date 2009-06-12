@@ -34,7 +34,7 @@ convert_rpm_to_target()
 		BUILTRPM=~/$RPMSDIR
 		return 0
 	else
-		ROOTDIR=$BUILDROOT ETERDESTSRPM=$BUILDERHOME/tmp $RPMBPH -v -n -z $BUILDSRPM
+		ROOTDIR=$BUILDROOT ETERDESTSRPM=$BUILDERHOME/tmp $RPMBPH -v -n $BUILDSRPM
 		BUILTRPM=$BUILDERHOME/$RPMSDIR
 	fi
 
@@ -80,9 +80,10 @@ build_rpms()
 	# FIXME: problem if system's rpm does not recognize our src.rpm (as Mandriva 2007.1/2008)
 	RPMBUILDROOT="/home/$INTUSER/tmp/$BUILDNAME-buildroot"
 	RPMBUILDNODEPS=""
+	# Skip buildreqs checking on non RPM systems
 	[ "$TARGET" != "rpm" ] && RPMBUILDNODEPS="--nodeps"
 	CMDBUILD="rpmbuild -v --rebuild $RPMBUILDNODEPS --buildroot $RPMBUILDROOT /home/$INTUSER/tmp/$TARGETSRPM"
-	CMDAFTERBUILD="cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h"
+	CMDAFTERBUILD="cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.log; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h"
 
 	# Control file for check build result
         LOGFAILFILE="$BUILDERHOME/RPM/log/$BUILDNAME.log.failed"
