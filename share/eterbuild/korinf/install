@@ -108,5 +108,5 @@ install_req()
 		su - -c "export LANG=C ; export LC_ALL=C ; $CMD || touch /home/$INTUSER/RPM/log/$BUILDNAME.log.failed"
 
 	[ -r "$LOGFAILFILE" ] && { rm -f "$LOGFAILFILE" ; warning "install failed" ; return 1 ; }
-
+	return 0
 }

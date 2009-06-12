@@ -94,7 +94,7 @@ for dist in $CMDRE ; do
 	# Initialize LOGDIR and LOGFILE variables
 	init_dist_log "$dist"
 
-	if do_need_build_package $BUILDNAME || [ -n "$REBUILDPACKAGE" ] ; then
+	if do_need_build_package $BUILDNAME || [ -n "$REBUILDPACKAGE" ] || [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
 		#logit "`basename $BUILDSRPM .src.rpm`"
 		logit "package $BUILDNAME"
 	else
