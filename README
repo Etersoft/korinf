@@ -1,7 +1,7 @@
 Korinf project.
 
 === build script variables description
-Use ADEBUG=1 variable for enable additional output
+Use ADEBUG=1 variable for enable additional debug output
 
 Use WITHOUTEBU=1 variable for build package without etersoft-build-utils
 (needed only for build etersoft-build-utils and rpm-build-altlinux-compat).
