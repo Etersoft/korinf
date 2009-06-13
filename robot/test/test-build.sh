@@ -4,6 +4,8 @@ cd ..
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
+kormod check_built
+
 AROBOTDIR=$(pwd)
 
 . $AROBOTDIR/funcs/common
@@ -20,4 +22,6 @@ VERNAME=$PROJECTNAME/$PROJECTVERSION
 PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME/WINE"
 PVTLOCAL="/var/ftp/pvt/Etersoft/$VERNAME/WINE-$(get_product_type "$COMPONENTNAME")"
 
-check_built_package $PUBLOCAL/$DIST ../../../sources haspd
+SOURCEPATH=$PUBLOCAL/../sources
+TARGETPATH=$PUBLOCAL
+check_built_package  haspd
