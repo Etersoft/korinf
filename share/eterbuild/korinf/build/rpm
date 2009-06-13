@@ -43,6 +43,7 @@ convert_rpm_to_target()
 	[ -r "$BUILDERHOME/tmp/$TARGETSRPM" ] && [ -f "$BUILDERHOME/tmp/$TARGETSRPM" ] || { warning "Can't read target $TARGETSRPM src.rpm in $BUILDERHOME/tmp" ; return 1 ; }
 	$SUDO chown $LOCUSER $BUILDERHOME/tmp/$TARGETSRPM
 
+	# move to dist_ver and so
 	BUILDARCH=$DEFAULTARCH
 	if echo $dist | grep x86_64 >/dev/null ; then
 	    BUILDARCH="x86_64"
