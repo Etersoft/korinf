@@ -46,6 +46,16 @@ failure()
 	echo -n ']'
 }
 
+skipped()
+{
+	MOVE_TO_COL
+	echo -n '['
+	SETCOLOR_WARNING
+	echo -n 'SKIPPED'
+	SETCOLOR_NORMAL
+	echo -n ']'
+}
+
 
 # set log dir in current dir or in TMPDIR and create link from the root dir
 set_log_dir()
@@ -132,7 +142,9 @@ logit()
 	[ -z "$NIGHTBUILD" ] && echo -n "$STRMSG"
 	shift
 	TIMESTAMP=`date "+%s"`
-	$* >>$LOGFILE 2>&1
+	if [ ! "$1" = "SKIPPED" ] ; then
+		$* >>$LOGFILE 2>&1
+	fi
 	RET=$?
 	let TIMESTAMP=`date "+%s"`-$TIMESTAMP
 	[ -z "$NIGHTBUILD" ] && STRMSG=""
@@ -140,7 +152,11 @@ logit()
 	#[ $TIMESTAMP = "0" ] && echo "$STRMSG" || echo "$STRMSG ($TIMESTAMP сек)"
 	echo -n "$STRMSG"
 	[ $TIMESTAMP = "0" ] || echo -n "($TIMESTAMP сек) "
-	[ "$RET" = 0 ] && success || failure
+	if [ "$1" = "SKIPPED" ] ; then
+		skipped
+	else
+		[ "$RET" = 0 ] && success || failure
+	fi
 	echo
 	return $RET
 }
