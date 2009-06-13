@@ -88,6 +88,8 @@ echo Mount swine...
 BUILDARCH=$DEFAULTARCH
 if echo $SYS | grep x86_64 >/dev/null ; then
     BUILDARCH="x86_64"
+else
+    BUILDARCH="i586"
 fi
 echo "Chrooting in $SYS system with $BUILDARCH arch"
 
