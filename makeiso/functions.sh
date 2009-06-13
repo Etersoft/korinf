@@ -51,7 +51,7 @@ makeiso()
 	-sysid LINUX -o $PATHTOFTP/$FILENAME.building  -r -J -f -quiet -graft-points \
 	WINE=$WINEETER_PATH$ALPHAP \
 	WINE=$WINEPUB_PATH$ALPHA/CIFS \
-	$WINEPUB_PATH$ALPHA $WINEETER_PATH$ALPHA/{autorun*,docs/license_$CPRODUCT.html} \
+	$WINEPUB_PATH$ALPHA $WINEETER_PATH$ALPHA/{autorun*,docs/license_${CPRODUCT}*.html} \
 	docs/=$WINEETER_PATH$ALPHA/docs/{README_$PRODUCT.html,${CPRODUCT}_manual.html,install.html,redist.html,images/etersoft.ico} \
 	docs/images/=$WINEETER_PATH$ALPHA/docs/images/etersoft.ico \
 	README.html=$WINEETER_PATH$ALPHA/docs/README_$PRODUCT.html \
