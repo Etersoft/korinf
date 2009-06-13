@@ -33,3 +33,6 @@ check()
 check SomeDistro/2010 i586 SomeDistro 2010
 check i686/SomeDistro/2010 i686 SomeDistro 2010
 check x86_64/SomeDistro/2010 x86_64 SomeDistro 2010
+
+check SomeDistro i586 "" ""
+check "SomeDistro 2010" i586 "" ""
