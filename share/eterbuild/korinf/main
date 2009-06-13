@@ -82,14 +82,16 @@ for dist in $CMDRE ; do
 	DESTDIR=$TARGETPATH/$dist
 
 	# skip linked destination (TODO: do not handle it at all)
-	[ -L "$DESTDIR" ] && echo "Skip linked target" && continue
+	[ -L "$DESTDIR" ] && echo "$dist: Skip linked target" && continue
 
 	# FIXME: Hack
 	[ "$TARGETPRIVPATH" ] && DESTDIR=$TARGETPRIVPATH
 
-	dist_ver=`echo $dist | sed -e "s|.*/||g"`
-	dist_name=`echo $dist | sed -e "s|/.*||g"`
+	# fills dist_arch, dist_name, dist_ver from dist
+	parse_dist_name $dist
+	# TODO: get arch, check with BUILDARCH
 	[ -z "$dist_name" ] && fatal "Empty dist_name for $dist"
+	BUILDARCH=$dist_name
 
 	# Initialize LOGDIR and LOGFILE variables
 	init_dist_log "$dist"
@@ -98,8 +100,7 @@ for dist in $CMDRE ; do
 		#logit "`basename $BUILDSRPM .src.rpm`"
 		logit "package $BUILDNAME"
 	else
-		#logit "`basename $BUILDSRPM .src.rpm` is up-to-date, skipped"
-		logit "$BUILDNAME is up-to-date, skipped"
+		logit "$BUILDNAME is up-to-date" SKIPPED
 		# remove fatal flag if checking is passed
 		rm -f "$DESTDIR/log/$BUILDNAME.autobuild.failed"
 		echo `date` $dist PASSED | write_report
