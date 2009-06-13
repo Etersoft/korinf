@@ -219,4 +219,20 @@ set_rebuildlist()
 	[ -n "$QUIET" ] || echo $RESULT
 }
 
+# fills dist_ver, dist_name, dist_arch by arg with target name
+parse_dist_name()
+{
+	local dist=$1
+	local v
+	# dist format: [arch/]Name/Version
+	dist_ver=`echo $dist | sed -e "s|.*/||g"`
+	v=`echo $dist | sed -e "s|/$dist_ver\$||g"`
+	dist_name=`echo $v | sed -e "s|.*/||g"`
+	dist_arch=`echo $v | sed -e "s|/.*||g"`
+	# FIXME: i586 by default (DEFAULTARCH is a current arch)
+	test "$dist_arch" = "$v" && dist_arch=i586
+	# if parse error
+	test "$dist_name" = "$dist_ver" && dist_name="" && dist_ver=""
+}
+
 kormod config log
