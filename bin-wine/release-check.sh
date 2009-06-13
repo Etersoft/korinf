@@ -6,7 +6,7 @@
 # ./release-check.sh DISTRO     print checks only for the DISTRO
 # ./release-check.sh            print overall check info for all distros
 
-RELEASEVERSION=last
+#RELEASEVERSION=last
 
 if [ "$1" = "-b" ] && [ -n "$2" ] ; then
 	CHECKONLY=
