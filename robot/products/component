@@ -113,7 +113,11 @@ build_anycomponent()
 	case "$COMPONENTNAME" in
 	"RX@Etersoft")
 		COMPONENTSCRIPT="bin-nx"
-		CHECKCOMP="nx nxclient freenx-server"
+		if [ "$BUILDARCH" = "x86_64" ] ; then
+			CHECKCOMP="nx freenx-server"
+		else
+			CHECKCOMP="nx nxclient freenx-server"
+		fi
 		# TODO: nxsadmin
 		;;
 	"Postgres@Etersoft")
