@@ -58,7 +58,7 @@ load_task()
 	# Check for product version
 	[ -z "$PROJECTVERSION" ] && { do_broken "Empty PROJECTVERSION" ; }
 
-	echo "Loaded $TASK for $DIST (project version $PROJECTVERSION"
+	echo "Loaded $TASK for $DIST (project version $PROJECTVERSION)"
 
 	[ -z "$DIST" ] && [ -e "$TASK" ] && do_broken "Unexisted DIST $DIST"
 }

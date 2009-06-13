@@ -97,8 +97,8 @@ printURL()
 
 check_dist()
 {
-	check_target_dist $1 && return
-	warning "Destination $DIST is not supported for build (missed in $REBUILDLIST)"
+	get_distro_list $(get_target_list ALL) | grep -q "$1" && return
+	warning "Destination $1 is not supported for build (missed in $REBUILDLIST)"
 	do_broken
 }
 

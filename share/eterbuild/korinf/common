@@ -181,8 +181,10 @@ get_distro_list()
 get_target_list()
 {
 	local TLIST
+	local ALL=$1
 	TLIST=$TARGETPATH/distro.list
 	[ -r "$TLIST" ] || TLIST=$KORINFETC/lists/all
+	[ -z "$ALL" ] || TLIST=$KORINFETC/lists/all
 	[ -r "$TLIST" ] || fatal "get_target_list failed to get full list of targets"
 	echo $TLIST
 }
@@ -190,7 +192,7 @@ get_target_list()
 check_target_dist()
 {
 	local DIST="$1"
-	get_distro_list $(get_target_list) | grep -q "$DIST"
+	get_distro_list $(get_target_list ALL) | grep -q "$DIST" || get_distro_list $(get_target_list) | grep -q "$DIST"
 }
 
 # Set REBUILDLIST according TARGETPATH, existing REBUILDLIST and some heruistic
