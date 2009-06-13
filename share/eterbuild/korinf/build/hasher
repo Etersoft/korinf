@@ -166,7 +166,7 @@ fi
 	# if build extra files and we have name from hasher (some hack for rpm-build-compat)
 	if [ -z "$MAINFILESLIST" ] ; then
 		if [ -n "$BUILTBINPKGLIST" ] ; then
-			EXTRAFILESLIST=$(rpm -qp $BUILTBINPKGLIST --queryformat="%{NAME}")
+			EXTRAFILESLIST=$(rpm -qp $BUILTBINPKGLIST --queryformat="%{NAME} ")
 		fi
 	fi
 }
