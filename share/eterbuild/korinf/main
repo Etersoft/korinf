@@ -82,7 +82,7 @@ for dist in $CMDRE ; do
 	DESTDIR=$TARGETPATH/$dist
 
 	# skip linked destination (TODO: do not handle it at all)
-	[ -L "$DESTDIR" ] && continue
+	[ -L "$DESTDIR" ] && echo "Skip linked target" && continue
 
 	# FIXME: Hack
 	[ "$TARGETPRIVPATH" ] && DESTDIR=$TARGETPRIVPATH
