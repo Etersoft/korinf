@@ -97,13 +97,9 @@ printURL()
 
 check_dist()
 {
-	local DIST=$1
-	REBUILDLIST=`get_distro_list $KORINFETC/lists/all | grep $DIST`
-	
-	if [ -z "$REBUILDLIST" ] ; then
-		warning "Destination $DIST is not supported for build (missed in $REBUILDLIST)"
-		do_broken
-	fi
+	check_target_dist $1 && return
+	warning "Destination $DIST is not supported for build (missed in $REBUILDLIST)"
+	do_broken
 }
 
 # Check for package in target path
