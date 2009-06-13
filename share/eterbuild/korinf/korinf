@@ -87,6 +87,22 @@ build_srcrpm()
 	build_package $@
 }
 
+# get distro list from TARGETPATH or lists/all
+get_target_list()
+{
+	local TLIST
+	TLIST=$TARGETPATH/distro.list
+	[ -r "$TLIST" ] || TLIST=$KORINFETC/lists/all
+	[ -r "$TLIST" ] || fatal "get_target_list failed to get full list of targets"
+	echo $TLIST
+}
+
+check_target_dist()
+{
+	local DIST="$1"
+	get_distro_list $(get_target_list) | grep -q "$DIST"
+}
+
 # Set REBUILDLIST according TARGETPATH, existing REBUILDLIST and some heruistic
 set_rebuildlist()
 {
@@ -96,14 +112,15 @@ set_rebuildlist()
 			REBUILDLIST=$KORINFETC/lists/$REBUILDLIST
 			RESULT="Build for distros from $REBUILDLIST"
 		else
+			check_target_dist $REBUILDLIST || fatal "Run with unknown target '$REBUILDLIST'"
 			RESULT="Build for $REBUILDLIST"
 		fi
-	elif [ -n "$TARGETPATH" ] ; then
+	else
+		REBUILDLIST=$(get_target_list)
+		# Hack?
 		if [ -r "$TARGETPATH/distro.list" ] ; then
-			REBUILDLIST=$TARGETPATH/distro.list
 			RESULT="Build according to distro.list from $TARGETPATH"
 		else
-			REBUILDLIST=$KORINFETC/lists/all
 			RESULT="Build for distros from $REBUILDLIST"
 		fi
 	fi
