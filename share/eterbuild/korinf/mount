@@ -30,11 +30,13 @@ mount_linux()
 
 	# Создаём необходимые каталоги
 	BUILDROOT=`mktemp -d $CHROOTDIR/$dist_name-XXXXXX`
+	mkdir -p $CHROOTDIR
+	$SUDO chown $LOCUSER $CHROOTDIR
 	BUILDERHOME=$BUILDROOT-home
 	mkdir -p $BUILDERHOME/{,tmp,RPM,RPM/BUILD,RPM/RPMS} || fatal "Can't create $BUILDERHOME"
 	chmod g+rwx $BUILDROOT $BUILDERHOME
 	# FIXME: why LOCUSER??
-	$SUDO chown $LOCUSER $BUILDERHOME -R
+	$SUDO chown $LOCUSER $BUILDROOT $BUILDERHOME -R
 
 	[ -z "$BUILDROOT" ] && echo "Skip mount due empty BUILDROOT" && return 1
 	echo "Mount $LOCALLINUXFARM/$dist to $BUILDROOT (user $INTUSER)..."
@@ -78,8 +80,8 @@ end_umount()
 	[ $ERR = 0 ] && echo "DONE" || echo "Umount FAILED"
 	if [ -z "$ADEBUG" ] ; then
 		echo "Removing $BUILDROOT $BUILDERHOME ..."
-		$SUDO su - $LOCUSER -c "rm -rf $BUILDERHOME" || ERR=1
-		$SUDO su - $LOCUSER -c "rmdir $BUILDROOT" || ERR=1
+		$SUDO su - $LOCUSER -c "rm -rfv $BUILDERHOME" || ERR=1
+		$SUDO su - $LOCUSER -c "rmdir -v $BUILDROOT" || ERR=1
 		[ $ERR = 0 ] && echo "DONE" || echo "Removing FAILED"
 	else
 		echo "Skip removing due ADEBUG set"
