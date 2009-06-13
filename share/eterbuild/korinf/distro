@@ -106,6 +106,10 @@ case $dist_name in
 	;;
 
 "ALTLinux")
+	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
+		logit "install requires" SKIPPED
+		return 0
+	fi
 	kormod build/hasher
 	logit "build in hasher $dist_ver" build_in_hasher || return 1
 	prepare_filelist
