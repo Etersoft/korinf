@@ -103,7 +103,7 @@ for dist in $CMDRE ; do
 		logit "$BUILDNAME is up-to-date" SKIPPED
 		# remove fatal flag if checking is passed
 		rm -f "$DESTDIR/log/$BUILDNAME.autobuild.failed"
-		echo `date` $dist PASSED | write_report
+		echo `date` $BUILDNAME on $dist PASSED | write_report
 		continue
 	fi
 
@@ -123,12 +123,12 @@ for dist in $CMDRE ; do
 
 		# Stop immediately if we in auto build
 		if [ -n "$NIGHTBUILD" ] ; then
-			echo `date` $dist FATAL | write_report
+			echo `date` $BUILDNAME on $dist FATAL | write_report
 			fatal "Fatal autobuild"
 		fi
 	fi
 
-	echo `date` $dist DONE | write_report
+	echo `date` $BUILDNAME on $dist DONE | write_report
 done
 
 # disable trap before exit

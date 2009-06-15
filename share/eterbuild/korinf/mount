@@ -80,7 +80,7 @@ end_umount()
 	[ $ERR = 0 ] && echo "DONE" || echo "Umount FAILED"
 	if [ -z "$ADEBUG" ] ; then
 		echo "Removing $BUILDROOT $BUILDERHOME ..."
-		$SUDO su - $LOCUSER -c "rm -rfv $BUILDERHOME" || ERR=1
+		$SUDO su - $LOCUSER -c "rm -rf $BUILDERHOME" || ERR=1
 		$SUDO su - $LOCUSER -c "rmdir -v $BUILDROOT" || ERR=1
 		[ $ERR = 0 ] && echo "DONE" || echo "Removing FAILED"
 	else
