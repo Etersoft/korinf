@@ -101,7 +101,8 @@ case $dist_name in
 		logit "install built" install_built || return 1
 	fi
 
-	logit "copying built packages to $dist" copying_pkgbuild || return 1
+	#logit "copying built packages to $dist" copying_pkgbuild || return 1
+	logit "copying built packages to $dist" copying_packages || return 1
 	logit "umount" end_umount || return 1
 	;;
 

@@ -42,6 +42,7 @@ convert_archlinux()
 		return 1
 	fi
 	true
+	BUILTRPM=$BUILDERHOME/abs/$BUILDNAME/
 }
 
 copying_pkgbuild()
