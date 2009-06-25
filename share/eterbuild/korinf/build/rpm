@@ -83,8 +83,8 @@ build_rpms()
 	RPMBUILDNODEPS=""
 	# Skip buildreqs checking on non RPM systems
 	[ "$TARGET" != "rpm" ] && RPMBUILDNODEPS="--nodeps"
-	CMDBUILD="rpmbuild -v --rebuild $RPMBUILDNODEPS --buildroot $RPMBUILDROOT /home/$INTUSER/tmp/$TARGETSRPM"
-	CMDAFTERBUILD="cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.log; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h"
+	CMDBUILD="rpmbuild -v --rebuild $RPMBUILDNODEPS --buildroot $RPMBUILDROOT /home/$INTUSER/tmp/$TARGETSRPM --target $BUILDARCH"
+	CMDAFTERBUILD="cat ~/tmp/rpm-tmp.* ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.log; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h"
 
 	# Control file for check build result
         LOGFAILFILE="$BUILDERHOME/RPM/log/$BUILDNAME.log.failed"
@@ -92,7 +92,7 @@ build_rpms()
 
 	echo "Chrooting as $INTUSER and run $CMDBUILD command in $BUILDARCH system"
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-		su - $INTUSER -c "export LANG=C ; export LC_MESSAGES=C ;  umask 002 ; mkdir -p ~/RPM/log ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERBUILD"
+		su - $INTUSER -c "export LANG=C ; export LC_MESSAGES=C ;  umask 002 ; mkdir -p ~/RPM/log ; rm -f ~/tmp/rpm-tmp.* ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERBUILD"
 	[ -r "$LOGFAILFILE" ] && { rm -f "$LOGFAILFILE" ; warning "build failed" ; return 1 ; }
 
 	# Workaround again flow target dirs
