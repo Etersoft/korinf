@@ -1,68 +1,61 @@
 #!/bin/sh
-# 2005, 2006, 2007 (c) Etersoft http://etersoft.ru
-# Author: Daniil Kruchinin <asgard@etersoft.ru>
+# 2007 (c) Etersoft http://etersoft.ru
 # Author: Vitaly Lipatov <lav@etersoft.ru>
 # GNU Public License
 
-# Internal build script for FreeBSD
-# positional parameters
-COMMAND="$1"
-PACKAGE="$2"
-ETERREGNUM="$3"
-SOURCEURL="$4"
-export PACKAGEVERSION="$5"
+# script for FreeBSD
 
-umask 0002
-UID=`id -u`
-
-echo "Start with PACKAGE: $PACKAGE ETERREGNUM: $ETERREGNUM, command - $COMMAND, sourceurl - $SOURCEURL, version - $PACKAGEVERSION"
-
-
-cd `dirname $0`
-
-TPL="$PACKAGE-\d*"
-
-if [ "$COMMAND" = "clean" ] ; then
-	rm -rf `dirname $0`
-#	echo "ok, cleaning...."
-	exit 0
-fi
-
-if [ "$COMMAND" = "install" ] ; then
-#	echo "Trying to cd into `pwd`/`find . -type d -depth 1 -name "$PACKAGE*"`"
-	cd /usr/ports/packages/All
-#	cd `find . -type d -depth 1 -name "$PACKAGE*"` || exit $?
-	make deinstall
-	pkg_add *.tbz || exit $?
-	exit 0
-fi
+#testing
 
 
 
-#echo "My current directory is `pwd`, with `ls`"
-echo "I'm in FreeBSD. My current id is `whoami`, removing $TPL package"
-# зачем удаляем пакет сначала?
-# удалять не надо. надо выставить FORCE_PKG_REGISTER=yes
-# удалять надо! иначе пакуется несколько раз.
-#pkg_info -x $TPL && pkg_delete -xf $TPL
-pkg_delete -xf "$PACKAGE"
+querypackage()
+{
+        rpmquery -p --queryformat "%{$2}" $1
+}
 
-# вот здесь конфликт по файлам...
-# Удаляем все пакеты начинающиеся с wine
-rm -rf /usr/ports/distfiles/$PACKAGE* /usr/ports/distfiles/$PACKAGE* /usr/ports/packages/All/$PACKAGE*
+make_plist()
+{
+}
 
-portfiles="$SOURCEURL/freebsd-$PACKAGE.tar.bz2"
-echo "Fetching port from $portfiles..."
-fetch $portfiles > /dev/null || exit $?
-echo "Extracting port tarball freebsd-$PACKAGE.tar.bz2..."
-tar xjvf freebsd-$PACKAGE.tar.bz2 > /dev/null || exit $?
-#find ./ -type d -name "${PACKAGE}*"
-#echo "Current directory is `pwd`"
-#echo "Looking into it: `ls`"
-echo "Trying to cd into `pwd`/`find . -type d -depth 1 -name "$PACKAGE*"`"
-cd `find . -type d -depth 1 -name "$PACKAGE*"` || exit $?
-	
-mv pkg-descr pkg-in
-sed -e "s/XXXX-XXXX/$ETERREGNUM/" <pkg-in >pkg-descr
-make makesum || exit $?
-env ETERREGNUM=$ETERREGNUM make package || exit $?
+NAME=$1
+i=$NAME*
+
+WRKDIR=/var/tmp/freebsd/work
+#unpack rpm and set variables
+mkdir $WRKDIR
+cp $i.rpm $WRKDIR
+cd $WRKDIR
+PACKAGENAME=`querypackage "$i" NAME`
+PKGVERSION=`querypackage "$i" VERSION`
+PKGREL=`querypackage "$i" RELEASE`
+PKGDESCR=`querypackage "$i" DESCRIPTION`
+PKGCOMMENT=`querypackage "$i" SUMMARY`
+PKGGROUP=emulators
+
+#get file hierarchy
+rpm2cpio $i | cpio -dimv #$PACKAGENAME.cpio | tar cjvf $PACKAGENAME.tar.bz2
+rm -f *.rpm
+
+#make +CONTENTS file
+find -d * \! -type d | sort >> $WRKDIR/files
+echo '@cwd /usr/local' > $WRKDIR/+CONTENTS
+cat $WRKDIR/files >> $WRKDIR/+CONTENTS
+rm -f $WRKDIR/files
+
+#add dirrm in +CONTENTS
+cat $WRKDIR/+CONTENTS | xargs -n 1 dirname | sort -u | grep -v "^bin/$" | grep -v "^include/$" > $WRKDIR/dirs
+cat $WRKDIR/dirs | sed "s|\(.*\)|@dirrm \1|g" >> $WRKDIR/+CONTENTS
+rm -f $WRKDIR/dirs
+
+#make +COMMENT and +DESC files
+echo $PKGCOMMENT > $WRKDIR/+COMMENT
+echo $PKGDESCR > $WRKDIR/+DESC
+
+cd ..
+#$PKGPLIST>\+CONTENTS
+
+#create package
+#pkg_create -s $WRKDIR -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS $PACKAGENAME.tbz
+
+#end of testing
