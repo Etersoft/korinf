@@ -19,12 +19,17 @@ make_plist()
 }
 
 NAME=$1
+PKGVERSION=$5
 i=$NAME*
 
-WRKDIR=/var/tmp/freebsd/work
+WRKDIR=/var/tmp/korinf/work-$NAME/
+RPMDIR=/home/builder/RPM/RPMS
+
 #unpack rpm and set variables
 mkdir $WRKDIR
-cp $i.rpm $WRKDIR
+#test
+cp $RPMDIR/$i.rpm $WRKDIR
+
 cd $WRKDIR
 PACKAGENAME=`querypackage "$i" NAME`
 PKGVERSION=`querypackage "$i" VERSION`
@@ -56,6 +61,6 @@ cd ..
 #$PKGPLIST>\+CONTENTS
 
 #create package
-#pkg_create -s $WRKDIR -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS $PACKAGENAME.tbz
+pkg_create -s $WRKDIR -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS $PACKAGENAME.tbz
 
 #end of testing
