@@ -59,9 +59,9 @@ fi
 #mkdir -p $ALOGDIR
 #touch $ALOGDIR/autobuild.batch.log || fatal "Can't append to log"
 
-if ! mount -l | grep $TASKDIR >/dev/null ; then
-    test -r $TASKDIR/SKIPMOUNT || sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT || fatal "Can't mount"
-fi
+#if ! mount -l | grep $TASKDIR >/dev/null ; then
+#test -r $TASKDIR/SKIPMOUNT || sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT || fatal "Can't mount"
+#fi
 
 # Ждём появления файла и запускаем с ним сборку.
 echo "Observe in $TASKDIR"
@@ -78,9 +78,16 @@ if false ; then
 	fi
 else
 	while true ; do
-		if ! mount -l | grep $TASKDIR >/dev/null ; then
-		    sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT
+		#if ! mount -l | grep $TASKDIR >/dev/null ; then
+		if [ ! -r $TASKDIR/SALESDIR ] ; then
+			sleep 3
+			sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT && continue
+			echo "Paused due failed sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT"
+			sleep 60
+			#|| fatal "Can't mount"
 		fi
+		#sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT
+		#fi
 		if [ -f "$TASKDIR/STOP" ] ; then
 			echo "Stop build due STOP file"
 			sleep 60
