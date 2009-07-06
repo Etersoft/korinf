@@ -75,10 +75,10 @@ copying_packages()
 		test -r $i && RC=0
 	done
 
-	# remove fatal flag
-	rm -f log/$BUILDNAME.autobuild.failed
-
 	popd >/dev/null
+
+	# remove fatal flag
+	rm -fv $DESTDIR/log/$BUILDNAME.autobuild.failed
 
 	# FIXME
 	chmod ug+rw $DESTDIR/* -R 2>/dev/null

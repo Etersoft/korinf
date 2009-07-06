@@ -90,7 +90,7 @@ for dist in $CMDRE ; do
 	# fills dist_arch, dist_name, dist_ver from dist
 	parse_dist_name $dist
 	# TODO: get arch, check with BUILDARCH
-	[ -z "$dist_name" ] && fatal "Empty dist_name for $dist"
+	[ -z "$dist_name" ] && warning "Empty dist_name for $dist"
 	BUILDARCH=$dist_name
 
 	# Initialize LOGDIR and LOGFILE variables
@@ -102,7 +102,7 @@ for dist in $CMDRE ; do
 	else
 		logit "$BUILDNAME is up-to-date" SKIPPED
 		# remove fatal flag if checking is passed
-		rm -f "$DESTDIR/log/$BUILDNAME.autobuild.failed"
+		rm -fv "$DESTDIR/log/$BUILDNAME.autobuild.failed"
 		echo `date` $BUILDNAME on $dist PASSED | write_report
 		continue
 	fi
