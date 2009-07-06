@@ -134,7 +134,7 @@ build_project()
 	fi
 
 	if [ -z "$2" ] ; then
-		SP=$SP/last
+		test -d "$SP/last" && SP=$SP/last
 	else
 		SP=$SP/$2
 	fi

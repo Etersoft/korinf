@@ -78,7 +78,6 @@ install_req()
 	init_home
 
 	LISTPKG=$(rpmquery --requires -p $BUILDERHOME/tmp/$TARGETSRPM | clean_pkgreq | sed -e "s|rpm-build-altlinux-compat||g")
-	echo "Install build required packages $LISTPKG"
 	DISTRVENDOR=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -d`
 	case $DISTRVENDOR in
 		"ALTLinux"|"Ubuntu"|"Debian"|"PCLinux")
@@ -98,6 +97,7 @@ install_req()
 			echo "Skipping unknown DISTRVENDOR $DISTRVENDOR"
 			;;
 	esac
+	echo "Install build required packages $LISTPKG with '$CMD' command"
 
 
 	# Control file for check build result
