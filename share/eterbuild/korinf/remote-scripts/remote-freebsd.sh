@@ -7,44 +7,46 @@
 
 #testing
 
-
-
 querypackage()
 {
         rpmquery -p --queryformat "%{$2}" $1
 }
 
-make_plist()
-{
-}
+NAME=$2
+PKGVERSION=$6
 
-NAME=$1
-PKGVERSION=$5
 i=$NAME*
 
 WRKDIR=/var/tmp/korinf/work-$NAME/
 RPMDIR=/home/builder/RPM/RPMS
 
 #unpack rpm and set variables
-mkdir $WRKDIR
+mkdir -p $WRKDIR/
 #test
 cp $RPMDIR/$i.rpm $WRKDIR
 
 cd $WRKDIR
 PACKAGENAME=`querypackage "$i" NAME`
-PKGVERSION=`querypackage "$i" VERSION`
+#PKGVERSION=`querypackage "$i" VERSION`
 PKGREL=`querypackage "$i" RELEASE`
 PKGDESCR=`querypackage "$i" DESCRIPTION`
 PKGCOMMENT=`querypackage "$i" SUMMARY`
 PKGGROUP=emulators
 
+echo
+echo variables:
+echo $NAME
+echo $PKGVERSION
+echo $PKGREL
+echo
 #get file hierarchy
 rpm2cpio $i | cpio -dimv #$PACKAGENAME.cpio | tar cjvf $PACKAGENAME.tar.bz2
 rm -f *.rpm
 
 #make +CONTENTS file
 find -d * \! -type d | sort >> $WRKDIR/files
-echo '@cwd /usr/local' > $WRKDIR/+CONTENTS
+#set the internal directory pointer to /usr/local/
+#echo '@cwd /usr/local' > $WRKDIR/+CONTENTS
 cat $WRKDIR/files >> $WRKDIR/+CONTENTS
 rm -f $WRKDIR/files
 
@@ -61,6 +63,6 @@ cd ..
 #$PKGPLIST>\+CONTENTS
 
 #create package
-pkg_create -s $WRKDIR -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS $PACKAGENAME.tbz
+pkg_create -s $WRKDIR -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS ${PACKAGENAME}-${PKGVERSION}.tbz
 
 #end of testing
