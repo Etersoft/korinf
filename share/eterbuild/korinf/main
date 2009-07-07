@@ -89,9 +89,8 @@ for dist in $CMDRE ; do
 
 	# fills dist_arch, dist_name, dist_ver from dist
 	parse_dist_name $dist
-	# TODO: get arch, check with BUILDARCH
 	[ -z "$dist_name" ] && warning "Empty dist_name for $dist"
-	BUILDARCH=$dist_name
+	BUILDARCH=$dist_arch
 
 	# Initialize LOGDIR and LOGFILE variables
 	init_dist_log "$dist"
