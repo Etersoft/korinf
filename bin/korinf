@@ -31,19 +31,20 @@ fi
 
 kormod korinf
 
- Using arg 1 as rebuild list
+# Using arg 1 as rebuild list
 if [ -n "$2" ] ; then
 	REBUILDLIST=$1
 	shift
 fi
 
 BUILDNAME=$1
+shift
+#SOURCEPATH=$BUILDFARMDIR/sources
+#TARGETPATH=$BUILDFARMDIR/$BUILDNAME
 
-SOURCEPATH=$BUILDFARMDIR/sources
-TARGETPATH=$BUILDFARMDIR/$BUILDNAME
+#set_rebuildlist
 
-set_rebuildlist
-
+# FIXME:
 # For build farm check global distro.list before build for all
 if [ "$REBUILDLIST" = "$KORINFETC/lists/all" ] ; then
 	if [ -r "$BUILDFARMDIR/distro.list" ] ; then
@@ -52,4 +53,5 @@ if [ "$REBUILDLIST" = "$KORINFETC/lists/all" ] ; then
 	fi
 fi
 
-build_package $BUILDNAME
+#build_package $BUILDNAME
+build_project $BUILDFARMDIR "$BUILDNAME" $BUILDNAME $@

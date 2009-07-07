@@ -92,6 +92,12 @@ else
     BUILDARCH="i586"
 fi
 echo "Chrooting in $SYS system with $BUILDARCH arch"
+REALARCH=$(uname -m)
+[ "$REALARCH" = "i686" ] && REALARCH="i586"
+if [ "$REALARCH" != "$BUILDARCH" ] ; then
+    echo "Please login to $BUILDARCH arch from a machine with the same arch (you TRY from $REALARCH)"
+    exit 1
+fi
 
 export HOSTNAME=$SYS
 export PS1="[\u@$SYS \W]\$"

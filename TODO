@@ -1,3 +1,16 @@
+Комнады установки и удаления:
+yumincommand="yum -y install "
+zypincommand="zypper -qn in "
+urpmincommand="urpmi --auto --force -q "
+aptincommand="apt-get -qy install "
+
+yumrmcommand="yum -y remove "
+zyprmcommand="zypper -qn rm "
+urpmrmcommand="urpme --force "
+aptrmcommand="apt-get -qy remove "
+rpmrmcommand="rpm -e "
+
+
 Список систем, которые являются псевдонимами, завести отдельно, чтобы
 их игнорировать при сборке, но при этом автоматом создавать ссылки при сборке базовой для них системы -
 чтобы создавать структуру каталогов с нуля.
