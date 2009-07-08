@@ -81,7 +81,7 @@ install_req()
 	DISTRVENDOR=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -d`
 	case $DISTRVENDOR in
 		"ALTLinux"|"Ubuntu"|"Debian"|"PCLinux")
-			CMD="apt-get -y --force-yes install $LISTPKG"
+			CMD="apt-get update && apt-get -y --force-yes install $LISTPKG"
 			;;
 		"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific")
 			CMD="yum -y install $LISTPKG"
