@@ -83,12 +83,14 @@ build_rpms()
 
 	# Control file for check build result
         LOGFAILFILE="$BUILDERHOME/RPM/log/$BUILDNAME.log.failed"
+        CLOGFILE="$BUILDERHOME/RPM/log/$BUILDNAME.clog"
 	rm -f "$LOGFAILFILE"
 
 	echo "Chrooting as $INTUSER and run $CMDBUILD command in $BUILDARCH system"
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-		su - $INTUSER -c "export LANG=C ; export LC_MESSAGES=C ;  umask 002 ; mkdir -p ~/RPM/log ; rm -f ~/tmp/rpm-tmp.* ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; $CMDAFTERBUILD"
+		su - $INTUSER -c "export LANG=C ; export LC_MESSAGES=C ;  umask 002 ; mkdir -p ~/RPM/log ; rm -f ~/tmp/rpm-tmp.* ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; ( $CMDAFTERBUILD ) >~/RPM/log/$BUILDNAME.clog  "
 	[ -r "$LOGFAILFILE" ] && { rm -f "$LOGFAILFILE" ; warning "build failed" ; return 1 ; }
+	[ -r "$LOGCFILE" ] && mv "$LOGCFILE" "${LOGFILE/.log/.conf.log}"
 
 	# Workaround again flow target dirs
 	pushd $BUILTRPM || { warning "can't chdir to $BUILTRPM" ; return 1; }
