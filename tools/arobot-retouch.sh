@@ -32,7 +32,22 @@ if [ -z "$DIST" ] ; then
 	exit 1
 fi
 
-echo "Reorder tasks for '$DIST' distro"
+if [ "$DIST" = "-c" ] ; then
+	shift
+	COMP="$1"
+fi
+
+if [ -n "$COMP" ] ; then
+	echo "Reassign tasks for '$COMP' component"
+	for i in *.failed ; do
+		test -f $i || continue
+		grep -q "COMPONENTNAME=\"$COMP\"" $i || continue
+		mv -v $i `basename $i .failed` || exit 1
+	done
+	exit 0
+fi
+
+echo "Reassign tasks for '$DIST' distro"
 
 if [ "$DIST" = "all" ] ; then
 	DIST=""
