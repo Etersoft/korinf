@@ -240,9 +240,15 @@ parse_dist_name()
 get_rpm_sources()
 {
 	local TARGETPATH=$1
-	local SOURCEPATH="$(readlink -f "$TARGETPATH/../../../sources")"
+	local SOURCEPATH
+	# WINE/Distro/Version or x86_64/Distro/Version
+	SOURCEPATH="$(readlink -f "$TARGETPATH/../../../sources")"
+	# Distro/Version or x86_64/Distro
 	[ -d "$SOURCEPATH" ] || SOURCEPATH="$(readlink -f "$TARGETPATH/../../sources")"
+	# WINE/x86_64/Distro/Version
 	[ -d "$SOURCEPATH" ] || SOURCEPATH="$(readlink -f "$TARGETPATH/../../../../sources")"
+	# Distro (Windows)
+	[ -d "$SOURCEPATH" ] || SOURCEPATH="$(readlink -f "$TARGETPATH/../sources")"
 	echo "$SOURCEPATH"
 }
 

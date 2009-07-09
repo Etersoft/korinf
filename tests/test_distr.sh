@@ -48,3 +48,4 @@ check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/WINE/SUSE/11 $PATHSOURCE
 check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/WINE/x86_64/SUSE/11.1 $PATHSOURCE
 check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/x86_64/SUSE/11 $PATHSOURCE
 check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/SUSE/11.1 $PATHSOURCE
+check_source /var/ftp/pub/Etersoft/Postgres@Etersoft/8.3.6/Windows /var/ftp/pub/Etersoft/Postgres@Etersoft/8.3.6/sources
