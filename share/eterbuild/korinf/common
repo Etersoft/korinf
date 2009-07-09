@@ -236,4 +236,14 @@ parse_dist_name()
 	test "$dist_name" = "$dist_ver" && dist_name="" && dist_ver=""
 }
 
+# return full path to sources, detected by TARGET dir
+get_rpm_sources()
+{
+	local TARGETPATH=$1
+	local SOURCEPATH="$(readlink -f "$TARGETPATH/../../../sources")"
+	[ -d "$SOURCEPATH" ] || SOURCEPATH="$(readlink -f "$TARGETPATH/../../sources")"
+	[ -d "$SOURCEPATH" ] || SOURCEPATH="$(readlink -f "$TARGETPATH/../../../../sources")"
+	echo "$SOURCEPATH"
+}
+
 kormod config log

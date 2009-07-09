@@ -36,3 +36,15 @@ check x86_64/SomeDistro/2010 x86_64 SomeDistro 2010
 
 check SomeDistro i586 "" ""
 check "SomeDistro 2010" i586 "" ""
+
+check_source()
+{
+	SOURCES=$(get_rpm_sources "$1")
+	[ "$SOURCES" != "$2" ] && echo "Error: wait for '$2', but get '$SOURCES'" || echo "OK for $1"
+}
+
+PATHSOURCE=$(readlink -f "/var/ftp/pub/Etersoft/WINE@Etersoft/last/sources")
+check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/WINE/SUSE/11 $PATHSOURCE
+check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/WINE/x86_64/SUSE/11.1 $PATHSOURCE
+check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/x86_64/SUSE/11 $PATHSOURCE
+check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/SUSE/11.1 $PATHSOURCE

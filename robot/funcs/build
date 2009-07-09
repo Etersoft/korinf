@@ -61,7 +61,7 @@ check_and_refresh_package_wine()
 	# Etersoft/WINE@Etersoft/last/WINE/SUSE/12
 	local TARGETPATH="$1"
 	# Etersoft/WINE@Etersoft/last/sources
-	local SOURCEPATH="$(readlink -f "$TARGETPATH/../../../sources")"
+	local SOURCEPATH="$(get_rpm_sources "$TARGETPATH")"
 	# haspd
 	local BUILDNAME=$2
 
@@ -93,7 +93,7 @@ check_and_refresh_component()
 	# Etersoft/RX@Etersoft/last/SUSE/12
 	local TARGETPATH="$2"
 	# Etersoft/RX@Etersoft/last/sources
-	local SOURCEPATH="$(readlink -f "$TARGETPATH/../../sources")"
+	local SOURCEPATH="$(get_rpm_sources "$TARGETPATH")"
 	# haspd
 	local BUILDNAME=$3
 
