@@ -1,4 +1,9 @@
-Комнады установки и удаления:
+# dpkg откуда-то берёт i386, несмотря на setarch x86_64
+
+Для сборки на Ubuntu:
+libc6-dev-i386
+
+Команды установки и удаления:
 yumincommand="yum -y install "
 zypincommand="zypper -qn in "
 urpmincommand="urpmi --auto --force -q "
