@@ -5,8 +5,10 @@
 x86_64/Ubuntu/8.04
 #x86_64/Ubuntu/8.10
 x86_64/Ubuntu/9.04
+x86_64/SUSE/10.2
 x86_64/SUSE/10.3
 x86_64/SUSE/11.1
+x86_64/Fedora/11
 x86_64/Mandriva/2009.0
 x86_64/Mandriva/2009.1
 x86_64/CentOS/5.2
