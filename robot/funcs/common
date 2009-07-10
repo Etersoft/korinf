@@ -94,6 +94,32 @@ printURL()
 	return 0
 }
 
+# TODO: add URL checking (touch it via GET?)
+printHTMLURL()
+{
+	local FILE
+	local LDIR=$1
+	local DDIR=$2
+	shift
+	shift
+	[ -n "$1" ] || return 1
+	echo "<ul>";
+	for i in $@ ; do
+		FILE=`basename $i`
+		# Размер файла в байтах
+		test -r "$LDIR/$FILE" || fatal "can't open $LDIR/$FILE"
+		FSIZE=`stat "--printf=%s" $LDIR/$FILE || echo 0`
+		let KSIZE=$FSIZE/1024
+		[ "$KSIZE" -lt "1" ] && KSIZE=1
+		echo -n "<li> "
+		echo "<a href=$DDIR/$FILE>$FILE</a>
+		printf "([ %5d Кб])" $KSIZE
+		echo "</li>"
+	done
+	echo "</ul>";
+	return 0
+}
+
 
 check_dist()
 {

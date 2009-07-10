@@ -101,9 +101,155 @@ prepare_wine_etersoft()
 
 
 # Ошибка: не ловятся ошибки отсюда
+prepare_wine_etersoft_mail_html()
+{
+	local FILETO BETA HTMLTO=$FTPDIR/download.html
+	FILETO=$1
+	>$FILETO
+	>$HTMLTO
+	NAME=`get_name "$FULLNAME"`
+	BETA=""
+	# FIXME: is it used?
+	if [ "$RELEASECANDIDAT" = "1" ] ; then
+		BETA="
+		<p class="comment_warning" align="center">Это бета-версия продукта, используйте её с осторожностью!
+<br>Устанавливайте в повседневное использование только после тестирования!
+<br>Создавайте резервные копии чаще!</p>
+"
+	fi
+
+CIFSTEXT=""
+if [ "$TYPE" != "Local" ] ; then
+CIFSTEXT="
+Для обеспечения взаимодействия по протоколу CIFS с сервером
+SAMBA - пакет с модулем ядра Linux CIFS:
+	$PUBDOWNLOAD1CIFS
+"
+fi
+
+if [ "$TYPE_LICENSE" = "Demo" ] ; then
+	THANKTEXT="Благодарим Вас за внимание к нашему продукту."
+else
+	THANKTEXT="Благодарим Вас за покупку!"
+fi
+
+	cat >>$FILETO <<EOF
+${DEAR} ${NAME}!
+
+Ваш заказ по сборке Продукта ${PRODUCT} (релиз $PROJECTVERSION)
+для системы ${TEXTDIST} выполнен.
+Регистрационный номер Продукта: ${ETERREGNUM}.
+
+Ссылки для скачивания файлов Продукта находятся здесь:
+${DOWNLOADDIR/ftp/http}/$TYPE-$PROJECTVERSION/$DIST/download.html
+
+По вопросам использования продукта пишите на support@etersoft, указав
+в ТЕМЕ (Subject) письма регистрационный номер.
+
+Пожалуйста, отвечайте на это письмо только
+при возникновении затруднений со скачиванием файлов.
+
+$THANKTEXT
+-- 
+Команда разработчиков
+Etersoft, 2009
+EOF
+
+cat >>$HTMLTO <<EOF
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>Сссылки для получения продукта ${PRODUCT}</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+
+<style type="text/css">
+  comment_warning {
+    background-color: #FF0000;
+    color:Black;
+    font-size:12px;
+    padding:10px;
+  };
+  comment_note {
+    background-color: #FFFF00;
+    color:Black;
+    font-size:12px;
+    padding:10px;
+  };
+</style>
+
+<body>
+<center>
+<table border="0" cellspacing="0" cellpadding="0" width="770">
+<tr>
+	<td valign="middle"><span class="title">Etersoft - привычные программы на свободной платформе</span></td>
+	<td valign="bottom" align="right"><br /><span class="date">Вторник, 07 Июль 2009 &nbsp;</span></td>
+</tr>
+</table>
+
+<table border="0" cellspacing="0" cellpadding="0" width="774">
+	<tr><td bgcolor="#333333" colspan="3">
+	</tr>
+
+<h2>Получение продукта ${PRODUCT}</h2>
+<p>
+${DEAR} ${NAME}!
+
+Сборка Продукта ${PRODUCT} (релиз $PROJECTVERSION) для системы ${TEXTDIST}.
+${BETA}
+Регистрационный номер Продукта: ${ETERREGNUM}.
+
+Для получения Продукта необходимо скачать файлы по приведённым ссылкам, в их числе:
+<ul>
+ <li>пакеты Продукта (wine-etersoft, wine-etersoft-$PRODUCT_name)</li>
+ <li>файл лицензии WINE-ETERSOFT.LIC</li>
+ <li>документацию (файл manual.html)</li>
+ <li>пакет haspd с драйверами аппаратных ключей защиты HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel;</li>
+ <li>пакет со свободными шрифтами Liberation (fonts-ttf-liberation). Во многих дистрибутивах он уже есть (в Ubuntu называется ttf-liberation).</li>
+</ul>
+
+Ссылки для скачивания файлов вашего экземпляра Продукта по протоколу FTP:
+	$(printHTMLURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" `find -L $FTPDIR -maxdepth 1 -type f` >>$FILETO || fatal "Error with files (files are missed) ")
+<br>(действительны в течение 4 суток)
+
+Ссылки для скачивания файлов вашего экземпляра Продукта по протоколу HTTP:
+	$(printHTMLURL "$FTPDIR" "${DOWNLOADDIR/ftp/http}/$TYPE-$PROJECTVERSION/$DIST" `find -L $FTPDIR -maxdepth 1 -type f` >>$FILETO || fatal "Error with files (files are missed) ")
+<br>(действительны в течение 4 суток)
+
+<p style="comment_note">
+ОБРАТИТЕ ВНИМАНИЕ!
+Файл лицензии <a href=$(printHTMLURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" $FTPDIR/WINE-ETERSOFT.LIC >>$FILETO || fatal "Error with WINE-ETERSOFT.LIC ")>WINE-ETERSOFT.LIC</a> необходимо расположить в каталоге /etc/wine, ~/.wine или C:\WINDOWS\INF.
+</p>
+
+$CIFSTEXT
+
+Для полного соответствия шрифтов в программах можно <a href=$PUBDOWNLOAD1FONTS>скачать</a> и установить <a href=$PUBDOWNLOAD1FONTS>пакет fonts-ttf-ms</a>,
+содержащий шрифты MS Core Fonts.
+
+Также Вы можете напрямую <a href=$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST>зайти в каталог</a>, чтобы загрузить файлы открытой и закрытой части.
+
+Обязательно ознакомьтесь с известными проблемами в текущей сборке:
+http://wiki.etersoft.ru/WINE/knownbugs
+
+Ответы на частые вопросы смотрите на <a href=http://etersoft.ru/wine/faq>http://etersoft.ru/wine/faq</a>.
+
+По вопросам использования продукта пишите <a href="mailto:support@etersoft">в службу поддержки</a>, указав
+в ТЕМЕ (Subject) письма регистрационный номер ${ETERREGNUM}.
+
+$THANKTEXT
+<br>
+<i>Команда разработчиков Etersoft, 2009</i>
+
+</table>
+</body>
+</html>
+EOF
+}
+
+# Ошибка: не ловятся ошибки отсюда
 prepare_wine_etersoft_mail()
 {
-	local FILETO BETA
+	local FILETO BETA NAME
 	FILETO=$1
 	>$FILETO
 	NAME=`get_name "$FULLNAME"`
@@ -243,7 +389,7 @@ build_wine_etersoft()
 	prepare_wine_etersoft_mail $TMPMAIL || fatal "Can't prepare letter"
 
 	export LC_ALL=ru_RU.UTF-8
-	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "wine@etersoft.ru" -s "Сборка $PRODUCT" || fatal "Can't send"
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "wine@etersoft.ru" -s "$ETERREGNUM: Сборка $PRODUCT" || fatal "Can't send"
 	rm -f $TMPMAIL
 }
 
