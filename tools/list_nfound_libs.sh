@@ -5,7 +5,7 @@
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
-[ -n "$1" ] && VERSION=$1 || VERSION=1.0.9-eter38
+[ -n "$1" ] && VERSION=$1 || VERSION=last
 NAME=$WINEPUB_PATH/$VERSION
 
 for n in $(get_distro_list $NAME) ; do
