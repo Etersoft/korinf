@@ -49,7 +49,11 @@ build_dist_pkg()
 case $dist_name in
 "FreeBSD")
 	kormod build/freebsd
-	logit "build in FreeBSD $dist_ver" build_bsd || return 1
+	kormod build/rpm
+	logit "convert src.rpm to $dist" convert_rpm_to_target $dist || return 1
+	logit "build $dist" build_bsd $dist || return 1
+	#logit "build in FreeBSD $dist_ver" build_bsd || return 1
+	logit "convert RPM to $TARGET" convert_bsd || return 1
 	prepare_filelist
 	logit "copying built packages to $dist" copying_bsd || return 1
 	[ -n "$BOOTSTRAP" ] && logit "install built" install_bsd

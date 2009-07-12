@@ -25,7 +25,9 @@
 # BUILDERHOME - absolute path to user dir in current system
 
 FREEBSDSSH=$LOCUSER@freebsd
-FREEBSDPATH=home/$LOCUSER/work-$$
+
+# possibly conflict
+FREEBSDPATH=home/$LOCUSER/work-$PACKAGE
 
 FREEBSDKEY="-i $PRIVATESSHKEY"
 
@@ -36,10 +38,20 @@ build_bsd()
 	PREF="/mnt/$dist_name/$dist_ver"
 
 	echo "Copying to $FREEBSDSSH:$PREF/$FREEBSDPATH"
-	ssh $FREEBSDKEY $FREEBSDSSH "mkdir -p $PREF/$FREEBSDPATH/" || { warning "Cannot create dir $FREEBSDPATH" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH mkdir -p $PREF/$FREEBSDPATH/ || { warning "Cannot create dir $FREEBSDPATH" ; return 1 ; }
+	scp $FREEBSDKEY $TARGETSRPM $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy $TARGETSRPM" ; return 1 ; }
 	scp $FREEBSDKEY $KORINFDIR/korinf/remote-scripts/remote-freebsd.sh $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy script" ; return 1 ; }
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $PACKAGE \"$ETERREGNUM\" $SOURCEURL $PACKAGEVERSION" || { warning "Can't build" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF su - $LOCUSER \
+		-c "/$FREEBSDPATH/remote-freebsd.sh build $PACKAGE /$FREEBSDPATH/$(basename $TARGETSRPM)" || { warning "Can't build" ; return 1 ; }
 	true
+}
+
+convert_bsd()
+{
+	local PREF
+	PREF="/mnt/$dist_name/$dist_ver"
+	local RELPKG=$PACKAGERELEASE$TARGETPKGDISTRO
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh convert $PACKAGE $RELPKG" || { warning "Can't clean" ; return 1 ; }
 }
 
 copying_bsd()
@@ -57,12 +69,12 @@ cleaning_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh clean $PACKAGE $ETERREGNUM" || { warning "Can't clean" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh clean $PACKAGE" || { warning "Can't clean" ; return 1 ; }
 }
 
 install_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh install $PACKAGE $ETERREGNUM" || { warning "Can't install" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh install $PACKAGE" || { warning "Can't install" ; return 1 ; }
 }

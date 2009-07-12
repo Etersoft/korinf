@@ -1,47 +1,67 @@
 #!/bin/sh
-# 2007 (c) Etersoft http://etersoft.ru
+# 2007, 2009 (c) Etersoft http://etersoft.ru
 # Author: Vitaly Lipatov <lav@etersoft.ru>
+# Author: Yury Fil <yurifil@etersoft.ru>
 # GNU Public License
 
 # script for FreeBSD
-
-#testing
 
 querypackage()
 {
         rpmquery -p --queryformat "%{$2}" $1
 }
 
-NAME=$2
-PKGVERSION=$6
+fatal()
+{
+	echo $@ >&2
+	exit 1
+}
 
-i=$NAME*
+COMMAND=$1
+PACKAGE=$2
+# build
+SRPMNAME=$3
+# convert
+RELPKG=$3
 
-WRKDIR=/var/tmp/korinf/work-$NAME/
+WRKDIR=/var/tmp/korinf/work-$PACKAGE/
 RPMDIR=/home/builder/RPM/RPMS
 
-#unpack rpm and set variables
-mkdir -p $WRKDIR/
-#test
-cp $RPMDIR/$i.rpm $WRKDIR
+mkdir -p $WRKDIR/ && cd $WRKDIR || fatal "Can't CD to $WRKDIR"
 
-cd $WRKDIR
-PACKAGENAME=`querypackage "$i" NAME`
-#PKGVERSION=`querypackage "$i" VERSION`
-PKGREL=`querypackage "$i" RELEASE`
-PKGDESCR=`querypackage "$i" DESCRIPTION`
-PKGCOMMENT=`querypackage "$i" SUMMARY`
+build_bsd()
+{
+	RPMBUILDNODEPS="--nodeps"
+	RPMBUILDROOT="~/tmp/$PACKAGE-buildroot"
+	# FIXME: x86_64 support
+	BUILDARCH=i586
+	rpmbuild -v --rebuild $RPMBUILDNODEPS --buildroot $RPMBUILDROOT ~/tmp/$SRPMNAME --target $BUILDARCH
+}
+
+convert_bsd()
+{
+	# FIXME: how to get build package name?
+	#PKGNAME=`querypackage "$SRPMNAME" NAME`
+	PKGNAME=""
+	BUILTRPM=$(ls -1 $RPMDIR/RPMS | grep $PKGNAME | tail -n1)
+
+PKGVERSION=`querypackage "$BUILTRPM" VERSION`
+PKGREL=`querypackage "$BUILTRPM" RELEASE`
+PKGDESCR=`querypackage "$BUILTRPM" DESCRIPTION`
+PKGCOMMENT=`querypackage "$BUILTRPM" SUMMARY`
 PKGGROUP=emulators
 
 echo
 echo variables:
-echo $NAME
+echo $SRPMNAME
+echo $BUILTRPM
 echo $PKGVERSION
 echo $PKGREL
 echo
+
 #get file hierarchy
-rpm2cpio $i | cpio -dimv #$PACKAGENAME.cpio | tar cjvf $PACKAGENAME.tar.bz2
-rm -f *.rpm
+rpm2cpio $BUILTRPM | cpio -dimv || fatal "error with rpm2cpio"
+rm -f $BUILTRPM
 
 #make +CONTENTS file
 find -d * \! -type d | sort >> $WRKDIR/files
@@ -62,7 +82,24 @@ echo $PKGDESCR > $WRKDIR/+DESC
 cd ..
 #$PKGPLIST>\+CONTENTS
 
-#create package
-pkg_create -s $WRKDIR -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS ${PACKAGENAME}-${PKGVERSION}.tbz
+# create package with the PACKAGE name (not src.rpm name)
+pkg_create -s $WRKDIR -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS ${PACKAGE}-${RELPKG}.tbz || fatal
+}
 
-#end of testing
+case $COMMAND in
+	"build")
+		build_bsd()
+		;;
+	"convert")
+		convert_bsd()
+		;;
+	"install")
+		instal_bsd()
+		;;
+	"clean")
+		clean_bsd()
+		;;
+	*)
+		fatal "Unknown command $COMMAND"
+		;;
+esac
