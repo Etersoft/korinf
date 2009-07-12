@@ -51,8 +51,9 @@ case $dist_name in
 	kormod build/freebsd
 	kormod build/rpm
 	# FIXME
-	BUILDERHOME=~
-	BUILDROOT=
+	BUILDERHOME=~/tmp/korinfer
+	BUILDROOT=~/tmp/korinfer
+	mkdir $BUILDERHOME $BUILDROOT
 	logit "convert src.rpm to $dist" convert_rpm_to_target $dist || return 1
 	logit "build $dist" build_bsd $dist || return 1
 	#logit "build in FreeBSD $dist_ver" build_bsd || return 1

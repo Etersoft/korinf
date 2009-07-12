@@ -27,6 +27,7 @@ convert_rpm_to_target()
 {
 	local dist=$1
 
+	# FIXME: when build to remote dist, we need generic src.rpm
 	echo "Convert '$BUILDSRPM' for $dist distro"
 	rm -f $BUILDERHOME/tmp/$BUILDNAME*
 	if [ -n "$MAKESPKG" ] ; then
