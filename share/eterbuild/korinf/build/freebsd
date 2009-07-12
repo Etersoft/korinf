@@ -39,29 +39,31 @@ build_bsd()
 
 	echo "Copying to $FREEBSDSSH:$PREF/$FREEBSDPATH"
 	ssh $FREEBSDKEY $FREEBSDSSH mkdir -p $PREF/$FREEBSDPATH/ || { warning "Cannot create dir $FREEBSDPATH" ; return 1 ; }
-	scp $FREEBSDKEY $TARGETSRPM $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy $TARGETSRPM" ; return 1 ; }
+	scp $FREEBSDKEY $BUILDERHOME/tmp/$TARGETSRPM $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy $TARGETSRPM" ; return 1 ; }
 	scp $FREEBSDKEY $KORINFDIR/korinf/remote-scripts/remote-freebsd.sh $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy script" ; return 1 ; }
-	ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF su - $LOCUSER \
-		-c "/$FREEBSDPATH/remote-freebsd.sh build $PACKAGE /$FREEBSDPATH/$(basename $TARGETSRPM)" || { warning "Can't build" ; return 1 ; }
-	true
+	# FIXME: what's su - problem?
+	#ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF su - $LOCUSER -c "/$FREEBSDPATH/remote-freebsd.sh build $PACKAGE /$FREEBSDPATH/$TARGETSRPM" || { warning "Can't build" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $PACKAGE /$FREEBSDPATH/$TARGETSRPM" || { warning "Can't build" ; return 1 ; }
 }
 
 convert_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	local RELPKG=$PACKAGERELEASE$TARGETPKGDISTRO
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh convert $PACKAGE $RELPKG" || { warning "Can't clean" ; return 1 ; }
+	TARGETPKG=$PACKAGE-$PACKAGERELEASE$TARGETPKGDISTRO.tbz
+	#ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF su - $LOCUSER -c "/$FREEBSDPATH/remote-freebsd.sh convert $PACKAGE $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh convert $PACKAGE $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
 }
 
 copying_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
+	TARGETPKG=$PACKAGE-$PACKAGERELEASE$TARGETPKGDISTRO.tbz
 
 	prepare_copying
 
-	scp $FREEBSDKEY $FREEBSDSSH:$PREF/usr/ports/packages/All/$PACKAGE[-_][0-9]*.tbz $DESTDIR || { warning "Cannot copy $PACKAGE" ; return 1 ; }
+	scp $FREEBSDKEY $FREEBSDSSH:$PREF/var/tmp/korinfer/work-$PACKAGE/$TARGETPKG $DESTDIR || { warning "Cannot copy $PACKAGE" ; return 1 ; }
 	chmod g+rw -R $DESTDIR/* || true
 }
 
