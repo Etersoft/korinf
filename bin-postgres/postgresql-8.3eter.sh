@@ -9,7 +9,6 @@
 kormod korinf
 
 major=8.3
-minor=6
 pname=postgresql
 pnamever=${pname}-${major}eter
 POSTGRESDIR=/var/ftp/pub/Etersoft/PostgreSQL/
