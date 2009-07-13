@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.8
+Version: 1.8.1
 Release: alt1
 
 Summary: Korinf build system
@@ -16,7 +16,7 @@ Source: %name-%version.tar
 
 BuildArchitectures: noarch
 
-Requires: etersoft-build-utils >= 1.6.0
+Requires: etersoft-build-utils >= 1.6.2
 
 %description
 This package contains Korinf build system.
@@ -39,6 +39,15 @@ This package contains Korinf build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Tue Jul 14 2009 Vitaly Lipatov <lav@altlinux.ru> 1.8.1-alt1
+- add need for versioned etersoft-build-utils
+- rewrite freebsd build related scripts
+- get_rpm_sources: add TARGET/Windows support
+- rpm: write config log separately
+- correct set BUILDARCH (parse dist)
+- use bin/korinf with standart build_package function
+- do not need etersoft-build-utils anymore in target system
+
 * Fri Jun 12 2009 Vitaly Lipatov <lav@altlinux.ru> 1.8-alt1
 - improve and cleanup code, use etersoft-build-utils >= 1.6.0
 - convert src.rpm in host system now
