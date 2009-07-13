@@ -21,6 +21,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+NEEDETERBUILD=162
 
 # TODO: works in only source tree mode
 # Load etersoft-build-utils part
