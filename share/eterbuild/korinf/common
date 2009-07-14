@@ -59,7 +59,7 @@ fi
 load_etersoft_build_utils
 
 # these variable will not override in eterbuild common
-. $LOCETERBUILDDIR/common
+. $ETERBUILDDIR/functions/common
 
 
 
@@ -251,8 +251,8 @@ parse_dist_name()
 # return full path to sources, detected by TARGET dir
 get_rpm_sources()
 {
-	local TARGETPATH=$1
-	local SOURCEPATH
+	local TARGETPATH="$1"
+	local SOURCEPATH=
 	# WINE/Distro/Version or x86_64/Distro/Version
 	SOURCEPATH="$(readlink -f "$TARGETPATH/../../../sources")"
 	# Distro/Version or x86_64/Distro
@@ -262,6 +262,7 @@ get_rpm_sources()
 	# Distro (Windows)
 	[ -d "$SOURCEPATH" ] || SOURCEPATH="$(readlink -f "$TARGETPATH/../sources")"
 	echo "$SOURCEPATH"
+	return 0
 }
 
 kormod config log
