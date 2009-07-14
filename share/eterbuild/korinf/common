@@ -23,7 +23,8 @@
 
 NEEDETERBUILD=162
 
-# TODO: works in only source tree mode
+load_etersoft_build_utils()
+{
 # Load etersoft-build-utils part
 LOCETERBUILDDIR=`dirname $0`/../share/eterbuild/functions
 RELETERBUILDDIR=../../etersoft-build-utils/share/eterbuild/functions
@@ -31,8 +32,14 @@ RELETERBUILDDIR=../../etersoft-build-utils/share/eterbuild/functions
 # Create link to etersoft-build-utils repo if not exists
 if [ ! -L "$LOCETERBUILDDIR" ] ; then
 	if [ ! -d "`dirname $0`/$RELETERBUILDDIR" ] ; then
-		echo "Clone etersoft-build-utils git repository to the same directory as korinf checkouted" >&2
-		exit 1
+		ETERBUILDDIR="/usr/share/eterbuild"
+		if [ ! -d "$ETERBUILDDIR" ] ; then
+			echo "Clone etersoft-build-utils git repository to the same directory as korinf checkouted" >&2
+			exit 1
+		fi
+		ETERBUILDETC=$(realpath "$ETERBUILDDIR/../../etc")
+		ETERBUILDBIN=$(realpath "$ETERBUILDDIR/../../bin")
+		return
 	else
 		rm -f $LOCETERBUILDDIR
 		ln -s ../$RELETERBUILDDIR $LOCETERBUILDDIR
@@ -47,6 +54,10 @@ if [ ! -d "$ETERBUILDDIR" ] ; then
 	echo "Clone etersoft-build-utils git repository to the same directory as korinf checkouted" >&2
 	exit 1
 fi
+}
+
+load_etersoft_build_utils
+
 # these variable will not override in eterbuild common
 . $LOCETERBUILDDIR/common
 
