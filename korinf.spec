@@ -16,7 +16,7 @@ Source: %name-%version.tar
 
 BuildArchitectures: noarch
 
-Requires: etersoft-build-utils >= 1.6.2
+Requires: etersoft-build-utils >= 1.6.3
 
 %description
 This package contains Korinf build system.
