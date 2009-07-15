@@ -42,8 +42,9 @@ convert_bsd()
 {
 	# FIXME: how to get build package name?
 	#PKGNAME=`querypackage "$SRPMNAME" NAME`
-	PKGNAME=""
-	BUILTRPM=$(ls -1 $RPMDIR | grep $PKGNAME | tail -n1)
+	# FIXME: problem with various version
+	PKGNAME="$PACKAGE"
+	BUILTRPM=$(ls -1 $RPMDIR/*.rpm | grep $PKGNAME | tail -n1)
 
 
 	PKGDESCR=`querypackage "$BUILTRPM" DESCRIPTION`
@@ -72,6 +73,14 @@ convert_bsd()
 
 	# create package with the PACKAGE name (not src.rpm name)
 	pkg_create -s $WRKDIR -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS $TARGETPKG || fatal
+}
+
+install_bsd()
+{
+}
+
+clean_bsd()
+{
 }
 
 case $COMMAND in
