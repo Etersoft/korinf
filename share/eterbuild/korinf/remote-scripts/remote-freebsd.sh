@@ -23,6 +23,7 @@ PACKAGE=$2
 SRPMNAME=$3
 # convert
 TARGETPKG=$3
+PKGVERSION=$4
 
 INTUSER=builder
 
@@ -34,7 +35,7 @@ mkdir -p $WRKDIR/ && cd $WRKDIR || fatal "Can't CD to $WRKDIR"
 build_bsd()
 {
 	RPMBUILDNODEPS="--nodeps"
-	RPMBUILDROOT="/home/$INTUSER/tmp/$PACKAGE-buildroot"
+	RPMBUILDROOT="/home/$INTUSER/RPM/BUILD/$PACKAGE-$PKGVERSION"
 	# FIXME: x86_64 support
 	BUILDARCH=i586
 	rpmbuild -v --rebuild $RPMBUILDNODEPS --buildroot $RPMBUILDROOT $SRPMNAME --target $BUILDARCH
