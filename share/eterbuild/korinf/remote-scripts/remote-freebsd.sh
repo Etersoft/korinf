@@ -77,10 +77,12 @@ convert_bsd()
 
 install_bsd()
 {
+	echo FIXME
 }
 
 clean_bsd()
 {
+	echo FIXME
 }
 
 case $COMMAND in
