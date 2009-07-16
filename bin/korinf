@@ -24,7 +24,7 @@
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
-if [ -z "$1" ] ; then
+if [ -z "$1" ] || [ "$1" = "-h" ]; then
 	echo "Use: korinf [-r version ] [System/Version] package.spec|PackageName [TARGETDIR]" >&2
 	echo "     with package.spec use target as rpmpub" >&2
 	echo "     with packageName build in BuildFarm" >&2
@@ -54,8 +54,12 @@ fi
 BUILDNAME=$1
 shift
 
-[ -n "$1" ] && ETERDESTSRPM=$1 || ETERDESTSRPM=$BUILDFARMDIR
-
+if [ -n "$1" ] ; then
+	ETERDESTSRPM=$1
+	shift
+else
+	ETERDESTSRPM=$BUILDFARMDIR
+fi
 
 # if package name
 if [ -n "${BUILDNAME/*.spec/}" ] ; then
