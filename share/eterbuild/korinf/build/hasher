@@ -34,7 +34,8 @@ function build_in_hasher()
 	BUILTRPM=$HASHERDIR$MENVARG/repo/$DEFAULTARCH/RPMS.hasher
 
 	if [ -d "$DESTDIR/base" ] ; then
-		ETERBUILD_APTREPO="rpm file:/ $DEFAULTARCH main"
+		#export ETERBUILD_APTREPO="rpm file:$DESTDIR $DEFAULTARCH main"
+		export ETERBUILD_APTREPO="rpm file:$(dirname $DESTDIR) $(basename $DESTDIR) main"
 		[ -z "$VERBOSE" ] || echo "base dir found, add aptrepo $ETERBUILD_APTREPO"
 	else
 		warning "Cannot find already built packages repo"
