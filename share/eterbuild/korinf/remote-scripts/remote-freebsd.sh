@@ -21,7 +21,7 @@ COMMAND=$1
 PACKAGE=$2
 # build
 SRPMNAME=$3
-# convert
+# convert, install, clean
 TARGETPKG=$3
 PKGVERSION=$4
 
@@ -45,8 +45,9 @@ convert_bsd()
 {
 	# FIXME: how to get build package name?
 	#PKGNAME=`querypackage "$SRPMNAME" NAME`
-	PKGNAME=""
-	BUILTRPM=$(ls -1 $RPMDIR | grep $PKGNAME | tail -n1)
+	# FIXME: problem with various version
+	PKGNAME="$PACKAGE"
+	BUILTRPM=$(ls -1 $RPMDIR/*.rpm | grep $PKGNAME | tail -n1)
 
 
 	PKGDESCR=`querypackage "$BUILTRPM" DESCRIPTION`
@@ -65,7 +66,11 @@ convert_bsd()
 	rm -f $WRKDIR/files
 
 	#add dirrm in +CONTENTS
-	cat $WRKDIR/+CONTENTS | xargs -n 1 dirname | sort -u | grep -v "^bin/$" | grep -v "^include/$" > $WRKDIR/dirs
+	# check cwd!!!
+	cat $WRKDIR/+CONTENTS | xargs -n 1 dirname | sort -u | \
+		grep -v "^bin/$" | grep -v "^include/$" \
+		grep -v "^/etc/rpm$" | grep -v "^/usr/local/bin$" \
+		> $WRKDIR/dirs
 	cat $WRKDIR/dirs | sed "s|\(.*\)|@dirrm \1|g" >> $WRKDIR/+CONTENTS
 	rm -f $WRKDIR/dirs
 
@@ -74,7 +79,21 @@ convert_bsd()
 	echo $PKGDESCR > $WRKDIR/+DESC
 
 	# create package with the PACKAGE name (not src.rpm name)
-	pkg_create -s $WRKDIR -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS $TARGETPKG || fatal
+	rm -f ../$TARGETPKG
+	pkg_create -v -s $WRKDIR -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS ../$TARGETPKG || fatal
+	cd -
+}
+
+install_bsd()
+{
+	pkg_delete ${PACKAGE}*
+	pkg_add ../$TARGETPKG
+}
+
+clean_bsd()
+{
+	echo "Cleaning..."
+	rm -rf $WRKDIR
 }
 
 case $COMMAND in
@@ -85,7 +104,7 @@ case $COMMAND in
 		convert_bsd
 		;;
 	"install")
-		instal_bsd
+		install_bsd
 		;;
 	"clean")
 		clean_bsd

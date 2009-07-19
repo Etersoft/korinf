@@ -33,8 +33,16 @@ function build_in_hasher()
 	detect_target_env >>$LOGFILE 2>&1
 	BUILTRPM=$HASHERDIR$MENVARG/repo/$DEFAULTARCH/RPMS.hasher
 
+	if [ -d "$DESTDIR/base" ] ; then
+		#export ETERBUILD_APTREPO="rpm file:$DESTDIR $DEFAULTARCH main"
+		export ETERBUILD_APTREPO="rpm file:$(dirname $DESTDIR) $(basename $DESTDIR) main"
+		[ -z "$VERBOSE" ] || echo "base dir found, add aptrepo $ETERBUILD_APTREPO"
+	else
+		warning "Cannot find already built packages repo"
+	fi
+
 	test -n "$MENV" || fatal "build_in_hasher: Call me with correct MENV variable"
-	echo "Build in hasher: $MENV for $dist ..."
+	echo "Build in hasher: $MENV for $dist..."
 	if [ -n "$NIGHTBUILD" ] ; then
 		echo "Clean hasher's rpms before nightbuild"
 		rm -rf $BUILTRPM/*
@@ -135,30 +143,28 @@ fi
 	if [ -n "$MAKESPKG" ] ; then
 		BUILTRPM=$RPMDIR/SRPMS
 		if [ "$MENV" = "SS" ] ; then
-			# disable 20.07.06 due prelink orphaned in Sisyphus, 04.04.07 prelink returned
-			subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
-			$RPMBS -s $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot build srpm" ; return 1 ; }
+			BUILDCOMMAND="$RPMBS -s"
 		else
-			[ "$MENV" != "M23" ] && subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
-			$RPMBPH -n $MENVARG $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot build srpm" ; return 1 ; }
+			BUILDCOMMAND="$RPMBPH -n $MENVARG"
 		fi
+		[ "$MENV" != "M23" ] && subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
+		$BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot build srpm" ; return 1 ; }
 		return
 	fi
 
 	# build binary packages
 	if [ "$MENV" = "SS" ] ; then
-		# disable 20.07.06 due prelink orphaned in Sisyphus, 04.04.07 prelink returned
-		subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
-		$RPMBSH $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot hashered" ; [ -n "$ADEBUG" ] || $ETERBUILDBIN/loginhsh -c ; return 1 ; }
+		BUILDCOMMAND="$RPMBSH"
 	else
-		# TODO для M?? собираем пока из спека а не из пакета...
-		# но из спека пользователя builder :)
-		#myhsh $MENVARG $BUILDSRPM
-		# FIXME: if_with does not work in Debian, Special...
-		[ "$MENV" != "M23" ] && subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
-		$RPMBPH $MENVARG $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot hashered" ; [ -n "$ADEBUG" ] || $ETERBUILDBIN/loginhsh -c $MENVARG ; return 1 ; }
+		BUILDCOMMAND="$RPMBPH $MENVARG"
 	fi
 
+	# disable 20.07.06 due prelink orphaned in Sisyphus, 04.04.07 prelink returned
+	[ "$MENV" != "M23" ] && subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
+	# FIXME: if_with does not work in Debian, Special...
+	$BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot hashered" ; [ -n "$ADEBUG" ] || $ETERBUILDBIN/loginhsh -c ; return 1 ; }
+
+	# search for binary packages
 	BUILTSRPM=$(ls -1 $HASHERDIR$MENVARG/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm)
 	BUILTBINPKGLIST=`get_binpkg_list $BUILTRPM $(basename $BUILTSRPM)`
 	echo "For $BUILTSRPM follow packages is found: $BUILTBINPKGLIST"
