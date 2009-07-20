@@ -43,7 +43,7 @@ Mandriva/2008.1
 Mandriva/2009.0
 Mandriva/2009.1
 
-PCLinux/2009
+PCLinux/2009.2
 
 # Load deb system list
 . deb
