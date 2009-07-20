@@ -43,23 +43,23 @@ build_bsd()
 	scp $FREEBSDKEY $KORINFDIR/korinf/remote-scripts/remote-freebsd.sh $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy script" ; return 1 ; }
 	# FIXME: what's su - problem?
 	#ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF su - $LOCUSER -c "/$FREEBSDPATH/remote-freebsd.sh build $PACKAGE /$FREEBSDPATH/$TARGETSRPM" || { warning "Can't build" ; return 1 ; }
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $PACKAGE /$FREEBSDPATH/$TARGETSRPM" || { warning "Can't build" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $PACKAGE /$FREEBSDPATH/$TARGETSRPM $PACKAGEVERSION" || { warning "Can't build" ; return 1 ; }
 }
 
 convert_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	TARGETPKG=$PACKAGE-$PACKAGERELEASE$TARGETPKGDISTRO.tbz
+	TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$TARGETPKGDISTRO.tbz
 	#ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF su - $LOCUSER -c "/$FREEBSDPATH/remote-freebsd.sh convert $PACKAGE $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh convert $PACKAGE $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh convert $PACKAGE $TARGETPKG $PACKAGEVERSION" || { warning "Can't clean" ; return 1 ; }
 }
 
 copying_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	TARGETPKG=$PACKAGE-$PACKAGERELEASE$TARGETPKGDISTRO.tbz
+	TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$TARGETPKGDISTRO.tbz
 
 	prepare_copying
 

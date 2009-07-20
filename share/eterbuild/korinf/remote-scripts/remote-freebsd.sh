@@ -23,16 +23,19 @@ PACKAGE=$2
 SRPMNAME=$3
 # convert, install, clean
 TARGETPKG=$3
+PKGVERSION=$4
+
+INTUSER=builder
 
 WRKDIR=/var/tmp/korinfer/work-$PACKAGE/
-RPMDIR=/home/builder/RPM/RPMS
+RPMDIR=/home/$INTUSER/RPM/RPMS
 
 mkdir -p $WRKDIR/ && cd $WRKDIR || fatal "Can't CD to $WRKDIR"
 
 build_bsd()
 {
 	RPMBUILDNODEPS="--nodeps"
-	RPMBUILDROOT="~/tmp/$PACKAGE-buildroot"
+	RPMBUILDROOT="/home/$INTUSER/RPM/BUILD/$PACKAGE-$PKGVERSION"
 	# FIXME: x86_64 support
 	BUILDARCH=i586
 	rpmbuild -v --rebuild $RPMBUILDNODEPS --buildroot $RPMBUILDROOT $SRPMNAME --target $BUILDARCH
