@@ -47,6 +47,19 @@ prepare_copying()
 
 }
 
+gen_base_apt_rpm()
+{
+	if [ ! -d "$DESTDIR/RPMS.main" ] ; then
+		ln -s ./ $DESTDIR/RPMS.main
+	fi
+	genbasedir --create --progress --topdir=$TARGETPATH $dist main
+	#chmod o+r $DIR/* -R
+	cat <<EOF > $DESTDIR/base/README.korinf.txt
+You can add this repo to APT sources.list:
+rpm file:$TARGETPATH $dist main
+EOF
+}
+
 
 copying_packages()
 {
@@ -83,5 +96,14 @@ copying_packages()
 	# FIXME
 	chmod ug+rw $DESTDIR/* -R 2>/dev/null
 	chmod o+r $DESTDIR/* -R 2>/dev/null
+
+	case $dist_name in
+		"ALTLinux")
+			gen_base_apt_rpm
+			;;
+		*)
+			;;
+	esac
+
 	return $RC
 }

@@ -5,13 +5,18 @@
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
+if [ "$1" = "-f" ] ; then
+	FORCE="--force"
+fi
+
 PROJECTVERSION=$1
 [ -n "$PROJECTVERSION" ] || PROJECTVERSION=last
 
 [ -n "$BUILDNAME" ] || BUILDNAME=wine-etersoft
 
-TARGETPATH=$WINEPUB_PATH/$PROJECTVERSION/WINE/ALTLinux/Sisyphus
-SOURCEPATH=$WINEPUB_PATH/$PROJECTVERSION/sources
+get_version_release()
+{
+SOURCEPATH=$TARGETPATH/../../../sources
 
 if [ -z "$VERSION" ] ; then
 	BUILDSRPM="$SOURCEPATH/$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm | last_rpm).src.rpm"
@@ -20,7 +25,11 @@ if [ -z "$VERSION" ] ; then
 	VERSION=`rpm -qp --queryformat "%{VERSION}" $BUILDSRPM`
 	RELEASE=`rpm -qp --queryformat "%{RELEASE}" $BUILDSRPM`
 fi
+}
 
+#############
+TARGETPATH=$WINEPUB_PATH/$PROJECTVERSION/WINE/ALTLinux/Sisyphus
+get_version_release
 
 cd $TARGETPATH || fatal "Can't cd"
 pwd
@@ -35,5 +44,23 @@ for i in lib$BUILDNAME-devel $BUILDNAME-twain $BUILDNAME-gl ; do
 done
 
 echo $LIST
-rpmU $LIST --force
+rpmU $LIST $FORCE
+
+
+#############
+VERSION=
+BUILDNAME=$BUILDNAME-sql
+TARGETPATH=$WINEETER_PATH/$PROJECTVERSION/WINE-SQL/ALTLinux/Sisyphus
+get_version_release
+
+cd $TARGETPATH || fatal "Can't cd"
+pwd
+
+LIST=
+for i in $BUILDNAME ; do
+	rpm -q $i &>/dev/null && LIST="$LIST $i-$VERSION-*$RELEASE.*.rpm"
+done
+
+echo $LIST
+rpmU $LIST $FORCE
 

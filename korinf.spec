@@ -39,9 +39,11 @@ This package contains Korinf build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
-* Wed Jul 15 2009 Vitaly Lipatov <lav@altlinux.ru> 1.8.2-alt1
+* Mon Jul 20 2009 Vitaly Lipatov <lav@altlinux.ru> 1.8.2-alt1
 - bin/korinf: add support for build from spec (use rpmpub), add optional target support
 - common: add support for installed korinf and installed etersoft-build-utils
+- fix FreeBSD build
+- small improvements
 
 * Tue Jul 14 2009 Vitaly Lipatov <lav@altlinux.ru> 1.8.1-alt1
 - add need for versioned etersoft-build-utils

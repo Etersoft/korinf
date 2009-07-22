@@ -5,7 +5,26 @@ fatal()
 	echo "Error $@"
 	exit 1
 }
-TEMPREPODIR=/home/lav/Projects/WINE/
+
+TEMPREPODIR=/srv/$USER/Projects
+
 
 cd $TEMPREPODIR/ || fatal
 
+REPO=git.office:/projects/eterhack.git
+if ! test -d eterhack ; then
+	git clone $REPO || fatal "can't clone $REPO"
+	git checkout -b eterhack origin/eterhack || fatal "can't checkout eterhack"
+	cd eterhack
+else
+	cd eterhack
+	git pull || fatal "can't pull"
+fi
+
+cd etersoft || fatal "can't cd"
+
+rpmpub wine-etersoft.spec
+
+cd /srv/$USER/Projects/git/korinf/bin-wine || cd /srv/$USER/Projects/korinf/bin-wine || fatal "can't CD"
+
+./wine-etersoft.sh test unstable
