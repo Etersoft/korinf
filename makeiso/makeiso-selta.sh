@@ -14,7 +14,7 @@ DATESTAMP=`date "+%Y%m%d"`
 
 # Path to hold ISOs
 PATHTOFTP=/var/local/iso
-WINENUMVERSION=1.0.6
+WINENUMVERSION=1.0.7
 PGVERSION=8.3
 
 SOURCE_PATH=/var/ftp/pub/Etersoft
@@ -38,7 +38,6 @@ makeiso()
 	mkisofs -v -V "SELTA@Etersoft $WINENUMVERSION" \
 	-p "Alexander, $DATESTAMP" \
 	-m "*MD5SUM*" \
-	-m "*distro.list*" \
 	-m "*/log/*" \
 	-publisher "Etersoft, selta@etersoft.ru" \
 	-sysid LINUX -o $PATHTOFTP/$FILENAME.building  -r -J -graft-points -quiet -f \
