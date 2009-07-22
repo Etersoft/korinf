@@ -84,6 +84,8 @@ for dist in $CMDRE ; do
 	# skip linked destination (TODO: do not handle it at all)
 	[ -L "$DESTDIR" ] && echo "$dist: Skip linked target" && continue
 
+	[ "$dist" = "Windows" ] && echo "Skip $dist" && continue
+
 	# FIXME: Hack
 	[ "$TARGETPRIVPATH" ] && DESTDIR=$TARGETPRIVPATH
 

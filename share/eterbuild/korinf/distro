@@ -47,6 +47,9 @@ prepare_filelist()
 build_dist_pkg()
 {
 case $dist_name in
+"Windows")
+	return 1;
+	;;
 "FreeBSD")
 	kormod build/freebsd
 	kormod build/rpm
