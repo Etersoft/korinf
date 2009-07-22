@@ -89,9 +89,9 @@ install_req()
 		"Mandriva")
 			CMD="urpmi --auto --no-verify-rpm $LISTPKG"
 			;;
-		"SUSE"|"NLD")
-			echo "?? yast -i \$PKGNAME?" || exit 1
-			CMD="yast2 -i $LISTPKG"
+		"SUSE")
+			echo "zypper install -f $PKGNAME" || exit 1
+			CMD="zypper install -f $LISTPKG"
 			;;
 		*)
 			echo "Skipping unknown DISTRVENDOR $DISTRVENDOR"
