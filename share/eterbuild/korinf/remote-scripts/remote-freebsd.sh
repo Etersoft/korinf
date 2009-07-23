@@ -27,7 +27,7 @@ PKGVERSION=$4
 
 INTUSER=builder
 
-WRKDIR=/var/tmp/korinfer/work-$PACKAGE/
+WRKDIR=/var/tmp/korinfer/work-$PACKAGE
 RPMDIR=/home/$INTUSER/RPM/RPMS
 
 mkdir -p $WRKDIR/ && cd $WRKDIR || fatal "Can't CD to $WRKDIR"
@@ -62,7 +62,7 @@ convert_bsd()
 	find -d * \! -type d | sort >> $WRKDIR/files
 	#set the internal directory pointer to /usr/local/
 	#echo '@cwd /usr/local' > $WRKDIR/+CONTENTS
-	cat $WRKDIR/files >> $WRKDIR/+CONTENTS
+	cat $WRKDIR/files > $WRKDIR/+CONTENTS
 	rm -f $WRKDIR/files
 
 	#add dirrm in +CONTENTS
