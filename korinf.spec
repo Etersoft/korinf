@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.8.2
+Version: 1.8.3
 Release: alt1
 
 Summary: Korinf build system
@@ -39,6 +39,12 @@ This package contains Korinf build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Fri Jul 24 2009 Vitaly Lipatov <lav@altlinux.ru> 1.8.3-alt1
+- korinf: do not use subdir by default
+- skip Windows build
+- copying: add apt repo generating after build
+- Author: Vitaly Lipatov <lav@etersoft.ru>
+
 * Mon Jul 20 2009 Vitaly Lipatov <lav@altlinux.ru> 1.8.2-alt1
 - bin/korinf: add support for build from spec (use rpmpub), add optional target support
 - common: add support for installed korinf and installed etersoft-build-utils
