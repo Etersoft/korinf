@@ -112,7 +112,7 @@ printHTMLURL()
 		let KSIZE=$FSIZE/1024
 		[ "$KSIZE" -lt "1" ] && KSIZE=1
 		echo -n "<li> "
-		echo "<a href=$DDIR/$FILE>$FILE</a>
+		echo "<a href=$DDIR/$FILE>$FILE</a>"
 		printf "([ %5d Кб])" $KSIZE
 		echo "</li>"
 	done

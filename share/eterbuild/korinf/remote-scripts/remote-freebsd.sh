@@ -99,6 +99,7 @@ clean_bsd()
 {
 	echo "Cleaning..."
 	rm -rf $WRKDIR
+	rm -rf $RPMDIR/../BUILD/${PACKAGE}
 }
 
 case $COMMAND in

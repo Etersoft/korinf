@@ -46,7 +46,10 @@ fi
 
 
 # Using arg 1 as rebuild list
-if [ -n "$2" ] ; then
+# if not "Package DIR"
+if [ -n "$2" ] && [ ! -d "$2" ]; then
+	# S/V Package DIR
+	# S/V Package
 	REBUILDLIST=$1
 	shift
 fi
@@ -61,6 +64,9 @@ else
 	ETERDESTSRPM=$BUILDFARMDIR
 fi
 
+# TODO: for BuildFarm we had packagename by default
+SUBDIR=
+
 # if package name
 if [ -n "${BUILDNAME/*.spec/}" ] ; then
 	# FIXME:
@@ -71,7 +77,7 @@ if [ -n "${BUILDNAME/*.spec/}" ] ; then
 			echo "Build $BUILDNAME according to distro.list from $ETERDESTSRPM"
 		fi
 	fi
-	build_project $ETERDESTSRPM "$BUILDNAME" $BUILDNAME $@
+	build_project $ETERDESTSRPM "$BUILDNAME" "$SUBDIR" $@
 	exit $?
 else
 	SPECNAME=$BUILDNAME
@@ -86,4 +92,5 @@ fi
 
 test -d "$ETERDESTSRPM" || fatal "You need run with exists dir to publish src.rpm project (I checked $ETERDESTSRPM, it is non exists)"
 
-build_project $ETERDESTSRPM/.. "$BUILDNAME" "" $@
+echo "Run with additional options: $@"
+build_project $ETERDESTSRPM/.. "$BUILDNAME" "$SUBDIR" $@
