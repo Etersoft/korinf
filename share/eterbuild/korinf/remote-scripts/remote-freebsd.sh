@@ -30,10 +30,6 @@ INTUSER=builder
 WRKDIR=/var/tmp/korinfer/work-$PACKAGE
 RPMDIR=/home/$INTUSER/RPM/RPMS
 
-# FIXME: %__nprocs in rpm-build-altlinux-compat
-export NPROCS=2
-
-
 mkdir -p $WRKDIR/ && cd $WRKDIR || fatal "Can't CD to $WRKDIR"
 
 build_bsd()
