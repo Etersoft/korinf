@@ -121,7 +121,7 @@ build_project()
 	fi
 
 	if [ "$1" = "-b" ] ; then
-		BUILDSTRAP=1
+		BOOTSTRAP=1
 		REBUILDPACKAGE=1
 		shift
 	fi
