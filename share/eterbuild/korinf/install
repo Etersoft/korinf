@@ -90,8 +90,8 @@ install_req()
 			CMD="urpmi --auto --no-verify-rpm $LISTPKG"
 			;;
 		"SUSE")
-			echo "zypper install -f $PKGNAME" || exit 1
-			CMD="zypper install -f $LISTPKG"
+			echo "zypper install $PKGNAME" || exit 1
+			CMD="yes | zypper install $LISTPKG"
 			;;
 		*)
 			echo "Skipping unknown DISTRVENDOR $DISTRVENDOR"
