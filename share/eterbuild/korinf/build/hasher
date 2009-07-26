@@ -121,8 +121,16 @@ fi
 				;;
 			SS)
 				NEEDEDKERNEL="kernel-headers-modules-std-srv kernel-headers-modules-ovz-rhel kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
+				if [ "$BUILDARCH" = "x86_64" ] ; then
+					# due 32-bit aksusbd
+					NEEDEDKERNEL="$NEEDEDKERNEL i586-glibc-pthread"
+				fi
 				;;
 		esac
+		if [ "$BUILDARCH" = "x86_64" ] ; then
+			# due 32-bit aksusbd
+			NEEDEDKERNEL="$NEEDEDKERNEL i586-glibc-core"
+		fi
 		# Add selected kernel requires
 		subst "1iBuildRequires: $NEEDEDKERNEL" $RPMDIR/SPECS/$BUILDNAME.spec
 	fi
