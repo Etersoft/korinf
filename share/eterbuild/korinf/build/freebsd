@@ -52,7 +52,7 @@ convert_bsd()
 	PREF="/mnt/$dist_name/$dist_ver"
 	TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$TARGETPKGDISTRO.tbz
 	#ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF su - $LOCUSER -c "/$FREEBSDPATH/remote-freebsd.sh convert $PACKAGE $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh convert $PACKAGE $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh convert $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
 }
 
 copying_bsd()
@@ -71,12 +71,12 @@ cleaning_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh clean $PACKAGE $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh clean $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
 }
 
 install_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh install $PACKAGE $TARGETPKG" || { warning "Can't install" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh install $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't install" ; return 1 ; }
 }

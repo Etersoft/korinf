@@ -21,9 +21,8 @@ COMMAND=$1
 PACKAGE=$2
 # build
 SRPMNAME=$3
-# convert, install, clean
-TARGETPKG=$3
-PKGVERSION=$4
+TARGETPKG=$4
+PKGVERSION=$5
 
 INTUSER=builder
 
@@ -31,6 +30,18 @@ WRKDIR=/var/tmp/korinfer/work-$PACKAGE
 RPMDIR=/home/$INTUSER/RPM/RPMS
 
 mkdir -p $WRKDIR/ && cd $WRKDIR || fatal "Can't CD to $WRKDIR"
+
+# copied from eterbuild/functions/rpm
+# build binary package list (1st - repo dir, 2st - pkgname)
+# algorithm: list all files in PKGDIR, print packages with our source pkg name
+get_binpkg_list()
+{
+	local PKGDIR=$1
+	local PKGNAME=$(basename $2)
+	find "$PKGDIR" ! -name '*\.src\.rpm' -name '*\.rpm' -execdir \
+		rpmquery -p --qf='%{sourcerpm}\t%{name}-%{version}-%{release}.%{arch}.rpm\n' "{}" \; \
+		| egrep "^$PKGNAME[[:space:]].*" | cut -f2 | xargs -n1 -I "{}" echo "$PKGDIR/{} "
+}
 
 build_bsd()
 {
@@ -43,45 +54,42 @@ build_bsd()
 
 convert_bsd()
 {
-	# FIXME: how to get build package name?
-	#PKGNAME=`querypackage "$SRPMNAME" NAME`
-	# FIXME: problem with various version
-	PKGNAME="$PACKAGE"
-	BUILTRPM=$(ls -1 $RPMDIR/*.rpm | grep $PKGNAME | tail -n1)
+	# get bin package list
+	BUILDRPMLIST=$(get_binpkg_list $RPMDIR $SRPMNAME)
 
-
-	PKGDESCR=`querypackage "$BUILTRPM" DESCRIPTION`
-	PKGCOMMENT=`querypackage "$BUILTRPM" SUMMARY`
+	# get package fields
+	PKGDESCR=`querypackage "$SRPMNAME" DESCRIPTION`
+	PKGCOMMENT=`querypackage "$SRPMNAME" SUMMARY`
+	# FIXME: get froup Group rpm field
 	PKGGROUP=emulators
 
+	rm -rf $WRKDIR/*
+	#mkdir pkgfiles && cd pkgfiles || fatal "error with subdir"
 	#get file hierarchy
-	rpm2cpio $BUILTRPM | cpio -dimv || fatal "error with rpm2cpio"
-	rm -f $BUILTRPM
+	for i in $BUILDRPMLIST ; do
+		rpm2cpio $i | cpio -dimv || fatal "error with rpm2cpio on $i"
+		rm -f $i
+	done
 
-	#make +CONTENTS file
-	find -d * \! -type d | sort >> $WRKDIR/files
-	#set the internal directory pointer to /usr/local/
-	#echo '@cwd /usr/local' > $WRKDIR/+CONTENTS
-	#echo '@cwd /' > $WRKDIR/+CONTENTS
-	cat $WRKDIR/files > $WRKDIR/+CONTENTS
-	rm -f $WRKDIR/files
+	# FIXME: it is broken way to save +FILES in $WRKDIR
+	# make +CONTENTS file
+	find ./ \! -type d | sed -e "s|^\./||g" | sort > $WRKDIR/+CONTENTS
 
 	#add dirrm in +CONTENTS
-	# check cwd!!!
 	cat $WRKDIR/+CONTENTS | xargs -n 1 dirname | sort -u | \
-		grep -v "^bin/$" | grep -v "^include/$" \
+		grep -v "^bin/$" | grep -v "^include/$" | \
 		grep -v "^/etc/rpm$" | grep -v "^/usr/local/bin$" \
-		> $WRKDIR/dirs
-	cat $WRKDIR/dirs | sed "s|\(.*\)|@dirrm \1|g" >> $WRKDIR/+CONTENTS
-	rm -f $WRKDIR/dirs
+			| sed "s|\(.*\)|@dirrm \1|g" >> $WRKDIR/+CONTENTS
 
 	#make +COMMENT and +DESC files
 	echo $PKGCOMMENT > $WRKDIR/+COMMENT
 	echo $PKGDESCR > $WRKDIR/+DESC
 
 	# create package with the PACKAGE name (not src.rpm name)
-	rm -f ../$TARGETPKG
-	pkg_create -v -s $WRKDIR -p/ -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS ../$TARGETPKG || fatal
+	rm -f $WRKDIR/../$TARGETPKG
+	ls -l
+	# Note: it is value have the full path for -s args
+	pkg_create -v -s $WRKDIR -p/ -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS $WRKDIR/../$TARGETPKG || fatal "Can't create package"
 	cd -
 }
 
