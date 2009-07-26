@@ -111,16 +111,16 @@ fi
 				NEEDEDKERNEL="$NEEDEDKERNEL kernel-headers-modules-std26-up = 2.6.12-alt6 kernel-headers-modules-std26-smp = 2.6.12-alt6"
 				;;
 			M40)
-				NEEDEDKERNEL="kernel-headers-modules-std-smp kernel-headers-modules-std-pae kernel-headers-modules-ovz-smp kernel-headers-modules-wks-smp"
+				NEEDEDKERNEL="kernel-headers-modules-std-smp kernel-headers-modules-ovz-smp kernel-headers-modules-wks-smp"
 				;;
 			M41)
-				NEEDEDKERNEL="kernel-headers-modules-std-smp kernel-headers-modules-std-pae kernel-headers-modules-ovz-smp"
+				NEEDEDKERNEL="kernel-headers-modules-std-smp kernel-headers-modules-ovz-smp"
 				;;
 			M50)
-				NEEDEDKERNEL="kernel-headers-modules-std-pae kernel-headers-modules-std-srv kernel-headers-modules-ovz-rhel kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
+				NEEDEDKERNEL="kernel-headers-modules-std-srv kernel-headers-modules-ovz-rhel kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
 				;;
 			SS)
-				NEEDEDKERNEL="kernel-headers-modules-std-pae kernel-headers-modules-std-srv kernel-headers-modules-ovz-rhel kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
+				NEEDEDKERNEL="kernel-headers-modules-std-srv kernel-headers-modules-ovz-rhel kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
 				;;
 		esac
 		# Add selected kernel requires
