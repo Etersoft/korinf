@@ -67,7 +67,7 @@ fi
 # TODO: for BuildFarm we had packagename by default
 SUBDIR=
 
-# if package name
+# if package name, not spec
 if [ -n "${BUILDNAME/*.spec/}" ] ; then
 	# FIXME:
 	# For build farm check global distro.list before build for all
@@ -82,7 +82,7 @@ if [ -n "${BUILDNAME/*.spec/}" ] ; then
 else
 	SPECNAME=$BUILDNAME
 	BUILDNAME=$(eval_spec $SPECNAME | get_var "Name")
-	rpmpub $ALPHAARG $SPECNAME || exit 1
+	rpmpub $ALPHAARG $SPECNAME $ETERDESTSRPM || exit 1
 fi
 
 # Build from spec (if default BuildFarm, get from spec)
