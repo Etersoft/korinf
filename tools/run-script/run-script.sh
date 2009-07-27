@@ -25,7 +25,8 @@
 ##
 
 # load common functions, compatible with local and installed script
-. `dirname $0`/../../share/eterbuild/korinf/common
+#. `dirname $0`/../../share/eterbuild/korinf/common
+. /usr/share/eterbuild/korinf/common
 
 SUDO="sudo"
 if [ $UID = "0" ]; then
@@ -34,7 +35,7 @@ fi
 
 print_distro()
 {
-	( cd /net/os/stable/$1 ; find -L -maxdepth 2 -mindepth 2 -type d | sed -e "s|^./||" | sort | grep -v Windows )
+	( cd /net/os/stable ; find -L ./$1 -maxdepth 2 -mindepth 2 -type d | sed -e "s|^./||" | sort | grep -v Windows | sed -e "s|^i586/||g" )
 }
 
 
@@ -65,6 +66,7 @@ echo
 echo
 echo "==================================="
 echo "Chrooting in $SYS system with $BUILDARCH arch"
+# FIXME: why not DEFAULTARCH?
 REALARCH=$(uname -m)
 [ "$REALARCH" = "i686" ] && REALARCH="i586"
 if [ "$REALARCH" != "$BUILDARCH" ] ; then
@@ -95,7 +97,7 @@ TASK=$1
 if [ -n "$2" ] ; then
 	DISTR_LIST="$2"
 else
-	DISTR_LIST=`print_distro i586 ; print_distro x86_64`
+	DISTR_LIST=`print_distro $DEFAULTARCH`
 fi
 
 for SYS in $DISTR_LIST ; do
