@@ -7,10 +7,11 @@
 
 [ -n "$1" ] && VERSION=$1 || VERSION=last
 NAME=$WINEPUB_PATH/$VERSION
+PACKAGENAME=wine-etersoft
 
 for n in $(get_distro_list $NAME) ; do
 	echo
-	FILE=$NAME/WINE/$n/log/wine.log.bz2
+	FILE=$NAME/WINE/$n/log/$PACKAGENAME.log.bz2
 	echo "$n: (`stat -c "%y" $FILE`)"
 	bzcat $FILE | grep "configure:" | grep development | grep found | sed -e "s|^configure:|          |g"
 done
