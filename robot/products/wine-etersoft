@@ -143,7 +143,7 @@ ${DEAR} ${NAME}!
 Ссылки для скачивания файлов Продукта находятся здесь:
 ${DOWNLOADDIR/ftp/http}/$TYPE-$PROJECTVERSION/$DIST/download.html
 
-По вопросам использования продукта пишите на support@etersoft, указав
+По вопросам использования продукта пишите на support@etersoft.ru, указав
 в ТЕМЕ (Subject) письма регистрационный номер.
 
 Пожалуйста, отвечайте на это письмо только
@@ -233,7 +233,7 @@ http://wiki.etersoft.ru/WINE/knownbugs
 
 Ответы на частые вопросы смотрите на <a href=http://etersoft.ru/wine/faq>http://etersoft.ru/wine/faq</a>.
 
-По вопросам использования продукта пишите <a href="mailto:support@etersoft">в службу поддержки</a>, указав
+По вопросам использования продукта пишите <a href="mailto:support@etersoft.ru">в службу поддержки</a>, указав
 в ТЕМЕ (Subject) письма регистрационный номер ${ETERREGNUM}.
 
 $THANKTEXT
@@ -329,7 +329,7 @@ http://wiki.etersoft.ru/WINE/knownbugs
 
 Ответы на основные вопросы смотрите на http://etersoft.ru/wine/faq
 
-По вопросам использования продукта пишите на support@etersoft, указав
+По вопросам использования продукта пишите на support@etersoft.ru, указав
 в ТЕМЕ (Subject) письма регистрационный номер.
 
 Пожалуйста, отвечайте на это письмо только
