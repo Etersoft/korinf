@@ -61,6 +61,9 @@ if echo $SYS | grep x86_64 >/dev/null ; then
 else
     BUILDARCH="i586"
 fi
+echo
+echo
+echo "==================================="
 echo "Chrooting in $SYS system with $BUILDARCH arch"
 REALARCH=$(uname -m)
 [ "$REALARCH" = "i686" ] && REALARCH="i586"
@@ -96,7 +99,7 @@ else
 fi
 
 for SYS in $DISTR_LIST ; do
-    echo $SYS
+    #echo $SYS
     cp -af scripts/$TASK $LOCALLINUXFARM/$SYS/tmp/remote-script.sh || continue
     chroot_in /tmp/remote-script.sh
 done
