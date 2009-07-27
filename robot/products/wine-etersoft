@@ -49,12 +49,17 @@ prepare_wine_etersoft()
 
 	check_and_refresh_package_wine $PVTLOCAL/$DIST wine-etersoft-${PRODUCT_name}
 	check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST wine-etersoft
-	check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST haspd
-	if [ "$TYPE" != "Local" ] ; then
-		#check_and_refresh_package_wine $PUBLOCAL/CIFS/$DIST etercifs
-		check_and_refresh_component bin-common $PUBLOCAL/CIFS/$DIST etercifs
+
+	# skip on FreeBSD
+	if ! echo "$DIST" | grep -q "FreeBSD" ; then
+		check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST haspd
+
+		if [ "$TYPE" != "Local" ] ; then
+			#check_and_refresh_package_wine $PUBLOCAL/CIFS/$DIST etercifs
+			check_and_refresh_component bin-common $PUBLOCAL/CIFS/$DIST etercifs
+		fi
+		#check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST fonts-ttf-liberation
 	fi
-	#check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST fonts-ttf-liberation
 
 	# Get file list
 	PRIVFILES=`find -L $PVTLOCAL/$DIST -maxdepth 1 -type f`
@@ -83,14 +88,19 @@ prepare_wine_etersoft()
 
 	# Check package files
 	check_package $FTPDIR wine-etersoft
-	check_package $FTPDIR haspd
-	check_package $FTPDIR haspd-modules
+
+	# skip on FreeBSD
+	if ! echo "$DIST" | grep -q "FreeBSD" ; then
+		check_package $FTPDIR haspd
+		check_package $FTPDIR haspd-modules
+		if [ "$TYPE" != "Local" ] ; then
+			check_package $FTPDIR etercifs
+		fi
+	fi
+
 	check_package $FTPDIR wine-etersoft-${PRODUCT_name}
 	check_package $FTPDIR fonts-ttf-liberation
 
-	if [ "$TYPE" != "Local" ] ; then
-		check_package $FTPDIR etercifs
-	fi
 
 	# вставить номер в readme и в каталог
 	DOCS=$PVTLOCAL/../docs
