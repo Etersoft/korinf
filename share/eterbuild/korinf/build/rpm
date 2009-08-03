@@ -67,8 +67,6 @@ build_rpms()
 {
 	local dist=$1
 
-	set_target_var || return 1
-
 	# create needed files in home directory
 	init_home
 	INTBUILT=/home/$INTUSER/$RPMSDIR
@@ -120,11 +118,6 @@ convert_by_target()
 		fakeroot alien --keep-version --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with tgz"; RES=1 ; }
 		for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tgz ; done
 		;;
-	"tar.gz")
-		# ArchLinux
-		fakeroot alien --keep-version --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tar.gz"; RES=11 ; }
-		for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tar.gz ; done
-		;;
 	*)
 		fatal "unknown $TARGET"
 	esac
@@ -149,6 +142,10 @@ convert_rpm()
 				cat "$i" | gunzip -c | bzip -c > "$TARBNAME-$RELPKG.tar.bz2" || { warning "can't repack files" ; RES=11 ; }
 				rm -f "$i"
 			done
+			;;
+		"archlinux")
+			# ArchLinux
+			convert_archlinux
 			;;
 		*)
 			convert_by_target

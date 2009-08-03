@@ -57,7 +57,9 @@ case $dist_name in
 	BUILDERHOME=~/tmp/korinfer
 	BUILDROOT=~/tmp/korinfer
 	mkdir -p $BUILDERHOME $BUILDROOT
-	logit "convert src.rpm to $dist" convert_rpm_to_target $dist || return 1
+	set_target_var || return 1
+
+	logit "convert src.rpm to target $TARGETPKGDISTRO" convert_rpm_to_target $dist || return 1
 	logit "build $dist" build_bsd $dist || return 1
 	#logit "build in FreeBSD $dist_ver" build_bsd || return 1
 	logit "convert RPM to $TARGET" convert_bsd || return 1
@@ -74,49 +76,8 @@ case $dist_name in
 	logit "copying built packages to $dist" copying_solaris || return 1
 	logit "cleaning" cleaning_solaris || return 1
 	;;
-# Build in generic way
-"GentooNO")
-	kormod build/gentoo
-	kormod build/rpm
-	case $dist_ver in
-	    "2007")
-		logit "mount $dist" mount_linux
-		logit "build $dist" build_rpms $dist || return 1
-		logit "convert RPM to tar" convert_gentoo || return 1
-		prepare_filelist
-		logit "copying built packages to $dist" copying_packages || return 1
-		logit "cleaning in Gentoo $dist_ver" clean_gentoo2007 || return 1
-		logit "umount" end_umount || return 1
-		;;
 
-	    "2006.1")
-		logit "mount $dist" mount_linux || continue
-		logit "build in Gentoo $dist_ver" build_emerge || return 1
-		prepare_filelist
-		logit "copying built packages to $dist" copying_emerge || return 1
-		logit "umount" end_umount || return 1
-		;;
-	esac
-	;;
-
-"ArchLinux")
-	kormod build/archlinux
-	kormod build/rpm
-	logit "mount $dist" mount_linux || return 1
-	logit "convert src.rpm to $dist" convert_rpm_to_target $dist || return 1
-	logit "build $dist" build_rpms $dist || return 1
-	logit "convert RPM to $TARGET" convert_archlinux || return 1
-	prepare_filelist
-
-	if [ -n "$BOOTSTRAP" ] ; then
-		logit "install built" install_built || return 1
-	fi
-
-	#logit "copying built packages to $dist" copying_pkgbuild || return 1
-	logit "copying built packages to $dist" copying_packages || return 1
-	logit "umount" end_umount || return 1
-	;;
-
+# build in hasher
 "ALTLinux")
 	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
 		logit "install requires" SKIPPED
@@ -128,9 +89,13 @@ case $dist_name in
 	logit "copying built packages to $dist" copying_packages || return 1
 	;;
 
+# Generic way
 *)
+	kormod build/archlinux
 	kormod build/rpm
 	logit "mount root dir" mount_linux || return 1
+	set_target_var || return 1
+
 	logit "convert src.rpm to target $TARGETPKGDISTRO" convert_rpm_to_target $dist || return 1
 
 	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
