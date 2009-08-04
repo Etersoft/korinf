@@ -101,7 +101,7 @@ else
 
 			#(
 			#flock 200
-			TASKTORUN=`find $TASKDIR -maxdepth 1 -name "*.task" | head -n1`
+			TASKTORUN=`find $TASKDIR -maxdepth 1 -name "*.task" | sort | head -n1`
 			if [ -e "$TASKTORUN" ] ; then
 				$AROBOT/arobot.sh --real $TASKTORUN 2>&1 #>> $ALOGDIR/autobuild.task.log
 			fi
