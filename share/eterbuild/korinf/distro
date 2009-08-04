@@ -25,9 +25,10 @@
 # Internal: printout args with add *.$TARGET
 expand_filelist()
 {
+        [ -n"$TARGET" ] || fatal "TARGET is empty"
         declare -a ar
         ar=( $@ )
-	#[ -z "$1" ] && return
+        #[ -z "$1" ] && return
         for i in `seq 0 $(( ${#ar[@]} - 1))`; do
                 echo -n "${ar[i]}*.$TARGET "
         done
