@@ -88,7 +88,8 @@ printURL()
 		FSIZE=`stat "--printf=%s" $LDIR/$FILE || echo 0`
 		let KSIZE=$FSIZE/1024
 		[ "$KSIZE" -lt "1" ] && KSIZE=1
-		printf "[ %5d Кб]  " $KSIZE
+		# disable size print for clean link
+		#printf "[ %5d Кб]  " $KSIZE
 		echo $DDIR/$FILE
 	done
 	return 0

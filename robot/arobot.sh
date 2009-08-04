@@ -62,7 +62,7 @@ load_task "$1"
 
 PWGEN=`pwgen 10 1`
 [ -n "$PWGEN" ] || fatal "Can't get pwgen output"
-TARGETDIRNAME=$ETERREGNUM-$PWGEN
+TARGETDIRNAME=${ETERREGNUM/-*/}-$PWGEN
 
 if [ "$REALRUN" = "--real" ] && [ ! -f $0.debug ] ; then
 	FULLMAILTO="\"$FULLNAME\" <$MAILTO>"
