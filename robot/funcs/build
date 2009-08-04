@@ -96,6 +96,12 @@ check_and_refresh_component()
 	local SOURCEPATH="$(get_rpm_sources "$TARGETPATH")"
 	# haspd
 	local BUILDNAME=$3
+	local PRVERSION=$4
+
+	if [ -z "$PRVERSION" ] ; then
+		# get PROJECT version from SOURCEPATH
+		PRVERSION=$(basename $(dirname $SOURCEPATH) )
+	fi
 
 	test -d "$SOURCEPATH" || fatal "Source path $SOURCEPATH is not exists (run with incorrect target path $TARGETPATH)"
 	test -d "$TARGETPATH" || fatal "Target path $TARGETPATH is not exists"
@@ -113,7 +119,7 @@ check_and_refresh_component()
 
 	[ -r "$TARGETPATH/log/$BUILDNAME.autobuild.failed" ] && fatal "Package $BUILDNAME need rebuild from $SRCRPM, but already was failed"
 
-	$AROBOTDIR/../$BUILDSCRIPT/$BUILDNAME.sh $DIST $PROJECTVERSION && return 0
+	$AROBOTDIR/../$BUILDSCRIPT/$BUILDNAME.sh $DIST $PRVERSION && return 0
 
 	touch $TARGETPATH/log/$BUILDNAME.autobuild.failed
 	fatal "Package $BUILDNAME cannot rebuild from $SRCRPM"
