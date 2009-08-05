@@ -39,7 +39,12 @@ copy_to()
 	add_and_remove "$WINEETER_PATH/$PROJECTVERSION/WINE-Network/$1" wine-etersoft-network
 	add_and_remove "$WINEETER_PATH/$PROJECTVERSION/WINE-Local/$1" wine-etersoft-local
 
+	FPU="$WINEPUB_PATH/$PROJECTVERSION/CIFS/$1"
+	TP="$2/noarch/RPMS.addon"
+	add_and_remove "$FPU" etercifs
+
 	genbasedir -v --topdir=$2 i586 nonfree
+	genbasedir -v --topdir=$2 noarch nonfree
 }
 
 copy_to ALTLinux/4.1 /var/ftp/pub/Etersoft/LINUX@Etersoft/4.1/branch
