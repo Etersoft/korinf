@@ -60,8 +60,6 @@ shift
 if [ -n "$1" ] ; then
 	ETERDESTSRPM=$1
 	shift
-else
-	ETERDESTSRPM=$BUILDFARMDIR
 fi
 
 # TODO: for BuildFarm we had packagename by default
@@ -69,6 +67,7 @@ SUBDIR=
 
 # if package name, not spec
 if [ -n "${BUILDNAME/*.spec/}" ] ; then
+	[ -n "$1" ] || ETERDESTSRPM=$BUILDFARMDIR
 	# FIXME:
 	# For build farm check global distro.list before build for all
 	if [ "$REBUILDLIST" = "$KORINFETC/lists/all" ] ; then
@@ -81,6 +80,10 @@ if [ -n "${BUILDNAME/*.spec/}" ] ; then
 	exit $?
 else
 	SPECNAME=$BUILDNAME
+	ETERDESTSRPM=$(get_etersoft_srpm_path $SPECNAME "$ALPHA")
+	if [ ! -d "$ETERDESTSRPM" ] ; then
+		ETERDESTSRPM=$BUILDFARMDIR
+	fi
 	BUILDNAME=$(eval_spec $SPECNAME | get_var "Name")
 	rpmpub $ALPHAARG $SPECNAME $ETERDESTSRPM || exit 1
 fi
