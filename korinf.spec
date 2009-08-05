@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.8.3
+Version: 1.8.4
 Release: alt1
 
 Summary: Korinf build system
@@ -16,7 +16,7 @@ Source: %name-%version.tar
 
 BuildArchitectures: noarch
 
-Requires: etersoft-build-utils >= 1.6.3
+Requires: etersoft-build-utils >= 1.6.6
 
 %description
 This package contains Korinf build system.
@@ -40,6 +40,14 @@ This package contains Korinf build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Wed Aug 05 2009 Vitaly Lipatov <lav@altlinux.ru> 1.8.4-alt1
+- build Gentoo and ArchLinux in generic way, fix TARGET vars setting
+- add new scripts for run task in all OSes
+- rewrite build freebsd scripts
+- korinf: add -b param (buildstrap build enable)
+- add korlogin script to log in the chroot system
+- small improvements
+
 * Fri Jul 24 2009 Vitaly Lipatov <lav@altlinux.ru> 1.8.3-alt1
 - korinf: do not use subdir by default
 - skip Windows build
