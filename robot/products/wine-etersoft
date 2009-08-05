@@ -314,10 +314,6 @@ EOF
 	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" $FTPDIR/WINE-ETERSOFT.LIC >>$FILETO || fatal "Error with WINE-ETERSOFT.LIC "
 	cat >>$FILETO <<EOF
 
-ОБРАТИТЕ ВНИМАНИЕ!
-Пакеты wine надо устанавливать одновременной, одной командой оба пакета
-wine-etersoft и wine-etersoft-$PRODUCT_name.
-
 Для полного соответствия шрифтов в программах
 можно скачать и установить пакет fonts-ttf-ms,
 содержащий шрифты MS Core Fonts:
