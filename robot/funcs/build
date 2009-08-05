@@ -65,8 +65,8 @@ check_and_refresh_package_wine()
 	# haspd
 	local BUILDNAME=$2
 
-	test -d "$SOURCEPATH" || fatal "Source path '$SOURCEPATH' is not exists (possibly run with incorrect target path $TARGETPATH)"
-	test -d "$TARGETPATH" || fatal "Target path '$TARGETPATH' is not exists"
+	test -d "$SOURCEPATH" || fatal "WINE: Source path '$SOURCEPATH' is not exists (possibly run with incorrect target path $TARGETPATH)"
+	test -d "$TARGETPATH" || fatal "WINE: Target path '$TARGETPATH' is not exists"
 
 	# FIXMEP get_..._package always returns true
 	local SRCRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME)
