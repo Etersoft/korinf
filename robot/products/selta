@@ -106,8 +106,8 @@ build_selta()
 	else
 		PGVERSION="8.3"
 	fi
-	PGLOCAL="/var/ftp/pub/Etersoft/PostgreSQL/$PGVERSION"
-	PGDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/PostgreSQL/$PGVERSION"
+	PGLOCAL="/var/ftp/pub/Etersoft/Postgres@Etersoft/$PGVERSION"
+	PGDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/Postgres@Etersoft/$PGVERSION"
 
 	TARGETDIR=/var/ftp/pub/download/SELTA@Etersoft/$TARGETDIRNAME
 	DOWNLOADDIR="http://updates.etersoft.ru/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
