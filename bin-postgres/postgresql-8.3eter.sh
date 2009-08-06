@@ -11,7 +11,7 @@ kormod korinf
 major=8.3
 pname=postgresql
 pnamever=${pname}-${major}eter
-POSTGRESDIR=/var/ftp/pub/Etersoft/PostgreSQL/
+POSTGRESDIR=/var/ftp/pub/Etersoft/Postgres@Etersoft/
 
 export MAINFILES="${pnamever}[-_][0-9] ${pnamever}-contrib[-_][0-9] ${pnamever}-libs[-_][0-9] ${pnamever}-server[-_][0-9]"
 export EXTRAFILES="${pnamever}-devel[-_][0-9] ${pnamever}-docs[-_][0-9] ${pnamever}-plperl[-_][0-9] ${pnamever}-plpython[-_][0-9] ${pnamever}-test[-_][0-9]"
