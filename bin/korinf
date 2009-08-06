@@ -80,9 +80,11 @@ if [ -n "${BUILDNAME/*.spec/}" ] ; then
 	exit $?
 else
 	SPECNAME=$BUILDNAME
-	ETERDESTSRPM=$(get_etersoft_srpm_path $SPECNAME "$ALPHA")
-	if [ ! -d "$ETERDESTSRPM" ] ; then
-		ETERDESTSRPM=$BUILDFARMDIR
+	if [ -z "$ETERDESTSRPM" ] ; then
+		ETERDESTSRPM=$(get_etersoft_srpm_path $SPECNAME "$ALPHA")
+		if [ ! -d "$ETERDESTSRPM" ] ; then
+			ETERDESTSRPM=$BUILDFARMDIR
+		fi
 	fi
 	BUILDNAME=$(eval_spec $SPECNAME | get_var "Name")
 	rpmpub $ALPHAARG $SPECNAME $ETERDESTSRPM || exit 1
