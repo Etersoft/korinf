@@ -1,0 +1,9 @@
+robot/dsa/selta.dsa
+robot/dsa/wine-etersoft.dsa
+/log
+*~
+
+robot/test/test.lic
+robot/test/try.task.broken
+robot/test/try.task.failed
+robot/try.task
