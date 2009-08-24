@@ -93,6 +93,7 @@ case $dist_name in
 # Generic way
 *)
 	kormod build/archlinux
+	kormod build/gentoo
 	kormod build/rpm
 	logit "mount root dir" mount_linux || return 1
 	set_target_var || return 1
