@@ -7,7 +7,7 @@
 # positional parameters
 COMMAND=$1
 PACKAGE="$2"
-ETERREGNUM="$3"
+RPMSDIR="$3"
 SOURCEURL="$4"
 
 GROUP=app-emulation
@@ -23,12 +23,19 @@ fatal()
         exit 1
 }
 
+
+build_gentoo()
+{
+        RPMBUILDNODEPS="--nodeps"
+        RPMBUILDROOT="/home/$INTUSER/RPM/BUILD/$PACKAGE-$PKGVERSION"
+        # FIXME: x86_64 support
+        BUILDARCH=i586
+        rpmbuild -v --rebuild $RPMBUILDNODEPS --buildroot $RPMBUILDROOT $SRPMNAME --target $BUILDARCH
+}
+
 #convert to tar.gz
 convert_gentoo()
 {
-PACKAGE="$1"
-RPMSDIR="$3"
-
 LOCUSER=korinfer
 BUILDERHOME=/home/$LOCUSER
 #PORTAGEDIR=/usr/local/portage
@@ -43,15 +50,6 @@ rpm2targz *$BUILDNAME*
 rm -f *$PACKAGE*.rpm
 
 exit 0
-}
-
-build_gentoo()
-{
-        RPMBUILDNODEPS="--nodeps"
-        RPMBUILDROOT="/home/$INTUSER/RPM/BUILD/$PACKAGE-$PKGVERSION"
-        # FIXME: x86_64 support
-        BUILDARCH=i586
-        rpmbuild -v --rebuild $RPMBUILDNODEPS --buildroot $RPMBUILDROOT $SRPMNAME --target $BUILDARCH
 }
 
 gen_ebuild()
