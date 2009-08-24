@@ -136,12 +136,15 @@ convert_rpm()
 	case $TARGETPKGDISTRO in
 		"gentoo")
 			# Gentoo
+			echo "Using alien now"
 			fakeroot alien --keep-version --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tbz2"; RES=11 ; }
 			for i in *${BUILDNAME}*.tgz ; do
 				local TARBNAME=`basename $i .tgz`
 				cat "$i" | gunzip -c | bzip -c > "$TARBNAME-$RELPKG.tar.bz2" || { warning "can't repack files" ; RES=11 ; }
 				rm -f "$i"
 			done
+			echo "Generate ebuild"
+			gen_ebuild
 			;;
 		"archlinux")
 			# ArchLinux
