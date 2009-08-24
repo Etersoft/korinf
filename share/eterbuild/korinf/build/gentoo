@@ -26,14 +26,14 @@
 
 # TODO: user dist_ver
 
-convert_gentoo()
+gen_ebuild()
 {
 	#BUILDCMD should be "targz" or "tgz"
 	local BUILDCMD=targz
 	local RET
         echo "Copying to $BUILDROOT/tmp"
-        cp -f  $KORINFDIR/korinf/remote-scripts/remote-gentoo-$BUILDCMD.sh $BUILDROOT/tmp || { warning "Cannot copy script" ; return 1 ; }
-        $SUDO chroot $BUILDROOT su -l -c "sh -x /tmp/remote-gentoo-$BUILDCMD.sh \"$PACKAGE\" \"$BUILDNAME\" $RPMSDIR" korinfer
+        cp -f  $KORINFDIR/korinf/remote-scripts/remote-gentoo-test.sh $BUILDROOT/tmp || { warning "Cannot copy script" ; return 1 ; }
+        $SUDO chroot $BUILDROOT su -l -c "sh -x /tmp/remote-gentoo-test.sh generate \"$PACKAGE\" \"$BUILDNAME\" $RPMSDIR" korinfer
 	TARGET=tar.gz
         RET=$?
         if [ $RET != 0 ] ; then
