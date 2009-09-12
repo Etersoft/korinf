@@ -9,6 +9,7 @@ COMMAND=$1
 PACKAGE="$2"
 #RPMSDIR="$3"
 SOURCEURL="$3"
+DESTURL="$5"
 
 GROUP=app-emulation
 
@@ -74,14 +75,14 @@ gen_ebuild()
 	echo "# Distributed under the terms of the GNU General Public License v2" >> $EBUILDFILE
 	echo '# $Header: $' >> $EBUILDFILE
 
-        DESCRIPTION=`querypackage "$BUILTRPM" DESCRIPTION`
+        DESCRIPTION=`querypackage "$BUILTRPM" SUMMARY`
 	echo "DESCRIPTION=$DESCRIPTION" >> $EBUILDFILE
 	HOMEPAGE=`querypackage "$BUILTRPM" URL`
 	echo "HOMEPAGE=$HOMEPAGE" >> $EBUILDFILE
 
 	#FIXME: how to define SRC_URI
 	TARGET="tar.bz2"
-	SRC_URI="http://updates.etersoft.ru/pub/Etersoft/$PRODUCT/last/\${P}.${TARGET}"
+	SRC_URI="$DESTURL/\${P}.${TARGET}"
 	echo "SRC_URI=$SRC_URI" >> $EBUILDFILE
 	LICENSE=`querypackage "$BUILTRPM" LICENSE`
 	echo "LICENSE=$LICENSE" >> $EBUILDFILE
