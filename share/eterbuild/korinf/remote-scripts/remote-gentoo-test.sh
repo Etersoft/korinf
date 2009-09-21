@@ -99,6 +99,9 @@ gen_ebuild()
 
 	cp $EBUILDFILE $RPMSDIR
 
+# delete built RPM
+	rm -rf $BUILTRPM
+
         #get file hierarchy
 #	cp $BUILTRPM ${WORKDIR}/${PACKAGE}
 #        rpm2cpio $BUILTRPM | cpio -dimv || fatal "error with rpm2cpio"
