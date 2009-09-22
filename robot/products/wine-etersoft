@@ -132,8 +132,11 @@ CIFSTEXT=""
 if [ "$TYPE" != "Local" ] ; then
 CIFSTEXT="
 Для обеспечения взаимодействия по протоколу CIFS с сервером
-SAMBA - пакет с модулем ядра Linux CIFS:
+SAMBA или Windows Server - пакет с модулем ядра Linux CIFS:
 	$PUBDOWNLOAD1CIFS
+
+Убедительная просьба не устанавливать пакет dkms-etercifs, если Вы
+не уверены, что он нужен.
 "
 fi
 
