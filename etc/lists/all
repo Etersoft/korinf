@@ -6,6 +6,7 @@
 . bsd
 . rem
 . x86_64
+. solaris
 
 # We need it for SELTA
 Windows
