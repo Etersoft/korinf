@@ -9,6 +9,7 @@ COMMAND=$1
 PACKAGE="$2"
 #RPMSDIR="$3"
 SOURCEURL="$3"
+DESTURL="$5"
 
 GROUP=app-emulation
 
@@ -60,42 +61,46 @@ gen_ebuild()
 	LOCUSER=korinfer
 	WORKDIR=/home/$LOCUSER/tmp
 	RPMSDIR=/home/$LOCUSER/RPM/RPMS
-	EBUILDFILE=${WORKDIR}/${PACKAGE}.ebuild
-	export $EBUILDFILE
         BUILTRPM=$(ls -1 $RPMSDIR/*.rpm | grep $PACKAGE | tail -n1)
-
 
 	mkdir -p $WORKDIR
 	cd $WORKDIR
+
+	EBUILDVERSION=`querypackage "$BUILTRPM" VERSION`
+	EBUILDRELEASE=`querypackage "$BUILTRPM" RELEASE`
+	EBUILDFILE=${WORKDIR}/${PACKAGE}-${EBUILDVERSION}-${EBUILDRELEASE}.ebuild
+	export $EBUILDFILE
 
 	echo "# Copyright 1999-2007 Gentoo Foundation" > $EBUILDFILE
 	echo "# Distributed under the terms of the GNU General Public License v2" >> $EBUILDFILE
 	echo '# $Header: $' >> $EBUILDFILE
 
-        DESCRIPTION=`querypackage "$BUILTRPM" DESCRIPTION`
+        DESCRIPTION=`querypackage "$BUILTRPM" SUMMARY`
 	echo "DESCRIPTION=$DESCRIPTION" >> $EBUILDFILE
 	HOMEPAGE=`querypackage "$BUILTRPM" URL`
 	echo "HOMEPAGE=$HOMEPAGE" >> $EBUILDFILE
 
 	#FIXME: how to define SRC_URI
-	SRC_URI="http://updates.etersoft.ru/pub/Etersoft/"
+	TARGET="tar.bz2"
+	SRC_URI="$DESTURL/\${P}.${TARGET}"
 	echo "SRC_URI=$SRC_URI" >> $EBUILDFILE
 	LICENSE=`querypackage "$BUILTRPM" LICENSE`
 	echo "LICENSE=$LICENSE" >> $EBUILDFILE
 	echo 'SLOT="0"' >> $EBUILDFILE
 	echo 'KEYWORDS="-* x86 amd64"' >> $EBUILDFILE
+	echo >> $EBUILDFILE
 	echo "src_unpack() {" >> $EBUILDFILE
 	echo 'unpack ${A}' >> $EBUILDFILE
 	echo "}" >> $EBUILDFILE
 	echo >> $EBUILDFILE
 	echo "src_install() {" >> $EBUILDFILE
-	echo "cp -R "${WORKDIR}/${PACKAGE}" "${D}"" >> $EBUILDFILE
+	echo 'cp -pR "${WORKDIR}" "${D}"' >> $EBUILDFILE
 	echo "}" >> $EBUILDFILE
 
-	echo
-	cat $EBUILDFILE
-	echo
 	cp $EBUILDFILE $RPMSDIR
+
+# delete built RPM
+	rm -rf $BUILTRPM
 
         #get file hierarchy
 #	cp $BUILTRPM ${WORKDIR}/${PACKAGE}
