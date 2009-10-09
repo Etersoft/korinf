@@ -1,0 +1,3 @@
+#!/bin/sh
+# Hack for dpkg-architecture (it detects Arch via gcc -dumpmachine)
+echo $BUILDARCH-alt-linux
