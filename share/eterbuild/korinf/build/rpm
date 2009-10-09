@@ -104,6 +104,11 @@ build_rpms()
 }
 
 
+run_alien()
+{
+	BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version --scripts --veryverbose $@
+}
+
 convert_by_target()
 {
 	local RELPKG=$PACKAGERELEASE$TARGETPKGDISTRO
@@ -111,11 +116,11 @@ convert_by_target()
 	case $TARGET in
 	"deb")
 		# Debian/Ubuntu
-		fakeroot setarch $BUILDARCH alien --keep-version --scripts --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with deb"; RES=1 ; }
+		run_alien --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with deb"; RES=1 ; }
 		;;
 	"tgz")
 		# Slackware
-		fakeroot alien --keep-version --veryverbose --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with tgz"; RES=1 ; }
+		run_alien --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with tgz"; RES=1 ; }
 		for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tgz ; done
 		;;
 	*)
@@ -137,7 +142,7 @@ convert_rpm()
 		"gentoo")
 			# Gentoo
 			echo "Using alien now"
-			fakeroot alien --keep-version --veryverbose --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tbz2"; RES=11 ; }
+			run_alien --to-tgz *${BUILDNAME}*.rpm || { warning "alien problem with tbz2"; RES=11 ; }
 			for i in *${BUILDNAME}*.tgz ; do
 				local TARBNAME=`basename $i .tgz`
 				cat "$i" | gunzip -c | bzip -c > "$TARBNAME-$RELPKG.tar.bz2" || { warning "can't repack files" ; RES=11 ; }

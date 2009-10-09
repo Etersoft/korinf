@@ -66,7 +66,7 @@ export TMPDIR=/tmp
 #TMP=~/tmp
 #TESTDIR=/tmp/testlog-$USER
 #mkdir -p $TESTDIR/
-TESTDIR=`mktemp -d /tmp/autobuild/chroot-$USER-XXXXXX`
+TESTDIR=`mktemp -d /tmp/autobuild/${SYS/\/*/}-$USER-XXXXXX`
 
 if [ -n "$NETBUILD" ] ; then
 	echo Mount $SYS by network ...
