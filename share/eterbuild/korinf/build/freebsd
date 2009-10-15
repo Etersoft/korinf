@@ -24,10 +24,10 @@
 # BUILD - root of current system
 # BUILDERHOME - absolute path to user dir in current system
 
-FREEBSDSSH=$LOCUSER@freebsd
+FREEBSDSSH=$INTUSER@192.168.0.183
 
 # possibly conflict
-FREEBSDPATH=home/$LOCUSER/work-$PACKAGE
+FREEBSDPATH=home/$INTUSER/work-$PACKAGE
 
 FREEBSDKEY="-i $PRIVATESSHKEY"
 
@@ -36,6 +36,7 @@ build_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
+	echo $PREF
 
 	echo "Copying to $FREEBSDSSH:$PREF/$FREEBSDPATH"
 	ssh $FREEBSDKEY $FREEBSDSSH mkdir -p $PREF/$FREEBSDPATH/ || { warning "Cannot create dir $FREEBSDPATH" ; return 1 ; }
