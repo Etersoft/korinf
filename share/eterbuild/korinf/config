@@ -26,6 +26,7 @@ CHROOTDIR=/tmp/autobuild
 mkdir -p $CHROOTDIR
 
 # load Korinf config
+test -f /etc/eterbuild/korinf && . /etc/eterbuild/korinf
 test -f $KORINFETC/korinf && . $KORINFETC/korinf
 test -f ~/.config/korinf  && . ~/.config/korinf
 

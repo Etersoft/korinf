@@ -32,4 +32,4 @@ PRIVATESSHKEY=$KORINFETC/id_dsa.korinf
 #EMAILNOTIFY=lav@etersoft.ru
 
 # force release for built packages
-#KORINFTARGETRELEASE=eter
+#export KORINFTARGETRELEASE=eter
