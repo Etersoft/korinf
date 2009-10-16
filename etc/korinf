@@ -3,6 +3,12 @@
 # Linux builder
 LOCALLINUXFARM=/net/os/stable
 
+# base ftp dir for publish
+FTPDIR=/var/ftp
+
+# replace $FTPDIR for convert to URL:
+PUBLICURL=ftp://updates.etersoft.ru
+
 # Каталог с деревом пакетов свободного WINE и файлов к нему
 WINEPUB_PATH=/var/ftp/pub/Etersoft/WINE@Etersoft
 
@@ -10,10 +16,10 @@ WINEPUB_PATH=/var/ftp/pub/Etersoft/WINE@Etersoft
 WINEETER_PATH=/var/ftp/pvt/Etersoft/WINE@Etersoft
 
 # for korinf script
-BUILDFARMDIR=/var/ftp/pub/Etersoft/BuildFarm
+BUILDFARMDIR=$FTPDIR/pub/Etersoft/BuildFarm
 
 # for robot script
-# Path for mount tasks
+# Path for mount tasks inside builder user
 export TASKDIR=$HOME/sales
 
 # User in remote (build, chrooted) system
@@ -24,3 +30,6 @@ PRIVATESSHKEY=$KORINFETC/id_dsa.korinf
 
 # E-mails for info about robot fails
 #EMAILNOTIFY=lav@etersoft.ru
+
+# force release for built packages
+#KORINFTARGETRELEASE=eter

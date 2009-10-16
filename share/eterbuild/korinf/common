@@ -21,7 +21,8 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-NEEDETERBUILD=166
+# needed version etersoft-build-utils package
+NEEDETERBUILD=167
 
 load_etersoft_build_utils()
 {
