@@ -81,7 +81,8 @@ for dist in $CMDRE ; do
 	# Set target dir for built packages
 	DESTDIR=$TARGETPATH/$dist
 	# Hack for Gentoo's SRC_URI
-	DESTURL=$(echo $DESTDIR | sed -e "s|/var/ftp/|ftp://server/|g")
+	#DESTURL=$(echo $DESTDIR | sed -e "s|/var/ftp/|ftp://server/|g")
+	DESTURL=$(echo $DESTDIR | sed -e "s|/var/ftp/|ftp://ftp.etersoft.ru/|g")
 
 	# skip linked destination (TODO: do not handle it at all)
 	[ -L "$DESTDIR" ] && echo "$dist: Skip linked target" && continue
