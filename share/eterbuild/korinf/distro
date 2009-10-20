@@ -39,8 +39,14 @@ expand_filelist()
 prepare_filelist()
 {
 	[ -z "$MAINFILESLIST$EXTRAFILESLIST" ] && fatal "Logical error with MAINFILESLIST EXTRAFILESLIST"
+	# expand file masks by TARGET
 	EXPMAINFILES=$(expand_filelist $MAINFILESLIST)
 	EXPEXTRAFILES=$(expand_filelist $EXTRAFILESLIST)
+
+	# check for ebuild if gentoo
+	if [ "$dist_name" = "Gentoo" ] ; then
+		EXPMAINFILES="$EXPMAINFILES ${BUILDNAME}*.ebuild"
+	fi
 
 	[ -n "$ADEBUG" ] && echo "EXPMAINFILES: $EXPMAINFILES EXPEXTRAFILES: $EXPEXTRAFILES"
 	[ -z "$EXPMAINFILES$EXPEXTRAFILES" ] && fatal "Logical error with EXPMAINFILES EXPEXTRAFILES"
