@@ -18,13 +18,13 @@ if ! test -d eterhack ; then
 	cd eterhack
 else
 	cd eterhack
-	git pull || fatal "can't pull"
+	git pull origin eterhack || fatal "can't pull"
 fi
 
 cd etersoft || fatal "can't cd"
 
-rpmpub wine-etersoft.spec
+rpmpub -r unstable wine-etersoft.spec
 
-cd /srv/$USER/Projects/git/korinf/bin-wine || cd /srv/$USER/Projects/korinf/bin-wine || fatal "can't CD"
+cd /srv/$USER/Projects/git/korinf/bin-wine || cd $HOME/Projects/korinf/bin-wine || fatal "can't CD"
 
 ./wine-etersoft.sh test unstable

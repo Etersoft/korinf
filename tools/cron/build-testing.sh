@@ -24,7 +24,7 @@ fi
 
 cd etersoft || fatal "can't cd"
 
-rpmpub wine-etersoft.spec
+rpmpub -r $WORKTARGET wine-etersoft.spec
 
 cd /srv/$USER/Projects/git/korinf/bin-wine || cd $HOME/Projects/korinf/bin-wine || fatal "can't CD"
 
