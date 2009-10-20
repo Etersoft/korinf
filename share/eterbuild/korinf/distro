@@ -30,9 +30,9 @@ expand_filelist()
         ar=( $@ )
         #[ -z "$1" ] && return
         for i in `seq 0 $(( ${#ar[@]} - 1))`; do
-#                echo -n "${ar[i]}*.${TARGET} "
-	#hack for Gentoo
-                echo -n "${ar[i]}*.* "
+                echo -n "${ar[i]}*.${TARGET} "
+                # hack for Gentoo
+                #echo -n "${ar[i]}*.* "
         done
 }
 

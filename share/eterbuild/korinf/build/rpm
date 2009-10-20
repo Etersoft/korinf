@@ -107,9 +107,10 @@ build_rpms()
 run_alien()
 {
 	BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version --scripts --veryverbose $@ || return
+	# don't remove due using rpm after converting (f.i. for Gentoo)
 	# remove source rpm if converted successfully
-	shift
-	rm -f $@
+	#shift
+	#rm -f $@
 }
 
 convert_by_target()

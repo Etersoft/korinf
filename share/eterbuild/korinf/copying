@@ -45,6 +45,12 @@ prepare_copying()
 		popd >/dev/null
 	fi
 
+	if [ "$dist_name" = "Gentoo" ] ; then
+		pushd $DESTDIR >/dev/null || return 1
+		rm -fv $BUILDNAME*.ebuild
+		popd >/dev/null
+	fi
+
 }
 
 gen_base_apt_rpm()
@@ -76,12 +82,10 @@ copying_packages()
 	if [ -n "$MAINFILESLIST" ] ; then
 		echo "Copying built packages to $DESTDIR..."
 		cp -v $EXPMAINFILES $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
-#		echo $dist_name
-#		if [ "$dist_name" = "Gentoo" ]
-#			echo BINGO
-#			echo "Copying ${BUILDNAME}.ebuild to $DESTDIR..."
-#			cp -v ${BUILDNAME}.ebuild $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
-#		fi
+		if [ "$dist_name" = "Gentoo" ] ; then
+			echo "Copying ${BUILDNAME}.ebuild to $DESTDIR..."
+			cp -v ${BUILDNAME}*.ebuild $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
+		fi
 	fi
 
 	if [ -n "$EXTRAFILESLIST" ] ; then

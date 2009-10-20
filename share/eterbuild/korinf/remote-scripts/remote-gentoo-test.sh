@@ -62,7 +62,7 @@ gen_ebuild()
 	WORKDIR=/home/$LOCUSER/tmp
 	RPMSDIR=/home/$LOCUSER/RPM/RPMS
         BUILTRPM=$(ls -1 $RPMSDIR/*.rpm | grep $PACKAGE | tail -n1)
-
+	test -r ${BUILTRPM} || return 1
 	mkdir -p $WORKDIR
 	cd $WORKDIR
 
