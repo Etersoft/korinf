@@ -7,6 +7,12 @@
 
 if [ "$1" = "-f" ] ; then
 	FORCE="--force"
+	shift
+fi
+
+if [ "$1" = "-i" ] ; then
+	INITIAL="1"
+	shift
 fi
 
 PROJECTVERSION=$1
@@ -27,6 +33,12 @@ if [ -z "$VERSION" ] ; then
 fi
 }
 
+pkg_is_installed()
+{
+	test -n "$INITIAL" && return
+	rpm -q "$1" &>/dev/null
+}
+
 #############
 TARGETPATH=$WINEPUB_PATH/$PROJECTVERSION/WINE/ALTLinux/Sisyphus
 get_version_release
@@ -36,11 +48,11 @@ pwd
 
 LIST=
 for i in $BUILDNAME ; do
-	rpm -q $i &>/dev/null && LIST="$LIST $i-$VERSION-*$RELEASE.*.rpm"
+	pkg_is_installed $i && LIST="$LIST $i-$VERSION-*$RELEASE.*.rpm"
 done
 
 for i in lib$BUILDNAME-devel $BUILDNAME-twain $BUILDNAME-gl ; do
-	rpm -q $i &>/dev/null && LIST="$LIST extra/$i-$VERSION-*$RELEASE.*.rpm"
+	pkg_is_installed $i && LIST="$LIST extra/$i-$VERSION-*$RELEASE.*.rpm"
 done
 
 echo $LIST
@@ -58,7 +70,7 @@ pwd
 
 LIST=
 for i in $BUILDNAME ; do
-	rpm -q $i &>/dev/null && LIST="$LIST $i-$VERSION-*$RELEASE.*.rpm"
+	pkg_is_installed $i && LIST="$LIST $i-$VERSION-*$RELEASE.*.rpm"
 done
 
 echo $LIST
