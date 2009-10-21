@@ -25,6 +25,7 @@
 # BUILDERHOME - absolute path to user dir in current system
 
 FREEBSDSSH=$INTUSER@192.168.0.183
+#FREEBSDSSH=$LOCUSER@freebsd
 
 # possibly conflict
 FREEBSDPATH=home/$INTUSER/work-$PACKAGE
