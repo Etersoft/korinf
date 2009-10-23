@@ -18,13 +18,12 @@ fatal()
 }
 
 COMMAND=$1
-PACKAGE=$2
-# build
-SRPMNAME=$3
-TARGETPKG=$4
-PKGVERSION=$5
+INTUSER=$2
+RPMBUILDROOT=$3
+PACKAGE=$4
+SRPMNAME=$5
+TARGETPKG=$6
 
-INTUSER=builder
 
 WRKDIR=/var/tmp/korinfer/work-$PACKAGE
 RPMDIR=/home/$INTUSER/RPM/RPMS
@@ -45,8 +44,9 @@ get_binpkg_list()
 
 build_bsd()
 {
+	echo builduser $INTUSER
 	RPMBUILDNODEPS="--nodeps"
-	RPMBUILDROOT="/home/$INTUSER/RPM/BUILD/$PACKAGE-$PKGVERSION"
+	#RPMBUILDROOT="/home/$INTUSER/RPM/BUILD/$PACKAGE-$PKGVERSION"
 	# FIXME: x86_64 support
 	BUILDARCH=i586
 	rpmbuild -v --rebuild $RPMBUILDNODEPS --buildroot $RPMBUILDROOT $SRPMNAME --target $BUILDARCH
@@ -54,10 +54,13 @@ build_bsd()
 
 convert_bsd()
 {
-	# get bin package list
-	BUILDRPMLIST=$(get_binpkg_list $RPMDIR $SRPMNAME)
-
-	# get package fields
+	[ -n "$RPMBUILDROOT" ] || fatal "RPMBUILDROOT var is empty"
+	cd $RPMBUILDROOT
+	#get bin package list
+	BUILDRPMLIST=$(get_binpkg_list $WRKDIR $SRPMNAME)
+	[ -n "$BUILDRPMLIST" ] || fatal "BUILDRPMLIST var is empty"
+	echo convertuser $INTUSER
+	echo get package fields
 	PKGDESCR=`querypackage "$SRPMNAME" DESCRIPTION`
 	PKGCOMMENT=`querypackage "$SRPMNAME" SUMMARY`
 	# FIXME: get froup Group rpm field
@@ -65,7 +68,8 @@ convert_bsd()
 
 	rm -rf $WRKDIR/*
 	#mkdir pkgfiles && cd pkgfiles || fatal "error with subdir"
-	#get file hierarchy
+	echo "get file hierarchy of"
+	echo $BUILDRPMLIST
 	for i in $BUILDRPMLIST ; do
 		rpm2cpio $i | cpio -dimv || fatal "error with rpm2cpio on $i"
 		rm -f $i
