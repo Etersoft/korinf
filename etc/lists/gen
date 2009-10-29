@@ -24,6 +24,7 @@ ASPLinux/14
 Scientific/4.1
 CentOS/5
 CentOS/5.2
+CentOS/5.4
 #FedoraCore/4
 #FedoraCore/5
 #FedoraCore/6
@@ -70,3 +71,4 @@ ArchLinux/2009.02
 Gentoo/2009
 
 Special/3.0
+
