@@ -38,6 +38,9 @@ get_product_type()
 		*SQL*)
 			TYPE="SQL"
 			;;
+		*CAD*)
+			TYPE="CAD"
+			;;
 		*)
 			fatal "Unknown product $PRODUCT"
 			;;

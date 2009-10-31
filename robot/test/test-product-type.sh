@@ -24,3 +24,4 @@ check()
 
 check "Network Lite" "NetworkLite"
 check "SQL" "SQL"
+check "WINE@Etersoft CAD" "CAD"

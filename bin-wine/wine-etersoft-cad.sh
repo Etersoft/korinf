@@ -8,5 +8,5 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
-build_project $WINEETER_PATH wine-etersoft-cad "WINE" $@
+build_project $WINEETER_PATH wine-etersoft-cad "WINE-CAD" $@
 
