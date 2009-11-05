@@ -18,18 +18,18 @@ fatal()
 }
 
 COMMAND=$1
-PACKAGE=$2
-# build
-SRPMNAME=$3
-TARGETPKG=$4
-PKGVERSION=$5
+INTUSER=$2
+RPMBUILDROOT=$3
+PACKAGE=$4
+SRPMNAME=$5
+TARGETPKG=$6
 
-INTUSER=builder
 
 WRKDIR=/var/tmp/korinfer/work-$PACKAGE
 RPMDIR=/home/$INTUSER/RPM/RPMS
 
 mkdir -p $WRKDIR/ && cd $WRKDIR || fatal "Can't CD to $WRKDIR"
+mkdir -p $RPMDIR
 
 # copied from eterbuild/functions/rpm
 # build binary package list (1st - repo dir, 2st - pkgname)
@@ -47,6 +47,8 @@ build_bsd()
 {
 	RPMBUILDNODEPS="--nodeps"
 	RPMBUILDROOT="/home/$INTUSER/RPM/BUILD/$PACKAGE-$PKGVERSION"
+	rm -rf $RPMBUILDROOT/*
+	rm -rf /usr/local/share/etercifs/sources/*$PACKAGE*
 	# FIXME: x86_64 support
 	BUILDARCH=i586
 	rpmbuild -v --rebuild $RPMBUILDNODEPS --buildroot $RPMBUILDROOT $SRPMNAME --target $BUILDARCH
@@ -54,18 +56,37 @@ build_bsd()
 
 convert_bsd()
 {
-	# get bin package list
-	BUILDRPMLIST=$(get_binpkg_list $RPMDIR $SRPMNAME)
+# remove this after find out, why built rpm is put into /usr/local/src/portbld/RPMS
+	BUILTRPM=/usr/local/src/portbld/RPMS/noarch/$PACKAGE*\.rpm
+	#[ -n "$RPMBUILDROOT" ] || fatal "RPMBUILDROOT var is empty"
+	#cd $RPMBUILDROOT
+	ARCH=i586
+	BUILTRPM=/usr/local/src/portbld/RPMS/$ARCH/$PACKAGE*\.rpm
+#end of hack
 
-	# get package fields
+	echo $BUILTRPM
+	cp $BUILTRPM $RPMDIR
+
+
+	#get bin package list
+#	BUILDRPMLIST=$(get_binpkg_list $WRKDIR $SRPMNAME)
+	echo rpmdir $RPMDIR
+	echo srpmname $SRPMNAME
+	BUILDRPMLIST=$(get_binpkg_list $RPMDIR $SRPMNAME)
+	[ -n "$BUILDRPMLIST" ] || fatal "BUILDRPMLIST var is empty"
+
+	#get package fields
 	PKGDESCR=`querypackage "$SRPMNAME" DESCRIPTION`
 	PKGCOMMENT=`querypackage "$SRPMNAME" SUMMARY`
+
 	# FIXME: get froup Group rpm field
 	PKGGROUP=emulators
 
 	rm -rf $WRKDIR/*
+
 	#mkdir pkgfiles && cd pkgfiles || fatal "error with subdir"
-	#get file hierarchy
+	echo "get file hierarchy of"
+	echo $BUILDRPMLIST
 	for i in $BUILDRPMLIST ; do
 		rpm2cpio $i | cpio -dimv || fatal "error with rpm2cpio on $i"
 		rm -f $i

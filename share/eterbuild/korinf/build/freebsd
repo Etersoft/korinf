@@ -25,11 +25,16 @@
 # BUILDERHOME - absolute path to user dir in current system
 
 FREEBSDSSH=$INTUSER@192.168.0.183
+#FREEBSDSSH=$LOCUSER@freebsd
 
 # possibly conflict
 FREEBSDPATH=home/$INTUSER/work-$PACKAGE
 
 FREEBSDKEY="-i $PRIVATESSHKEY"
+
+RPMBUILDROOT="/home/$INTUSER/RPM/BUILD/$PACKAGE-$PACKAGEVERSION"
+
+#VARS=$INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG
 
 # PACKAGE
 build_bsd()
@@ -44,7 +49,8 @@ build_bsd()
 	scp $FREEBSDKEY $KORINFDIR/korinf/remote-scripts/remote-freebsd.sh $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy script" ; return 1 ; }
 	# FIXME: what's su - problem?
 	#ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF su - $LOCUSER -c "/$FREEBSDPATH/remote-freebsd.sh build $PACKAGE /$FREEBSDPATH/$TARGETSRPM" || { warning "Can't build" ; return 1 ; }
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $PACKAGE /$FREEBSDPATH/$TARGETSRPM $PACKAGEVERSION" || { warning "Can't build" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM" || { warning "Can't build" ; return 1 ; }
+	#ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $VARS" || { warning "Can't build" ; return 1 ; }
 }
 
 convert_bsd()
@@ -53,7 +59,8 @@ convert_bsd()
 	PREF="/mnt/$dist_name/$dist_ver"
 	TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$TARGETPKGDISTRO.tbz
 	#ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF su - $LOCUSER -c "/$FREEBSDPATH/remote-freebsd.sh convert $PACKAGE $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh convert $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh convert $INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
+	#ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh convert $VARS" || { warning "Can't clean" ; return 1 ; }
 }
 
 copying_bsd()
@@ -72,12 +79,13 @@ cleaning_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh clean $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh clean $INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
+	#ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh clean $VARS" || { warning "Can't clean" ; return 1 ; }
 }
 
 install_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh install $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't install" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh install $INTUSER $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't install" ; return 1 ; }
 }
