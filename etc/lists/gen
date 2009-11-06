@@ -43,6 +43,7 @@ Fedora/11
 Mandriva/2008.1
 Mandriva/2009.0
 Mandriva/2009.1
+Mandriva/2010.0
 
 PCLinux/2009.2
 
@@ -56,6 +57,9 @@ SUSE/10.3
 SUSE/11
 SUSE/11.1
 #NLD/9
+
+SLED/10
+SLED/11
 
 # Slackware based
 #Slackware/10.2
