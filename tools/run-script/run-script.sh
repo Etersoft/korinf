@@ -33,6 +33,7 @@ if [ $UID = "0" ]; then
 	SUDO=""
 fi
 
+# FIXME: make common function to get common distro list and per arch list
 print_distro()
 {
 	( cd /net/os/stable ; find -L ./$1 -maxdepth 2 -mindepth 2 -type d | sed -e "s|^./||" | sort | grep -v Windows | sed -e "s|^i586/||g" )
