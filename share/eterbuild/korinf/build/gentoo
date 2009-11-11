@@ -31,12 +31,10 @@ gen_ebuild()
 	local RET
         echo "Copying to $BUILDROOT/tmp"
         cp -f  $KORINFDIR/korinf/remote-scripts/remote-gentoo.sh $BUILDROOT/tmp || { warning "Cannot copy script" ; return 1 ; }
-	echo DESTURL $DESTURL
         $SUDO chroot $BUILDROOT su -l -c "sh -x /tmp/remote-gentoo.sh generate \"$PACKAGE\" \"$BUILDNAME\" $RPMSDIR $DESTURL" korinfer
         RET=$?
         if [ $RET != 0 ] ; then
                 warning "Can't build"
-                #cat $BUILDROOT/var/tmp/portage/app-emulation/$PACKAGE-*/temp/build.log
                 return 1
         fi
         true
