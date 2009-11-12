@@ -10,7 +10,7 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
-POSTGRESDIR=/var/ftp/pub/Etersoft/PostgreSQL/
+POSTGRESDIR=/var/ftp/pub/Etersoft/Postgres@Etersoft/
 
 export EXTRAFILES="libicu38[-_][0-9] libicu38-devel[-_][0-9] icu38-samples[-_][0-9] icu38-utils[-_][0-9]"
 
