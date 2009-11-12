@@ -106,7 +106,7 @@ build_rpms()
 
 run_alien()
 {
-	BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version --scripts --veryverbose $@ || return
+	BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version --veryverbose $@ || return
 	# don't remove due using rpm after converting (f.i. for Gentoo)
 	# remove source rpm if converted successfully
 	#shift
@@ -120,11 +120,11 @@ convert_by_target()
 	case $TARGET in
 	"deb")
 		# Debian/Ubuntu
-		run_alien --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with deb"; RES=1 ; }
+		run_alien --scripts --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with deb"; RES=1 ; }
 		;;
 	"tgz")
 		# Slackware
-		run_alien --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with tgz"; RES=1 ; }
+		run_alien --scripts --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with tgz"; RES=1 ; }
 		for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tgz ; done
 		;;
 	*)
