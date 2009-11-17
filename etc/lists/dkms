@@ -1,12 +1,2 @@
-#Mandriva/2005
-# not supported
-#Mandriva/2006
-#Mandriva/2007.1
-# disabled due broken rpm (if needed, port rpm from 2008.1)
-#Mandriva/2008
-Mandriva/2008.1
-Mandriva/2009.0
-Mandriva/2009.1
-Mandriva/2010.0
-
-#PCLinux/2009.2
+. mandriva
+. x86_64-mandriva

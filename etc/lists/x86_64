@@ -12,14 +12,13 @@ x86_64/CentOS/5.2
 x86_64/CentOS/5.3
 x86_64/CentOS/5.4
 
-x86_64/Mandriva/2009.0
-x86_64/Mandriva/2009.1
-
 x86_64/Debian/4.0
 x86_64/Debian/5.0
 x86_64/Ubuntu/8.04
 x86_64/Ubuntu/8.10
 x86_64/Ubuntu/9.04
 x86_64/Ubuntu/9.10
+
+. x86_64-mandriva
 
 . x86_64-alt
