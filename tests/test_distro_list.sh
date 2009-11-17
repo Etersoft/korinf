@@ -10,7 +10,7 @@ check()
 	local REPL
 	TEST1="$1"
 	REPL1="$2"
-	REAL=`get_distro_list "$TEST1" | filter_distro_list`
+	REAL=`get_distro_list "$TEST1"`
 	echo -n "Source line: '$TEST1' with result '$REAL' (wait for '$REPL1') "
 	#REPL=`echo $TEST1 | sed -r -e $NRL`
 	#REPL=`echo $TEST1 | perl -pi "$NRL"`

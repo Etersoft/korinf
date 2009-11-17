@@ -183,12 +183,12 @@ get_distro_list()
 		DIR=`dirname $1`
 	# list in the variable
 	else
-		echo "$@"
+		echo "$@" | filter_distro_list
 		return
 	fi
 
 	# print out distro list
-	cat "$LIST" | grep -v "^#" | grep -v "^\." | sed -e "s|[ 	].*||g" | grep -v "^\$"
+	cat "$LIST" | grep -v "^#" | grep -v "^\." | sed -e "s|[ 	].*||g" | grep -v "^\$" | filter_distro_list
 	# get list included files
 	LIST=`cat "$LIST" | grep "^\." | sed -e "s|^\. ||g"`
 	for i in $LIST ; do
