@@ -56,12 +56,15 @@ build_bsd()
 
 convert_bsd()
 {
+# FIXME from Lav: we need get package arch from package
 # remove this after find out, why built rpm is put into /usr/local/src/portbld/RPMS
-	BUILTRPM=/usr/local/src/portbld/RPMS/noarch/$PACKAGE*\.rpm
+	BUILTRPM=$(echo /usr/local/src/portbld/RPMS/noarch/$PACKAGE*.rpm)
 	#[ -n "$RPMBUILDROOT" ] || fatal "RPMBUILDROOT var is empty"
 	#cd $RPMBUILDROOT
-	ARCH=i586
-	BUILTRPM=/usr/local/src/portbld/RPMS/$ARCH/$PACKAGE*\.rpm
+	if [ ! -r "$BUILTRPM" ] ; then
+		ARCH=i586
+		BUILTRPM=$(echo /usr/local/src/portbld/RPMS/$ARCH/$PACKAGE*.rpm)
+	fi
 #end of hack
 
 	echo $BUILTRPM
