@@ -8,6 +8,7 @@ fatal()
 
 TEMPREPODIR=/srv/$USER/Projects
 
+export LC_ALL=C
 
 cd $TEMPREPODIR/ || fatal
 

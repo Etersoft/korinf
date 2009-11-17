@@ -6,6 +6,8 @@ fatal()
 	exit 1
 }
 
+export LC_ALL=C
+
 TEMPREPODIR=/srv/$USER/Projects
 WORKBRANCH=eter-1.0.12
 WORKTARGET=testing
