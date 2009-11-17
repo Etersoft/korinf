@@ -202,8 +202,8 @@ get_target_list()
 	local TLIST
 	local ALL=$1
 	TLIST=$TARGETPATH/distro.list
-	[ -r "$TLIST" ] || TLIST=$KORINFETC/lists/all
-	[ -z "$ALL" ] || TLIST=$KORINFETC/lists/all
+	[ -r "$TLIST" ] || TLIST=$KORINFETC/lists/$ALL
+	[ -z "$ALL" ] || TLIST=$KORINFETC/lists/$ALL
 	[ -r "$TLIST" ] || fatal "get_target_list failed to get full list of targets"
 	echo $TLIST
 }
@@ -218,11 +218,12 @@ check_target_dist()
 set_rebuildlist()
 {
 	local RESULT
-	if [ -n "$REBUILDLIST" ] ; then
+	if [ -n "$REBUILDLIST" ] && [ ! "$REBUILDLIST" = "all" ] ; then
 		if [ -r "$KORINFETC/lists/$REBUILDLIST" ] ; then
 			REBUILDLIST=$KORINFETC/lists/$REBUILDLIST
 			RESULT="Build for distros from $REBUILDLIST"
 		else
+			# Build for concrete target if it is exists
 			check_target_dist $REBUILDLIST || fatal "Run with unknown target '$REBUILDLIST'"
 			RESULT="Build for $REBUILDLIST"
 		fi
