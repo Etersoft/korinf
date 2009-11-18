@@ -91,7 +91,7 @@ install_req()
 			;;
 		"SUSE")
 			echo "zypper install $PKGNAME" || exit 1
-			CMD="yes | zypper install $LISTPKG"
+			CMD="yes | zypper --non-interactive install $LISTPKG"
 			;;
 		*)
 			echo "Skipping unknown DISTRVENDOR $DISTRVENDOR"
