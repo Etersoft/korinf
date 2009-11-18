@@ -183,11 +183,12 @@ get_distro_list()
 		DIR=`dirname $1`
 	# list in the variable
 	else
-		echo "$@"
+		echo "$@" | filter_distro_list
 		return
 	fi
 
-	cat "$LIST" | grep -v "^#" | grep -v "^\." | sed -e "s|[ 	].*||g" | grep -v "^\$"
+	# print out distro list
+	cat "$LIST" | grep -v "^#" | grep -v "^\." | sed -e "s|[ 	].*||g" | grep -v "^\$" | filter_distro_list
 	# get list included files
 	LIST=`cat "$LIST" | grep "^\." | sed -e "s|^\. ||g"`
 	for i in $LIST ; do
@@ -196,14 +197,38 @@ get_distro_list()
 	done
 }
 
+filter_distro_list()
+{
+	if [ -z "$SKIPBUILDLIST" ] ; then
+		cat
+		return
+	fi
+	# SKIPBUILDLIST contains DistroName or DistroName/2010
+	for N in $(cat) ; do
+		if ( echo $SKIPBUILDLIST | grep -q "$N" ) ; then
+			# skip distro if it in list
+			continue
+		fi
+		# search without version
+		local DN=`dirname $(echo $N)`
+		# sed is workaround to match DistroName_2010 as a word (-w)
+		if ( echo $SKIPBUILDLIST | sed -e "s|/|_|g" | grep -q -w "$DN" ) ; then
+			# skip distro if it in list
+			continue
+		fi
+		echo $N
+	done
+
+}
+
 # get distro list from TARGETPATH or lists/all
 get_target_list()
 {
 	local TLIST
 	local ALL=$1
 	TLIST=$TARGETPATH/distro.list
-	[ -r "$TLIST" ] || TLIST=$KORINFETC/lists/all
-	[ -z "$ALL" ] || TLIST=$KORINFETC/lists/all
+	[ -r "$TLIST" ] || TLIST=$KORINFETC/lists/$ALL
+	[ -z "$ALL" ] || TLIST=$KORINFETC/lists/$ALL
 	[ -r "$TLIST" ] || fatal "get_target_list failed to get full list of targets"
 	echo $TLIST
 }
@@ -218,11 +243,12 @@ check_target_dist()
 set_rebuildlist()
 {
 	local RESULT
-	if [ -n "$REBUILDLIST" ] ; then
+	if [ -n "$REBUILDLIST" ] && [ ! "$REBUILDLIST" = "all" ] ; then
 		if [ -r "$KORINFETC/lists/$REBUILDLIST" ] ; then
 			REBUILDLIST=$KORINFETC/lists/$REBUILDLIST
 			RESULT="Build for distros from $REBUILDLIST"
 		else
+			# Build for concrete target if it is exists
 			check_target_dist $REBUILDLIST || fatal "Run with unknown target '$REBUILDLIST'"
 			RESULT="Build for $REBUILDLIST"
 		fi

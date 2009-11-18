@@ -49,14 +49,16 @@ prepare_copying()
 
 gen_base_apt_rpm()
 {
-	if [ ! -d "$DESTDIR/RPMS.main" ] ; then
-		ln -s ./ $DESTDIR/RPMS.main
+	local SUBDIR=$1
+	[ -d "$DESTDIR$SUBDIR" ] || return 1
+	if [ ! -d "$DESTDIR$SUBDIR/RPMS.main" ] ; then
+		ln -s ./ $DESTDIR$SUBDIR/RPMS.main
 	fi
-	genbasedir --create --progress --topdir=$TARGETPATH $dist main
+	genbasedir --create --progress --topdir=$TARGETPATH $dist$SUBDIR main
 	#chmod o+r $DIR/* -R
-	cat <<EOF > $DESTDIR/base/README.korinf.txt
+	cat <<EOF > $DESTDIR$SUBDIR/base/README.korinf.txt
 You can add this repo to APT sources.list:
-rpm file:$TARGETPATH $dist main
+rpm file:$TARGETPATH$SUBDIR $dist main
 EOF
 }
 
@@ -100,6 +102,7 @@ copying_packages()
 	case $dist_name in
 		"ALTLinux")
 			gen_base_apt_rpm
+			gen_base_apt_rpm /extra
 			;;
 		*)
 			;;

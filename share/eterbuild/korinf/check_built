@@ -56,6 +56,7 @@ check_built_package()
 			else
 				FILEDATE="MISDIR"
 			fi
+			ST="MIS"
 			FILESIZE=""
 			BASENAME="$BUILDNAME"
 		fi

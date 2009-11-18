@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Create urandom device
+
+echo "Run script on `distr_vendor`"
+DISTRVENDOR=`/usr/bin/distr_vendor -d`
+
+[ "$DISTVENDOR" = "ALTLinux" ] && exit 1
+
+mknod /dev/urandom c 1 9

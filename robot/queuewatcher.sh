@@ -36,6 +36,10 @@ if [ "$1" = "stop" ] ; then
 	exit
 fi
 
+if [ "$1" = "now" ] ; then
+	FLAGNOW=1
+fi
+
 fatal()
 {
 	echo $@
@@ -104,12 +108,14 @@ else
 			TASKTORUN=`find $TASKDIR -maxdepth 1 -name "*.task" | sort | head -n1`
 			if [ -e "$TASKTORUN" ] ; then
 				$AROBOT/arobot.sh --real $TASKTORUN 2>&1 #>> $ALOGDIR/autobuild.task.log
+			else
+				test -n "$FLAGNOW" && break;
 			fi
 			#find $TASKDIR -maxdepth 1 -name "*.task" | head -n1 | \
 			#	xargs --no-run-if-empty -P1 -n1 robot/arobot.sh --real 2>&1 >> $ALOGDIR/autobuild.task.log
 			#) 200> /tmp/queuewatcher.lock
 		fi
-		sleep 10
+		test -n "$FLAGNOW" || sleep 10
 	done
 
 fi
