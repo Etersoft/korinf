@@ -4,7 +4,7 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 
 # Etalon path
-PATHTO=$WINEPUB_PATH/1.0.10/WINE
+PATHTO=$WINEPUB_PATH/1.0.11/WINE
 
 PATHNEW=$1
 
