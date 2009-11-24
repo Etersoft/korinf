@@ -131,7 +131,7 @@ for dist in $CMDRE ; do
 		fi
 	fi
 
-	echo `date` $BUILDNAME on $dist DONE | write_report
+	echo `date` $BUILDSRPM on $dist DONE | write_report
 done
 
 # disable trap before exit
