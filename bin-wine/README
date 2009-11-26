@@ -6,9 +6,6 @@ Using:
 ./wine-etersoft.sh [-c] [-f] [ SYSTEM ] [ PROJECTVERSION ]
 
 
-In ETERREGNUM variable we set registration number for proprietary part of
-WINE@Etersoft.
-
 Using example:
 
 Build for the system Fedora 11 in last:
@@ -16,9 +13,14 @@ Build for the system Fedora 11 in last:
 
 Build for all system for last version:
 ./wine-etersoft.sh
+the same:
+./wine-etersoft.sh all last
 
 Check for build result:
 ./wine-etersoft.sh -c
+
+Install build requires:
+./wine-etersoft.sh -i
 
 Build for Ubuntu/8.10 distro for unstable:
 ./wine-etersoft.sh Ubuntu/8.10 unstable
