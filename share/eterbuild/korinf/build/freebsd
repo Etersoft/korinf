@@ -24,7 +24,7 @@
 # BUILD - root of current system
 # BUILDERHOME - absolute path to user dir in current system
 
-FREEBSDSSH=$INTUSER@192.168.0.183
+FREEBSDSSH=$INTUSER@freebsd
 #FREEBSDSSH=$LOCUSER@freebsd
 
 # possibly conflict
@@ -47,8 +47,10 @@ build_bsd()
 	ssh $FREEBSDKEY $FREEBSDSSH mkdir -p $PREF/$FREEBSDPATH/ || { warning "Cannot create dir $FREEBSDPATH" ; return 1 ; }
 	scp $FREEBSDKEY $BUILDERHOME/tmp/$TARGETSRPM $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy $TARGETSRPM" ; return 1 ; }
 	scp $FREEBSDKEY $KORINFDIR/korinf/remote-scripts/remote-freebsd.sh $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy script" ; return 1 ; }
+	echo "Copying done"
 	# FIXME: what's su - problem?
 	#ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF su - $LOCUSER -c "/$FREEBSDPATH/remote-freebsd.sh build $PACKAGE /$FREEBSDPATH/$TARGETSRPM" || { warning "Can't build" ; return 1 ; }
+	echo "executing ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM || { warning Can't build ; return 1 ; }"
 	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM" || { warning "Can't build" ; return 1 ; }
 	#ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $VARS" || { warning "Can't build" ; return 1 ; }
 }
