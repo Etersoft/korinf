@@ -123,7 +123,7 @@ fi
 				NEEDEDKERNEL="kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
 				;;
 			SS)
-				NEEDEDKERNEL="kernel-headers-modules-std-srv kernel-headers-modules-ovz-rhel kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
+				NEEDEDKERNEL="kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
 				if [ "$BUILDARCH" = "x86_64" ] ; then
 					# due 32-bit aksusbd
 					NEEDEDKERNEL="$NEEDEDKERNEL i586-glibc-pthread"
