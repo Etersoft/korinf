@@ -9,12 +9,17 @@
 
 define_paths()
 {
+# выбираем в KORINFROOTDIR каталоги, содержащие сборочные скрипты
 	find $1 -name bin-\* -print
 }
 
 define_components()
 {
-	DIRCONTENTS=`find $1 -maxdepth 1 -print | grep ".sh" | grep -v all | grep -v release-check`
+# выбираем файлы .sh в $PATHTOSCRIPT, исключая файлы foo-all.sh, release-check, cabextract
+# FIXME: убрать проверку dkms-* для не-Мандрив: например, через переменную ADDITIONALGREPS, заполняемую по необходимости
+	DIRCONTENTS=`find $1 -maxdepth 1 -print | grep ".sh" | grep -v all | grep -v release-check | grep -v cabextract`
+	#| grep -v dkms-aksparlnx`
+	#$ADDITIONALGREPS
 	for i in $DIRCONTENTS ; do
 		basename $i .sh
 	done
@@ -24,6 +29,7 @@ grep_script()
 {
 	#FIXME: Highlight this with another color
 	echo "Checking $1 for $2"
+# запускаем сборочные скрипты с параметром -c, выводим строки, содержащие сообщения об устаревших или пропущенных сборках
 	$PATHTOSCRIPT/$1.sh -c $2 | grep -e OBS -e MISSED | grep -v Legend | grep -v link | grep -v error
 }
 
