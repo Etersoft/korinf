@@ -24,17 +24,21 @@
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
+kormod korinf
+load_mod spec rpm etersoft
+
+
 if [ -z "$1" ] || [ "$1" = "-h" ]; then
 	echo "Use: korinf [-r version ] [System/Version] package.spec|PackageName [TARGETDIR]" >&2
 	echo "     with package.spec use target as rpmpub" >&2
 	echo "     with packageName build in BuildFarm" >&2
 	echo "     TARGETDIR - target dir instead default" >&2
 	echo "     version - set target project version" >&2
+	echo "you can use following options:" >&2
+	echo "	-r - set version of the target project" >&2
+	print_build_project_options >&2
 	exit 1
 fi
-
-kormod korinf
-load_mod spec rpm etersoft
 
 # publish to unstable by default
 ALPHA=
@@ -44,10 +48,21 @@ if [ "$1" = "-r" ] ; then
 	shift 2
 fi
 
+# if some other args
+if [ -n "$1" ] && [ -z "${1/-?/}" ] ; then
+	PARAM=$1
+	shift
+fi
+
+# if some 2nd args
+if [ -n "$1" ] && [ -z "${1/-?/}" ] ; then
+	PARAM="$PARAM $1"
+	shift
+fi
 
 # Using arg 1 as rebuild list
-# if not "Package DIR"
-if [ -n "$2" ] && [ ! -d "$2" ]; then
+# if not "Package DIR" ($2 - package)
+if [ -n "$2" ] && [ $(dirname "$2") = "." ]; then
 	# S/V Package DIR
 	# S/V Package
 	REBUILDLIST=$1
@@ -65,6 +80,8 @@ fi
 # TODO: for BuildFarm we had packagename by default
 SUBDIR=
 
+test -n "$PARAM$@" && echo "Run with additional options: $PARAM $@"
+
 # if package name, not spec
 if [ -n "${BUILDNAME/*.spec/}" ] ; then
 	[ -n "$1" ] || ETERDESTSRPM=$BUILDFARMDIR
@@ -76,14 +93,14 @@ if [ -n "${BUILDNAME/*.spec/}" ] ; then
 			echo "Build $BUILDNAME according to distro.list from $ETERDESTSRPM"
 		fi
 	fi
-	build_project $ETERDESTSRPM "$BUILDNAME" "$SUBDIR" $@
+	build_project $ETERDESTSRPM "$BUILDNAME" "$SUBDIR" $PARAM $@
 	exit $?
 else
 	SPECNAME=$BUILDNAME
 	if [ -z "$ETERDESTSRPM" ] ; then
 		ETERDESTSRPM=$(get_etersoft_srpm_path $SPECNAME "$ALPHA")
 		if [ ! -d "$ETERDESTSRPM" ] ; then
-			ETERDESTSRPM=$BUILDFARMDIR
+			ETERDESTSRPM=$BUILDFARMDIR/sources
 		fi
 	fi
 	BUILDNAME=$(eval_spec $SPECNAME | get_var "Name")
@@ -97,5 +114,4 @@ fi
 
 test -d "$ETERDESTSRPM" || fatal "You need run with exists dir to publish src.rpm project (I checked $ETERDESTSRPM, it is non exists)"
 
-echo "Run with additional options: $@"
-build_project $ETERDESTSRPM/.. "$BUILDNAME" "$SUBDIR" $@
+build_project $ETERDESTSRPM/.. "$BUILDNAME" "$SUBDIR" $PARAM $@

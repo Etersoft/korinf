@@ -229,7 +229,7 @@ get_target_list()
 	TLIST=$TARGETPATH/distro.list
 	[ -r "$TLIST" ] || TLIST=$KORINFETC/lists/$ALL
 	[ -z "$ALL" ] || TLIST=$KORINFETC/lists/$ALL
-	[ -r "$TLIST" ] || fatal "get_target_list failed to get full list of targets"
+	[ -r "$TLIST" ] && [ -f "$TLIST" ] || fatal "get_target_list failed to get full list of targets"
 	echo $TLIST
 }
 
@@ -253,13 +253,14 @@ set_rebuildlist()
 			RESULT="Build for $REBUILDLIST"
 		fi
 	else
-		REBUILDLIST=$(get_target_list)
+		# if rebuild list is empty or all
+		REBUILDLIST=$(get_target_list ALL)
 		# Hack?
-		if [ -r "$TARGETPATH/distro.list" ] ; then
-			RESULT="Build according to distro.list from $TARGETPATH"
-		else
-			RESULT="Build for distros from $REBUILDLIST"
-		fi
+		#if [ -r "$TARGETPATH/distro.list" ] ; then
+		#	RESULT="Build according to distro.list from $TARGETPATH"
+		#else
+		RESULT="Build for distros from $REBUILDLIST"
+		#fi
 	fi
 	[ -n "$QUIET" ] || echo $RESULT
 }

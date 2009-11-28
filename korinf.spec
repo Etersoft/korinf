@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.8.4
+Version: 1.8.5
 Release: alt1
 
 Summary: Korinf build system
@@ -16,13 +16,14 @@ Source: %name-%version.tar
 
 BuildArchitectures: noarch
 
-Requires: etersoft-build-utils >= 1.6.6
+Requires: etersoft-build-utils >= 1.6.8
+Requires: alien
 
 %description
 This package contains Korinf build system.
 
 %prep
-%setup -q
+%setup
 
 %build
 %make
@@ -40,6 +41,23 @@ This package contains Korinf build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Sat Nov 21 2009 Vitaly Lipatov <lav@altlinux.ru> 1.8.5-alt1
+- common: incorporate in get_distr_list filter_distr_list for support SKIPBUILDLIST
+- now 'all' builds only for target distro. For build for all distros, use ALL keyword.
+- check_built: set MIS in the status column
+- queuewatcher: add flag to run now
+- fixes for ebuilds
+- replace Gentoo hack with more clean one
+- install_wine: add initial install support
+- config: export global variable, always include system wide config from /etc/eterbuild/korinf
+- introduce PUBLICURL and FTPDIR and use it for DESTURL
+- rpm: fix alien using in 32-bit environment for 64-bit target
+- add wrapper used in dpkg-architecture
+- korlogin: use system name instead chroot
+- korinf: fix target dir detecting from spec
+- robot build: get project version from SOURCEPATH
+- distro: additional TARGET check
+
 * Wed Aug 05 2009 Vitaly Lipatov <lav@altlinux.ru> 1.8.4-alt1
 - build Gentoo and ArchLinux in generic way, fix TARGET vars setting
 - add new scripts for run task in all OSes

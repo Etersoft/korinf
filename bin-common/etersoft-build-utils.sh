@@ -19,4 +19,4 @@ build_extrapkg()
 # install packages after build
 BOOTSTRAP=1
 
-build_extrapkg rpm-build-altlinux-compat $@
+build_extrapkg etersoft-build-utils $@

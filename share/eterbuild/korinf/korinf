@@ -87,6 +87,15 @@ build_srcrpm()
 	build_package $@
 }
 
+print_build_project_options()
+{
+	echo "	-b - buildstrap (install package(s) after build)"
+	echo "	-q - enable quiet mode"
+	echo "	-c - print build status list"
+	echo "	-f - force rebuild package ever if it up-to-date"
+	echo "	-i - install packages required for build package"
+}
+
 # args: 1) path to project dir (where versions) 2) package name [3) target subdir ] [ 4) other project version ]
 build_project()
 {
@@ -102,11 +111,7 @@ build_project()
 		echo "	target_system - Mandriva/2009 or test, all, deb, etc."
 		echo "	project_version - 1.0.10 or last"
 		echo "you can use following options:"
-		echo "	-b - buildstrap (install package(s) after build)"
-		echo "	-q - enable quiet mode"
-		echo "	-c - print build status list"
-		echo "	-f - force rebuild package ever if it up-to-date"
-		echo "	-r - install packages required for build package"
+		print_build_project_options
 		fatal "Help message"
 	fi
 
@@ -117,23 +122,32 @@ build_project()
 
 	if [ "$1" = "-c" ] ; then
 		CHECKPACKAGE=1
+		echo "Run checking package status"
 		shift
 	fi
 
 	if [ "$1" = "-b" ] ; then
 		BOOTSTRAP=1
 		REBUILDPACKAGE=1
+		echo "Run with install built package after done"
 		shift
 	fi
 
 	if [ "$1" = "-f" ] ; then
+		echo "Run with force to rebuild package"
 		REBUILDPACKAGE=1
 		shift
 	fi
 
-	if [ "$1" = "-r" ] ; then
+	if [ "$1" = "-i" ] ; then
+		echo "Run install required package procedure"
 		INSTALLREQUIREDPACKAGE=1
 		shift
+	fi
+
+	# if unknown param
+	if [ -n "$1" ] && [ -z "${1/-?/}" ] ; then
+		fatal "Unknown option: $1"
 	fi
 
 	# 4/5 arg:

@@ -61,11 +61,7 @@ USERCO="su -"
 # TODO:
 [ -n "$1" ] && COMMANDTO="-c '$@\'"
 
-#echo "Enter YOUR password below!"
 export TMPDIR=/tmp
-#TMP=~/tmp
-#TESTDIR=/tmp/testlog-$USER
-#mkdir -p $TESTDIR/
 TESTDIR=`mktemp -d /tmp/autobuild/${SYS/\/*/}-$USER-XXXXXX`
 
 if [ -n "$NETBUILD" ] ; then
@@ -77,11 +73,18 @@ else
 fi
 $SUDO mkdir -p $TESTDIR/{srv/wine,proc,home/$INTUSER,dev/pts}
 
+# Create temp KORLOGINHOME if not exists
+if [ ! -d "$KORLOGINHOME" ] ; then
+	echo TODO with KORLOGINHOME
+	exit 1
+fi
+
 echo Mount local home...
 BUILDERHOME=$TESTDIR/home/$INTUSER
-$SUDO mount /srv/builder-login $BUILDERHOME --bind #|| exit 1
+$SUDO mount $KORLOGINHOME $BUILDERHOME --bind #|| exit 1
 init_home
-echo Mount swine...
+# TODO: move to config
+#echo Mount swine...
 #$SUDO mount /usr/local/ $TESTDIR/usr/local --bind
 #$SUDO mount /net/wine/ $TESTDIR/srv/wine --bind
 

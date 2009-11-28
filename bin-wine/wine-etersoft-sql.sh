@@ -8,9 +8,5 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
-# Не отдавать с таким кодом
-ETERREGNUM=EEEE-C0DE
-# ETERREGNUM=EEEE-0003
-
 build_project $WINEETER_PATH wine-etersoft-sql WINE-SQL $@
 
