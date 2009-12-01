@@ -221,7 +221,7 @@ filter_distro_list()
 
 }
 
-# get distro list from TARGETPATH or lists/all
+# get distro list from TARGETPATH or lists/$ALL
 get_target_list()
 {
 	local TLIST
@@ -229,7 +229,7 @@ get_target_list()
 	TLIST=$TARGETPATH/distro.list
 	[ -r "$TLIST" ] || TLIST=$KORINFETC/lists/$ALL
 	[ -z "$ALL" ] || TLIST=$KORINFETC/lists/$ALL
-	[ -r "$TLIST" ] && [ -f "$TLIST" ] || fatal "get_target_list failed to get full list of targets"
+	[ -r "$TLIST" ] && [ -f "$TLIST" ] || fatal "get_target_list failed to get list of targets"
 	echo $TLIST
 }
 
@@ -254,7 +254,7 @@ set_rebuildlist()
 		fi
 	else
 		# if rebuild list is empty or all
-		REBUILDLIST=$(get_target_list ALL)
+		REBUILDLIST=$(get_target_list "")
 		# Hack?
 		#if [ -r "$TARGETPATH/distro.list" ] ; then
 		#	RESULT="Build according to distro.list from $TARGETPATH"
