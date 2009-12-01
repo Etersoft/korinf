@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo "Run script on `distr_vendor`"
+DISTRVENDOR=`/usr/bin/distr_vendor -d`
+
+KVLIST=$( cd /lib/modules && find -L -maxdepth 1 -mindepth 1 -type d | sed -e "s|^./||" )
+for i in $KVLIST ; do
+	#export KERNELVERSION=$i
+	export KERNSRC=/lib/modules/$i/build
+	echo "Run compilation for $i kernel"
+	/etc/init.d/haspd build
+done
