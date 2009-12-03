@@ -5,8 +5,11 @@ DISTRVENDOR=`/usr/bin/distr_vendor -d`
 
 KVLIST=$( cd /lib/modules && find -L -maxdepth 1 -mindepth 1 -type d | sed -e "s|^./||" )
 for i in $KVLIST ; do
+	# TODO: fix me
 	#export KERNELVERSION=$i
 	export KERNSRC=/lib/modules/$i/build
+	# destination path for built module
+	export DEFMODULEPATH=/lib/modules/$i/kernel/extra/aksparlnx.ko
 	echo "Run compilation for $i kernel"
 	/etc/init.d/haspd build
 done
