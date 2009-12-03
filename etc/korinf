@@ -29,11 +29,11 @@ INTUSER=korinfer
 PRIVATESSHKEY=$KORINFETC/id_dsa.korinf
 
 # E-mails for info about robot fails
-#EMAILNOTIFY=lav@etersoft.ru
+#EMAILNOTIFY=your@localhost
 
 # force release for built packages
 #export KORINFTARGETRELEASE=eter
 
 # Korinfer HOME for korlogin command
 #KORLOGINHOME=$TMPDIR/korinfer-home
-KORLOGINHOME=/home/$INTUSER
+#KORLOGINHOME=/home/$INTUSER
