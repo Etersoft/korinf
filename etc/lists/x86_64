@@ -3,18 +3,20 @@
 
 #x86_64 systems (with prefix x86_64)
 
-#x86_64/SUSE/10.2
 x86_64/SUSE/10.3
 x86_64/SUSE/11.1
 x86_64/SUSE/11.2
 
 x86_64/Fedora/11
+x86_64/Fedora/12
+
 x86_64/CentOS/5.2
 x86_64/CentOS/5.3
 x86_64/CentOS/5.4
 
 x86_64/Debian/4.0
 x86_64/Debian/5.0
+
 x86_64/Ubuntu/8.04
 x86_64/Ubuntu/8.10
 x86_64/Ubuntu/9.04
