@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #script that checks built packages for our products
-#usage: ./check_products.sh SYSLIST CHECKPROJECT
+#usage: ./check_products.sh [-b] SYSLIST [CHECKPROJECT]
 
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
@@ -31,9 +31,16 @@ grep_script()
 	#FIXME: Highlight this with another color
 	echo "Checking $1 for $2"
 # запускаем сборочные скрипты с параметром -c, выводим строки, содержащие сообщения об устаревших или пропущенных сборках
-	$PATHTOSCRIPT/$1.sh -c $2 | grep -e OBS -e MISSED | grep -v Legend | grep -v link | grep -v error || echo "Everything is built"
+	$PATHTOSCRIPT/$1.sh $CHECKONLY $2 | grep -e OBS -e MISSED | grep -v Legend | grep -v link | grep -v error || echo "Everything is built"
 }
 
+
+if [ "$1" = "-b" ] ; then
+	CHECKONLY=
+	shift
+else
+	CHECKONLY="-c"
+fi
 
 #start script
 KORINFROOTDIR="../"
