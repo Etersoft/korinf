@@ -14,14 +14,16 @@ Use CHECKPACKAGE=1 variable for check built status instead build (-c option to s
 
 Use REBUILDPACKAGE=1 variable to force build ever if binary package is up-to-date (-f option to script)
 
-User INSTALLREQUIREDPACKAGE=1 variable to install needed packages (-r option to script)
+User INSTALLREQUIREDPACKAGE=1 variable to install needed packages (-i option to script)
 
 You can set distro independent target via TARGETPRIVPATH variable
 
 Use REBUILDLIST for set target systems. Examples:
 REBUILDLIST="Ubuntu/8.10 Mandriva/2009"
-REBUILDLIST="alt" (use list /etc/eterbuild/lists/all)
+REBUILDLIST="alt" (use list /etc/eterbuild/lists/alt)
 REBUILDLIST="/path/to/file"
+List "all" is using distro.list.
+List "ALL" contains all systems.
 
 or just run
 $ build-script.sh Ubuntu/9.04
