@@ -110,7 +110,7 @@ build_selta()
 	PGDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/Postgres@Etersoft/$PGVERSION"
 
 	TARGETDIR=/var/ftp/pub/download/SELTA@Etersoft/$TARGETDIRNAME
-	DOWNLOADDIR="http://updates.etersoft.ru/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
+	DOWNLOADDIR="ftp://updates.etersoft.ru/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
 
 	
 	if [ ! -d "$PGLOCAL/$DIST" ] ; then

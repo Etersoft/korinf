@@ -154,7 +154,7 @@ ${DEAR} ${NAME}!
 Регистрационный номер Продукта: ${ETERREGNUM}.
 
 Ссылки для скачивания файлов Продукта находятся здесь:
-${DOWNLOADDIR/ftp/http}/$TYPE-$PROJECTVERSION/$DIST/download.html
+${DOWNLOADDIR}/$TYPE-$PROJECTVERSION/$DIST/download.html
 
 По вопросам использования продукта пишите на support@etersoft.ru, указав
 в ТЕМЕ (Subject) письма регистрационный номер.
