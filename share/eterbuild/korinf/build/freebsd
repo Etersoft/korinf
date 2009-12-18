@@ -32,7 +32,10 @@ FREEBSDPATH=home/$INTUSER/work-$PACKAGE
 
 FREEBSDKEY="-i $PRIVATESSHKEY"
 
-RPMBUILDROOT="/home/$INTUSER/RPM/BUILD/$PACKAGE-$PACKAGEVERSION"
+RPMDIRPATH="/home/$INTUSER/RPM"
+TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$TARGETPKGDISTRO
+
+#RPMBUILDROOT=$RPMDIRPATH/BUILD/$PACKAGE-$PACKAGEVERSION
 
 #VARS=$INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG
 
@@ -43,6 +46,7 @@ build_bsd()
 	PREF="/mnt/$dist_name/$dist_ver"
 	echo $PREF
 
+echo $TARGETPKG
 	echo "Copying to $FREEBSDSSH:$PREF/$FREEBSDPATH"
 	ssh $FREEBSDKEY $FREEBSDSSH mkdir -p $PREF/$FREEBSDPATH/ || { warning "Cannot create dir $FREEBSDPATH" ; return 1 ; }
 	scp $FREEBSDKEY $BUILDERHOME/tmp/$TARGETSRPM $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy $TARGETSRPM" ; return 1 ; }
@@ -50,8 +54,9 @@ build_bsd()
 	echo "Copying done"
 	# FIXME: what's su - problem?
 	#ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF su - $LOCUSER -c "/$FREEBSDPATH/remote-freebsd.sh build $PACKAGE /$FREEBSDPATH/$TARGETSRPM" || { warning "Can't build" ; return 1 ; }
-	echo "executing ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM || { warning Can't build ; return 1 ; }"
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM" || { warning "Can't build" ; return 1 ; }
+	echo "Executing ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM "
+	#ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM" || { warning "Can't build" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't build" ; return 1 ; }
 	#ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh build $VARS" || { warning "Can't build" ; return 1 ; }
 }
 
@@ -61,7 +66,7 @@ convert_bsd()
 	PREF="/mnt/$dist_name/$dist_ver"
 	TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$TARGETPKGDISTRO.tbz
 	#ssh $FREEBSDKEY $FREEBSDSSH sudo chroot $PREF su - $LOCUSER -c "/$FREEBSDPATH/remote-freebsd.sh convert $PACKAGE $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh convert $INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh convert $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$FREEBSDPATH/$TARGETSRPM $TARGETPKG $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
 	#ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh convert $VARS" || { warning "Can't clean" ; return 1 ; }
 }
 
@@ -69,11 +74,9 @@ copying_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$TARGETPKGDISTRO.tbz
-
 	prepare_copying
 
-	scp $FREEBSDKEY $FREEBSDSSH:$PREF/var/tmp/korinfer/work-$PACKAGE/../$TARGETPKG $DESTDIR || { warning "Cannot copy $PACKAGE" ; return 1 ; }
+	scp $FREEBSDKEY $FREEBSDSSH:$PREF/var/tmp/korinfer/work-$PACKAGE/$TARGETPKG $DESTDIR || { warning "Cannot copy $PACKAGE" ; return 1 ; }
 	chmod g+rw -R $DESTDIR/* || true
 }
 
@@ -89,5 +92,5 @@ install_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh install $INTUSER $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't install" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh install $INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't install" ; return 1 ; }
 }
