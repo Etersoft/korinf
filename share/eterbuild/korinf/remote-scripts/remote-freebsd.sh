@@ -19,17 +19,20 @@ fatal()
 
 COMMAND=$1
 INTUSER=$2
-RPMBUILDROOT=$3
+RPMDIR=$3
 PACKAGE=$4
-SRPMNAME=$5
-TARGETPKG=$6
+PACKAGEVERSION=$5
+SRPMNAME=$6
+TARGETPKG=$7
 
 
 WRKDIR=/var/tmp/korinfer/work-$PACKAGE
-RPMDIR=/home/$INTUSER/RPM/RPMS
+RPMSDIR=$RPMDIR/RPMS
+RPMBUILDROOT=$RPMDIR/BUILD/$PACKAGE-$PACKAGEVERSION
+#TARGETPKG=$PACKAGE-$PACKAGEVERSION
 
 mkdir -p $WRKDIR/ && cd $WRKDIR || fatal "Can't CD to $WRKDIR"
-mkdir -p $RPMDIR
+mkdir -p $RPMSDIR
 
 # copied from eterbuild/functions/rpm
 # build binary package list (1st - repo dir, 2st - pkgname)
@@ -46,7 +49,8 @@ get_binpkg_list()
 build_bsd()
 {
 	RPMBUILDNODEPS="--nodeps"
-	RPMBUILDROOT="/home/$INTUSER/RPM/BUILD/$PACKAGE-$PKGVERSION"
+#	RPMBUILDROOT="/home/$INTUSER/RPM/BUILD/$PACKAGE-$PKGVERSION"
+	echo $RPMBUILDROOT
 	rm -rf $RPMBUILDROOT/*
 	rm -rf /usr/local/share/etercifs/sources/*$PACKAGE*
 	# FIXME: x86_64 support
@@ -58,24 +62,28 @@ convert_bsd()
 {
 # FIXME from Lav: we need get package arch from package
 # remove this after find out, why built rpm is put into /usr/local/src/portbld/RPMS
-	BUILTRPM=$(echo /usr/local/src/portbld/RPMS/noarch/$PACKAGE*.rpm)
+	#echo $BUILTRPM
+	#| grep '.rpm'
+	#BUILTRPM=$(echo /usr/local/src/portbld/RPMS/noarch/$PACKAGE*.rpm)
+	BUILTRPM=`find $RPMSDIR -name $PACKAGE* -print | xargs echo`
+	ls -l $BUILTRPM
 	#[ -n "$RPMBUILDROOT" ] || fatal "RPMBUILDROOT var is empty"
 	#cd $RPMBUILDROOT
-	if [ ! -r "$BUILTRPM" ] ; then
-		ARCH=i586
-		BUILTRPM=$(echo /usr/local/src/portbld/RPMS/$ARCH/$PACKAGE*.rpm)
-	fi
+	
+	#if [ ! -r "$BUILTRPM" ] ; then
+	#	ARCH=i586
+	#	BUILTRPM=$(echo /usr/local/src/portbld/RPMS/$ARCH/$PACKAGE*.rpm)
+	#fi
 #end of hack
 
 	echo $BUILTRPM
-	cp $BUILTRPM $RPMDIR
+	mv $BUILTRPM $RPMSDIR
+	ls -l $RPMSDIR | grep $PACKAGE
 
 
 	#get bin package list
 #	BUILDRPMLIST=$(get_binpkg_list $WRKDIR $SRPMNAME)
-	echo rpmdir $RPMDIR
-	echo srpmname $SRPMNAME
-	BUILDRPMLIST=$(get_binpkg_list $RPMDIR $SRPMNAME)
+	BUILDRPMLIST=$(get_binpkg_list $RPMSDIR $SRPMNAME)
 	[ -n "$BUILDRPMLIST" ] || fatal "BUILDRPMLIST var is empty"
 
 	#get package fields
@@ -88,8 +96,7 @@ convert_bsd()
 	rm -rf $WRKDIR/*
 
 	#mkdir pkgfiles && cd pkgfiles || fatal "error with subdir"
-	echo "get file hierarchy of"
-	echo $BUILDRPMLIST
+	echo "get file hierarchy of $BUILDRPMLIST"
 	for i in $BUILDRPMLIST ; do
 		rpm2cpio $i | cpio -dimv || fatal "error with rpm2cpio on $i"
 		rm -f $i
@@ -113,7 +120,7 @@ convert_bsd()
 	rm -f $WRKDIR/../$TARGETPKG
 	ls -l
 	# Note: it is value have the full path for -s args
-	pkg_create -v -s $WRKDIR -p/ -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS $WRKDIR/../$TARGETPKG || fatal "Can't create package"
+	pkg_create -v -s $WRKDIR -p/ -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS $WRKDIR/$TARGETPKG || fatal "Can't create package"
 	cd -
 }
 
@@ -127,7 +134,7 @@ clean_bsd()
 {
 	echo "Cleaning..."
 	rm -rf $WRKDIR
-	rm -rf $RPMDIR/../BUILD/${PACKAGE}
+	rm -rf $RPMSDIR/../BUILD/${PACKAGE}
 }
 
 case $COMMAND in
