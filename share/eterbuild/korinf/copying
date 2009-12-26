@@ -47,6 +47,7 @@ prepare_copying()
 
 }
 
+# Obsoleted due rpm-dir
 gen_base_apt_rpm()
 {
 	local SUBDIR=$1
@@ -99,14 +100,14 @@ copying_packages()
 	chmod ug+rw $DESTDIR/* -R 2>/dev/null
 	chmod o+r $DESTDIR/* -R 2>/dev/null
 
-	case $dist_name in
-		"ALTLinux")
-			gen_base_apt_rpm
-			gen_base_apt_rpm /extra
-			;;
-		*)
-			;;
-	esac
+	#case $dist_name in
+	#	"ALTLinux")
+	#		gen_base_apt_rpm
+	#		gen_base_apt_rpm /extra
+	#		;;
+	#	*)
+	#		;;
+	#esac
 
 	return $RC
 }
