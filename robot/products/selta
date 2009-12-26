@@ -151,7 +151,7 @@ build_selta()
 	export LC_ALL=ru_RU.UTF-8
 	TMPMAIL=`mktemp`
 	prepareSeltaMail $TMPMAIL || fatal "Can't prepare letter"
-	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "wine@etersoft.ru" -s "Сборка $PRODUCT" || fatal "Can't send"
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "Сборка $PRODUCT" || fatal "Can't send"
 	rm -f $TMPMAIL
 }
 
