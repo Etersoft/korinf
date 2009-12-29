@@ -7,8 +7,10 @@
 # positional parameters
 COMMAND=$1
 PACKAGE="$2"
-SOURCEURL="$3"
-DESTURL="$5"
+DESTURL="$3"
+#SOURCEURL="$3"
+#DESTURL="$5"
+
 
 GROUP=app-emulation
 
@@ -30,6 +32,9 @@ gen_ebuild()
 	WORKDIR=/home/$LOCUSER/tmp
 	RPMSDIR=/home/$LOCUSER/RPM/RPMS
         BUILTRPM=$(ls -1 $RPMSDIR/*.rpm | grep $PACKAGE | tail -n1)
+        BUILTTARS=$(ls -1 $RPMSDIR | grep tar.bz2 | grep $PACKAGE)
+#        BUILTRPM=$(ls -1 $RPMSDIR/*.rpm | grep ^$PACKAGE)
+	[ -n "$BUILTRPM" ] || fatal "BUILTRPM var is empty"
 	test -r ${BUILTRPM} || return 1
 	mkdir -p $WORKDIR
 	cd $WORKDIR
@@ -41,21 +46,36 @@ gen_ebuild()
 	EBUILDFILE=${WORKDIR}/${PACKAGE}-${EBUILDVERSION}.ebuild
 	export $EBUILDFILE
 
+	#add quotation marks to description
         DESCRIPTION=`querypackage "$BUILTRPM" SUMMARY`
+        DESCRIPTION="${DESCRIPTION}"
 	HOMEPAGE=`querypackage "$BUILTRPM" URL`
 	LICENSE=`querypackage "$BUILTRPM" LICENSE`
 	#FIXME: how to define SRC_URI
 	TARGET="tar.bz2"
-	SRC_URI="$DESTURL/\${PN}-\${PV}-\${MY_R}.\${MY_ARCH}.${TARGET}"
-	
+
+#	for i in $BUILTRPMS ; do
+#	    PN=`querypackage $i NAME`
+#	    PV=`querypackage $i VERSION`
+#	    MY_R=`querypackage $i RELEASE`
+#	    MY_ARCH=`querypackage $i ARCH`
+#	    #SRC_URI="$SRC_URI $DESTURL/\${PN}-\${PV}-\${MY_R}.\${MY_ARCH}.${TARGET}"
+#	    SRC_URI="$SRC_URI $DESTURL/${PN}-${PV}-${MY_R}.${MY_ARCH}.${TARGET}"
+#	done
+	for i in $BUILTTARS ; do
+	    SRC_URI="$SRC_URI \$BASE_URI/$i"
+	done
 	cat > $EBUILDFILE << EOF
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
+# $Header: $
 
 MY_R=$EBUILDRELEASE
 MY_ARCH=$EBUILDARCH
 DESCRIPTION=$DESCRIPTION
 HOMEPAGE=$HOMEPAGE
+
+BASE_URI=$DESTURL
 SRC_URI=$SRC_URI
 LICENSE=$LICENSE
 SLOT="0"
