@@ -28,6 +28,8 @@ PIDFILE=/var/run/eterbuild/watchbuilder.pid
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
+kormod messages/jabber
+
 if [ "$1" = "stop" ] ; then
 	kill `cat $PIDFILE`
 	killall -9 $0
@@ -56,6 +58,7 @@ print_tasks()
 
 check_tasks()
 {
+# TODO: check for hangup due sshfs stranges
 #OLDCOUNT=`find $TASKDIR -maxdepth 1 -name "*.task" -cmin +10 | wc -l`
 OLDCOUNT=`find $TASKDIR -maxdepth 1 -name "*.task" | wc -l`
 OLDFCOUNT=`find $TASKDIR -maxdepth 1 -name "*.task.failed" | wc -l`
@@ -64,7 +67,16 @@ echo "Old tasks: $OLDCOUNT"
 # Много застрявших заданий или поломанных сборок
 if [ $OLDCOUNT -ge 10 ] ||  [ $OLDFCOUNT -ge 7 ] ; then
 	echo Send mail...
-	mutt -s "Build system failed" sales@etersoft.ru yurifil@etersoft.ru <<EOF
+	mutt -s "Build system failed" lav@etersoft.ru yurifil@etersoft.ru <<EOF
+Build system is supended with $OLDCOUNT tasks:
+`print_tasks task`
+
+There are $OLDFCOUNT failed tasks:
+`print_tasks task.failed`
+
+EOF
+
+	send_by_jabber -s "Build system failed" lav@im.etersoft.ru yurifil@im.etersoft.ru <<EOF
 Build system is supended with $OLDCOUNT tasks:
 `print_tasks task`
 

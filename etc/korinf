@@ -37,3 +37,7 @@ PRIVATESSHKEY=$KORINFETC/id_dsa.korinf
 # Korinfer HOME for korlogin command
 #KORLOGINHOME=$TMPDIR/korinfer-home
 #KORLOGINHOME=/home/$INTUSER
+
+# for robot notices
+#KORINFERJID=korinfer@localhost
+#KORINFERJIDPASSWD=secret

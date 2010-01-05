@@ -1,0 +1,32 @@
+#!/usr/bin/python -u
+# -*- coding: utf-8 -*-
+#
+# A simple message-sending script
+
+# TODO: When error: No handlers could be found for logger "pyxmpp.Client"
+
+import os, sys
+
+# python-module-pyxmpp
+from pyxmpp.jid import JID
+from pyxmpp.jabber.simple import send_message
+
+# set in korinf config file
+jid = os.environ['KORINFERJID']
+password = os.environ['KORINFERJIDPASSWD']
+
+if len(sys.argv)!=4:
+    print u"Usage:"
+    print "\t%s recipient_jid subject body" % (sys.argv[0],)
+    print "example:"
+    print "\t%s test1@localhost Test 'this is test'" % (sys.argv[0],)
+    sys.exit(1)
+
+recpt,subject,body=sys.argv[1:]
+
+jid = JID(jid)
+if not jid.resource:
+    jid = JID(jid.node,jid.domain,"send_message")
+
+recpt = JID(recpt)
+send_message(jid,password,recpt,body,subject)
