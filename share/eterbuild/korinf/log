@@ -22,7 +22,7 @@
 ##
 
 export COLUMNS=80
-kormod outformat
+kormod messages/outformat
 
 
 success()
