@@ -58,6 +58,7 @@ print_tasks()
 
 check_tasks()
 {
+# TODO: check for hangup due sshfs stranges
 #OLDCOUNT=`find $TASKDIR -maxdepth 1 -name "*.task" -cmin +10 | wc -l`
 OLDCOUNT=`find $TASKDIR -maxdepth 1 -name "*.task" | wc -l`
 OLDFCOUNT=`find $TASKDIR -maxdepth 1 -name "*.task.failed" | wc -l`
@@ -75,7 +76,7 @@ There are $OLDFCOUNT failed tasks:
 
 EOF
 
-	send_by_jabber -s "Build system failed" lav@etersoft.ru yurifil@etersoft.ru <<EOF
+	send_by_jabber -s "Build system failed" lav@im.etersoft.ru yurifil@im.etersoft.ru <<EOF
 Build system is supended with $OLDCOUNT tasks:
 `print_tasks task`
 
