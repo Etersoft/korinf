@@ -26,7 +26,7 @@ recpt,subject,body=sys.argv[1:]
 
 jid = JID(jid)
 if not jid.resource:
-    jid = JID(jid.node,jid.domain,"send_message")
+    jid = JID(jid.node,jid.domain,"korinf")
 
 recpt = JID(recpt)
 send_message(jid,password,recpt,body,subject)
