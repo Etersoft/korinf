@@ -165,7 +165,7 @@ ${DOWNLOADDIR}/$TYPE-$PROJECTVERSION/$DIST/download.html
 $THANKTEXT
 -- 
 Команда разработчиков
-Etersoft, 2009
+Etersoft, 2010
 EOF
 
 cat >>$HTMLTO <<EOF
@@ -251,7 +251,7 @@ http://wiki.etersoft.ru/WINE/knownbugs
 
 $THANKTEXT
 <br>
-<i>Команда разработчиков Etersoft, 2009</i>
+<i>Команда разработчиков Etersoft, 2010</i>
 
 </table>
 </body>
@@ -347,7 +347,7 @@ http://wiki.etersoft.ru/WINE/knownbugs
 $THANKTEXT
 -- 
 Команда разработчиков
-Etersoft, 2009
+Etersoft, 2010
 EOF
 }
 
