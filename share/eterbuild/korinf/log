@@ -148,10 +148,9 @@ logit()
 	RET=$?
 	let TIMESTAMP=`date "+%s"`-$TIMESTAMP
 	[ -z "$NIGHTBUILD" ] && STRMSG=""
-	#[ "$RET" = 0 ] && STRMSG="$STRMSG done" || STRMSG="$STRMSG FAILED"
-	#[ $TIMESTAMP = "0" ] && echo "$STRMSG" || echo "$STRMSG ($TIMESTAMP сек)"
+
 	echo -n "$STRMSG"
-	[ $TIMESTAMP = "0" ] || echo -n "($TIMESTAMP сек) "
+	[ $TIMESTAMP = "0" ] || echo -n "($TIMESTAMP secs) "
 	if [ "$1" = "SKIPPED" ] ; then
 		skipped
 	else
