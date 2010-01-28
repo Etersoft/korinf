@@ -107,7 +107,9 @@ else
 			#flock 200
 			TASKTORUN=`find $TASKDIR -maxdepth 1 -name "*.task" | sort | head -n1`
 			if [ -e "$TASKTORUN" ] ; then
-				$AROBOT/arobot.sh --real $TASKTORUN 2>&1 #>> $ALOGDIR/autobuild.task.log
+				RUNTASK=$TASKTORUN.run
+				flock $TASKTORUN mv -f $TASKTORUN $RUNTASK
+				$AROBOT/arobot.sh --real $RUNTASK 2>&1 #>> $ALOGDIR/autobuild.task.log
 			else
 				test -n "$FLAGNOW" && break;
 			fi

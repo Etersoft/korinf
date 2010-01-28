@@ -104,7 +104,7 @@ esac
 DONEDIR=$TARGETDIR/../done/
 [ -d "$DONEDIR" ] || DONEDIR=~/done
 mkdir -p "$DONEDIR"
-mv -f $TASK "$DONEDIR" || fatal "Can't remove task"
+flock $TASK mv -f $TASK "$DONEDIR/$(basename $TASK .run).done" || fatal "Can't remove task"
 DATE=`date`
 echo "# built done at $DATE" >>$DONEDIR/`basename $TASK`
 exit_now
