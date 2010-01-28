@@ -26,19 +26,40 @@
 
 # TODO: user dist_ver
 
+
+
 gen_ebuild()
 {
 	local RET
         echo "Copying to $BUILDROOT/tmp"
         cp -f  $KORINFDIR/korinf/remote-scripts/remote-gentoo.sh $BUILDROOT/tmp || { warning "Cannot copy script" ; return 1 ; }
-        #$SUDO chroot $BUILDROOT su -l -c "sh -x /tmp/remote-gentoo.sh generate \"$PACKAGE\" \"$BUILDNAME\" $RPMSDIR $DESTURL" korinfer
-        $SUDO chroot $BUILDROOT su -l -c "sh -x /tmp/remote-gentoo.sh generate \"$PACKAGE\" $DESTURL" korinfer
+        $SUDO chroot $BUILDROOT su -l -c "sh -x /tmp/remote-gentoo.sh generate \"$PACKAGE\" $DESTURL $TARGETSRPM" korinfer
         RET=$?
         if [ $RET != 0 ] ; then
                 warning "Can't build"
                 return 1
         fi
         true
+}
+
+querypackage()
+{
+        rpmquery -p --queryformat "%{$2}" $1
+}
+
+convert_gentoo()
+{
+	echo "Using alien now"
+	for i in *${BUILDNAME}*.rpm ; do
+	    run_alien --to-tgz $i || { warning "alien problem with tbz2"; RES=11 ; }
+	    local TARARCH=`querypackage "$i" ARCH`
+	    local RELPKG=$PACKAGERELEASE$TARGETPKGDISTRO.$TARARCH
+	    for j in *${BUILDNAME}*.tgz ; do
+		local TARBNAME=`basename $j .tgz`
+		cat "$j" | gunzip -c | bzip -c > "$TARBNAME-$RELPKG.tar.bz2" || { warning "can't repack files" ; RES=11 ; }
+		rm -f "$j"
+	    done
+	done
 }
 
 copying_gentoo2007()
