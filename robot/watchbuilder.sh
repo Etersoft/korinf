@@ -56,6 +56,25 @@ print_tasks()
 	#ls -l $TASKDIR/*.task
 }
 
+check_host()
+{
+	local HOST=sales.etersoft.ru
+	if ! ping -c1 $HOST && sleep 3 && ! ping -c1 $HOST ; then
+		echo Send mail...
+		mutt -s "Build system hangup" lav@etersoft.ru yurifil@etersoft.ru <<EOF
+Build system possible is hangup due sales.etersoft.ru unreachable.
+
+EOF
+		send_by_jabber -s "Build system hangup" lav@im.etersoft.ru yurifil@im.etersoft.ru <<EOF
+Build system possible is hangup due sales.etersoft.ru unreachable.
+EOF
+		return 1
+	fi
+
+	return 0
+}
+
+
 check_tasks()
 {
 # TODO: check for hangup due sshfs stranges
@@ -105,7 +124,7 @@ fi
 
 SLEEP=120
 while true; do
-	if check_tasks ; then
+	if check_host && check_tasks ; then
 		SLEEP=120
 	else
 		SLEEP=$(($SLEEP*2))
