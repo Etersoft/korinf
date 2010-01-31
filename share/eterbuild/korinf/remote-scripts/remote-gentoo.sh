@@ -7,9 +7,11 @@
 # positional parameters
 COMMAND=$1
 PACKAGE="$2"
-SOURCEURL="$3"
-DESTURL="$5"
+DESTURL="$3"
+SRPMNAME=$4
+LOCUSER=korinfer
 
+#FIXME: set package group to Gentoo option
 GROUP=app-emulation
 
 querypackage()
@@ -23,39 +25,56 @@ fatal()
         exit 1
 }
 
-gen_ebuild()
+gen_ebuild_remote()
 {
         # FIXME: problem with various version
 	LOCUSER=korinfer
 	WORKDIR=/home/$LOCUSER/tmp
 	RPMSDIR=/home/$LOCUSER/RPM/RPMS
         BUILTRPM=$(ls -1 $RPMSDIR/*.rpm | grep $PACKAGE | tail -n1)
+        BUILTTARS=$(ls -1 $RPMSDIR | grep tar.bz2 | grep $PACKAGE)
+	[ -n "$BUILTRPM" ] || fatal "BUILTRPM var is empty"
 	test -r ${BUILTRPM} || return 1
 	mkdir -p $WORKDIR
 	cd $WORKDIR
 
-	EBUILDVERSION=`querypackage "$BUILTRPM" VERSION`
-	EBUILDRELEASE=`querypackage "$BUILTRPM" RELEASE`
-	EBUILDARCH=`querypackage "$BUILTRPM" ARCH`
-	#test: emerge doesn't work with release
+#Set variables that depend on RPM
+#	EBUILDVERSION=`querypackage "$BUILTRPM" VERSION`
+#	EBUILDRELEASE=`querypackage "$BUILTRPM" RELEASE`
+#	EBUILDARCH=`querypackage "$BUILTRPM" ARCH`
+#	HOMEPAGE=`querypackage "$BUILTRPM" URL`
+#	LICENSE=`querypackage "$BUILTRPM" LICENSE`
+#test: is SRPMNAME better for vars definitions?
+	EBUILDVERSION=`querypackage "$SRPMNAME" VERSION`
+	EBUILDRELEASE=`querypackage "$SRPMNAME" RELEASE`
+	EBUILDARCH=`querypackage "$SRPMNAME" ARCH`
+        DESCRIPTION=`querypackage "$SRPMNAME" SUMMARY`
+	HOMEPAGE=`querypackage "$SRPMNAME" URL`
+	LICENSE=`querypackage "$SRPMNAME" LICENSE`
+#Add qoutation marks:
+        DESCRIPTION=\"${DESCRIPTION}\"
+
+#Set other variables
+#test: emerge doesn't work with release
 	EBUILDFILE=${WORKDIR}/${PACKAGE}-${EBUILDVERSION}.ebuild
 	export $EBUILDFILE
-
-        DESCRIPTION=`querypackage "$BUILTRPM" SUMMARY`
-	HOMEPAGE=`querypackage "$BUILTRPM" URL`
-	LICENSE=`querypackage "$BUILTRPM" LICENSE`
-	#FIXME: how to define SRC_URI
 	TARGET="tar.bz2"
-	SRC_URI="$DESTURL/\${PN}-\${PV}-\${MY_R}.\${MY_ARCH}.${TARGET}"
-	
+
+#Add all built TARs to SRC_URI variable
+	for i in $BUILTTARS ; do
+	    SRC_URI="\$BASE_URI/$i $SRC_URI"
+	done
 	cat > $EBUILDFILE << EOF
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
+# $Header: $
 
 MY_R=$EBUILDRELEASE
 MY_ARCH=$EBUILDARCH
 DESCRIPTION=$DESCRIPTION
 HOMEPAGE=$HOMEPAGE
+
+BASE_URI=$DESTURL
 SRC_URI=$SRC_URI
 LICENSE=$LICENSE
 SLOT="0"
@@ -75,11 +94,6 @@ EOF
 # delete built RPM
 	rm -rf $BUILTRPM
 
-        # create package with the PACKAGE name (not src.rpm name)
-#        rm -f ../$TARGETPKG
-#        ebuild $EBUILDFILE package || fatal
-#        cd -
-
 }
 
 install_gentoo()
@@ -98,7 +112,7 @@ case $COMMAND in
                 build_gentoo
                 ;;
         "generate")
-		gen_ebuild
+		gen_ebuild_remote
                 ;;
         "install")
                 install_gentoo
