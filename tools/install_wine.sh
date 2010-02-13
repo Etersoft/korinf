@@ -47,11 +47,11 @@ cd $TARGETPATH || fatal "Can't cd"
 pwd
 
 LIST=
-for i in $BUILDNAME ; do
+for i in $BUILDNAME $BUILDNAME-gl ; do
 	pkg_is_installed $i && LIST="$LIST $i-$VERSION-*$RELEASE.*.rpm"
 done
 
-for i in lib$BUILDNAME-devel $BUILDNAME-twain $BUILDNAME-gl ; do
+for i in lib$BUILDNAME-devel $BUILDNAME-twain ; do
 	pkg_is_installed $i && LIST="$LIST extra/$i-$VERSION-*$RELEASE.*.rpm"
 done
 
