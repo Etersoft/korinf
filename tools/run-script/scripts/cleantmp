@@ -5,6 +5,6 @@
 echo "Run script on `distr_vendor`"
 DISTRVENDOR=`/usr/bin/distr_vendor -d`
 
-[ "$DISTVENDOR" = "ALTLinux" ] && exit 1
+[ "$DISTRVENDOR" = "ALTLinux" ] && exit 1
 
 rm -rf /tmp/* /var/tmp/*
