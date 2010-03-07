@@ -1,0 +1,6 @@
+
+# $1 - dist like CentOS/5.4
+get_rpm_args()
+{
+        grep "^$2 " $KORINFETC/rpmopt/rpm | cut -f2-100 -d" "
+}

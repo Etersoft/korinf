@@ -1,0 +1,2 @@
+# add parameter for build package
+help2man --define='_disable_nls --disable-nls'

@@ -23,6 +23,8 @@
 
 # We hope here BUILDERHOME is clean already
 
+kormod buildargs
+
 convert_rpm_to_target()
 {
 	local dist=$1
@@ -71,13 +73,15 @@ build_rpms()
 	init_home
 	INTBUILT=/home/$INTUSER/$RPMSDIR
 
-	echo "Build '$BUILDSRPM' for $dist distro"
+	RPMARGS="$(get_rpm_args $dist $BUILDNAME)"
+
+	echo "Build '$BUILDSRPM' for $dist distro with args '$RPMARGS'"
 	# FIXME: problem if system's rpm does not recognize our src.rpm (as Mandriva 2007.1/2008)
 	RPMBUILDROOT="/home/$INTUSER/tmp/$BUILDNAME-buildroot"
 	RPMBUILDNODEPS=""
 	# Skip buildreqs checking on non RPM systems
 	[ "$TARGET" != "rpm" ] && RPMBUILDNODEPS="--nodeps"
-	CMDBUILD="rpmbuild -v --rebuild $RPMBUILDNODEPS --buildroot $RPMBUILDROOT /home/$INTUSER/tmp/$TARGETSRPM --target $BUILDARCH"
+	CMDBUILD="rpmbuild -v --rebuild $RPMBUILDNODEPS "$RPMARGS" --buildroot $RPMBUILDROOT /home/$INTUSER/tmp/$TARGETSRPM --target $BUILDARCH"
 	CMDAFTERBUILD="cat ~/tmp/rpm-tmp.* ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.log; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h"
 
 	# Control file for check build result

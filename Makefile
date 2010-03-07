@@ -10,4 +10,5 @@ install:
 	install -m 755 tools/login.sh $(bindir)/korlogin
 	install -m 644 etc/korinf $(sysconfdir)/eterbuild/
 	install -m 644 etc/lists/* $(sysconfdir)/eterbuild/lists/
+	install -m 644 etc/rpmopt/* $(sysconfdir)/eterbuild/rpmopt/
 	cp -ap share/eterbuild/korinf/* $(pkgdatadir)/korinf/ || :
