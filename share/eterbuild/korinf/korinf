@@ -108,8 +108,8 @@ build_project()
 	if [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
 		echo "Korinf build script:"
 		echo "Usage: script [target_system] [project_version]"
-		echo "	target_system - Mandriva/2009 or test, all, deb, etc."
-		echo "	project_version - 1.0.10 or last"
+		echo "	target_system - Mandriva/2009 or test, ALL, deb (lists from etc/lists) or all (by distr.list)"
+		echo "	project_version - 1.0.10 or last, testing, unstable"
 		echo "you can use following options:"
 		print_build_project_options
 		fatal "Help message"

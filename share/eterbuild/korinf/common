@@ -87,8 +87,6 @@ fi
 LC_ALL=C
 unset DISPLAY
 
-test `hostname` = builder.office.etersoft.ru || warning "It is tested only at Etersoft builder host!"
-
 kormod()
 {
 	local i

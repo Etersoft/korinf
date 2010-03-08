@@ -6,14 +6,13 @@
 # do not execute again
 if [ -z "$CHROOTDIR" ] ; then
 
-# Нужно отделить общий конфиг он частного WINE
-
 # We need rw group and permit reading to all
 umask 0002
 
 export LANG=C
 export LC_ALL=C
 
+# TODO: move to glocal config
 # FIXME: User in local system (with the same uid as INTUSER)
 LOCUSER=builder
 
