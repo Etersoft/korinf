@@ -22,7 +22,7 @@
 ##
 
 # needed version etersoft-build-utils package
-NEEDETERBUILD=167
+NEEDETERBUILD=179
 
 load_etersoft_build_utils()
 {

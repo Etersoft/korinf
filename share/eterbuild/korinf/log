@@ -142,7 +142,7 @@ logit()
 	[ -z "$NIGHTBUILD" ] && echo -n "$STRMSG"
 	shift
 	TIMESTAMP=`date "+%s"`
-	if [ ! "$1" = "SKIPPED" ] ; then
+	if [ ! "$1" = "SKIPPED" ] && [ -n "$LOGFILE" ] ; then
 		$* >>$LOGFILE 2>&1
 	fi
 	RET=$?
