@@ -21,7 +21,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-load_mod rpm
+load_mod rpm hasher
 
 function build_in_hasher()
 {
@@ -32,7 +32,7 @@ function build_in_hasher()
 	set_target_type $(get_altdistr_mod $dist_ver)
 	detect_target_env >>$LOGFILE 2>&1
 	set_hasherdir
-	BUILTRPM=$HASHERDIR/repo/$BUILDTARCH/RPMS.hasher
+	BUILTRPM=$HASHERDIR/repo/$BUILDARCH/RPMS.hasher
 
 	if [ -d "$DESTDIR/RPMS.main" ] ; then
 		# FIXME: it works only for Sisyphus
