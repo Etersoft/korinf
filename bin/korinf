@@ -29,7 +29,7 @@ load_mod spec rpm etersoft strings
 
 
 if [ -z "$1" ] || [ "$1" = "-h" ]; then
-	echo "Use: korinf [-r version ] [System/Version] package.spec|PackageName [TARGETDIR]" >&2
+	echo "Use: korinf [-r version ] [System/Version] package.spec|PackageName [TARGETDIR] [options]" >&2
 	echo "     with package.spec use target as rpmpub" >&2
 	echo "     with packageName build in BuildFarm" >&2
 	echo "     TARGETDIR - target dir instead default" >&2

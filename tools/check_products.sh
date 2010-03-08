@@ -9,14 +9,14 @@
 
 define_paths()
 {
-# выбираем в KORINFROOTDIR каталоги, содержащие сборочные скрипты
+# п╡я▀п╠п╦я─п╟п╣п╪ п╡ KORINFROOTDIR п╨п╟я┌п╟п╩п╬пЁп╦, я│п╬п╢п╣я─п╤п╟я┴п╦п╣ я│п╠п╬я─п╬я┤п╫я▀п╣ я│п╨я─п╦п©я┌я▀
 	find $1 -name bin-\* -print | grep -v old
 }
 
 define_components()
 {
-# выбираем файлы .sh в $PATHTOSCRIPT, исключая файлы foo-all.sh, release-check, cabextract
-# FIXME: убрать проверку dkms-* для не-Мандрив: например, через переменную ADDITIONALGREPS, заполняемую по необходимости
+# п╡я▀п╠п╦я─п╟п╣п╪ я└п╟п╧п╩я▀ .sh п╡ $PATHTOSCRIPT, п╦я│п╨п╩я▌я┤п╟я▐ я└п╟п╧п╩я▀ foo-all.sh, release-check, cabextract
+# FIXME: я┐п╠я─п╟я┌я▄ п©я─п╬п╡п╣я─п╨я┐ dkms-* п╢п╩я▐ п╫п╣-п°п╟п╫п╢я─п╦п╡: п╫п╟п©я─п╦п╪п╣я─, я┤п╣я─п╣п╥ п©п╣я─п╣п╪п╣п╫п╫я┐я▌ ADDITIONALGREPS, п╥п╟п©п╬п╩п╫я▐п╣п╪я┐я▌ п©п╬ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦
 	DIRCONTENTS=`find $1 -maxdepth 1 -print | grep ".sh" | grep -v all | grep -v release-check`
 	#| grep -v cabextract
 	#| grep -v dkms-aksparlnx
@@ -30,7 +30,7 @@ grep_script()
 {
 	#FIXME: Highlight this with another color
 	echo "Checking $1 for $2"
-# запускаем сборочные скрипты с параметром -c, выводим строки, содержащие сообщения об устаревших или пропущенных сборках
+# п╥п╟п©я┐я│п╨п╟п╣п╪ я│п╠п╬я─п╬я┤п╫я▀п╣ я│п╨я─п╦п©я┌я▀ я│ п©п╟я─п╟п╪п╣я┌я─п╬п╪ -c, п╡я▀п╡п╬п╢п╦п╪ я│я┌я─п╬п╨п╦, я│п╬п╢п╣я─п╤п╟я┴п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╬п╠ я┐я│я┌п╟я─п╣п╡я┬п╦я┘ п╦п╩п╦ п©я─п╬п©я┐я┴п╣п╫п╫я▀я┘ я│п╠п╬я─п╨п╟я┘
 	$PATHTOSCRIPT/$1.sh $CHECKONLY $2 | grep -e OBS -e MISSED | grep -v Legend | grep -v link | grep -v error || echo "Everything is built"
 }
 
