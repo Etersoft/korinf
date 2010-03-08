@@ -8,4 +8,6 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
+SKIPBUILDLIST="FreeBSD OpenSolaris"
+
 build_project $WINEPUB_PATH haspd WINE $@
