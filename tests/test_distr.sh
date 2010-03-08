@@ -12,7 +12,7 @@ comp()
 	local ET=$3
 	local RS=$1
 	#local RS=`eval echo "$TT"`
-	[ "$RS" != "$ET" ] && echo "Error: wait for '$ET' in '$TT', but get '$RS'" || echo "OK for $TT"
+	[ "$RS" != "$ET" ] && echo "Error: wait for '$ET' in '$TT', but get '$RS'" || echo "OK for $TT with '$RS'"
 }
 
 check()
@@ -45,14 +45,17 @@ check_source()
 
 PATHSOURCE=$(readlink -f "/var/ftp/pub/Etersoft/WINE@Etersoft/last/sources")
 
-# fixme check corretly only if real target exists
-check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/WINE/SUSE/11 $PATHSOURCE
-check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/WINE/x86_64/SUSE/11.1 $PATHSOURCE
-check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/x86_64/SUSE/11 $PATHSOURCE
-check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/SUSE/11.1 $PATHSOURCE
-check_source /var/ftp/pub/Etersoft/Postgres@Etersoft/8.3.6/Windows /var/ftp/pub/Etersoft/Postgres@Etersoft/8.3.6/sources
+TESTSYSTEM=Ubuntu/9.04
+PGVERSION=last
 
-SOURCEPATH=/var/ftp/pub/Etersoft/Postgres@Etersoft/8.3.6/sources
+# FIXME: check correctly only if real target exists
+check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/WINE/$TESTSYSTEM $PATHSOURCE
+check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/WINE/x86_64/$TESTSYSTEM $PATHSOURCE
+check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/x86_64/$TESTSYSTEM $PATHSOURCE
+check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/$TESTSYSTEM $PATHSOURCE
+check_source /var/ftp/pub/Etersoft/Postgres@Etersoft/$PGVERSION/Windows /var/ftp/pub/Etersoft/Postgres@Etersoft/$PGVERSION/sources
+
+SOURCEPATH=/var/ftp/pub/Etersoft/Postgres@Etersoft/$PGVERSION/sources
 PRVERSION=
 if [ -z "$PRVERSION" ] ; then
 	# get PROJECT version from SOURCEPATH
