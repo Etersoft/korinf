@@ -83,18 +83,25 @@ for dist in $CMDRE ; do
 
 	LINKED=$(get_linked_system $dist)
 	if [ -n "$LINKED" ] ; then
-		if [ -d "$DESTDIR" ] ; then
-			warning "Remove target dir for replace to link"
-			rm -rfv "$DESTDIR"
+		if [ ! -L "$DESTDIR" ] && [ -d "$DESTDIR" ] ; then
+			warning "Removing target dir for replace to link"
+			rm -rfv "$DESTDIR" && DONE
 		fi
 		if [ -L "$DESTDIR" ] ; then
 			# TODO: check linking
-			logit "Link $dist to $(readlink $DESTDIR) already exists" SKIPPED
-		else
+			#logit "Link $dist to $(readlink $DESTDIR) already exists" SKIPPED
+			if [ $(readlink "$DESTDIR") != "../$LINKED" ] ; then
+				warning "Overwrite existed link $(readlink $DESTDIR) to ../$LINKED"
+				rm -rfv "$DESTDIR"
+			else
+				logit "Linked to $(readlink $DESTDIR)" SKIPPED
+			fi
+		fi
+		if [ ! -L "$DESTDIR" ] ; then
 			ln -s ../$LINKED $DESTDIR
 			logit "Create link $dist to $LINKED" PASSED
 		fi
-		continue;
+		continue
 	fi
 
 	# Set target URL for get tarballs or checking
