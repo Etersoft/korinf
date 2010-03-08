@@ -53,6 +53,7 @@ fi
 [ "$1" = "-n" ] && { shift ; NETBUILD=1 ; } || NETBUILD=
 
 
+# TODO: check by system list
 SYS="$1"
 shift
 
@@ -68,7 +69,8 @@ if [ -n "$NETBUILD" ] ; then
 	echo Mount $SYS by network ...
 	$SUDO mount borroman:/mnt/$SYS $TESTDIR -o soft || exit 1
 else
-	echo Mount $SYS from local...
+	test -d "$LOCALLINUXFARM/$SYS/dev" || fatal "$LOCALLINUXFARM/$SYS is not correct system chroot"
+	echo Mount $SYS from local disk storage...
 	$SUDO mount $LOCALLINUXFARM/$SYS $TESTDIR --bind || exit 1
 fi
 $SUDO mkdir -p $TESTDIR/{srv/wine,proc,home/$INTUSER,dev/pts}
@@ -107,7 +109,7 @@ export PS1="[\u@$SYS \W]\$"
 #[\u@\h \W]\$
 $SUDO chroot $TESTDIR su -c "mount -t proc none /proc"
 $SUDO chroot $TESTDIR su -c "mount -t devpts none /dev/pts"
-setarch $BUILDARCH $SUDO chroot $TESTDIR $USERCO $COMMANDTO
+setarch $BUILDARCH $SUDO chroot $TESTDIR $USERCO $COMMANDTO | tee $0.log
 $SUDO umount $TESTDIR/home/$INTUSER && echo "Unmount home"
 #$SUDO umount $TESTDIR/usr/local $TESTDIR/srv/wine  && echo "Unmount swine"
 $SUDO chroot $TESTDIR su -c "umount /dev/pts"
