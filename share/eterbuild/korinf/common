@@ -160,111 +160,6 @@ get_bin_package()
 	test -r "$BUILDPKG"
 }
 
-# get distro list from arg/directory/file
-# from DIR/distro.list if arg is dir
-# from FILE if arg is file name
-# from ARG if arg is list
-get_distro_list()
-{
-	local i
-	local LIST
-	local DIR
-
-	# get list from directory
-	if [ -d "$1" ] ; then
-		LIST="$1/distro.list"
-		if [ ! -r "$LIST" ] ; then
-			fatal "get_distro_list: $LIST is not found"
-		fi
-		DIR=$1
-	# get list from file
-	elif [ -r "$1" ] ; then
-		LIST="$1"
-		DIR=`dirname $1`
-	# list in the variable
-	else
-		echo "$@" | filter_distro_list
-		return
-	fi
-
-	# print out distro list
-	cat "$LIST" | grep -v "^#" | grep -v "^\." | sed -e "s|[ 	].*||g" | grep -v "^\$" | filter_distro_list
-	# get list included files
-	LIST=`cat "$LIST" | grep "^\." | sed -e "s|^\. ||g"`
-	for i in $LIST ; do
-		test -f "$DIR/$i" || continue
-		get_distro_list $DIR/$i
-	done
-}
-
-filter_distro_list()
-{
-	if [ -z "$SKIPBUILDLIST" ] ; then
-		cat
-		return
-	fi
-	# SKIPBUILDLIST contains DistroName or DistroName/2010
-	for N in $(cat) ; do
-		if ( echo $SKIPBUILDLIST | grep -q "$N" ) ; then
-			# skip distro if it in list
-			continue
-		fi
-		# search without version
-		local DN=`dirname $(echo $N)`
-		# sed is workaround to match DistroName_2010 as a word (-w)
-		if ( echo $SKIPBUILDLIST | sed -e "s|/|_|g" | grep -q -w "$DN" ) ; then
-			# skip distro if it in list
-			continue
-		fi
-		echo $N
-	done
-
-}
-
-# get distro list from TARGETPATH or lists/$ALL
-get_target_list()
-{
-	local TLIST
-	local ALL=$1
-	TLIST=$TARGETPATH/distro.list
-	[ -r "$TLIST" ] || TLIST=$KORINFETC/lists/$ALL
-	[ -z "$ALL" ] || TLIST=$KORINFETC/lists/$ALL
-	[ -r "$TLIST" ] && [ -f "$TLIST" ] || fatal "get_target_list failed to get list of targets"
-	echo $TLIST
-}
-
-check_target_dist()
-{
-	local DIST="$1"
-	get_distro_list $(get_target_list ALL) | grep -q "$DIST" || get_distro_list $(get_target_list) | grep -q "$DIST"
-}
-
-# Set REBUILDLIST according TARGETPATH, existing REBUILDLIST and some heruistic
-set_rebuildlist()
-{
-	local RESULT
-	if [ -n "$REBUILDLIST" ] && [ ! "$REBUILDLIST" = "all" ] ; then
-		if [ -r "$KORINFETC/lists/$REBUILDLIST" ] ; then
-			REBUILDLIST=$KORINFETC/lists/$REBUILDLIST
-			RESULT="Build for distros from $REBUILDLIST"
-		else
-			# Build for concrete target if it is exists
-			check_target_dist $REBUILDLIST || fatal "Run with unknown target '$REBUILDLIST'"
-			RESULT="Build for $REBUILDLIST"
-		fi
-	else
-		# if rebuild list is empty or all
-		REBUILDLIST=$(get_target_list "")
-		# Hack?
-		#if [ -r "$TARGETPATH/distro.list" ] ; then
-		#	RESULT="Build according to distro.list from $TARGETPATH"
-		#else
-		RESULT="Build for distros from $REBUILDLIST"
-		#fi
-	fi
-	[ -n "$QUIET" ] || echo $RESULT
-}
-
 # fills dist_ver, dist_name, dist_arch by arg with target name
 parse_dist_name()
 {
@@ -298,4 +193,4 @@ get_rpm_sources()
 	return 0
 }
 
-kormod config log
+kormod config log list

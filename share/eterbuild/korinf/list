@@ -1,0 +1,139 @@
+#!/bin/bash
+##
+#  Korinf project
+#
+#  Distro list functions
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005-2010
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2010
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+
+# get distro list from arg/directory/file
+# from DIR/distro.list if arg is dir
+# from FILE if arg is file name
+# from ARG if arg is list
+get_distro_list()
+{
+	local i
+	local LIST
+	local DIR
+
+	# get list from directory
+	if [ -d "$1" ] ; then
+		LIST="$1/distro.list"
+		if [ ! -r "$LIST" ] ; then
+			fatal "get_distro_list: $LIST is not found"
+		fi
+		DIR=$1
+	# get list from file
+	elif [ -r "$1" ] ; then
+		LIST="$1"
+		DIR=`dirname $1`
+	# list in the variable
+	else
+		echo "$@" | filter_distro_list
+		return
+	fi
+
+	# print out distro list
+	cat "$LIST" | grep -v "^#" | grep -v "^\." | sed -e "s|[ 	].*||g" | grep -v "^\$" | filter_distro_list
+	# get list included files
+	LIST=`cat "$LIST" | grep "^\." | sed -e "s|^\. ||g"`
+	for i in $LIST ; do
+		test -f "$DIR/$i" || continue
+		get_distro_list $DIR/$i
+	done
+}
+
+filter_distro_list()
+{
+	if [ -z "$SKIPBUILDLIST" ] ; then
+		cat
+		return
+	fi
+	# SKIPBUILDLIST contains DistroName or DistroName/2010
+	for N in $(cat) ; do
+		if ( echo $SKIPBUILDLIST | grep -q "$N" ) ; then
+			# skip distro if it in list
+			continue
+		fi
+		# search without version
+		local DN=`dirname $(echo $N)`
+		# sed is workaround to match DistroName_2010 as a word (-w)
+		if ( echo $SKIPBUILDLIST | sed -e "s|/|_|g" | grep -q -w "$DN" ) ; then
+			# skip distro if it in list
+			continue
+		fi
+		echo $N
+	done
+
+}
+
+get_linked_system()
+{
+	grep "^$1 " $KORINFETC/linked | cut -d" " -f2
+}
+
+
+# get list from TARGETPATH/distro.list or use lists/$ALL
+# arg: ALL or other full list
+get_target_list()
+{
+	local TLIST RLIST
+	local FILE=$1
+	TLIST=$TARGETPATH/distro.list
+	RLIST=$KORINFETC/lists/$FILE
+	if [ "$FILE" = "ALL" ] ; then
+		[ -f "$RLIST" ] && TLIST=$RLIST || fatal "Can't read ALL list"
+	else
+		# if can't find distro.list, use lists/
+		[ ! -r "$TLIST" ] && [ -f "$RLIST" ] && TLIST=$RLIST
+	fi
+	[ -r "$TLIST" ] && [ -f "$TLIST" ] || TLIST=$KORINFETC/lists/ALL
+	# || fatal "get_target_list failed to get list of targets from $TLIST"
+	echo $TLIST
+}
+
+check_target_dist()
+{
+	local DIST="$1"
+	get_distro_list $(get_target_list "") | grep -q "$DIST" || get_distro_list $(get_target_list "ALL") | grep -q "$DIST"
+}
+
+# Set REBUILDLIST according TARGETPATH, existing REBUILDLIST and some heruistic
+set_rebuildlist()
+{
+	local RESULT
+	if [ -n "$REBUILDLIST" ] && [ ! "$REBUILDLIST" = "all" ] ; then
+		if [ -r "$REBUILDLIST" ] ; then
+			RESULT="Build for distros from full path $REBUILDLIST"
+		elif [ -r "$KORINFETC/lists/$REBUILDLIST" ] ; then
+			REBUILDLIST=$KORINFETC/lists/$REBUILDLIST
+			RESULT="Build for distros from $REBUILDLIST"
+		else
+			# Build for concrete target if it is exists
+			check_target_dist $REBUILDLIST || fatal "Run with unknown target '$REBUILDLIST'"
+			RESULT="Build for $REBUILDLIST"
+		fi
+	else
+		# if rebuild list is empty or all - use distro.list if possible, ALL in other cases
+		REBUILDLIST=$(get_target_list "")
+		RESULT="Build for distros from $REBUILDLIST"
+	fi
+	[ -n "$QUIET" ] || echo $RESULT
+}
+
