@@ -4,7 +4,7 @@
 #  Korinf project
 #
 #  Run script task on all systems
-#  Usage: ./run-script.sh TASK
+#  Usage: ./run-script.sh TASK [DISTR_LIST]
 #  TASK - file from scripts/
 #
 #  Copyright (c) Etersoft <http://etersoft.ru> 2009
