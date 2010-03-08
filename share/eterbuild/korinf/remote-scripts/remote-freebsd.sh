@@ -65,7 +65,7 @@ convert_bsd()
 	#echo $BUILTRPM
 	#| grep '.rpm'
 	#BUILTRPM=$(echo /usr/local/src/portbld/RPMS/noarch/$PACKAGE*.rpm)
-	BUILTRPM=`find $RPMSDIR -name $PACKAGE* -print | xargs echo`
+	BUILTRPM=`find $RPMSDIR -name *$PACKAGE* -print | xargs echo`
 	ls -l $BUILTRPM
 	#[ -n "$RPMBUILDROOT" ] || fatal "RPMBUILDROOT var is empty"
 	#cd $RPMBUILDROOT
