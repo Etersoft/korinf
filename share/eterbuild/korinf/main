@@ -80,13 +80,30 @@ for dist in $CMDRE ; do
 
 	# Set target dir for built packages
 	DESTDIR=$TARGETPATH/$dist
+
+	LINKED=$(get_linked_system $dist)
+	if [ -n "$LINKED" ] ; then
+		if [ -d "$DESTDIR" ] ; then
+			warning "Remove target dir for replace to link"
+			rm -rfv "$DESTDIR"
+		fi
+		if [ -L "$DESTDIR" ] ; then
+			# TODO: check linking
+			logit "Link $dist to $(readlink $DESTDIR) already exists" SKIPPED
+		else
+			ln -s ../$LINKED $DESTDIR
+			logit "Create link $dist to $LINKED" PASSED
+		fi
+		continue;
+	fi
+
 	# Set target URL for get tarballs or checking
 	DESTURL=$(echo $DESTDIR | sed -e "s|$FTPDIR/|$PUBLICURL/|g")
 
 	# skip linked destination (TODO: do not handle it at all)
-	[ -L "$DESTDIR" ] && echo "$dist: Skip linked target" && continue
+	[ -L "$DESTDIR" ] && warning "$dist: Does not support linked target, translate it in etc/linked" && continue
 
-	[ "$dist" = "Windows" ] && echo "Skip $dist" && continue
+	[ "$dist" = "Windows" ] && echo "Skip $dist: is not supported yet" && continue
 
 	# FIXME: Hack
 	[ "$TARGETPRIVPATH" ] && DESTDIR=$TARGETPRIVPATH
