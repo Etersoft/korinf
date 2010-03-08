@@ -3,20 +3,12 @@
 # Author: Vitaly Lipatov <lav@etersoft.ru>
 # GNU Public License version 3
 
-#
-# load common functions, compatible with local and installed script
-. `dirname $0`/../share/eterbuild/korinf/common
-kormod korinf
+if [ -n "$1" ] ; then
+        LIST=$1
+        shift
+else
+        LIST=all
+fi
 
+../bin/korinf $LIST etersoft-build-utils /var/ftp/pub/Etersoft/Sisyphus $@
 
-build_extrapkg()
-{
-	EXTRAFILES="$1"
-	shift
-	build_project $WINEPUB_PATH "$EXTRAFILES" WINE $PROJVER $@
-}
-
-# install packages after build
-BOOTSTRAP=1
-
-build_extrapkg etersoft-build-utils $@
