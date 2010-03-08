@@ -4,6 +4,7 @@
 
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
+load_mod alt
 
 PROJECTVERSION=$1
 [ -n "$PROJECTVERSION" ] || PROJECTVERSION=last
@@ -28,8 +29,10 @@ add_and_remove()
 # FROM TARGET
 copy_to()
 {
-	local FPU="$WINEPUB_PATH/$PROJECTVERSION/WINE/$1"
-	local TP="$2/i586/RPMS.nonfree"
+	ARCH=$1
+	shift
+	local FPU="$WINEPUB_PATH/$PROJECTVERSION/WINE/$ARCH/$1"
+	local TP="$2/$ARCH/RPMS.nonfree"
 
 	add_and_remove "$FPU" wine-etersoft
 	add_and_remove "$FPU" wine-etersoft-gl
@@ -47,10 +50,14 @@ copy_to()
 	#TP="$2/noarch/RPMS.addon"
 	add_and_remove "$FPU" etercifs
 
-	ssh git.eter genbases -b $(basename $1 | tr [A-Z] [a-z])
+	set_binaryrepo $(basename $1)
+	ssh git.eter genbases -b $BINARYREPO
 }
 
-copy_to ALTLinux/4.1 /var/ftp/pub/Etersoft/LINUX@Etersoft/4.1/branch
-copy_to ALTLinux/5.1 /var/ftp/pub/Etersoft/LINUX@Etersoft/5.1/branch
-copy_to ALTLinux/Sisyphus /var/ftp/pub/Etersoft/LINUX@Etersoft/Sisyphus
+distro_path=/var/ftp/pub/Etersoft/LINUX@Etersoft
+arch=i586
+
+copy_to arch ALTLinux/4.1 $distro_path/4.1/branch
+copy_to arch ALTLinux/5.1 $distro_path/5.1/branch
+copy_to arch ALTLinux/Sisyphus $distro_path/Sisyphus
 

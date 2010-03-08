@@ -23,10 +23,10 @@ ROOTDIR=/net/legacy/$VERSION-$PUBREL
 
 PROJECTNAME=WINE@Etersoft
 
-# Каталог с деревом пакетов свободного WINE и файлов к нему
+# п п╟я┌п╟п╩п╬пЁ я│ п╢п╣я─п╣п╡п╬п╪ п©п╟п╨п╣я┌п╬п╡ я│п╡п╬п╠п╬п╢п╫п╬пЁп╬ WINE п╦ я└п╟п╧п╩п╬п╡ п╨ п╫п╣п╪я┐
 WINEPUB_PATH=/var/ftp/pub/Etersoft/$PROJECTNAME
 
-# Каталог с закрытой частью
+# п п╟я┌п╟п╩п╬пЁ я│ п╥п╟п╨я─я▀я┌п╬п╧ я┤п╟я│я┌я▄я▌
 WINEETER_PATH=/var/ftp/pvt/Etersoft/$PROJECTNAME
 
 

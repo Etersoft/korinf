@@ -1,5 +1,5 @@
 #!/bin/sh
-# Выводит сообщения о ненайденных вайновским configure библиотеках
+# п▓я▀п╡п╬п╢п╦я┌ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╬ п╫п╣п╫п╟п╧п╢п╣п╫п╫я▀я┘ п╡п╟п╧п╫п╬п╡я│п╨п╦п╪ configure п╠п╦п╠п╩п╦п╬я┌п╣п╨п╟я┘
 #
 
 # load common functions, compatible with local and installed script
