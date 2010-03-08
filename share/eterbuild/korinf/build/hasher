@@ -4,8 +4,8 @@
 #
 #  ALT Linux hasher build related functions
 #
-#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005-2010
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2010
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -31,9 +31,11 @@ function build_in_hasher()
 
 	set_target_type $(get_altdistr_mod $dist_ver)
 	detect_target_env >>$LOGFILE 2>&1
-	BUILTRPM=$HASHERDIR$MENVARG/repo/$DEFAULTARCH/RPMS.hasher
+	set_hasherdir
+	BUILTRPM=$HASHERDIR/repo/$BUILDTARCH/RPMS.hasher
 
 	if [ -d "$DESTDIR/RPMS.main" ] ; then
+		# FIXME: it works only for Sisyphus
 		export ETERBUILD_APTREPO="rpm-dir file:$(dirname $DESTDIR) $(basename $DESTDIR) main"
 		[ -z "$VERBOSE" ] || echo "base dir found, add aptrepo $ETERBUILD_APTREPO"
 	else
@@ -62,13 +64,11 @@ cat <<EOF >~/.rpmmacros || fatal "Can't copy macros"
 %_tmppath       /home/$USER/tmp
 %_sourcedir %_topdir/SOURCES
 %vendor Etersoft
-%distribution WINE@Etersoft
+%distribution LINUX@Etersoft
 #%_target_cpu i586
 %buildhost builder.etersoft.ru
-#%BuildRoot: %_tmppath
 #%_gpg_path %homedir/.gnupg
 #%_gpg_name Vitaly Lipatov <lav@altlinux.ru>
-#%packager Vitaly Lipatov <lav@altlinux.ru>
 %packager Etersoft Builder <support@etersoft.ru>
 
 # see http://wiki.sisyphus.ru/devel/RpmSetup
@@ -76,21 +76,17 @@ cat <<EOF >~/.rpmmacros || fatal "Can't copy macros"
 EOF
 fi
 
-	#detect_target_env
 	# We install here in builder user home
 	rpm -iv $BUILDSRPM || return 1;
 
-	# FIXME: it is hack, we need remove it
-	subst "s|@ETERREGNUM@|${ETERREGNUM}|g" $RPMDIR/SPECS/$BUILDNAME.spec
-
-# FIXME: ebconfig is obsolete
-if [ ! -r ~/.ebconfig ] ; then
-	cat >~/.ebconfig <<EOF
+	mkdir -p ~/.config
+	if [ ! -r ~/.config/eterbuild ] ; then
+		cat >~/.config/eterbuild <<EOF
 HASHER_NOCHECK=nvr,gpg,packager,changelog,deps
-#TODO: ÓÐÅÃÉÁÌØÎÙÊ ÒÅÐÏÚÉÔÏÒÉÊ ÂÅÚ updates
+#TODO: ÑÐ¿ÐµÑ†Ð¸Ð°Ð»ÑŒÐ½Ñ‹Ð¹ Ñ€ÐµÐ¿Ð¾Ð·Ð¸Ñ‚Ð¾Ñ€Ð¸Ð¹ Ð±ÐµÐ· updates
 #APTCONFBASE=$WORKDIR/apt/apt.conf
 EOF
-fi
+	fi
 
 	# Hack for kernel module packages
 	if [ "$BUILDNAME" = "haspd" ] ; then
@@ -100,7 +96,7 @@ fi
 				;;
 			M30)
 				#NEEDEDKERNEL="kernel-headers-modules-std26-smp kernel-headers-modules-std26-up"
-				# îÅ ÚÎÁÀ, ÐÏÞÅÍÕ ÎÅ ÂÅÒ£Ô:
+				# ÐÐµ Ð·Ð½Ð°ÑŽ, Ð¿Ð¾Ñ‡ÐµÐ¼Ñƒ Ð½Ðµ Ð±ÐµÑ€Ñ‘Ñ‚:
 				# error: failed build dependencies:
 				#        kernel-headers-std26-up >= 2.6.12-alt10 is needed by haspd-2.0-alt0.M30.2
 
@@ -172,10 +168,10 @@ fi
 	# disable 20.07.06 due prelink orphaned in Sisyphus, 04.04.07 prelink returned
 	[ "$MENV" != "M23" ] && subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
 	# FIXME: if_with does not work in Debian, Special...
-	$BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot hashered" ; [ -n "$ADEBUG" ] || $ETERBUILDBIN/loginhsh -c ; return 1 ; }
+	( export DEFAULTARCH=$BUILDARCH ; $BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec ) || { warning "Cannot hashered" ; [ -n "$ADEBUG" ] || ( export DEFAULTARCH=$BUILDARCH ; $ETERBUILDBIN/loginhsh -c ) ; return 1 ; }
 
 	# search for binary packages
-	BUILTSRPM=$(ls -1 $HASHERDIR$MENVARG/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm)
+	BUILTSRPM=$(ls -1 $HASHERDIR/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm)
 	BUILTBINPKGLIST=`get_binpkg_list $BUILTRPM $(basename $BUILTSRPM)`
 	echo "For $BUILTSRPM follow packages is found: $BUILTBINPKGLIST"
 
