@@ -25,7 +25,7 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 
 kormod korinf
-load_mod spec rpm etersoft
+load_mod spec rpm etersoft strings
 
 
 if [ -z "$1" ] || [ "$1" = "-h" ]; then
@@ -48,6 +48,7 @@ if [ "$1" = "-r" ] ; then
 	shift 2
 fi
 
+PARAM=
 # if some other args
 if [ -n "$1" ] && [ -z "${1/-?/}" ] ; then
 	PARAM=$1
@@ -60,42 +61,47 @@ if [ -n "$1" ] && [ -z "${1/-?/}" ] ; then
 	shift
 fi
 
-# Using arg 1 as rebuild list
-# if not "Package DIR" ($2 - package)
-if [ -n "$2" ] && [ $(dirname "$2") = "." ]; then
-	# S/V Package DIR
-	# S/V Package
-	REBUILDLIST=$1
+if [ -n "$3" ] && is_dirpath "$3"; then
+	# System/Version|ALL package target/path
+	REBUILDLIST="$1"
+	BUILDNAME="$2"
+	ETERDESTSRPM="$3"
+	shift 3
+elif [ -n "$2" ] && is_dirpath "$2"; then
+	# package target/path
+	BUILDNAME="$1"
+	ETERDESTSRPM="$2"
+	shift 2
+elif [ -n "$2" ] ; then
+	# System/Version|ALL package
+	REBUILDLIST="$1"
+	BUILDNAME="$2"
+	shift 2
+elif [ -n "$1" ] ; then
+	# package
+	BUILDNAME="$1"
 	shift
-fi
-
-BUILDNAME=$1
-shift
-
-if [ -n "$1" ] ; then
-	ETERDESTSRPM=$1
-	shift
+else
+	fatal "Cannot recognize '$@' options"
 fi
 
 # TODO: for BuildFarm we had packagename by default
 SUBDIR=
 
-test -n "$PARAM$@" && echo "Run with additional options: $PARAM $@"
+[ -n "$PARAM" ] && [ ! "$@" = " " ] && echo "Run with additional options: '$PARAM $@'"
 
-# if package name, not spec
 if [ -n "${BUILDNAME/*.spec/}" ] ; then
-	[ -n "$1" ] || ETERDESTSRPM=$BUILDFARMDIR
-	# FIXME:
-	# For build farm check global distro.list before build for all
-	if [ "$REBUILDLIST" = "$KORINFETC/lists/all" ] ; then
-		if [ -r "$ETERDESTSRPM/distro.list" ] ; then
-			REBUILDLIST=$ETERDESTSRPM/distro.list
-			echo "Build $BUILDNAME according to distro.list from $ETERDESTSRPM"
-		fi
-	fi
+	# if package name, not spec
+	[ -n "$ETERDESTSRPM" ] || ETERDESTSRPM=$BUILDFARMDIR
+
+	# rearrange REBUILDLIST
+	OQUIET=$QUIET
+	QUIET=1 TARGETPATH=$ETERDESTSRPM set_rebuildlist
+	QUIET=$OQUIET
 	build_project $ETERDESTSRPM "$BUILDNAME" "$SUBDIR" $PARAM $@
 	exit $?
 else
+	# if run with spec
 	SPECNAME=$BUILDNAME
 	if [ -z "$ETERDESTSRPM" ] ; then
 		ETERDESTSRPM=$(get_etersoft_srpm_path $SPECNAME "$ALPHA")
@@ -104,7 +110,7 @@ else
 		fi
 	fi
 	BUILDNAME=$(eval_spec $SPECNAME | get_var "Name")
-	rpmpub $ALPHAARG $SPECNAME $ETERDESTSRPM || exit 1
+	$ETERBUILDBIN/rpmpub $ALPHAARG $SPECNAME $ETERDESTSRPM || exit 1
 fi
 
 # Build from spec (if default BuildFarm, get from spec)
