@@ -1,10 +1,6 @@
 # Автоматическая система сборки пропускает мимо задания на системы, которых нет в списке (без failed)
 # Не комментировать! Здесь полный список
 
-# Сначала самые приоритетные
-CentOS/5.3
-
-# Потом остальные
 # Linux online
 #LinuxXP/2006
 #LinuxXP/2007
@@ -20,9 +16,9 @@ ASPLinux/14
 # obsoleted libxml
 #RedHat/9
 Scientific/4.1
-CentOS/5
-CentOS/5.2
-CentOS/5.4
+
+. centos
+
 #FedoraCore/4
 #FedoraCore/5
 #FedoraCore/6
