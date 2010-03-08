@@ -34,9 +34,9 @@ install_built()
 	echo "Install built $TARGET packages to $BUILDROOT root dir..."
 	# Do not install debug packages
 	#rm -f $BUILTRPM/*debug*
-	#BUILDFILES=`echo *${BUILDNAME}*$TARGET`	
+	#BUILDFILES=`echo *${BUILDNAME}*$TARGET`
 	#popd
-	# Note: немного странно с кавычками и разворачиванием звёздочек
+	# Note: п╫п╣п╪п╫п╬пЁп╬ я│я┌я─п╟п╫п╫п╬ я│ п╨п╟п╡я▀я┤п╨п╟п╪п╦ п╦ я─п╟п╥п╡п╬я─п╟я┤п╦п╡п╟п╫п╦п╣п╪ п╥п╡я▒п╥п╢п╬я┤п╣п╨
 	case $TARGET in
 		"deb") # Debian/Ubuntu
 			$SUDO chroot $BUILDROOT su - -c "LC_ALL=C $NICE dpkg -i --force-all $INTBUILT/*${BUILDNAME}*.$TARGET"
@@ -74,6 +74,7 @@ install_req()
 	load_mod repl rpm
 
 	convert_rpm_to_target $dist
+
 	# create needed files in home directory
 	init_home
 
@@ -87,7 +88,7 @@ install_req()
 	rm -f "$LOGFAILFILE"
 
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-		su - -c "export LANG=C ; export LC_ALL=C ; $CMD || touch /home/$INTUSER/tmp/$BUILDNAME.log.failed"
+		su - -c "export LANG=C ; export LC_ALL=C ; $CMD $LISTPKG || touch /home/$INTUSER/tmp/$BUILDNAME.log.failed"
 
 	[ -r "$LOGFAILFILE" ] && { rm -f "$LOGFAILFILE" ; warning "install failed" ; return 1 ; }
 	return 0
