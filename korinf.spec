@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.8.5
+Version: 1.8.6
 Release: alt1
 
 Summary: Korinf build system
@@ -16,7 +16,7 @@ Source: %name-%version.tar
 
 BuildArchitectures: noarch
 
-Requires: etersoft-build-utils >= 1.6.8
+Requires: etersoft-build-utils >= 1.7.9
 Requires: alien
 
 %description
@@ -42,6 +42,14 @@ This package contains Korinf build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Tue Mar 09 2010 Vitaly Lipatov <lav@altlinux.ru> 1.8.6-alt1
+- many fixes and rewrites with many improvements
+- korinf: rewrite script, fix args handling and build list
+- initial support for Linked system, autocreate links
+- add initial rpmopt support (options for rpm build in etc/rpmopt/system file
+- do not build repo index due rpm-dir using instead
+- check_products: add -b key support (for build)
+
 * Sat Nov 21 2009 Vitaly Lipatov <lav@altlinux.ru> 1.8.5-alt1
 - common: incorporate in get_distr_list filter_distr_list for support SKIPBUILDLIST
 - now 'all' builds only for target distro. For build for all distros, use ALL keyword.

@@ -5,6 +5,7 @@ all:
 
 install: 
 	mkdir -p $(bindir)/ $(sysconfdir)/eterbuild/lists
+	mkdir $(sysconfdir)/eterbuild/rpmopt
 	mkdir -p $(datadir)/eterbuild/korinf $(datadir)/eterbuild/build
 	install -m 755 bin/korinf $(bindir)/korinf
 	install -m 755 tools/login.sh $(bindir)/korlogin
