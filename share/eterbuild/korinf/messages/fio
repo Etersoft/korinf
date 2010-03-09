@@ -1,0 +1,77 @@
+#!/bin/bash
+##
+#  Korinf project
+#
+#  FIO related functions
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2010
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2010
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+
+# ФИО -> Иван
+get_name_from_fio()
+{
+# cut failed with names if field 2 is missed
+#       echo "$@" | cut -d" " -f2
+        echo $1 | awk '{print $2}'
+}
+
+# ФИО -> Иван Петров
+get_fio_for_email()
+{
+        local FNAME="$(get_name_from_fio "$@")"
+        local LNAME="$(echo "$@" | cut -d" " -f1)"
+        local SNAME="$(echo "$@" | cut -d" " -f3)"
+        [ -z "$FNAME" ] || echo -n "$FNAME "
+        echo "$LNAME"
+}
+
+# Фамилия должна быть на первом месте: ФИО
+# args: "FIO" "покупатель"
+get_dear_from_fio()
+{
+    # Если неизвестно, к кому обращаемся
+    [ -z "$1" ] && echo "$2" && return
+
+    local name LN FN SN
+    LN=`echo $1 | awk '{print $1}'`
+    FN=`echo $1 | awk '{print $2}'`
+    SN=`echo $1 | awk '{print $3}'`
+
+    if [ `expr index  "$FN" '.'` != 0  -o `expr index  "$SN" '.'` != 0  ] ; then  # если Петров И. А. или Петров И.
+
+        name=`echo $LN $FN $SN`
+        #echo $name
+    else
+        # FI
+        if [ -z "$SN"  ] ; then 
+            name=`echo $FN`
+            #name=$2 $1
+            #echo $name 
+        else
+        #FIO
+            name=`echo $FN $SN`
+            #name=$2 $3
+        fi
+    fi
+    if [ -z "$name" ] ; then
+        name=$1
+    fi
+    echo $name
+    return
+}
+
