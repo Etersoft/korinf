@@ -34,44 +34,6 @@ exit_now()
 	[ -n "$1" ] && exit $1 || exit 0
 }
 
-# TODO: вынести во внешний код
-# Фамилия должна быть на первом месте
-get_name()
-{
-    local name
-    LN=`echo $1 | awk '{print $1}'`
-    FN=`echo $1 | awk '{print $2}'`
-    SN=`echo $1 | awk '{print $3}'`
-    # Если неизвестно, к кому обращаемся
-    if [ -z "$1" ] ; then
-       echo "покупатель"
-       return 0
-    fi
-
-    if [ `expr index  "$FN" '.'` != 0  -o `expr index  "$SN" '.'` != 0  ] ; then  # если Петров И. А. или Петров И.
-	    
-	name=`echo $LN $FN $SN`
-	#echo $name
-    else
-        # FI
-	if [ -z "$SN"  ] ; then 
-	    name=`echo $FN`
-	    #name=$2 $1
-	    #echo $name	
-	else
-	#FIO
-    	    name=`echo $FN $SN`
-	    #name=$2 $3
-	fi
-    fi
-    if [ -z "$name" ] ; then
-        name=$1
-    fi
-    echo $name
-    return 0
-}
-
-
 # TODO: add URL checking (touch it via GET?)
 printURL()
 {

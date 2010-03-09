@@ -117,7 +117,7 @@ prepare_wine_etersoft_mail_html()
 	FILETO=$1
 	>$FILETO
 	>$HTMLTO
-	NAME=`get_name "$FULLNAME"`
+	NAME="$(get_dear_from_fio "$FULLNAME" "покупатель")"
 	BETA=""
 	# FIXME: is it used?
 	if [ "$RELEASECANDIDAT" = "1" ] ; then
@@ -265,7 +265,7 @@ prepare_wine_etersoft_mail()
 	local FILETO BETA NAME
 	FILETO=$1
 	>$FILETO
-	NAME=`get_name "$FULLNAME"`
+	NAME="$(get_dear_from_fio "$FULLNAME" "покупатель")"
 	BETA=""
 	# FIXME: is it used?
 	if [ "$RELEASECANDIDAT" = "1" ] ; then

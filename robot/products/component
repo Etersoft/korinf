@@ -36,7 +36,7 @@ prepare_component_mail()
 	local FILETO BETA
 	FILETO=$1
 	>$FILETO
-	NAME=`get_name "$FULLNAME"`
+	NAME="$(get_dear_from_fio "$FULLNAME" "покупатель")"
 	BETA=""
 
 	if [ "$TYPE_LICENSE" = "Demo" ] ; then

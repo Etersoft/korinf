@@ -32,7 +32,8 @@ AROBOTDIR=`dirname $0`
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
-#kormod korinf
+kormod messages/fio
+
 set_log_dir
 # /`date "+%Y%m%d"`
 
@@ -64,11 +65,13 @@ PWGEN=`pwgen 10 1`
 [ -n "$PWGEN" ] || fatal "Can't get pwgen output"
 TARGETDIRNAME=${ETERREGNUM/-*/}-$PWGEN
 
+FIOMAIL="$(get_fio_for_email "$FULLNAME")"
 if [ "$REALRUN" = "--real" ] && [ ! -f $0.debug ] ; then
-	FULLMAILTO="\"$FULLNAME\" <$MAILTO>"
+	FULLMAILTO="\"$FIOMAIL\" <$MAILTO>"
 else
-	FULLMAILTO="Испытание <lav@etersoft.ru>"
+	FULLMAILTO="\"$FIOMAIL\" <lav@etersoft.ru>"
 fi
+
 export FULLMAILTO
 export EMAIL="Система отгрузки Etersoft <support@etersoft.ru>"
 
