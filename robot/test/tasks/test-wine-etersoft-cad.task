@@ -1,0 +1,12 @@
+PRODUCT="WINE@Etersoft 1.0 CAD (коробочная версия, локальная лицензия)"
+COMPONENTNAME="WINE@Etersoft 1.0 CAD"
+ETERREGNUM="7ED1-FE1D"
+DIST="SUSE/11.2"
+MAILTO="teh3@mail.ru"
+FULLNAME="Мельников Максим Андреевич"
+PROJECTVERSION="1.1.0"
+RELEASECANDIDAT=0
+TYPE_LICENSE=Demo
+OWNER='Мельников Максим'
+DATE_START='15/08/2008'
+DATE_END=unlimit

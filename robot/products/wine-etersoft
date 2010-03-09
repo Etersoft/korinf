@@ -30,11 +30,15 @@
 #
 
 # TARGETDIR - user download dir on the site
-# TYPE - SQL/Network/Local/Network Lite/SQL Unique
+# TYPE - CAD/SQL/Network/Local/Network Lite/SQL Unique
 prepare_wine_etersoft()
 {
-	# PRODUCT_name - sql/networklite
+	# PRODUCT_name - sql/network/local
 	PRODUCT_name=`echo "$TYPE" | sed -e "s| ||g" | tr A-Z a-z`
+
+	# REMOVE ME before release: hack for license name
+	[ "$TYPE_LICENSE" = "DemoTerminal" ] && TYPE_LICENSE="Demo"
+
 	LICENSE_name=`echo "$TYPE_LICENSE" | sed -e "s| ||g" | tr A-Z a-z`
 
 	# due ( below
@@ -52,7 +56,7 @@ prepare_wine_etersoft()
 
 	# skip on FreeBSD
 	if ! echo "$DIST" | grep -q "FreeBSD" ; then
-		check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST haspd
+		check_and_refresh_component bin-hasp $PUBLOCAL/HASP/$DIST haspd
 
 		if [ "$TYPE" != "Local" ] ; then
 			#check_and_refresh_package_wine $PUBLOCAL/CIFS/$DIST etercifs
@@ -69,23 +73,32 @@ prepare_wine_etersoft()
 	PUB2FILES=`find -L $PUBLOCAL/CIFS/$DIST -maxdepth 1 -type f`
 	# extra
 	PUB3FILES=`find -L $PUBLOCAL/WINE/$DIST/extra -maxdepth 1 -type f`
+	# HASP
+	# TODO: copy haspd-modules to extra
+	PUB4FILES=`find -L $PUBLOCAL/HASP/$DIST -maxdepth 1 -type f`
+
+	if [ "$TYPE" = "CAD" ] ; then
+		# GL for CAD
+		PUB5FILES=`find -L $PUBLOCAL/WINE/$DIST/extra -maxdepth 1 -type f -name "wine-etersoft-gl*"`
+	else
+		PUB5FILES=
+	fi
 
 	# Нужно скопировать файлы
-	for i in $PRIVFILES $PUB1FILES $PUB2FILES; do
+	for i in $PRIVFILES $PUB1FILES $PUB2FILES $PUB4FILES $PUB5FILES; do
 		# try create hard link firstly
 		cp -fl $i $FTPDIR || cp -f $i $FTPDIR || fatal "Can't copy $i"
 	done
+
+	# Копируем дополнительные в extra
 	for i in $PUB3FILES; do
 		# try create hard link firstly
-		cp -fl $i $FTPDIR/extra || cp -f $i $FTPDIR/extra || fatal "Can't copy $i"
+		cp -fl $i $FTPDIR/extra/ || cp -f $i $FTPDIR/extra/ || fatal "Can't copy $i"
 	done
-
-	# update timestamp due autocleaner
-	# disable due hard links using
-	#touch $FTPDIR/* $FTPDIR/extra/*
 
 	create_license $FTPDIR/WINE-ETERSOFT.LIC $AROBOTDIR/dsa/wine-etersoft.dsa
 
+	# Ещё раз проверяем наличие обязательных пакетов
 	# Check package files
 	check_package $FTPDIR wine-etersoft
 
@@ -101,8 +114,11 @@ prepare_wine_etersoft()
 	check_package $FTPDIR wine-etersoft-${PRODUCT_name}
 	check_package $FTPDIR fonts-ttf-liberation
 
+	if [ "$TYPE" = "CAD" ] ; then
+		check_package $FTPDIR wine-etersoft-gl
+	fi
 
-	# вставить номер в readme и в каталог
+	# вставляем регистрационный номер в readme и в каталог
 	DOCS=$PVTLOCAL/../docs
 	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/README_$TYPE.html >$FTPDIR/README.html || fatal "readme copying"
 	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/license_${PRODUCT_name}_${LICENSE_name}.html >$FTPDIR/license.html || fatal "license copying"
@@ -130,17 +146,18 @@ prepare_wine_etersoft_mail_html()
 
 CIFSTEXT=""
 if [ "$TYPE" != "Local" ] ; then
+fatal "Нужно переписать!!!"
 CIFSTEXT="
 Для обеспечения взаимодействия по протоколу CIFS с сервером
 SAMBA или Windows Server - пакет с модулем ядра Linux CIFS:
 	$PUBDOWNLOAD1CIFS
 
-Убедительная просьба не устанавливать пакет dkms-etercifs, если Вы
-не уверены, что он нужен.
+Убедительная просьба устанавливать пакет dkms-etercifs
+только если Вы уверены, что он нужен.
 "
 fi
 
-if [ "$TYPE_LICENSE" = "Demo" ] ; then
+if [ "$TYPE_LICENSE" = "Demo" ] || [ "$TYPE_LICENSE" = "DemoTerminal" ] ; then
 	THANKTEXT="Благодарим Вас за внимание к нашему продукту."
 else
 	THANKTEXT="Благодарим Вас за покупку!"
@@ -222,11 +239,11 @@ ${BETA}
 </ul>
 
 Ссылки для скачивания файлов вашего экземпляра Продукта по протоколу FTP:
-	$(printHTMLURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" `find -L $FTPDIR -maxdepth 1 -type f` >>$FILETO || fatal "Error with files (files are missed) ")
+	$(printHTMLURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" `find -L $FTPDIR -maxdepth 1 -type f | sort` >>$FILETO || fatal "Error with files (files are missed) ")
 <br>(действительны в течение 4 суток)
 
 Ссылки для скачивания файлов вашего экземпляра Продукта по протоколу HTTP:
-	$(printHTMLURL "$FTPDIR" "${DOWNLOADDIR/ftp/http}/$TYPE-$PROJECTVERSION/$DIST" `find -L $FTPDIR -maxdepth 1 -type f` >>$FILETO || fatal "Error with files (files are missed) ")
+	$(printHTMLURL "$FTPDIR" "${DOWNLOADDIR/ftp/http}/$TYPE-$PROJECTVERSION/$DIST" `find -L $FTPDIR -maxdepth 1 -type f | sort` >>$FILETO || fatal "Error with files (files are missed) ")
 <br>(действительны в течение 4 суток)
 
 <p style="comment_note">
@@ -270,22 +287,22 @@ prepare_wine_etersoft_mail()
 	# FIXME: is it used?
 	if [ "$RELEASECANDIDAT" = "1" ] ; then
 		BETA="
-		!! Это бета-версия продукта, используйте её с осторожностью !!
-!! Устанавливайте в повседневное использование только после тестирования !!
-!! Создавайте резервные копии чаще !!
+!! Это предварительная версия продукта, используйте её с осторожностью !!
+!! Устанавливайте в повседневное использование только после проверки !!
+!! Создавайте резервные копии !!
 "
 	fi
 
 CIFSTEXT=""
 if [ "$TYPE" != "Local" ] ; then
-CIFSTEXT="
-Для обеспечения взаимодействия по протоколу CIFS с сервером
-SAMBA - пакет с модулем ядра Linux CIFS:
-	$PUBDOWNLOAD1CIFS
+CIFSTEXT=" - пакет для обеспечения сетевого взаимодействия по протоколу CIFS с сервером
+   SAMBA или Windows Server (etercifs) (и dkms-etercifs, если нужен)
+Убедительная просьба устанавливать пакет dkms-etercifs
+только если Вы уверены, что он нужен.
 "
 fi
 
-if [ "$TYPE_LICENSE" = "Demo" ] ; then
+if [ "$TYPE_LICENSE" = "Demo" ] || [ "$TYPE_LICENSE" = "DemoTerminal" ] ; then
 	THANKTEXT="Благодарим Вас за внимание к нашему продукту."
 else
 	THANKTEXT="Благодарим Вас за покупку!"
@@ -294,22 +311,22 @@ fi
 	cat >>$FILETO <<EOF
 ${DEAR} ${NAME}!
 
-Ваш заказ по сборке Продукта ${PRODUCT} (релиз $PROJECTVERSION)
-для системы ${TEXTDIST} выполнен.
+Ваш заказ по сборке для системы ${TEXTDIST} Продукта
+${PRODUCT}
+(релиз $PROJECTVERSION) выполнен.
 ${BETA}
 Регистрационный номер Продукта: ${ETERREGNUM}.
 
 Для получения Продукта необходимо скачать файлы по приведённым ссылкам, в их числе:
- - пакеты Продукта (wine-etersoft, wine-etersoft-$PRODUCT_name)
- - файл лицензии WINE-ETERSOFT.LIC
- - документацию (файл manual.html)
- - пакет haspd с драйверами аппаратных ключей защиты
-HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel;
- - пакет со свободными шрифтами Liberation (fonts-ttf-liberation).
-Во многих дистрибутивах он уже есть (в Ubuntu называется ttf-liberation).
-
+ - пакеты Продукта (wine-etersoft, wine-etersoft-$PRODUCT_name);
+ - файл лицензии WINE-ETERSOFT.LIC;
+ - документацию (файл manual.html);
+ - пакеты с драйверами и менеджерами лицензий для аппаратных ключей защиты
+   HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel (пакет haspd и haspd-modules для HASP LPT);
+ - пакет со свободными шрифтами Liberation (fonts-ttf-liberation)
+   Во многих дистрибутивах он уже есть (в Ubuntu называется ttf-liberation),
+   ставить наш вариант не обязательно.
 $CIFSTEXT
-
 ОБРАТИТЕ ВНИМАНИЕ!
 Файл лицензии WINE-ETERSOFT.LIC необходимо расположить в каталоге /etc/wine, ~/.wine или
 C:\WINDOWS\INF.
@@ -320,11 +337,11 @@ EOF
 Для полного соответствия шрифтов в программах
 можно скачать и установить пакет fonts-ttf-ms,
 содержащий шрифты MS Core Fonts:
-	$PUBDOWNLOAD1FONTS
+$PUBDOWNLOAD1FONTS
 
-Ссылки для скачивания файлов вашего экземпляра Продукта:
+Ссылки для скачивания файлов экземпляра Продукта и сопутствующих файлов:
 EOF
-	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" `find -L $FTPDIR -maxdepth 1 -type f` >>$FILETO || fatal "Error with files (files are missed) "
+	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" `find -L $FTPDIR -maxdepth 1 -type f | sort` >>$FILETO || fatal "Error with files (files are missed) "
 
 	cat >>$FILETO <<EOF
 (действительны в течение 4 суток)
@@ -332,7 +349,7 @@ EOF
 !!Внимание!!
 Если адрес $DOWNLOADDOMAIN недоступен, используйте ftp2.etersoft.ru для доступа к файлам (см ссылку ниже).
 
-Также Вы можете напрямую зайти в каталог, чтобы загрузить файлы открытой и закрытой части:
+Вы можете напрямую зайти в каталог, чтобы загрузить файлы открытой и закрытой части:
 	${DOWNLOADDIR/ftp:/http:}/$TYPE-$PROJECTVERSION/$DIST
 	${DOWNLOADDIR}/$TYPE-$PROJECTVERSION/$DIST
 	${DOWNLOADDIR/download/ftp2}/$TYPE-$PROJECTVERSION/$DIST
@@ -340,10 +357,14 @@ EOF
 Обязательно ознакомьтесь с известными проблемами в текущей сборке:
 http://wiki.etersoft.ru/WINE/knownbugs
 
-Ответы на основные вопросы смотрите на http://etersoft.ru/wine/faq
+Ответы на частые вопросы смотрите на http://etersoft.ru/wine/faq
 
-По вопросам использования продукта пишите на support@etersoft.ru, указав
-в ТЕМЕ (Subject) письма регистрационный номер.
+Обязательно прочитайте документацию http://etersoft.ru/wine/manual,
+особенно по интересующей вас теме.
+
+По вопросам использования продукта пишите новое письмо
+на support@etersoft.ru,
+указав в ТЕМЕ (Subject) письма регистрационный номер.
 
 Пожалуйста, отвечайте на это письмо только
 при возникновении затруднений со скачиванием файлов.
@@ -361,8 +382,8 @@ build_wine_etersoft()
 	VERNAME=$PROJECTNAME/$PROJECTVERSION
 
 	TARGETDIR="/var/ftp/pub/download/WINE@Etersoft/$TARGETDIRNAME"
-	DOWNLOADDIR="ftp://$DOWNLOADDOMAIN/pub/download/WINE@Etersoft/$TARGETDIRNAME"
-	
+	DOWNLOADDIR="ftp://$DOWNLOADDOMAIN/W@E/$TARGETDIRNAME"
+
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME"
 
 	# Use real path if possible
@@ -388,10 +409,11 @@ build_wine_etersoft()
 	check_dist $DIST
 	mkdir -p "$PVTLOCAL/$DIST"
 	
-	PUBDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME"
-	PUBDOWNLOAD1HTTP="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME"
-	PUBDOWNLOAD1FONTS="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/fonts/$DIST"
-	PUBDOWNLOAD1CIFS="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/CIFS/$DIST"
+	PUBDOWNLOAD1="ftp://$DOWNLOADDOMAIN/W@E/$VERNAME"
+	PUBDOWNLOAD1HTTP="http://$DOWNLOADDOMAIN/W@E/$VERNAME"
+	PUBDOWNLOAD1FONTS="http://$DOWNLOADDOMAIN/W@E/$VERNAME/fonts/$DIST"
+	#PUBDOWNLOAD1CIFS="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/CIFS/$DIST"
+	#PUBDOWNLOAD1HASP="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/HASP/$DIST"
 
 	TYPE="$(get_product_type "$COMPONENTNAME")"
 
@@ -402,7 +424,7 @@ build_wine_etersoft()
 	prepare_wine_etersoft_mail $TMPMAIL || fatal "Can't prepare letter"
 
 	export LC_ALL=ru_RU.UTF-8
-	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Сборка $COMPONENTNAME" || fatal "Can't send"
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Сборка $COMPONENTNAME для ${TEXTDIST}" || fatal "Can't send"
 	rm -f $TMPMAIL
 }
 
