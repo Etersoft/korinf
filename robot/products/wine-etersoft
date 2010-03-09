@@ -329,9 +329,13 @@ EOF
 	cat >>$FILETO <<EOF
 (действительны в течение 4 суток)
 
-При необходимости эти же файлы могут быть получены через http: замените ftp:// на http:// в пути.
+!!Внимание!!
+Если адрес $DOWNLOADDOMAIN недоступен, используйте ftp2.etersoft.ru для доступа к файлам (см ссылку ниже).
+
 Также Вы можете напрямую зайти в каталог, чтобы загрузить файлы открытой и закрытой части:
-	$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST
+	${DOWNLOADDIR/ftp:/http:}/$TYPE-$PROJECTVERSION/$DIST
+	${DOWNLOADDIR}/$TYPE-$PROJECTVERSION/$DIST
+	${DOWNLOADDIR/download/ftp2}/$TYPE-$PROJECTVERSION/$DIST
 
 Обязательно ознакомьтесь с известными проблемами в текущей сборке:
 http://wiki.etersoft.ru/WINE/knownbugs
