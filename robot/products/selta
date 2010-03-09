@@ -76,9 +76,6 @@ http://wiki.etersoft.ru/SELTA
 
 При необходимости эти же файлы могут быть получены по протоколу http: замените ftp:// на http:// в пути.
 
-Скачать сборки PostgreSQL под другие системы можно здесь:
-	$PGDOWNLOAD1
-
 По вопросам использования продукта пишите на selta@etersoft.ru, указав
 в ТЕМЕ (Subject) письма регистрационный номер.
 
@@ -101,10 +98,10 @@ build_selta()
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Windows"
 	PUBDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/Windows"
 
-	if [ "$PROJECTVERSION" = "1.0.5" ] ; then
-		PGVERSION="8.2"
-	else
+	if [ "$PROJECTVERSION" = "1.0.7" ] ; then
 		PGVERSION="8.3"
+	else
+		PGVERSION="8.4"
 	fi
 	PGLOCAL="/var/ftp/pub/Etersoft/Postgres@Etersoft/$PGVERSION"
 	PGDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/Postgres@Etersoft/$PGVERSION"
@@ -151,7 +148,7 @@ build_selta()
 	export LC_ALL=ru_RU.UTF-8
 	TMPMAIL=`mktemp`
 	prepareSeltaMail $TMPMAIL || fatal "Can't prepare letter"
-	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "Сборка $PRODUCT" || fatal "Can't send"
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Сборка $COMPONENTNAME" || fatal "Can't send"
 	rm -f $TMPMAIL
 }
 

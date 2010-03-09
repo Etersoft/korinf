@@ -125,7 +125,7 @@ build_anycomponent()
 		;;
 	"Postgres@Etersoft")
 		COMPONENTSCRIPT="bin-postgres"
-		CHECKCOMP="postgresql-8.3eter"
+		CHECKCOMP="postgresql-8.4eter"
 		# TODO: has not source pkg: postgresql-8.3eter-contrib postgresql-8.3eter-server"
 		;;
 	*)
