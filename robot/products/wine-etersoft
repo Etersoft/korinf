@@ -56,7 +56,9 @@ prepare_wine_etersoft()
 
 	# skip on FreeBSD
 	if ! echo "$DIST" | grep -q "FreeBSD" ; then
-		check_and_refresh_component bin-hasp $PUBLOCAL/HASP/$DIST haspd
+		if [ "$PROJECTVERSION" != "1.0.11" ] ; then
+			check_and_refresh_component bin-hasp $PUBLOCAL/HASP/$DIST haspd
+		fi
 
 		if [ "$TYPE" != "Local" ] ; then
 			#check_and_refresh_package_wine $PUBLOCAL/CIFS/$DIST etercifs
@@ -75,7 +77,11 @@ prepare_wine_etersoft()
 	PUB3FILES=`find -L $PUBLOCAL/WINE/$DIST/extra -maxdepth 1 -type f`
 	# HASP
 	# TODO: copy haspd-modules to extra
-	PUB4FILES=`find -L $PUBLOCAL/HASP/$DIST -maxdepth 1 -type f`
+	if [ "$PROJECTVERSION" != "1.0.11" ] ; then
+		PUB4FILES=`find -L $PUBLOCAL/HASP/$DIST -maxdepth 1 -type f`
+	else
+		PUB4FILES=
+	fi
 
 	if [ "$TYPE" = "CAD" ] ; then
 		# GL for CAD
