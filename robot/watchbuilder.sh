@@ -21,7 +21,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-# Запускать на server
+# п≈п╟п©я┐я│п╨п╟я┌я▄ п╫п╟ server
 
 PIDFILE=/var/run/eterbuild/watchbuilder.pid
 
@@ -48,7 +48,7 @@ print_tasks()
 	printf "%9s %20s   %s\n %s %s" Reg.number Distro Component Mail "Full name"
 	for TASK in `ls -1 $TASKDIR/*.$EXT` ; do
 		. $TASK
-		# Выводим название файла и дату создания
+		# п▓я▀п╡п╬п╢п╦п╪ п╫п╟п╥п╡п╟п╫п╦п╣ я└п╟п╧п╩п╟ п╦ п╢п╟я┌я┐ я│п╬п╥п╢п╟п╫п╦я▐
 		stat -c "%n %y"
 		echo
 		printf "%s %20s   %s\n %s %s\n" "$ETERREGNUM" "$DIST" "$COMPONENTNAME" "$MAILTO" "$FULLNAME"
@@ -83,7 +83,7 @@ OLDCOUNT=`find $TASKDIR -maxdepth 1 -name "*.task" | wc -l`
 OLDFCOUNT=`find $TASKDIR -maxdepth 1 -name "*.task.failed" | wc -l`
 echo "Old tasks: $OLDCOUNT"
 
-# Много застрявших заданий или поломанных сборок
+# п°п╫п╬пЁп╬ п╥п╟я│я┌я─я▐п╡я┬п╦я┘ п╥п╟п╢п╟п╫п╦п╧ п╦п╩п╦ п©п╬п╩п╬п╪п╟п╫п╫я▀я┘ я│п╠п╬я─п╬п╨
 if [ $OLDCOUNT -ge 10 ] ||  [ $OLDFCOUNT -ge 7 ] ; then
 	echo Send mail...
 	mutt -s "Build system failed" lav@etersoft.ru yurifil@etersoft.ru <<EOF
@@ -106,7 +106,7 @@ EOF
 	return 1
 fi
 
-# Не смонтирован каталог
+# п²п╣ я│п╪п╬п╫я┌п╦я─п╬п╡п╟п╫ п╨п╟я┌п╟п╩п╬пЁ
 #if ! mount -l | grep $TASKDIR >/dev/null ; then
 if [ ! -r "$TASKDIR/SALESDIR" ] ; then
 	mutt -s "Build system failed" lav@etersoft.ru <<EOF

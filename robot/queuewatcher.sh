@@ -21,9 +21,9 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-# Запускать на builder
-# Запускать с помощью monit
-# Следит за файлами и отправляет на пересборку
+# п≈п╟п©я┐я│п╨п╟я┌я▄ п╫п╟ builder
+# п≈п╟п©я┐я│п╨п╟я┌я▄ я│ п©п╬п╪п╬я┴я▄я▌ monit
+# п║п╩п╣п╢п╦я┌ п╥п╟ я└п╟п╧п╩п╟п╪п╦ п╦ п╬я┌п©я─п╟п╡п╩я▐п╣я┌ п╫п╟ п©п╣я─п╣я│п╠п╬я─п╨я┐
 
 PIDFILE=/var/run/eterbuild/queuewatcher.pid
 SSHMOUNTOPT="sshfs_sync,no_readahead,cache=no,compression=yes,uid=$UID,gid=500"
@@ -67,7 +67,7 @@ fi
 #test -r $TASKDIR/SKIPMOUNT || sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT || fatal "Can't mount"
 #fi
 
-# Ждём появления файла и запускаем с ним сборку.
+# п√п╢я▒п╪ п©п╬я▐п╡п╩п╣п╫п╦я▐ я└п╟п╧п╩п╟ п╦ п╥п╟п©я┐я│п╨п╟п╣п╪ я│ п╫п╦п╪ я│п╠п╬я─п╨я┐.
 echo "Observe in $TASKDIR"
 
 if false ; then
