@@ -17,6 +17,13 @@ fatal()
 	exit 1
 }
 
+if [ "$1" = "--internal" ] ; then
+	INTUSER=$2
+	shift 2
+	exec su - $INTUSER $0 $@
+fi
+
+
 COMMAND=$1
 INTUSER=$2
 RPMDIR=$3
@@ -25,14 +32,13 @@ PACKAGEVERSION=$5
 SRPMNAME=$6
 TARGETPKG=$7
 
-
 WRKDIR=/var/tmp/korinfer/work-$PACKAGE
 RPMSDIR=$RPMDIR/RPMS
 RPMBUILDROOT=$RPMDIR/BUILD/$PACKAGE-$PACKAGEVERSION
 #TARGETPKG=$PACKAGE-$PACKAGEVERSION
 
 mkdir -p $WRKDIR/ && cd $WRKDIR || fatal "Can't CD to $WRKDIR"
-mkdir -p $RPMSDIR
+mkdir -p $RPMSDIR $RPMDIR/BUILD
 
 # copied from eterbuild/functions/rpm
 # build binary package list (1st - repo dir, 2st - pkgname)
@@ -52,6 +58,7 @@ build_bsd()
 #	RPMBUILDROOT="/home/$INTUSER/RPM/BUILD/$PACKAGE-$PKGVERSION"
 	echo $RPMBUILDROOT
 	rm -rf $RPMBUILDROOT/*
+	# FIXME from Lav: What the hardcoded path??
 	rm -rf /usr/local/share/etercifs/sources/*$PACKAGE*
 	# FIXME: x86_64 support
 	BUILDARCH=i586
