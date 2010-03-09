@@ -151,9 +151,6 @@ CIFSTEXT="
 Для обеспечения взаимодействия по протоколу CIFS с сервером
 SAMBA или Windows Server - пакет с модулем ядра Linux CIFS:
 	$PUBDOWNLOAD1CIFS
-
-Убедительная просьба устанавливать пакет dkms-etercifs
-только если Вы уверены, что он нужен.
 "
 fi
 
@@ -234,7 +231,7 @@ ${BETA}
  <li>пакеты Продукта (wine-etersoft, wine-etersoft-$PRODUCT_name)</li>
  <li>файл лицензии WINE-ETERSOFT.LIC</li>
  <li>документацию (файл manual.html)</li>
- <li>пакет haspd с драйверами аппаратных ключей защиты HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel;</li>
+ <li>пакет драйверами аппаратных ключей защиты HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel (hasp);</li>
  <li>пакет со свободными шрифтами Liberation (fonts-ttf-liberation). Во многих дистрибутивах он уже есть (в Ubuntu называется ttf-liberation).</li>
 </ul>
 
@@ -296,9 +293,7 @@ prepare_wine_etersoft_mail()
 CIFSTEXT=""
 if [ "$TYPE" != "Local" ] ; then
 CIFSTEXT=" - пакет для обеспечения сетевого взаимодействия по протоколу CIFS с сервером
-   SAMBA или Windows Server (etercifs) (и dkms-etercifs, если нужен)
-Убедительная просьба устанавливать пакет dkms-etercifs
-только если Вы уверены, что он нужен.
+   SAMBA или Windows Server (etercifs) (и dkms-etercifs - только если нужен)
 "
 fi
 
@@ -322,7 +317,7 @@ ${BETA}
  - файл лицензии WINE-ETERSOFT.LIC;
  - документацию (файл manual.html);
  - пакеты с драйверами и менеджерами лицензий для аппаратных ключей защиты
-   HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel (пакет haspd и haspd-modules для HASP LPT);
+   HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel (пакет haspd и haspd-modules, dkms-aksparlnx для HASP LPT);
  - пакет со свободными шрифтами Liberation (fonts-ttf-liberation)
    Во многих дистрибутивах он уже есть (в Ubuntu называется ttf-liberation),
    ставить наш вариант не обязательно.
@@ -409,11 +404,7 @@ build_wine_etersoft()
 	check_dist $DIST
 	mkdir -p "$PVTLOCAL/$DIST"
 	
-	PUBDOWNLOAD1="ftp://$DOWNLOADDOMAIN/W@E/$VERNAME"
-	PUBDOWNLOAD1HTTP="http://$DOWNLOADDOMAIN/W@E/$VERNAME"
-	PUBDOWNLOAD1FONTS="http://$DOWNLOADDOMAIN/W@E/$VERNAME/fonts/$DIST"
-	#PUBDOWNLOAD1CIFS="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/CIFS/$DIST"
-	#PUBDOWNLOAD1HASP="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/HASP/$DIST"
+	PUBDOWNLOAD1FONTS="http://$DOWNLOADDOMAIN/pub/WINE@Etersoft/$VERNAME/fonts/$DIST"
 
 	TYPE="$(get_product_type "$COMPONENTNAME")"
 
