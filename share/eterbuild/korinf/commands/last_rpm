@@ -1,0 +1,19 @@
+#!/bin/sh
+# Returns the newest package from the pkg list (without extension.src.rpm)
+last_rpm ()
+{
+  local i LR
+  local lastrpm
+  local pkgver
+  lastrpm="___________"
+  for i in $(cat); do
+	pkgver=$(rpm -qp $i)
+	LR=$(rpmvercmp "$pkgver" "$lastrpm")
+	if [ "$LR" -gt 0 ]; then
+		lastrpm="$pkgver"
+	fi
+  done
+  echo $lastrpm
+}
+
+last_rpm
