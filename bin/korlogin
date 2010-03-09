@@ -109,7 +109,7 @@ export PS1="[\u@$SYS \W]\$"
 #[\u@\h \W]\$
 $SUDO chroot $TESTDIR su -c "mount -t proc none /proc"
 $SUDO chroot $TESTDIR su -c "mount -t devpts none /dev/pts"
-setarch $BUILDARCH $SUDO chroot $TESTDIR $USERCO $COMMANDTO | tee $0.log
+setarch $BUILDARCH $SUDO chroot $TESTDIR $USERCO $COMMANDTO #| tee $0.log
 $SUDO umount $TESTDIR/home/$INTUSER && echo "Unmount home"
 #$SUDO umount $TESTDIR/usr/local $TESTDIR/srv/wine  && echo "Unmount swine"
 $SUDO chroot $TESTDIR su -c "umount /dev/pts"
