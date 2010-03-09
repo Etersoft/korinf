@@ -98,7 +98,7 @@ build_anycomponent()
 		PROJECTVERSION=`basename $LOCALDIR`
 		PROJ=`dirname $PROJ`/$PROJECTVERSION
 	fi
-	FTPDIR="ftp://updates.etersoft.ru/pub/Etersoft/$PROJ"
+	FTPDIR="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$PROJ"
 
 
 	TEXTDIST=$DIST

@@ -194,7 +194,7 @@ build_wine()
 	VERNAME=$PROJECTNAME/$PROJECTVERSION
 
 	TARGETDIR=/var/ftp/pub/download/WINE@Etersoft/$TARGETDIRNAME
-	DOWNLOADDIR="ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/$TARGETDIRNAME"
+	DOWNLOADDIR="ftp://$DOWNLOADDOMAIN/pub/download/WINE@Etersoft/$TARGETDIRNAME"
 	
 	# FIXME: use $WINEPUB_PATH-$PROJECTVERSION here
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME"
@@ -221,21 +221,21 @@ build_wine()
 	# TODO: Пока отдаём только со своего ftp
 	#if [ "$RELEASECANDIDAT" = "1" ] ; then
 	if false ; then
-		PUBDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/$VERNAME"
+		PUBDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME"
 		PUBDOWNLOAD1HTTP=
 	else
 		#PUBDOWNLOAD1="http://ftp.freesource.info/etersoft/$PRNAME"
 		#PUBDOWNLOAD1="http://etersoft.ru/download/$PRNAME"
-		PUBDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/$VERNAME"
-		PUBDOWNLOAD1HTTP="http://updates.etersoft.ru/pub/Etersoft/$VERNAME"
-		PUBDOWNLOAD1FONTS="http://updates.etersoft.ru/pub/Etersoft/$VERNAME/fonts/$DIST"
+		PUBDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME"
+		PUBDOWNLOAD1HTTP="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME"
+		PUBDOWNLOAD1FONTS="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/fonts/$DIST"
 		# TODO: select 
-		PUBDOWNLOAD1CIFS="http://updates.etersoft.ru/pub/Etersoft/$VERNAME/CIFS/$DIST"
-		#PUBDOWNLOAD1CIFS="http://updates.etersoft.ru/pub/Etersoft/CIFS@Etersoft/3.3-linux-cifs/$DIST"
+		PUBDOWNLOAD1CIFS="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/CIFS/$DIST"
+		#PUBDOWNLOAD1CIFS="http://$DOWNLOADDOMAIN/pub/Etersoft/CIFS@Etersoft/3.3-linux-cifs/$DIST"
 		#PUBDOWNLOAD2="ftp://ftp.linux.kiev.ua/pub/mirrors/ftp.etersoft.ru/$PRNAME"
 	fi
  
-	#PUBDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/$PRNAME/WINE/$DIST"
+	#PUBDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$PRNAME/WINE/$DIST"
 	
 	# FIXME: Мы должны проверить, действительно ли существует такая система?
 	REBUILDLIST=$DIST

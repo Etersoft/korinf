@@ -357,7 +357,7 @@ build_wine_etersoft()
 	VERNAME=$PROJECTNAME/$PROJECTVERSION
 
 	TARGETDIR="/var/ftp/pub/download/WINE@Etersoft/$TARGETDIRNAME"
-	DOWNLOADDIR="ftp://updates.etersoft.ru/pub/download/WINE@Etersoft/$TARGETDIRNAME"
+	DOWNLOADDIR="ftp://$DOWNLOADDOMAIN/pub/download/WINE@Etersoft/$TARGETDIRNAME"
 	
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME"
 
@@ -384,10 +384,10 @@ build_wine_etersoft()
 	check_dist $DIST
 	mkdir -p "$PVTLOCAL/$DIST"
 	
-	PUBDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/$VERNAME"
-	PUBDOWNLOAD1HTTP="http://updates.etersoft.ru/pub/Etersoft/$VERNAME"
-	PUBDOWNLOAD1FONTS="http://updates.etersoft.ru/pub/Etersoft/$VERNAME/fonts/$DIST"
-	PUBDOWNLOAD1CIFS="http://updates.etersoft.ru/pub/Etersoft/$VERNAME/CIFS/$DIST"
+	PUBDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME"
+	PUBDOWNLOAD1HTTP="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME"
+	PUBDOWNLOAD1FONTS="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/fonts/$DIST"
+	PUBDOWNLOAD1CIFS="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/CIFS/$DIST"
 
 	TYPE="$(get_product_type "$COMPONENTNAME")"
 

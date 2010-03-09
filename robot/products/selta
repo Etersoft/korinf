@@ -99,7 +99,7 @@ build_selta()
 	VERNAME=$PROJECTNAME/$PROJECTVERSION
 	
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Windows"
-	PUBDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/$VERNAME/Windows"
+	PUBDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/Windows"
 
 	if [ "$PROJECTVERSION" = "1.0.5" ] ; then
 		PGVERSION="8.2"
@@ -107,10 +107,10 @@ build_selta()
 		PGVERSION="8.3"
 	fi
 	PGLOCAL="/var/ftp/pub/Etersoft/Postgres@Etersoft/$PGVERSION"
-	PGDOWNLOAD1="ftp://updates.etersoft.ru/pub/Etersoft/Postgres@Etersoft/$PGVERSION"
+	PGDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/Postgres@Etersoft/$PGVERSION"
 
 	TARGETDIR=/var/ftp/pub/download/SELTA@Etersoft/$TARGETDIRNAME
-	DOWNLOADDIR="ftp://updates.etersoft.ru/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
+	DOWNLOADDIR="ftp://$DOWNLOADDOMAIN/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
 
 	
 	if [ ! -d "$PGLOCAL/$DIST" ] ; then

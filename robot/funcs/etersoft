@@ -47,3 +47,5 @@ get_product_type()
 	esac
 	echo $TYPE
 }
+
+DOWNLOADDOMAIN=download.etersoft.ru
