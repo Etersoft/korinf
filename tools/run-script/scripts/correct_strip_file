@@ -1,0 +1,33 @@
+#!/bin/sh
+# 2006 (c) Etersoft www.etersoft.ru
+# Public domain
+
+C_FILENAME=brp-strip-comment-note
+
+BRPDIR=/usr/lib/rpm
+#FIXME: how VENDOR is defined
+#VENDOR=`dirname $i`
+VENDOR=`/usr/bin/distr_vendor -d`
+DISTRVERSION=`/usr/bin/distr_vendor -v`
+
+#in some systems brp is placed in specific dirs:
+if [ $VENDOR = "LinuxXP" ] || [ ] ; then
+    BRPDIR=$BRPDIR/redhat
+fi
+if [ $VENDOR = "Mandriva" ] ; then
+    BRPDIR=/usr/share/spec-helper
+    C_FILENAME=strip_and_check_elf_files
+    #for Mandriva/2008.1 file is strip_files
+    if [ $DISTRVERSION = "2008.1" ] ; then
+	C_FILENAME=strip_files
+    fi
+fi
+
+C_FILE=$BRPDIR/$C_FILENAME
+
+cp -f $C_FILE $C_FILE~
+if [ $VENDOR = "Mandriva" ] ; then
+    sed -i '1i #!/bin/sh' $C_FILE
+fi
+sed -i '2i #fix for bug 4778 @ bugs.etersoft.ru (strip breaks hasplmd)' $C_FILE
+sed -i '3i exit 0;' $C_FILE
