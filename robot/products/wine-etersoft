@@ -36,10 +36,11 @@ prepare_wine_etersoft()
 	# PRODUCT_name - sql/network/local
 	PRODUCT_name=`echo "$TYPE" | sed -e "s| ||g" | tr A-Z a-z`
 
-	# REMOVE ME before release: hack for license name
-	[ "$TYPE_LICENSE" = "DemoTerminal" ] && TYPE_LICENSE="Demo"
+	if [ "$PROJECTVERSION" = "1.0.11" ] ; then
+		[ "$TYPE_LICENSE" = "DemoTerminal" ] && TYPE_LICENSE="Demo"
+	fi
 
-	LICENSE_name=`echo "$TYPE_LICENSE" | sed -e "s| ||g" | tr A-Z a-z`
+	LICENSE_name=`echo "$TYPE_LICENSE" | sed -e "s| ||g" | tr "[A-Z]" "[a-z]"`
 
 	# due ( below
 	export FTPDIR=$TARGETDIR/$TYPE-$PROJECTVERSION/$DIST
@@ -342,7 +343,7 @@ $PUBDOWNLOAD1FONTS
 
 Ссылки для скачивания файлов экземпляра Продукта и сопутствующих файлов:
 EOF
-	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" `find -L $FTPDIR -maxdepth 1 -type f | sort` >>$FILETO || fatal "Error with files (files are missed) "
+	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" `find -L $FTPDIR -maxdepth 1 -type f | sort | grep -v WINE-ETERSOFT.LIC` >>$FILETO || fatal "Error with files (files are missed) "
 
 	cat >>$FILETO <<EOF
 (действительны в течение 4 суток)
@@ -410,7 +411,7 @@ build_wine_etersoft()
 	check_dist $DIST
 	mkdir -p "$PVTLOCAL/$DIST"
 	
-	PUBDOWNLOAD1FONTS="http://$DOWNLOADDOMAIN/pub/WINE@Etersoft/$VERNAME/fonts/$DIST"
+	PUBDOWNLOAD1FONTS="http://$DOWNLOADDOMAIN/pub/$VERNAME/fonts/$DIST"
 
 	TYPE="$(get_product_type "$COMPONENTNAME")"
 
