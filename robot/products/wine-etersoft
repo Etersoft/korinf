@@ -348,8 +348,7 @@ EOF
 	cat >>$FILETO <<EOF
 (действительны в течение 4 суток)
 
-!!Внимание!!
-Если адрес $DOWNLOADDOMAIN недоступен, используйте ftp2.etersoft.ru для доступа к файлам (см ссылку ниже).
+Если адрес $DOWNLOADDOMAIN недоступен, используйте ftp2.etersoft.ru для доступа к файлам (см. ссылку ниже).
 
 Вы можете напрямую зайти в каталог, чтобы загрузить файлы открытой и закрытой части:
 	${DOWNLOADDIR/ftp:/http:}/$TYPE-$PROJECTVERSION/$DIST
@@ -361,8 +360,7 @@ http://wiki.etersoft.ru/WINE/knownbugs
 
 Ответы на частые вопросы смотрите на http://etersoft.ru/wine/faq
 
-Обязательно прочитайте документацию http://etersoft.ru/wine/manual,
-особенно по интересующей вас теме.
+Прочитайте документацию http://etersoft.ru/wine/manual
 
 По вопросам использования продукта пишите новое письмо
 на support@etersoft.ru,
@@ -411,7 +409,7 @@ build_wine_etersoft()
 	check_dist $DIST
 	mkdir -p "$PVTLOCAL/$DIST"
 	
-	PUBDOWNLOAD1FONTS="http://$DOWNLOADDOMAIN/pub/$VERNAME/fonts/$DIST"
+	PUBDOWNLOAD1FONTS="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/fonts/$DIST"
 
 	TYPE="$(get_product_type "$COMPONENTNAME")"
 
