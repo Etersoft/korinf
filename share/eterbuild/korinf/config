@@ -63,8 +63,8 @@ init_home()
 		return
 	fi
 
-	# FIXME: ebconfig is obsolete
-	[ -r $BUILDERHOME/.ebconfig ] || echo "RPMBUILD=rpmbuild" > $BUILDERHOME/.ebconfig
+	mkdir -p "$BUILDERHOME/.config"
+	[ -r $BUILDERHOME/.config/eterbuild ] || echo "RPMBUILD=rpmbuild" > $BUILDERHOME/.config/eterbuild
 
 	#create_strip_workaround
 
