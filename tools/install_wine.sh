@@ -26,7 +26,7 @@ SOURCEPATH=$TARGETPATH/../../../sources
 
 if [ -z "$VERSION" ] ; then
 	BUILDSRPM="$SOURCEPATH/$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm | last_rpm).src.rpm"
-	# почему-то не последний пакет
+	# п©п╬я┤п╣п╪я┐-я┌п╬ п╫п╣ п©п╬я│п╩п╣п╢п╫п╦п╧ п©п╟п╨п╣я┌
 	echo $BUILDSRPM
 	VERSION=`rpm -qp --queryformat "%{VERSION}" $BUILDSRPM`
 	RELEASE=`rpm -qp --queryformat "%{RELEASE}" $BUILDSRPM`
@@ -43,21 +43,21 @@ pkg_is_installed()
 TARGETPATH=$WINEPUB_PATH/$PROJECTVERSION/WINE/ALTLinux/Sisyphus
 get_version_release
 
-cd $TARGETPATH || fatal "Can't cd"
-pwd
+if cd $TARGETPATH ; then
+	pwd
 
-LIST=
-for i in $BUILDNAME $BUILDNAME-gl ; do
-	pkg_is_installed $i && LIST="$LIST $i-$VERSION-*$RELEASE.*.rpm"
-done
+	LIST=
+	for i in $BUILDNAME ; do
+		pkg_is_installed $i && LIST="$LIST $i-$VERSION-*$RELEASE.*.rpm"
+	done
 
-for i in lib$BUILDNAME-devel $BUILDNAME-twain ; do
-	pkg_is_installed $i && LIST="$LIST extra/$i-$VERSION-*$RELEASE.*.rpm"
-done
+	for i in lib$BUILDNAME-devel $BUILDNAME-gl $BUILDNAME-twain ; do
+		pkg_is_installed $i && LIST="$LIST extra/$i-$VERSION-*$RELEASE.*.rpm"
+	done
 
-echo $LIST
-rpmU $LIST $FORCE
-
+	echo $LIST
+	rpmU $LIST $FORCE
+fi
 
 #############
 VERSION=
