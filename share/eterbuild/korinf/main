@@ -98,6 +98,7 @@ for dist in $CMDRE ; do
 			fi
 		fi
 		if [ ! -L "$DESTDIR" ] ; then
+			mkdir -p $(dirname "$DESTDIR")
 			ln -s ../$LINKED $DESTDIR
 			logit "Create link $dist to $LINKED" PASSED
 		fi
