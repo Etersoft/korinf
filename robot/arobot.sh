@@ -4,8 +4,8 @@
 #
 #  Publish product for client by task file
 #
-#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009
+#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009, 2010
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009, 2010
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -69,7 +69,7 @@ FIOMAIL="$(get_fio_for_email "$FULLNAME")"
 if [ "$REALRUN" = "--real" ] && [ ! -f $0.debug ] ; then
 	FULLMAILTO="\"$FIOMAIL\" <$MAILTO>"
 else
-	FULLMAILTO="\"$FIOMAIL\" <lav@etersoft.ru>"
+	FULLMAILTO="\"$FIOMAIL\" <$USER@etersoft.ru>"
 fi
 
 export FULLMAILTO
