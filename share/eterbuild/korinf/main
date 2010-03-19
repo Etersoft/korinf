@@ -85,7 +85,7 @@ for dist in $CMDRE ; do
 	if [ -n "$LINKED" ] ; then
 		if [ ! -L "$DESTDIR" ] && [ -d "$DESTDIR" ] ; then
 			warning "Removing target dir for replace to link"
-			rm -rfv "$DESTDIR" && DONE
+			rm -rfv "$DESTDIR" && success
 		fi
 		if [ -L "$DESTDIR" ] ; then
 			# TODO: check linking
