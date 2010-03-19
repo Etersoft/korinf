@@ -5,7 +5,13 @@ last_rpm ()
   local i LR
   local lastrpm
   local pkgver
-  lastrpm="___________"
+  lastrpm="____NOT_FOUND______"
+  if ! which rpmvercmp >/dev/null 2>&1 ; then
+	lastrpm=$(xargs -n1 echo " " | sort | tail -n1)
+	# hack against src.rpm
+	basename $lastrpm .src.rpm
+	exit
+  fi
   for i in $(cat); do
 	pkgver=$(rpm -qp $i)
 	LR=$(rpmvercmp "$pkgver" "$lastrpm")

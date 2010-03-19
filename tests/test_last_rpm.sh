@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # 2006 (c) Etersoft www.etersoft.ru
 # Public domain
 
@@ -19,4 +19,4 @@ check()
 	echo
 }
 
-check "wine-etersoft-1.0.12-alt3" "$(ls -1 /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.12-eter3/sources/wine-etersoft*)"
+check "wine-etersoft-1.0.12-alt4" "$(ls -1 /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.12-eter4/sources/wine-etersoft*)"
