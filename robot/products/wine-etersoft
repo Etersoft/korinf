@@ -63,7 +63,7 @@ prepare_wine_etersoft()
 
 		if [ "$TYPE" != "Local" ] ; then
 			#check_and_refresh_package_wine $PUBLOCAL/CIFS/$DIST etercifs
-			check_and_refresh_component bin-common $PUBLOCAL/CIFS/$DIST etercifs
+			check_and_refresh_component bin-cifs $PUBLOCAL/CIFS/$DIST etercifs
 		fi
 		#check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST fonts-ttf-liberation
 	fi
