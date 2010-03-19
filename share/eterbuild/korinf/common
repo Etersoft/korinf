@@ -24,6 +24,11 @@
 # needed version etersoft-build-utils package
 NEEDETERBUILD=179
 
+realpath()
+{
+	readlink -f "$@"
+}
+
 load_etersoft_build_utils()
 {
 # Load etersoft-build-utils part
