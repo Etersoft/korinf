@@ -23,14 +23,14 @@
 
 do_broken()
 {
-	flock $TASK mv -f $TASK ${TASK/.task/.broken}
+	flock $TASK mv -f $TASK ${TASK}.broken
 	test -n "$@" && echo "FATAL: $@"
 	exit 1
 }
 
 do_removed()
 {
-	flock $TASK mv -f $TASK ${TASK/.task/.removed}
+	flock $TASK mv -f $TASK ${TASK}.removed
 	test -n "$@" && echo "FATAL: $@"
         exit 1
 }
