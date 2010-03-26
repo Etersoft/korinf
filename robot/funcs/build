@@ -60,6 +60,8 @@ check_and_refresh_package_wine()
 {
 	# Etersoft/WINE@Etersoft/last/WINE/SUSE/12
 	local TARGETPATH="$1"
+	# get_rpm_sources will fails if target is not exists
+	mkdir -p "$TARGETPATH"
 	# Etersoft/WINE@Etersoft/last/sources
 	local SOURCEPATH="$(get_rpm_sources "$TARGETPATH")"
 	# haspd
@@ -92,6 +94,8 @@ check_and_refresh_component()
 	local BUILDSCRIPT="$1"
 	# Etersoft/RX@Etersoft/last/SUSE/12
 	local TARGETPATH="$2"
+	# get_rpm_sources will fails if target is not exists
+	mkdir -p "$TARGETPATH"
 	# Etersoft/RX@Etersoft/last/sources
 	local SOURCEPATH="$(get_rpm_sources "$TARGETPATH")"
 	# haspd
