@@ -31,8 +31,7 @@ SSHMOUNTBASE="sales:/var/www/site/downloads"
 
 if [ "$1" = "stop" ] ; then
 	kill `cat $PIDFILE`
-	#killall -9 queuewatcher.sh
-	killall -9 `pidof /bin/sh /home/builder/Projects/korinf/robot/queuewatcher.sh`
+	kill -9 `pidof /bin/sh /home/builder/Projects/korinf/robot/queuewatcher.sh | grep -v "$$"`
 	exit
 fi
 
