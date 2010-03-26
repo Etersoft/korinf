@@ -1,0 +1,15 @@
+PRODUCT="WINE@Etersoft 1.0 SQL (лицензия на терминальный сервер + подключения не ограничены, электронная версия)"
+COMPONENTNAME="WINE@Etersoft 1.0 SQL"
+ETERREGNUM="58C6-5C06"
+DIST="ALTLinux/5.0"
+DOWNLOADDIR="WINE@Etersoft/1.0.12"
+MAILTO="lav@etersoft.ru"
+FULLNAME="German Belenkiy"
+PROJECTVERSION="1.0.12"
+RELEASECANDIDAT=0
+TYPE_LICENSE=DemoTerminal
+NAME_LICENSE="Лицензия для терминального сервера (подключения не ограничены)"
+COUNT_LICENSE=0
+OWNER='Belarusmash'
+DATE_START='26/03/2010'
+DATE_END='26/04/2010'
