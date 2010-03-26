@@ -9,10 +9,10 @@ FTPDIR=/var/ftp
 # replace $FTPDIR for convert to URL:
 PUBLICURL=ftp://updates.etersoft.ru
 
-# Каталог с деревом пакетов свободного WINE и файлов к нему
+# п п╟я┌п╟п╩п╬пЁ я│ п╢п╣я─п╣п╡п╬п╪ п©п╟п╨п╣я┌п╬п╡ я│п╡п╬п╠п╬п╢п╫п╬пЁп╬ WINE п╦ я└п╟п╧п╩п╬п╡ п╨ п╫п╣п╪я┐
 WINEPUB_PATH=/var/ftp/pub/Etersoft/WINE@Etersoft
 
-# Каталог с закрытой частью
+# п п╟я┌п╟п╩п╬пЁ я│ п╥п╟п╨я─я▀я┌п╬п╧ я┤п╟я│я┌я▄я▌
 WINEETER_PATH=/var/ftp/pvt/Etersoft/WINE@Etersoft
 
 # for korinf script
