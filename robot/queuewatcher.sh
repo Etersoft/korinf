@@ -36,10 +36,6 @@ if [ "$1" = "stop" ] ; then
 	exit
 fi
 
-if [ "$1" = "now" ] ; then
-	FLAGNOW=1
-fi
-
 fatal()
 {
 	echo $@
@@ -53,72 +49,28 @@ AROBOT=`dirname $0`
 . $AROBOT/../share/eterbuild/korinf/common
 kormod korinf
 
-if [ "$1" = "mount" ] ; then
+. $AROBOT/config
+
+mount_taskdir()
+{
 	sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT
+}
+
+if [ "$1" = "mount" ] ; then
+	mount_taskdir
 	exit
 fi
 
-#ALOGDIR=$ALOGDIR-arobot
-
-#mkdir -p $ALOGDIR
-#touch $ALOGDIR/autobuild.batch.log || fatal "Can't append to log"
-
-#if ! mount -l | grep $TASKDIR >/dev/null ; then
-#test -r $TASKDIR/SKIPMOUNT || sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT || fatal "Can't mount"
-#fi
-
-# Ждём появления файла и запускаем с ним сборку.
-echo "Observe in $TASKDIR"
-
-if false ; then
-
-	if [ "$1" = "debug" ] ; then
-		inotifywait -q -m -e close_write --format "%w%f" $TASKDIR
-		#inotifywait -q -m --format "%w%f" $TASKDIR
-		# | grep "\.task\$"
-	else
-		inotifywait -q -m -e close_write --format "%w%f" $TASKDIR | grep "\.task\$" |
-			xargs --no-run-if-empty -P1 -n1 $AROBOT/arobot.sh --real 2>&1 #>> $ALOGDIR/autobuild.task.log
+while true ; do
+	if [ ! -r $TASKDIR/SALESDIR ] ; then
+		sleep 3
+		mount_taskdir
+		echo "Paused due failed sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT"
+		sleep 60
+		continue
 	fi
-else
-	while true ; do
-		#if ! mount -l | grep $TASKDIR >/dev/null ; then
-		if [ ! -r $TASKDIR/SALESDIR ] ; then
-			sleep 3
-			sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT && continue
-			echo "Paused due failed sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT"
-			sleep 60
-			#|| fatal "Can't mount"
-		fi
-		#sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT
-		#fi
-		if [ -f "$TASKDIR/STOP" ] ; then
-			echo "Stop build due STOP file"
-			sleep 60
-			continue
-		fi
-		if [ "$1" = "debug" ] ; then
-			ls -l $AROBOT/arobot.sh
-			find $TASKDIR -maxdepth 1 -name "*.task" | head -n1
-		else
+	timeout 30m $AROBOT/hands/worker.sh $TASKDIR $@ 2>&1
+	sleep 30
+done
 
-
-			#(
-			#flock 200
-			TASKTORUN=`find $TASKDIR -maxdepth 1 -name "*.task" | sort | head -n1`
-			if [ -e "$TASKTORUN" ] ; then
-				RUNTASK=$TASKTORUN.run
-				flock $TASKTORUN mv -f $TASKTORUN $RUNTASK
-				$AROBOT/arobot.sh --real $RUNTASK 2>&1 #>> $ALOGDIR/autobuild.task.log
-			else
-				test -n "$FLAGNOW" && break;
-			fi
-			#find $TASKDIR -maxdepth 1 -name "*.task" | head -n1 | \
-			#	xargs --no-run-if-empty -P1 -n1 robot/arobot.sh --real 2>&1 >> $ALOGDIR/autobuild.task.log
-			#) 200> /tmp/queuewatcher.lock
-		fi
-		test -n "$FLAGNOW" || sleep 10
-	done
-
-fi
 echo >$PIDFILE

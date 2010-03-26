@@ -28,9 +28,10 @@
 # 08.06.2006, 09.06.06, 28.02.07, 09.03.07, 15.12.07, 2008
 # FIXME: если в имени запятая, разделяет на два адреса
 
-AROBOTDIR=`dirname $0`
+AROBOTDIR=`dirname $0`/..
 # load common functions, compatible with local and installed script
-. `dirname $0`/../share/eterbuild/korinf/common
+TOPDIR=../../
+. $AROBOTDIR/../share/eterbuild/korinf/common
 
 kormod messages/fio
 
@@ -59,7 +60,17 @@ if [ "$REALRUN" = "--real" ] ; then
 	shift
 fi
 
+if [ "$REALRUN" = "--debug" ] ; then
+	shift
+	DEBUG=1
+fi
+
 load_task "$1"
+
+if [ -n "$DEBUG" ] ; then
+	echo "Debug try to build $TASK for $PRODUCT"
+	exit
+fi
 
 PWGEN=`pwgen 10 1`
 [ -n "$PWGEN" ] || fatal "Can't get pwgen output"
@@ -107,7 +118,7 @@ esac
 DONEDIR=$TARGETDIR/../done/
 [ -d "$DONEDIR" ] || DONEDIR=~/done
 mkdir -p "$DONEDIR"
-flock $TASK mv -f $TASK "$DONEDIR/$(basename $TASK .run).done" || fatal "Can't remove task"
+mv -f $TASK "$DONEDIR/$(basename $TASK .task).done" || fatal "Can't remove task"
 DATE=`date`
 echo "# built done at $DATE" >>$DONEDIR/`basename $TASK`
 exit_now

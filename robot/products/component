@@ -152,7 +152,7 @@ build_anycomponent()
 
 	prepare_component_mail $TMPMAIL || fatal "Can't prepare letter"
 
-	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "Сборка $COMPONENTNAME $PROJECTVERSION" || fatal "Can't send"
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Сборка $COMPONENTNAME $PROJECTVERSION" || fatal "Can't send"
 	rm -f $TMPMAIL
 }
 
