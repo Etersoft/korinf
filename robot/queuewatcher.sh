@@ -36,6 +36,7 @@ if [ "$1" = "stop" ] ; then
 	exit
 fi
 
+
 fatal()
 {
 	echo $@
@@ -56,6 +57,11 @@ mount_taskdir()
 	sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT
 }
 
+if [ "$1" = "now" ] ; then
+	FLAGNOW=1
+	shift
+fi
+
 if [ "$1" = "mount" ] ; then
 	mount_taskdir
 	exit
@@ -69,7 +75,8 @@ while true ; do
 		sleep 60
 		continue
 	fi
-	timeout 30m $AROBOT/hands/worker.sh $TASKDIR $@ 2>&1
+	timeout 30m $AROBOT/hands/worker.sh $TASKDIR 2>&1
+	test -n "$FLAGNOW" && break
 	sleep 30
 done
 
