@@ -32,8 +32,8 @@ realpath()
 load_etersoft_build_utils()
 {
 # Load etersoft-build-utils part
-LOCETERBUILDDIR=`dirname $0`/../share/eterbuild/functions
-RELETERBUILDDIR=../../etersoft-build-utils/share/eterbuild/functions
+LOCETERBUILDDIR=`dirname $0`/$TOPDIR/share/eterbuild/functions
+RELETERBUILDDIR=$TOPDIR/../etersoft-build-utils/share/eterbuild/functions
 
 # Create link to etersoft-build-utils repo if not exists
 if [ ! -L "$LOCETERBUILDDIR" ] ; then
@@ -62,6 +62,7 @@ if [ ! -d "$ETERBUILDDIR" ] ; then
 fi
 }
 
+[ -n "$TOPDIR" ] || TOPDIR=../
 load_etersoft_build_utils
 
 # these variable will not override in eterbuild common
@@ -74,8 +75,8 @@ KORINFDIR=/usr/share/eterbuild
 
 # if run from local installation
 if ! dirname $0 | grep ^/usr/share >/dev/null ; then
-	KORINFDIR=$(readlink -f `dirname $0`/../share/eterbuild)
-	KORINFETC=$(readlink -f `dirname $0`/../etc)
+	KORINFDIR=$(readlink -f `dirname $0`/$TOPDIR/share/eterbuild)
+	KORINFETC=$(readlink -f `dirname $0`/$TOPDIR/etc)
 	if [ -r "$KORINFETC/../AUTHORS" ] ; then
 		if [ -n "$VERBOSE" ] ; then
 			echo "Note: run from source tree, datadir=$KORINFDIR, sysconfdir=$KORINFETC"
