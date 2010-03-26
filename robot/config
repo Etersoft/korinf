@@ -1,0 +1,2 @@
+# Path for mount tasks inside builder user
+export TASKDIR=$HOME/sales

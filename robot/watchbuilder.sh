@@ -30,6 +30,8 @@ PIDFILE=/var/run/eterbuild/watchbuilder.pid
 
 kormod messages/jabber
 
+. `dirname $0`/config
+
 if [ "$1" = "stop" ] ; then
 	kill `cat $PIDFILE`
 	killall -9 $0
