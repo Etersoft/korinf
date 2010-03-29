@@ -41,6 +41,11 @@ check_gz_integrity()
 	gunzip -t $1 >/dev/null
 }
 
+check_zip_integrity()
+{
+	a= unzip -t $1 >/dev/null
+}
+
 check_pkg_integrity()
 {
 	local EXT=`echo "$1" | sed -e "s|.*\.\([a-z0-9]*\)\$|\1|g"`
@@ -63,6 +68,10 @@ check_pkg_integrity()
 			check_bz2_integrity "$PKG"
 			RET=$?
 			;;
+		zip)
+			check_zip_integrity "$PKG"
+			RET=$?
+			;;
 		*)
 			fatal "Unknown package extension '$EXT' in $PKG package"
 			;;
@@ -73,7 +82,7 @@ check_pkg_integrity()
 check_files_integrity()
 {
 	local DIR="$1" EXT
-	for EXT in deb rpm tgz tar.gz tar.bz2 tbz ; do
+	for EXT in deb rpm tgz tar.gz tar.bz2 tbz zip ; do
 		for i in $(find "$DIR" -maxdepth 1 -name "*.$EXT") ; do
 			check_pkg_integrity $i && echo "Package $i is OK" || echo "Package $i is broken"
 		done
