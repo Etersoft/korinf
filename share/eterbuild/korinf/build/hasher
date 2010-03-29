@@ -168,7 +168,7 @@ EOF
 	# disable 20.07.06 due prelink orphaned in Sisyphus, 04.04.07 prelink returned
 	[ "$MENV" != "M23" ] && subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
 	# FIXME: if_with does not work in Debian, Special...
-	( export DEFAULTARCH=$BUILDARCH ; $BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec ) || { warning "Cannot hashered" ; [ -n "$ADEBUG" ] || ( export DEFAULTARCH=$BUILDARCH ; $ETERBUILDBIN/loginhsh -c ) ; return 1 ; }
+	( export DEFAULTARCH=$BUILDARCH ; $BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec ) || { warning "Cannot hashered" ; [ -n "$ADEBUG" ] || ( export DEFAULTARCH=$BUILDARCH ; $ETERBUILDBIN/loginhsh -c $MENVARG) ; return 1 ; }
 
 	# search for binary packages
 	BUILTSRPM=$(ls -1 $HASHERDIR/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm)
