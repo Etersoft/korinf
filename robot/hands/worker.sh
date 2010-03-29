@@ -36,7 +36,7 @@ kormod korinf
 
 list_tasks()
 {
-	find $TASKDIR -maxdepth 1 -name "*.task" | sort
+	find $TASKDIR -maxdepth 1 -name "*.$1" | sort
 }
 
 TASKDIR="$1"
@@ -60,7 +60,15 @@ else
 	TASKCOMMAND="--real"
 fi
 
-for TASKTORUN in $(list_tasks) ; do
+# Remove stalled task.run
+for TASKTORUN in $(list_tasks task.run) ; do
+	TASKPID=$(cat $TASKTORUN)
+	[ -r "/proc/$TASKPID" ] && continue
+	echo "Pid $TASKPID from $TASKTORUN is unexisted, removing"
+	rm -f $TASKTORUN
+done
+
+for TASKTORUN in $(list_tasks task) ; do
 	[ -e "$TASKTORUN" ] || continue
 	flock $TASKTORUN test -e "$TASKTORUN.run" && continue
 	echo $$ >$TASKTORUN.run
