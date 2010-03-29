@@ -36,7 +36,7 @@ kormod korinf
 
 list_tasks()
 {
-	find $TASKDIR -maxdepth 1 -name "*.task" | sort | head -n1
+	find $TASKDIR -maxdepth 1 -name "*.task" | sort
 }
 
 TASKDIR="$1"
