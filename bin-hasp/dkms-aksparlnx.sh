@@ -3,4 +3,4 @@
 # Author: Vitaly Lipatov <lav@etersoft.ru>
 # GNU Public License version 3
 
-../bin/korinf dkms dkms-aksparlnx /var/ftp/pub/Etersoft/HASP $@
+$(dirname $0)/../bin/korinf dkms dkms-aksparlnx /var/ftp/pub/Etersoft/HASP $@

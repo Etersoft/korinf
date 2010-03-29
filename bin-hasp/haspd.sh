@@ -5,4 +5,4 @@
 
 export SKIPBUILDLIST="FreeBSD OpenSolaris"
 
-../bin/korinf all haspd /var/ftp/pub/Etersoft/HASP $@
+$(dirname $0)/../bin/korinf all haspd /var/ftp/pub/Etersoft/HASP $@
