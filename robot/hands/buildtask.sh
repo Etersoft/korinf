@@ -121,4 +121,3 @@ mkdir -p "$DONEDIR"
 mv -f $TASK "$DONEDIR/$(basename $TASK .task).done" || fatal "Can't remove task"
 DATE=`date`
 echo "# built done at $DATE" >>$DONEDIR/`basename $TASK`
-exit_now
