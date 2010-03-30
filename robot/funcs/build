@@ -27,6 +27,8 @@
 # is not recommended include directly due message function intersection
 #kormod korinf
 
+kormod check_integrity
+
 # do not used, obsoleted
 check_and_refresh_package()
 {
@@ -117,8 +119,12 @@ check_and_refresh_component()
 
 	# if binary is exists
 	if [ -r "$BINPKG" ] ; then
-		# if binary is newer than src.rpm, return OK
-		test "$BINPKG" -nt "$SRCRPM" && return 0
+		# if binary is newer than src.rpm
+		if [ "$BINPKG" -nt "$SRCRPM" ] ; then
+			check_pkg_integrity "$BINPKG" && return 0
+			warning "Package $BINPKG is broken, removing"
+			rm -vf "$BINPKG"
+		fi
 	fi
 
 	[ -r "$TARGETPATH/log/$BUILDNAME.autobuild.failed" ] && fatal "Package $BUILDNAME need rebuild from $SRCRPM, but already was failed"
