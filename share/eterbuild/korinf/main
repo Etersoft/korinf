@@ -102,7 +102,11 @@ for dist in $CMDRE ; do
 			ln -s ../$LINKED $DESTDIR
 			logit "Create link $dist to $LINKED" PASSED
 		fi
-		continue
+		# replace dist with linked
+		dist=$LINKED
+		# Set target dir for built packages
+		DESTDIR=$TARGETPATH/$dist
+		#continue
 	fi
 
 	# Set target URL for get tarballs or checking
