@@ -61,7 +61,7 @@ if [ -n "$COUNT_LICENSE" ] && [ ! "$COUNT_LICENSE" = "0" ] ; then
 fi
 
 	echo "Create license for $PROJECTVERSION with $ETERREGNUM"
-	LC_ALL=ru_RU.UTF-8 $GENERATE_SIG "$LICENSE_FILE.tmp" "$DSAKEY" "$LICENSE_FILE" | iconv -f koi8-r -r
+	LC_ALL=ru_RU.UTF-8 $GENERATE_SIG "$LICENSE_FILE.tmp" "$DSAKEY" "$LICENSE_FILE"
 	test -r "$LICENSE_FILE" || fatal "Can't sign license file"
 	rm -f "$LICENSE_FILE.tmp"
 }
