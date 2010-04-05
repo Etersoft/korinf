@@ -42,7 +42,8 @@ list_tasks()
 TASKDIR="$1"
 [ -d "$TASKDIR" ] || fatal "missed param: $TASKDIR"
 shift
-echo "Observe in $TASKDIR"
+echo -n "Observe in $TASKDIR at "
+date
 
 if [ ! -r $TASKDIR/SALESDIR ] ; then
 	sleep 3
