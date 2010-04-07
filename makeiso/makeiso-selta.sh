@@ -1,5 +1,5 @@
 #!/bin/sh
-# Копировать README и лицензию в корень
+# п п╬п©п╦я─п╬п╡п╟я┌я▄ README п╦ п╩п╦я├п╣п╫п╥п╦я▌ п╡ п╨п╬я─п╣п╫я▄
 
 cd ../`dirname $0`
 
@@ -14,8 +14,12 @@ DATESTAMP=`date "+%Y%m%d"`
 
 # Path to hold ISOs
 PATHTOFTP=/var/local/iso
-WINENUMVERSION=1.0.7
-PGVERSION=8.3
+WINENUMVERSION=1.0.8
+PGVERSION=8.4
+
+WRITER=$EMAIL
+test -n "$WRITER" || fatal "WRITER is empty"
+test -n "$WINENUMVERSION" || fatal "WINENUMVERSION is empty"
 
 SOURCE_PATH=/var/ftp/pub/Etersoft
 SELTAPUB_PATH=$SOURCE_PATH/SELTA@Etersoft/$WINENUMVERSION
@@ -36,26 +40,21 @@ makeiso()
 {
 	echo "Creating ISO in $PATHTOFTP/$FILENAME"
 	mkisofs -v -V "SELTA@Etersoft $WINENUMVERSION" \
-	-p "Alexander, $DATESTAMP" \
+	-p "$WRITER, $DATESTAMP" \
 	-m "*MD5SUM*" \
 	-m "*/log/*" \
 	-publisher "Etersoft, selta@etersoft.ru" \
 	-sysid LINUX -o $PATHTOFTP/$FILENAME.building  -r -J -graft-points -quiet -f \
-	SELTA@Etersoft=$SELTAPUB_PATH PostgreSQL=$PGPUB_PATH \
+	SELTA@Etersoft=$SELTAPUB_PATH \
+	PostgreSQL=$PGPUB_PATH \
 	Updates.html=$SELTAPUB_PATH/docs/Updates.htm \
 	README.html=$SELTAPUB_PATH/docs/README.html \
 	autorun.inf=$SELTAPUB_PATH/docs/autorun.inf \
 	docs=$SELTAPUB_PATH/docs \
 	|| exit 1
 	mv -f $PATHTOFTP/$FILENAME.building $PATHTOFTP/$FILENAME
-
-# do not needed
-#	autorun.inf=$SELTAPUB_PATH/docs/autorun.inf
-
 }
 
 FILENAME=selta-$DATESTAMP.iso
-#sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$WINEETER_PATH$ALPHAP/docs/README_$PRODUCTNAME.html >$WINEETER_PATH$ALPHAP/README.html || exit 1
-#sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$WINEETER_PATH$ALPHAP/docs/license_$PRODUCTBASE.html >$WINEETER_PATH$ALPHAP/license.html || exit 1
 
 makeiso || exit 1
