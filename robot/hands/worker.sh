@@ -53,6 +53,7 @@ fi
 if [ -f "$TASKDIR/STOP" ] ; then
 	echo "Stop build due $TASKDIR/STOP file"
 	sleep 60
+	exit
 fi
 
 if [ "$1" = "debug" ] ; then
