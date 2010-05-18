@@ -80,6 +80,8 @@ do_need_build_package()
 
 	if [ -r "$FILENAME" ] ; then
 		[ "$BUILDSRPM" -nt "$FILENAME" ] || return 1
+	elif [ -n "$FILENAME" ] ; then
+		warning "Check package files, possible duplicates: $FILENAME"
 	fi
 
 	return 0
