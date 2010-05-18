@@ -26,6 +26,16 @@ export TERM
 : {RES_OFFSET:=8}
 [ -n "$RES_OFFSET" ] && [ "$RES_OFFSET" -gt 0 ] 2>/dev/null || RES_OFFSET=8
 
+isatty()
+{
+	# see http://perl.plover.com/yak/commands-perl/samples/slide016.html
+	# python -c 'import os, sys; sys.exit(int(not os.isatty(1)))'
+	test -t 1
+}
+
+# Use color or no
+isatty && TERMOUTPUT=1 || TERMOUTPUT=
+
 # The cmd names and color codes used as arguments for tput(1)
 # were taken from terminfo(5).
 
@@ -45,6 +55,7 @@ MOVE_TO_COL()
 # Set 'success' color (currently: green)
 SETCOLOR_SUCCESS()
 {
+	[ -n "$TERMOUTPUT" ] || return
 	{
 		echo bold
 		echo setaf $GREEN
@@ -54,6 +65,7 @@ SETCOLOR_SUCCESS()
 # Set 'failure' color (currently: red)
 SETCOLOR_FAILURE()
 {
+	[ -n "$TERMOUTPUT" ] || return
 	{
 		echo bold
 		echo setaf $RED
@@ -63,6 +75,7 @@ SETCOLOR_FAILURE()
 # Set 'warning' color (currently: yellow)
 SETCOLOR_WARNING()
 {
+	[ -n "$TERMOUTPUT" ] || return
 	{
 		echo bold
 		echo setaf $YELLOW
@@ -72,6 +85,7 @@ SETCOLOR_WARNING()
 # Set 'info' color (currently: cyan)
 SETCOLOR_INFO()
 {
+	[ -n "$TERMOUTPUT" ] || return
 	{
 		echo bold
 		echo setaf $CYAN
@@ -81,6 +95,7 @@ SETCOLOR_INFO()
 # Set 'banner' color (currently: blue on yellow)
 SETCOLOR_BANNER()
 {
+	[ -n "$TERMOUTPUT" ] || return
 	{
 		echo setaf $BLUE
 		echo setab $YELLOW
@@ -89,7 +104,8 @@ SETCOLOR_BANNER()
 
 # Terminal sequence to reset to the default color.
 SETCOLOR_NORMAL()
-{ 
+{
+	[ -n "$TERMOUTPUT" ] || return
 	{
 		echo op; # set Original color Pair.
 		echo sgr0; # turn off all special graphics mode (bold in our case).
