@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.8.6
+Version: 1.8.7
 Release: alt1
 
 Summary: Korinf build system
@@ -42,6 +42,25 @@ This package contains Korinf build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Tue May 18 2010 Vitaly Lipatov <lav@altlinux.ru> 1.8.7-alt1
+- make md5sum after copying
+- no build if STOP file is exists
+- rewrite makeiso scripts
+- upgrade generate_sig to uft8 version
+- add reconnect to sshfs
+- check every package for integrity during work on task
+- add zip support
+- fix hasher cleaning after build error (add missed MENVARG)
+- rewrite build process in a new manner
+- add TOPDIR support for run from any dir
+- add install script for install pkg in systema
+- fix install_wine on Ubuntu
+- fix config to ~/.config/eterbuild
+- recode to UTF-8
+- introduce support of commands dir and realize last_rpm in the new way, with test
+- korlogin: disable broken log
+- add messages/fio module, add get_dear_from_fio func and update fio test
+
 * Tue Mar 09 2010 Vitaly Lipatov <lav@altlinux.ru> 1.8.6-alt1
 - many fixes and rewrites with many improvements
 - korinf: rewrite script, fix args handling and build list
