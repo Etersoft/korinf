@@ -102,10 +102,10 @@ check_package()
 	if [ ! -r "$FILENAME" ] ; then
 		fatal "Package $NAME is missed in $TARGETPATH"
 	fi
-	if [ -r "$TARGETPATH/$NAME.autobuild.failed" ] ; then
-		fatal "Only autobuild.failed for $NAME is present"
-	fi
 	if [ -r "$TARGETPATH/log/$NAME.autobuild.failed" ] ; then
-		fatal "Note! autobuild.failed for $NAME is present in log"
+		fatal "Note! autobuild.failed for $NAME is present"
+	fi
+	if [ -r "$TARGETPATH/log/$NAME.build.failed" ] ; then
+		fatal "Note! build.failed for $NAME is present"
 	fi
 }

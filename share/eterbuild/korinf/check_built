@@ -70,7 +70,7 @@ check_built_package()
 		test -L "$TARGETPATH/$i" && echo -n " (link to `readlink $TARGETPATH/$i`)"
 		echo
 	done
-	echo "Legend: OBS - obsoleted build, ABF - autobuild failed, FIL - manual build failed"
+	echo "Legend: MIS - missed, OBS - obsoleted build, ABF - autobuild failed, FIL - manual build failed"
 }
 
 # args: BUILDNAME

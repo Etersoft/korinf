@@ -135,6 +135,7 @@ for dist in $CMDRE ; do
 		logit "$BUILDNAME is up-to-date" SKIPPED
 		# remove fatal flag if checking is passed
 		rm -fv "$DESTDIR/log/$BUILDNAME.autobuild.failed"
+		rm -fv "$DESTDIR/log/$BUILDNAME.build.failed"
 		echo `date` $BUILDNAME on $dist PASSED | write_report
 		continue
 	fi
@@ -152,6 +153,7 @@ for dist in $CMDRE ; do
 		fi
 
 		logit "copying log from broken build" copying_log
+		touch "$DESTDIR/log/$BUILDNAME.build.failed"
 
 		# Stop immediately if we in auto build
 		if [ -n "$NIGHTBUILD" ] ; then

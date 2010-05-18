@@ -97,6 +97,7 @@ copying_packages()
 
 	# remove fatal flag
 	rm -fv $DESTDIR/log/$BUILDNAME.autobuild.failed
+	rm -fv $DESTDIR/log/$BUILDNAME.build.failed
 
 	# FIXME
 	chmod ug+rw $DESTDIR/* -R 2>/dev/null
