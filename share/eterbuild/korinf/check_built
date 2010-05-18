@@ -49,7 +49,8 @@ check_built_package()
 			FILESIZE=`stat -c"%s" $FILENAME`
 			BASENAME=`basename $FILENAME`
 			[ "$SRCPKG" -nt "$FILENAME" ] && ST="OBS"
-			[ -f "$TARGETPATH/$i/log/$BUILDNAME.autobuild.failed" ] && ST=" AF"
+			[ -f "$TARGETPATH/$i/log/$BUILDNAME.autobuild.failed" ] && ST="ABF"
+			[ -f "$TARGETPATH/$i/log/$BUILDNAME.build.failed" ] && ST="FIL"
 		else
 			if [ -d "$TARGETPATH/$i/" ] ; then
 				FILEDATE="MISSED"
@@ -61,11 +62,15 @@ check_built_package()
 			BASENAME="$BUILDNAME"
 		fi
 
-		printf "%22s: %17s  %8s %s %s" "$NAME" "$FILEDATE" "$FILESIZE" "$ST" "$BASENAME"
+		printf "%22s: %17s  %8s" "$NAME" "$FILEDATE" "$FILESIZE"
+		[ "$ST" = "OBS" ] && SETCOLOR_WARNING || SETCOLOR_FAILURE
+		printf " %s " "$ST"
+		SETCOLOR_NORMAL
+		printf "%s" "$BASENAME"
 		test -L "$TARGETPATH/$i" && echo -n " (link to `readlink $TARGETPATH/$i`)"
 		echo
 	done
-	echo "Legend: OBS - obsoleted build, AF - autobuild failed"
+	echo "Legend: OBS - obsoleted build, ABF - autobuild failed, FIL - manual build failed"
 }
 
 # args: BUILDNAME
