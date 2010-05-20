@@ -31,7 +31,8 @@ function build_in_hasher()
 
 	set_target_type $(get_altdistr_mod $dist_ver)
 	detect_target_env >>$LOGFILE 2>&1
-	set_hasherdir
+	# workaround for detect needed path build for another target
+	HASHERDIR=$(DEFAULTARCH=$BUILDARCH set_hasherdir; echo $HASHERDIR )
 	BUILTRPM=$HASHERDIR/repo/$BUILDARCH/RPMS.hasher
 
 	if [ -d "$DESTDIR/RPMS.main" ] ; then
@@ -154,7 +155,9 @@ EOF
 
 	# FIXME: for wine only?
 	subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
-	( export DEFAULTARCH=$BUILDARCH ; $BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec ) || { warning "Cannot hashered" ; [ -n "$ADEBUG" ] || ( export DEFAULTARCH=$BUILDARCH ; $ETERBUILDBIN/loginhsh -c $MENVARG) ; return 1 ; }
+
+	( export DEFAULTARCH=$BUILDARCH ; setarch $BUILDARCH $BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec ) ||
+		{ warning "Cannot hashered" ; [ -n "$ADEBUG" ] || ( export DEFAULTARCH=$BUILDARCH ; setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c $MENVARG) ; return 1 ; }
 
 	# search for binary packages
 	BUILTSRPM=$(ls -1 $HASHERDIR/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm)
