@@ -65,6 +65,7 @@ init_home()
 
 	mkdir -p "$BUILDERHOME/.config"
 	[ -r $BUILDERHOME/.config/eterbuild ] || echo "RPMBUILD=rpmbuild" > $BUILDERHOME/.config/eterbuild
+	$SUDO chown $LOCUSER -R $BUILDERHOME/.config
 
 	#create_strip_workaround
 
