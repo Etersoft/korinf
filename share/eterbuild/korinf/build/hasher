@@ -133,18 +133,6 @@ EOF
 		subst "1iBuildRequires: $NEEDEDKERNEL" $RPMDIR/SPECS/$BUILDNAME.spec
 	fi
 
-	# ALC 2.3
-	if [ "$MENV" = "M23" ] ; then
-		echo "Add cvs buildrequires for $MENV"
-		subst "1iBuildRequires: cvs" $RPMDIR/SPECS/$BUILDNAME.spec
-	fi
-
-	# Hack against broken glibc in Compact 3.0
-	if [ "$MENV" = "M30" -a "$BUILDNAME" = "wine" ] ; then
-		echo "Add glibc requires for $MENV"
-		subst "1iRequires: glibc-core-i686" $RPMDIR/SPECS/$BUILDNAME.spec
-	fi
-
 	# build source package
 	if [ -n "$MAKESPKG" ] ; then
 		BUILTRPM=$RPMDIR/SRPMS
@@ -153,7 +141,6 @@ EOF
 		else
 			BUILDCOMMAND="$RPMBPH -n $MENVARG"
 		fi
-		[ "$MENV" != "M23" ] && subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
 		$BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot build srpm" ; return 1 ; }
 		return
 	fi
@@ -165,9 +152,8 @@ EOF
 		BUILDCOMMAND="$RPMBPH $MENVARG"
 	fi
 
-	# disable 20.07.06 due prelink orphaned in Sisyphus, 04.04.07 prelink returned
-	[ "$MENV" != "M23" ] && subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
-	# FIXME: if_with does not work in Debian, Special...
+	# FIXME: for wine only?
+	subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
 	( export DEFAULTARCH=$BUILDARCH ; $BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec ) || { warning "Cannot hashered" ; [ -n "$ADEBUG" ] || ( export DEFAULTARCH=$BUILDARCH ; $ETERBUILDBIN/loginhsh -c $MENVARG) ; return 1 ; }
 
 	# search for binary packages
