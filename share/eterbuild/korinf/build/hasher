@@ -156,7 +156,7 @@ EOF
 	# FIXME: for wine only?
 	subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
 
-	( export DEFAULTARCH=$BUILDARCH ; setarch $BUILDARCH $BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec ) ||
+	( export DEFAULTARCH=$BUILDARCH ; $BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec ) ||
 		{ warning "Cannot hashered" ; [ -n "$ADEBUG" ] || ( export DEFAULTARCH=$BUILDARCH ; setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c $MENVARG) ; return 1 ; }
 
 	# search for binary packages
