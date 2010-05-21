@@ -124,11 +124,12 @@ convert_by_target()
 	case $TARGET in
 	"deb")
 		# Debian/Ubuntu
-		run_alien --scripts --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with deb"; RES=1 ; }
+		run_alien --scripts --to-$TARGET $EXPRPMMAINFILES $EXPRPMEXTFILES || { warning "alien problem with deb"; RES=1 ; }
 		;;
 	"tgz")
 		# Slackware
-		run_alien --scripts --to-$TARGET *${BUILDNAME}*.rpm || { warning "alien problem with tgz"; RES=1 ; }
+		run_alien --scripts --to-$TARGET $EXPRPMMAINFILES $EXPRPMEXTFILES || { warning "alien problem with tgz"; RES=1 ; }
+		# FIXME: will broken with package without BUILDNAME inside
 		for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tgz ; done
 		;;
 	*)

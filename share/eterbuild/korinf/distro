@@ -43,6 +43,10 @@ prepare_filelist()
 	EXPMAINFILES=$(expand_filelist $MAINFILESLIST)
 	EXPEXTRAFILES=$(expand_filelist $EXTRAFILESLIST)
 
+	# expand file masks by rpm
+	EXPRPMMAINFILES=$(TARGET=rpm expand_filelist $MAINFILESLIST)
+	EXPRPMEXTRAFILES=$(TARGET=rpm expand_filelist $EXTRAFILESLIST)
+
 	# check for ebuild if gentoo
 	if [ "$dist_name" = "Gentoo" ] ; then
 		EXPMAINFILES="$EXPMAINFILES ${BUILDNAME}*.ebuild"
