@@ -10,6 +10,6 @@ kormod korinf
 
 NAME=wine-vanilla
 
-MAINFILES="$NAME[-_][0-9] lib$NAME[-_][0-9] $NAME-gl $NAME-twain lib$NAME-devel"
+MAINFILES="$NAME[-_][0-9] lib$NAME[-_][0-9] lib$NAME-gl lib$NAME-twain lib$NAME-devel"
 
 build_project $WINEPUB_PATH/../Wine-vanilla $NAME "" $@
