@@ -77,7 +77,8 @@ cat <<EOF >~/.rpmmacros || fatal "Can't copy macros"
 EOF
 fi
 
-	# We install here in builder user home
+	# FIXME:
+	# We install src package here in ~/RPM
 	rpm -iv $BUILDSRPM || return 1;
 
 	mkdir -p ~/.config
@@ -87,51 +88,6 @@ HASHER_NOCHECK=nvr,gpg,packager,changelog,deps
 #TODO: специальный репозиторий без updates
 #APTCONFBASE=$WORKDIR/apt/apt.conf
 EOF
-	fi
-
-	# Hack for kernel module packages
-	if [ "$BUILDNAME" = "haspd" ] ; then
-		case $MENV in
-			M24)
-				NEEDEDKERNEL="kernel-headers-modules-std26-smp kernel-headers-modules-std26-up"
-				;;
-			M30)
-				#NEEDEDKERNEL="kernel-headers-modules-std26-smp kernel-headers-modules-std26-up"
-				# Не знаю, почему не берёт:
-				# error: failed build dependencies:
-				#        kernel-headers-std26-up >= 2.6.12-alt10 is needed by haspd-2.0-alt0.M30.2
-
-				#NEEDEDKERNEL="kernel-headers-std26-up >= 2.6.12-alt10 kernel-headers-std26-smp >= 2.6.12-alt10"
-				#NEEDEDKERNEL="$NEEDEDKERNEL kernel-headers-modules-std26-up >= 2.6.12-alt10 kernel-headers-modules-std26-smp >= 2.6.12-alt10"
-				NEEDEDKERNEL="$NEEDEDKERNEL kernel-headers-std26-up = 2.6.12-alt6 kernel-headers-std26-smp = 2.6.12-alt6"
-				NEEDEDKERNEL="$NEEDEDKERNEL kernel-headers-modules-std26-up = 2.6.12-alt6 kernel-headers-modules-std26-smp = 2.6.12-alt6"
-				;;
-			M40)
-				NEEDEDKERNEL="kernel-headers-modules-std-smp kernel-headers-modules-ovz-smp kernel-headers-modules-wks-smp"
-				;;
-			M41)
-				NEEDEDKERNEL="kernel-headers-modules-std-smp kernel-headers-modules-ovz-smp"
-				;;
-			M50)
-				NEEDEDKERNEL="kernel-headers-modules-std-srv kernel-headers-modules-ovz-rhel kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
-				;;
-			M51)
-				NEEDEDKERNEL="kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
-				;;
-			SS)
-				NEEDEDKERNEL="kernel-headers-modules-ovz-smp kernel-headers-modules-std-def"
-				if [ "$BUILDARCH" = "x86_64" ] ; then
-					# due 32-bit aksusbd
-					NEEDEDKERNEL="$NEEDEDKERNEL i586-glibc-pthread"
-				fi
-				;;
-		esac
-		if [ "$BUILDARCH" = "x86_64" ] ; then
-			# due 32-bit aksusbd
-			NEEDEDKERNEL="$NEEDEDKERNEL i586-glibc-core"
-		fi
-		# Add selected kernel requires
-		subst "1iBuildRequires: $NEEDEDKERNEL" $RPMDIR/SPECS/$BUILDNAME.spec
 	fi
 
 	# build source package
