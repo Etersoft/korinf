@@ -28,7 +28,7 @@ mount_linux()
 {
 	local MOUNTPARAM
 
-	# Создаём необходимые каталоги
+	# п║п╬п╥п╢п╟я▒п╪ п╫п╣п╬п╠я┘п╬п╢п╦п╪я▀п╣ п╨п╟я┌п╟п╩п╬пЁп╦
 	BUILDROOT=`mktemp -d $CHROOTDIR/$dist_name-XXXXXX`
 	mkdir -p $CHROOTDIR
 	$SUDO chown $LOCUSER $CHROOTDIR

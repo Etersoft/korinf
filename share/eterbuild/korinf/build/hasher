@@ -81,15 +81,6 @@ fi
 	# We install src package here in ~/RPM
 	rpm -iv $BUILDSRPM || return 1;
 
-	mkdir -p ~/.config
-	if [ ! -r ~/.config/eterbuild ] ; then
-		cat >~/.config/eterbuild <<EOF
-HASHER_NOCHECK=nvr,gpg,packager,changelog,deps
-#TODO: специальный репозиторий без updates
-#APTCONFBASE=$WORKDIR/apt/apt.conf
-EOF
-	fi
-
 	# build source package
 	if [ -n "$MAKESPKG" ] ; then
 		BUILTRPM=$RPMDIR/SRPMS
@@ -112,7 +103,7 @@ EOF
 	# FIXME: for wine only?
 	subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
 
-	( export DEFAULTARCH=$BUILDARCH ; $BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec ) ||
+	( HASHER_NOCHECK=nvr,gpg,packager,changelog,deps DEFAULTARCH=$BUILDARCH $BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec ) ||
 		{ warning "Cannot hashered" ; [ -n "$ADEBUG" ] || ( export DEFAULTARCH=$BUILDARCH ; setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c $MENVARG) ; return 1 ; }
 
 	# search for binary packages
