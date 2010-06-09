@@ -48,3 +48,7 @@ pub_and_push()
 	gpush $REPOALIAS $WORKBRANCH || fatal
 }
 
+ETERBUILDDIR=/srv/$USER/Projects/git/etersoft-build-utils/bin
+[ -d "$ETERBUILDDIR" ] || ETERBUILDDIR=$HOME/Projects/etersoft-build-utils/bin
+[ -d "$ETERBUILDDIR" ] || fatal "can't find eterbuild dir"
+export PATH=$ETERBUILDDIR:$PATH
