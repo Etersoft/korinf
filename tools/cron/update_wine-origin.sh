@@ -10,7 +10,7 @@ cd /srv/wine/Projects/wine-origin || exit 1
 
 #git pull winehq master
 # try pull and exit if all up-to-date
-gpull -c winehq master && { echo "No work now" ; exit 0; }
+gpull -c winehq master && { echocon "No work now" ; exit 0; }
 
 #autoconf -f
 # rm -f libs/wine/version.c
