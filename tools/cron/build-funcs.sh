@@ -29,7 +29,7 @@ pull_and_log()
 	TAG=$(git rev-parse HEAD)
 
 	# try pull and exit if all up-to-date
-	gpull -c $REPOALIAS $WORKBRANCH && { echo "No work" ; exit ; }
+	gpull -c $REPOALIAS $WORKBRANCH && { tty -s && echo "No work" ; exit ; }
 
 	NEWTAG=$(git rev-parse HEAD)
 
