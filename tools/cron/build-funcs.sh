@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. /usr/share/eterbuild/eterbuild
+
 fatal()
 {
 	echo "Error $@"
