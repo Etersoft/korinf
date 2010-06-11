@@ -28,10 +28,14 @@ update_version()
 	local SPECNAME=etersoft/wine-etersoft.spec
 	test -f VERSION && test -f $SPECNAME || fatal "incorrect current dir $(pwd) or repo"
 
+	git reset --soft HEAD^
+
 	echo "WINE@Etersoft version $(get_version $SPECNAME)-eter$(get_numrelease $SPECNAME)" >VERSION
 	# rebuild needed files
 	autoreconf -f || fatal "autoreconf failed"
-	git commit --amend VERSION configure include/config.h.in
+
+	#git commit --amend VERSION configure include/config.h.in
+	git commit -C ORIG_HEAD
 }
 
 pull_and_log()
