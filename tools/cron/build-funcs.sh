@@ -35,7 +35,7 @@ update_version()
 	autoreconf -f || fatal "autoreconf failed"
 
 	#git commit --amend VERSION configure include/config.h.in
-	git commit -C ORIG_HEAD
+	git commit -a -C ORIG_HEAD
 }
 
 pull_and_log()
