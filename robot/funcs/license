@@ -42,7 +42,7 @@ create_license()
 	[ -n "$DATE_END" ] || fatal "DATE_END is empty"
 
 	rm -f "$LICENSE_FILE.tmp" "$LICENSE_FILE"
-LC_ALL=ru_RU.UTF-8 cat <<EOF >"$LICENSE_FILE.tmp"
+LC_ALL=ru_RU.UTF-8 cat <<EOF | sed -e "s|  | |g" >"$LICENSE_FILE.tmp"
 VERSION=$PROJECTVERSION
 PRODUCT=$PRODUCT
 LICENSE_NUMBER=$ETERREGNUM
