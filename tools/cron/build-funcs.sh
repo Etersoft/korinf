@@ -51,10 +51,17 @@ pull_and_log()
 
 	NEWTAG=$(git rev-parse HEAD)
 
+	NEWVEREL="$(get_version $SPECNAME)-alt$(get_numrelease $SPECNAME)"
+	NEWRELTAG=$(git rev-parse "$NEWVEREL")
+
 	[ "$TAG" = "$NEWTAG" ] && fatal "last commit is not changed after update"
+
+	# Если тег стоит на последнем коммите, не трогаем changelog
+	[ "$NEWTAG" = "$NEWRELTAG" ] && return
 
 	# сформировать лог, обновить spec с пред. момента до обновления
 	rpmlog -s -l $TAG
+
 
 	# обновляем VERSION и объединяем с предыдущим коммитом
 	update_version
