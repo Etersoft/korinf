@@ -46,6 +46,11 @@ check_zip_integrity()
 	a= unzip -t $1 >/dev/null
 }
 
+check_xz_integrity()
+{
+	xz -t $1 >/dev/null
+}
+
 check_pkg_integrity()
 {
 	local EXT=`echo "$1" | sed -e "s|.*\.\([a-z0-9]*\)\$|\1|g"`
@@ -70,6 +75,10 @@ check_pkg_integrity()
 			;;
 		zip)
 			check_zip_integrity "$PKG"
+			RET=$?
+			;;
+		xz)
+			check_xz_integrity "$PKG"
 			RET=$?
 			;;
 		*)
