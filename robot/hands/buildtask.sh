@@ -69,7 +69,7 @@ load_task "$1"
 
 if [ -n "$DEBUG" ] ; then
 	echo "Debug try to build $TASK for $PRODUCT"
-	exit
+	#exit
 fi
 
 PWGEN=`pwgen 10 1`

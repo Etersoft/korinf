@@ -1,10 +1,10 @@
 PRODUCT="WINE@Etersoft 1.0 Network (коробочная версия, локальная лицензия)"
 COMPONENTNAME="WINE@Etersoft 1.0 Network"
 ETERREGNUM="7ED1-FE1D"
-DIST="SUSE/11.2"
-MAILTO="teh3@mail.ru"
+DIST="ArchLinux/2010.05"
+MAILTO="$USER@etersoft.ru"
 FULLNAME="Мельников Максим Андреевич"
-PROJECTVERSION="1.0.12"
+PROJECTVERSION="testing"
 RELEASECANDIDAT=0
 TYPE_LICENSE=DemoTerminal
 OWNER='Мельников Максим'
