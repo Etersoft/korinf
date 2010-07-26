@@ -116,10 +116,10 @@ build_anycomponent()
 	case "$COMPONENTNAME" in
 	"RX@Etersoft")
 		COMPONENTSCRIPT="bin-nx"
-                if [ "$PROJECTVERSION" -gt  "1.1.0" ; then
-			CHECKCOMP="rx-etersoft"
-		else
+                if [ "$PROJECTVERSION" = "1.0.0" ] || [ "$PROJECTVERSION" = "1.1.0" ] ; then
 			CHECKCOMP="freenx-server"
+		else
+			CHECKCOMP="rx-etersoft"
 		fi
 
 		if [ "$BUILDARCH" = "x86_64" ] ; then
