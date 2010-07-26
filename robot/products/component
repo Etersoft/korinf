@@ -116,10 +116,16 @@ build_anycomponent()
 	case "$COMPONENTNAME" in
 	"RX@Etersoft")
 		COMPONENTSCRIPT="bin-nx"
-		if [ "$BUILDARCH" = "x86_64" ] ; then
-			CHECKCOMP="nx freenx-server"
+                if [ "$PROJECTVERSION" -gt  "1.1.0" ; then
+			CHECKCOMP="rx-etersoft"
 		else
-			CHECKCOMP="nx nxclient freenx-server"
+			CHECKCOMP="freenx-server"
+		fi
+
+		if [ "$BUILDARCH" = "x86_64" ] ; then
+			CHECKCOMP="nx $CHECKCOMP"
+		else
+			CHECKCOMP="nx nxclient $CHECKCOMP"
 		fi
 		# TODO: nxsadmin
 		;;
