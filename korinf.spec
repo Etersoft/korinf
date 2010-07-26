@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.8.7
+Version: 1.8.8
 Release: alt1
 
 Summary: Korinf build system
@@ -39,9 +39,22 @@ This package contains Korinf build system.
 %config(noreplace) %_sysconfdir/eterbuild/lists/*
 %config(noreplace) %_sysconfdir/eterbuild/rpmopt/*
 %config(noreplace) %_sysconfdir/eterbuild/korinf
+%config(noreplace) %_sysconfdir/eterbuild/linked
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Mon Jul 26 2010 Vitaly Lipatov <lav@altlinux.ru> 1.8.8-alt1
+- add rx-etersoft build support since RX 1.1.1
+- again fix build in hasher with host arch != target arch (real major change in etersoft-build-utils 184)
+- cron build: add checking for last tag (do not create changelog if tag already at HEAD)
+- do rpmbph arch related
+- fix build in hasher with host arch != target arch
+- global rearrange and update distro list
+- hasher: disable ~/.config/eterbuild creating (run with HASHER_NOCHECK directly)
+- introduce serapate sign (FIL) for failed builds
+- use correct package name
+- use list files (MAINFILES, EXTFILES) for get built packages names
+
 * Tue May 18 2010 Vitaly Lipatov <lav@altlinux.ru> 1.8.7-alt1
 - make md5sum after copying
 - no build if STOP file is exists
