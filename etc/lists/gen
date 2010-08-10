@@ -24,6 +24,7 @@ Scientific/4.1
 . mandriva
 
 PCLinux/2009.2
+PCLinux/2010.07
 
 # Load deb system list
 . deb
