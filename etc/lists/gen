@@ -24,6 +24,7 @@ Scientific/4.1
 . mandriva
 
 PCLinux/2009.2
+PCLinux/2010.7
 
 # Load deb system list
 . deb
@@ -35,6 +36,7 @@ PCLinux/2009.2
 SUSE/11
 SUSE/11.1
 SUSE/11.2
+SUSE/11.3
 #NLD/9
 
 SLED/10
