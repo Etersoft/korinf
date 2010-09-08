@@ -39,6 +39,7 @@ This package contains Korinf build system.
 %config(noreplace) %_sysconfdir/eterbuild/lists/*
 %config(noreplace) %_sysconfdir/eterbuild/rpmopt/*
 %config(noreplace) %_sysconfdir/eterbuild/korinf
+%config(noreplace) %_sysconfdir/eterbuild/linked
 %_datadir/eterbuild/korinf/
 
 %changelog
