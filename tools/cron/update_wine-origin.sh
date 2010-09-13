@@ -1,13 +1,43 @@
 #!/bin/sh
 
+MAILTO=winedevel@lists.etersoft.ru
+#MAILTO=lav@etersoft.ru
+
 . /usr/share/eterbuild/eterbuild
 
 cd /srv/wine/Projects/wine-origin || exit 1
 
 #git clone http://git.etersoft.ru/projects/eterwine.git
 
+
+# check repo
+git rev-parse HEAD >/dev/null || fatal "check repo failed"
+
+# save TAG for last commit
+OLDTAG=$(git rev-parse HEAD)
+
+# Cleanup before update
+git checkout -f
+
 # try pull and exit if all up-to-date
 gpull -c winehq master && { echocon "No work now" ; exit 0; }
+gpull winehq master || { echocon "Some update error" ; exit 0; }
+
+NEWTAG=$(git rev-parse HEAD)
+
+[ "$OLDTAG" = "$NEWTAG" ] && return
+
+LINES=$(git log $OLDTAG..$NEWTAG --author=".*@etersoft.ru" --pretty=short)
+
+if [ -n "$LINES" ] ; then
+	(	echo "New patches since last time:"
+		git log $OLDTAG..$NEWTAG --author=".*@etersoft.ru" --pretty=short ; 
+		echo; echo "---" ; echo
+		git log $OLDTAG..$NEWTAG -U --author=".*@etersoft.ru" ) | \
+	mutt -s "Eter's patch is applied to winehq repo $(date "+%x")" $MAILTO
+fi
+
+#exit
 
 autoreconf -f
 ./configure --prefix=/usr || exit 1
