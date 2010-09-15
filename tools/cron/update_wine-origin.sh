@@ -1,14 +1,15 @@
 #!/bin/sh
 
-MAILTO=winedevel@lists.etersoft.ru
+# For initial create repo
+# git clone http://source.winehq.org/git/wine.git wine-origin
+# git remote add winehq http://source.winehq.org/git/wine.git
+
+MAILTO=wine-devel@lists.etersoft.ru
 #MAILTO=lav@etersoft.ru
 
 . /usr/share/eterbuild/eterbuild
 
 cd /srv/wine/Projects/wine-origin || exit 1
-
-#git clone http://git.etersoft.ru/projects/eterwine.git
-
 
 # check repo
 git rev-parse HEAD >/dev/null || fatal "check repo failed"
