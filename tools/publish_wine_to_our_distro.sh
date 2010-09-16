@@ -22,7 +22,7 @@ add_and_remove()
 	#ls -l
 	local LIST="$i-[0-9]*.*.rpm"
 	rm -fv $TP/$i-[0-9]*.rpm
-	cp -flv $LIST $TP || cp -fv $LIST $TP || fatal "Can't copy $LIST"
+	cp -flv $LIST $TP 2>/dev/null || cp -fv $LIST $TP || fatal "Can't copy $LIST"
 	cd - >/dev/null
 }
 
@@ -31,16 +31,19 @@ copy_to()
 {
 	ARCH=$1
 	shift
-	local FPU="$WINEPUB_PATH/$PROJECTVERSION/WINE/$ARCH/$1"
+	NARCH=
+	[ "$ARCH" = "i586" ] || NARCH=$ARCH
+	local FPU="$WINEPUB_PATH/$PROJECTVERSION/WINE/$NARCH/$1"
+	local HASPFPU="$WINEPUB_PATH/$PROJECTVERSION/HASP/$NARCH/$1"
 	local TP="$2/$ARCH/RPMS.nonfree"
 
 	add_and_remove "$FPU" wine-etersoft
-	add_and_remove "$FPU" wine-etersoft-gl
+	add_and_remove "$FPU/extra" wine-etersoft-gl
 	add_and_remove "$FPU/extra" wine-etersoft-twain
 	add_and_remove "$FPU/extra" libwine-etersoft-devel
 
-	add_and_remove "$FPU" haspd
-	add_and_remove "$FPU" haspd-modules
+	add_and_remove "$HASPFPU" haspd
+	add_and_remove "$HASPFPU" haspd-modules
 
 	add_and_remove "$WINEETER_PATH/$PROJECTVERSION/WINE-SQL/$1" wine-etersoft-sql
 	add_and_remove "$WINEETER_PATH/$PROJECTVERSION/WINE-Network/$1" wine-etersoft-network
@@ -55,9 +58,12 @@ copy_to()
 }
 
 distro_path=/var/ftp/pub/Etersoft/LINUX@Etersoft
+
 arch=i586
+copy_to "$arch" ALTLinux/4.1 $distro_path/4.1/branch
+copy_to "$arch" ALTLinux/5.1 $distro_path/5.1/branch
+copy_to "$arch" ALTLinux/Sisyphus $distro_path/Sisyphus
 
-copy_to arch ALTLinux/4.1 $distro_path/4.1/branch
-copy_to arch ALTLinux/5.1 $distro_path/5.1/branch
-copy_to arch ALTLinux/Sisyphus $distro_path/Sisyphus
-
+#arch=x86_64
+#copy_to "$arch" ALTLinux/5.1 $distro_path/5.1/branch
+#copy_to "$arch" ALTLinux/Sisyphus $distro_path/Sisyphus
