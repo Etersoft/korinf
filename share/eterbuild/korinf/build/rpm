@@ -127,12 +127,13 @@ convert_by_target()
 		run_alien --scripts --to-$TARGET $i || { warning "alien problem with deb"; RES=1 ; }
 	done
 		# FIXME: will broken with package without BUILDNAME inside
-		if $TARGET == "tgz"
-		    for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tgz ; done
-		fi
-	*)
+	if $TARGET == "tgz" ; then
+	    for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tgz ; done
+	fi
+
+	if $TARGET != "deb" && $TARGET != "tgz" ; then
 		fatal "unknown $TARGET"
-	esac
+	fi
 	return $RES
 }
 
