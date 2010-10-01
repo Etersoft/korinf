@@ -121,17 +121,15 @@ convert_by_target()
 {
 	local RELPKG=$PACKAGERELEASE$TARGETPKGDISTRO
 	local RES=0
-	case $TARGET in
-	"deb")
-		# Debian/Ubuntu
-		run_alien --scripts --to-$TARGET $EXPRPMMAINFILES $EXPRPMEXTFILES || { warning "alien problem with deb"; RES=1 ; }
-		;;
-	"tgz")
-		# Slackware
-		run_alien --scripts --to-$TARGET $EXPRPMMAINFILES $EXPRPMEXTFILES || { warning "alien problem with tgz"; RES=1 ; }
+	echo "EXPRPMMAINFILES = $EXPRPMMAINFILES"
+	echo "EXPRPMEXTFILES = $EXPRPMEXTFILES"
+	for $i in $EXPRPMMAINFILES $EXPRPMEXTFILES ; do
+		run_alien --scripts --to-$TARGET $i || { warning "alien problem with deb"; RES=1 ; }
+	done
 		# FIXME: will broken with package without BUILDNAME inside
-		for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tgz ; done
-		;;
+		if $TARGET == "tgz"
+		    for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tgz ; done
+		fi
 	*)
 		fatal "unknown $TARGET"
 	esac
