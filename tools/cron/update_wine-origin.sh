@@ -31,7 +31,7 @@ NEWTAG=$(git rev-parse HEAD)
 LINES=$(git log $OLDTAG..$NEWTAG --author=".*@etersoft.ru" --pretty=short)
 
 if [ -n "$LINES" ] ; then
-	(	echo "New patches since last time:"
+	(	echo "New Etersoft's patches since last build time:"
 		git log $OLDTAG..$NEWTAG --author=".*@etersoft.ru" --pretty=short ; 
 		echo; echo "---" ; echo
 		git log $OLDTAG..$NEWTAG -U --author=".*@etersoft.ru" ) | \

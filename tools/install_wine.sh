@@ -59,7 +59,7 @@ install_pkg()
 
 #############
 SYSTEM=
-if [ -r "/etc/lsb-release" ] ; then
+if [ -r "/etc/lsb-release" ] && [ ! -r "/etc/altlinux-release" ] ; then
 	. /etc/lsb-release
 	SYSTEM=$DISTRIB_ID/$DISTRIB_RELEASE
 	if [ $DEFAULTARCH = "x86_64" ] ; then

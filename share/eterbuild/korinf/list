@@ -62,7 +62,7 @@ get_distro_list()
 filter_distro_list()
 {
 	if [ -z "$SKIPBUILDLIST" ] ; then
-		cat
+		cat 2>/dev/null
 		return
 	fi
 	# SKIPBUILDLIST contains DistroName or DistroName/2010
