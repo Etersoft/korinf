@@ -121,17 +121,17 @@ convert_by_target()
 {
 	local RELPKG=$PACKAGERELEASE$TARGETPKGDISTRO
 	local RES=0
-	echo "EXPRPMMAINFILES = $EXPRPMMAINFILES"
-	echo "EXPRPMEXTFILES = $EXPRPMEXTFILES"
-	for $i in $EXPRPMMAINFILES $EXPRPMEXTFILES ; do
+
+	for i in $EXPRPMMAINFILES $EXPRPMEXTRAFILES ; do
 		run_alien --scripts --to-$TARGET $i || { warning "alien problem with deb"; RES=1 ; }
 	done
-		# FIXME: will broken with package without BUILDNAME inside
-	if $TARGET == "tgz" ; then
+
+	# FIXME: will broken with package without BUILDNAME inside
+	if [ $TARGET == "tgz" ] ; then
 	    for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tgz ; done
 	fi
 
-	if $TARGET != "deb" && $TARGET != "tgz" ; then
+	if [ $TARGET != "deb" ] && [ $TARGET != "tgz" ] ; then
 		fatal "unknown $TARGET"
 	fi
 	return $RES
