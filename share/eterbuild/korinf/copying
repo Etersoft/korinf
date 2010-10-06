@@ -78,13 +78,27 @@ copying_packages()
 
 	if [ -n "$MAINFILESLIST" ] ; then
 		echo "Copying built packages to $DESTDIR..."
-		cp -v $EXPMAINFILES $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
+		for i in $EXPMAINFILES ; do
+			if [ -e $i ] ; then
+				cp -v $i $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
+				#cp -v $EXPMAINFILES $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
+			else 
+				warning "Connot copy new package $i"
+			fi
+		done
 		make_md5sum $DESTDIR/
 	fi
 
 	if [ -n "$EXTRAFILESLIST" ] ; then
 		echo "Copying built packages to $DESTDIR/extra..."
-		cp -v $EXPEXTRAFILES $DESTDIR/extra/ || { RC=1 ; warning "Cannot copy extra packages $EXPEXTRAFILES" ; }
+		for i in $EXPEXTRAFILES ; do
+			if [ -e $i ] ; then
+#				cp -v $EXPEXTRAFILES $DESTDIR/extra/ || { RC=1 ; warning "Cannot copy extra packages $EXPEXTRAFILES" ; }
+				cp -v $i $DESTDIR/extra/ || { RC=1 ; warning "Cannot copy extra packages $EXPEXTRAFILES" ; }
+			else
+				warning "Cannot copy extra package $i"
+			fi
+		done
 		make_md5sum $DESTDIR/extra/
 	fi
 
