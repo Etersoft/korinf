@@ -110,7 +110,11 @@ build_rpms()
 
 run_alien()
 {
-	BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version --veryverbose $@ || return
+	if [ -n $ADEBUG ] ; then
+		BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version --veryverbose $@ || return
+	else
+		BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version $@ || return
+	fi
 	# don't remove due using rpm after converting (f.i. for Gentoo)
 	# remove source rpm if converted successfully
 	#shift
@@ -122,9 +126,18 @@ convert_by_target()
 	local RELPKG=$PACKAGERELEASE$TARGETPKGDISTRO
 	local RES=0
 
-	for i in $EXPRPMMAINFILES $EXPRPMEXTRAFILES ; do
-		run_alien --scripts --to-$TARGET $i || { warning "alien problem with deb"; RES=1 ; }
-	done
+	local PACKAGESLIST="$EXPRPMMAINFILES $EXPRPMEXTRAFILES"
+	echo "Packages to convert: $PACKAGESLIST"
+	if [ -n "$PACKAGESLIST" ] ; then
+		for i in $PACKAGESLIST ; do
+			if [ -e $i ] ; then
+				run_alien --scripts --to-$TARGET $i || { warning "alien problem with $TARGET"; RES=1 ; }
+			else
+				warning "Package $i missing check $DESTDIR"
+			fi
+		done
+	else fatal "No packages to pass to alien"
+	fi
 
 	# FIXME: will broken with package without BUILDNAME inside
 	if [ $TARGET == "tgz" ] ; then
