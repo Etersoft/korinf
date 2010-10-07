@@ -68,10 +68,16 @@ copying_packages()
 {
 	local RC=0
 	local i
-	prepare_copying
 
 	pushd $BUILTRPM >/dev/null || warning "Can't cd to built rpm dir '$BUILTRPM'"
 	echo "Copying $TARGET packages from $BUILTRPM"
+
+	for i in "$EXPMAINFILES" ; do
+		[ -e $i ] && break
+		fatal "First package from MAINFILES list wasn't built"
+	done
+
+	prepare_copying
 
 	# Don't public debug packages now (it may contain source files)
 	rm -f *${BUILDNAME}-debuginfo* *${BUILDNAME}-debug-*
@@ -83,7 +89,7 @@ copying_packages()
 				cp -v $i $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
 				#cp -v $EXPMAINFILES $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
 			else 
-				warning "Connot copy new package $i"
+				warning "Cannot copy new package $i"
 			fi
 		done
 		make_md5sum $DESTDIR/
