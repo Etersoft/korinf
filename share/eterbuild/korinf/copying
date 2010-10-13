@@ -74,9 +74,13 @@ copying_packages()
 	pushd $BUILTRPM >/dev/null || warning "Can't cd to built rpm dir '$BUILTRPM'"
 	echo "Copying $TARGET packages from $BUILTRPM"
 
-	for i in "$EXPMAINFILES" ; do
+	# Check if first package in the list is built
+	for i in $EXPMAINFILES ; do
 		[ -e $i ] && break
-		fatal "First package from MAINFILES list wasn't built"
+		RC=1
+		warning "First package '$i' from MAINFILES list wasn't built"
+		popd >/dev/null
+		return $RC
 	done
 
 	clean_copying_destination
