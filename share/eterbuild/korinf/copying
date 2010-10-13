@@ -85,8 +85,16 @@ copying_packages()
 
 	clean_copying_destination
 
-	# Don't public debug packages now (it may contain source files)
-	rm -f *${BUILDNAME}-debuginfo* *${BUILDNAME}-debug-*
+	# Note: debug packages can contains source files
+	if [ -n "$ALLOWPUBLICDEBUG" ] ; then
+		# FIXME: some other names?
+		for i in *${BUILDNAME}-debuginfo* *${BUILDNAME}-debug-* ; do
+			if [ -e $i ] ; then
+				mkdir_dest $DESTDIR/extra/
+				mv -f $i $DESTDIR/extra/ || warning "Cannot move debug package $i to extra"
+			fi
+		done
+	fi
 
 	if [ -n "$MAINFILESLIST" ] ; then
 		mkdir_dest $DESTDIR/

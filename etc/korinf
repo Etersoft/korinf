@@ -41,3 +41,6 @@ PRIVATESSHKEY=$KORINFETC/id_dsa.korinf
 # for robot notices
 #KORINFERJID=korinfer@localhost
 #KORINFERJIDPASSWD=secret
+
+# allow create debug subpackages with sources info
+ALLOWPUBLICDEBUG=1
