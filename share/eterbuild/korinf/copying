@@ -21,14 +21,18 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+mkdir_dest()
+{
+	mkdir -p "$1" && return
+	sleep 100  # Hack due NFS troubles
+	mkdir -p "$1" || fatal "Can't create $1"
+}
 
 # Cleanup target dir, used for all systems
-prepare_copying()
+clean_copying_destination()
 {
 	# Remove old packages from main dir
-	if [ -n "$MAINFILESLIST" ] ; then
-		mkdir -p $DESTDIR || sleep 100
-		mkdir -p $DESTDIR || fatal "Can't create $DESTDIR"
+	if [ -n "$MAINFILESLIST" ] && [ -d "$DESTDIR" ] ; then
 		echo "Removing old '$MAINFILESLIST' from $DESTDIR..."
 		pushd $DESTDIR >/dev/null || return 1
 		rm -fv $EXPMAINFILES
@@ -36,9 +40,7 @@ prepare_copying()
 	fi
 
 	# Remove old packages from extra dir
-	if [ -n "$EXTRAFILESLIST" ] ; then
-		mkdir -p $DESTDIR/extra || sleep 100
-		mkdir -p $DESTDIR/extra || fatal "Can't create $DESTDIR/extra"
+	if [ -n "$EXTRAFILESLIST" ] && [ -d "$DESTDIR/extra" ] ; then
 		echo "Removing old '$EXTRAFILESLIST' from $DESTDIR/extra..."
 		pushd $DESTDIR/extra >/dev/null || return 1
 		rm -fv $EXPEXTRAFILES
@@ -77,18 +79,18 @@ copying_packages()
 		fatal "First package from MAINFILES list wasn't built"
 	done
 
-	prepare_copying
+	clean_copying_destination
 
 	# Don't public debug packages now (it may contain source files)
 	rm -f *${BUILDNAME}-debuginfo* *${BUILDNAME}-debug-*
 
 	if [ -n "$MAINFILESLIST" ] ; then
+		mkdir_dest $DESTDIR/
 		echo "Copying built packages to $DESTDIR..."
 		for i in $EXPMAINFILES ; do
 			if [ -e $i ] ; then
 				cp -v $i $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
-				#cp -v $EXPMAINFILES $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
-			else 
+			else
 				warning "Cannot copy new package $i"
 			fi
 		done
@@ -96,10 +98,10 @@ copying_packages()
 	fi
 
 	if [ -n "$EXTRAFILESLIST" ] ; then
+		mkdir_dest $DESTDIR/extra
 		echo "Copying built packages to $DESTDIR/extra..."
 		for i in $EXPEXTRAFILES ; do
 			if [ -e $i ] ; then
-#				cp -v $EXPEXTRAFILES $DESTDIR/extra/ || { RC=1 ; warning "Cannot copy extra packages $EXPEXTRAFILES" ; }
 				cp -v $i $DESTDIR/extra/ || { RC=1 ; warning "Cannot copy extra packages $EXPEXTRAFILES" ; }
 			else
 				warning "Cannot copy extra package $i"
