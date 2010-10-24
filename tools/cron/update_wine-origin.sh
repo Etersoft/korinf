@@ -30,12 +30,13 @@ NEWTAG=$(git rev-parse HEAD)
 
 LINES=$(git log $OLDTAG..$NEWTAG --author=".*@etersoft.ru" --pretty=short)
 
+# FIXME: нужно исправить кодировку присылаемых писем
 if [ -n "$LINES" ] ; then
 	(	echo "New Etersoft's patches since last build time:"
 		git log $OLDTAG..$NEWTAG --author=".*@etersoft.ru" --pretty=short ; 
 		echo; echo "---" ; echo
 		git log $OLDTAG..$NEWTAG -U --author=".*@etersoft.ru" ) | \
-	mutt -s "Eter's patch is applied to winehq repo $(date "+%x")" $MAILTO
+		LANG=ru_RU.UTF-8 LC_ALL=ru_RU.UTF-8 mutt -s "Eter's patch is applied to winehq repo $(date "+%x")" $MAILTO
 fi
 
 #exit
