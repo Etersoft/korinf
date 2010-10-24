@@ -1,8 +1,8 @@
 Name: korinf
-Version: 1.8.8
+Version: 1.8.9
 Release: alt1
 
-Summary: Korinf build system
+Summary: Korinf multidistro build system
 
 License: AGPLv3
 Group: Development/Other
@@ -16,11 +16,11 @@ Source: %name-%version.tar
 
 BuildArchitectures: noarch
 
-Requires: etersoft-build-utils >= 1.7.9
+Requires: etersoft-build-utils >= 1.9.1
 Requires: alien
 
 %description
-This package contains Korinf build system.
+This package contains Korinf multidistro build system.
 
 %prep
 %setup
@@ -43,6 +43,17 @@ This package contains Korinf build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Sun Oct 24 2010 Vitaly Lipatov <lav@altlinux.ru> 1.8.9-alt1
+- add drop_failed_status.sh script for remove all .build.failed files
+- add FreeBSD/8.1, PCLinux/2010.07, SUSE/11.3, Ubuntu/10.10
+- add quotation marks for SRC_URI (for multiple URIs); RT #15490
+- check built package existense before removing
+- copy each file instead of copying whole list
+- copying: fix first package checking result
+- fix missing EXPRPMEXTRAFILES for non-rpm builds
+- fix using on ALT with LSB support
+- remove ALT Linux 5.0 support (use p5 instead)
+
 * Mon Jul 26 2010 Vitaly Lipatov <lav@altlinux.ru> 1.8.8-alt1
 - add rx-etersoft build support since RX 1.1.1
 - again fix build in hasher with host arch != target arch (real major change in etersoft-build-utils 184)
