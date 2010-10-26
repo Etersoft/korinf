@@ -1,0 +1,95 @@
+#!/bin/sh
+##
+#  Korinf project
+#
+#  Windows build related functions
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+# BUILDROOT - root of current system
+# BUILDERHOME - absolute path to user dir in current system
+
+# TODO: user dist_ver
+#load_mod rpm
+
+#$PACKAGEVERSION
+#$PACKAGERELEASE
+
+if [ -d /home/$INTUSER/ ] ; then
+	HOMEDIR=/home/$INTUSER
+    else
+    if [ -d /srv/$INTUSER ] ; then
+	    HOMEDIR=/srv/$INTUSER
+	else fatal "$INTUSER has no homedir"
+    fi
+fi
+
+#HOMEDIR=~/
+RPMDIR=$HOMEDIR/RPM
+BUILDUTILSDIR=$HOMEDIR/Projects/etersoft-build-utils
+INTBUILT=/home/$INTUSER/$RPMSDIR
+RPMARGS="$(get_rpm_args $dist $BUILDNAME)"
+
+#dirty hack for postgresql
+if [ `echo $BUILDNAME | grep [0-9]` ] ; then
+	WINNAME=`echo $BUILDNAME | sed -r "s|^([a-z]*)-[0-9]*.*|\1|"`
+else
+	WINNAME=$BUILDNAME
+fi
+echo $WINNAME
+
+build_windows()
+{
+	local RET
+
+        mkdir -p $RPMDIR/SPECS $RPMDIR/SRPMS
+
+        rpm -ivv $BUILDERHOME/tmp/${WINNAME}*.src.rpm
+
+        pushd $RPMDIR/SPECS
+		#TODO: test specfile?
+		#unpack sources and apply patches
+		rpmbuild -bp -v --nodeps ${WINNAME}*.spec
+        popd
+
+	pushd $RPMDIR/BUILD/$WINNAME*/${WINNAME}*win*
+		./windows.sh $RPMDIR $PACKAGERELEASE $PACKAGEVERSION || return 1
+	popd
+
+        RET=$?
+        if [ $RET != 0 ] ; then
+                warning "Can't build"
+                return 1
+        fi
+        true
+}
+
+copying_windows()
+{
+	echo "Copying to ftp"
+        cp -f $RPMDIR/BUILD/$WINNAME*/${WINNAME}*installer*/*.exe $DESTDIR || { warning "Cannot copy packages" ; return 1; }
+	echo "Done with copying"
+        chmod g+rw -R $DESTDIR/* || true
+}
+
+clean_windows()
+{
+	echo "Cleaning $RPMDIR/BUILD/$WINNAME*"
+	rm -rf $RPMDIR/BUILD/$WINNAME*
+        true
+}
