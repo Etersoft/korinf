@@ -115,7 +115,7 @@ for dist in $CMDRE ; do
 	# skip linked destination (TODO: do not handle it at all)
 	[ -L "$DESTDIR" ] && warning "$dist: Does not support linked target, translate it in etc/linked" && continue
 
-	[ "$dist" = "Windows" ] && echo "Skip $dist: is not supported yet" && continue
+#	[ "$dist" = "Windows" ] && echo "Skip $dist: is not supported yet" && continue
 
 	# FIXME: Hack
 	[ "$TARGETPRIVPATH" ] && DESTDIR=$TARGETPRIVPATH

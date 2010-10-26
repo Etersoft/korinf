@@ -61,7 +61,33 @@ build_dist_pkg()
 {
 case $dist_name in
 "Windows")
-	return 1;
+	kormod build/rpm
+	kormod build/windows
+	# FIXME
+	BUILDERHOME=~/tmp/korinfer
+	BUILDROOT=~/tmp/korinfer
+
+	echo "dist=$dist"
+	echo "dist_name=$dist_name"
+	mkdir -p $BUILDERHOME $BUILDROOT
+#	do copying by $TARGET
+	TARGET="exe"
+	echo "TARGETPKGDISTRO=$TARGETPKGDISTRO"
+	echo "PACKAGE=$PACKAGE"
+	echo "BUILDNAME=$BUILDNAME"
+	echo "VERSION=$PACKAGEVERSION"
+	echo "RELEASE=$PACKAGERELEASE"
+
+	logit "convert src.rpm to target $TARGETPKGDISTRO" convert_rpm_to_target $dist || return 1
+	echo "TARGET=$TARGET"
+	echo "BUILDROOT=$BUILDROOT"
+
+	echo "Doing build/windows/build_windows"
+	logit "build $dist" build_windows $dist || return 1
+	prepare_filelist
+	logit "copying built packages to $dist" copying_windows || return 1
+#	[ -n "$BOOTSTRAP" ] && logit "install built" install_windows
+	logit "cleaning" clean_windows || return 1
 	;;
 "FreeBSD")
 	kormod build/freebsd
@@ -69,6 +95,7 @@ case $dist_name in
 	# FIXME
 	BUILDERHOME=~/tmp/korinfer
 	BUILDROOT=~/tmp/korinfer
+
 	mkdir -p $BUILDERHOME $BUILDROOT
 	set_target_var || return 1
 
