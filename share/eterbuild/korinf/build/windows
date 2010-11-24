@@ -21,29 +21,22 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+# FIXME
 # BUILDROOT - root of current system
 # BUILDERHOME - absolute path to user dir in current system
 
 # TODO: user dist_ver
-#load_mod rpm
+load_mod rpm build
 
 #$PACKAGEVERSION
 #$PACKAGERELEASE
 
-if [ -d /home/$INTUSER/ ] ; then
-	HOMEDIR=/home/$INTUSER
-    else
-    if [ -d /srv/$INTUSER ] ; then
-	    HOMEDIR=/srv/$INTUSER
-	else fatal "$INTUSER has no homedir"
-    fi
-fi
-
-#HOMEDIR=~/
+# FIXME
+HOMEDIR=~/
 RPMDIR=$HOMEDIR/RPM
-BUILDUTILSDIR=$HOMEDIR/Projects/etersoft-build-utils
-INTBUILT=/home/$INTUSER/$RPMSDIR
-RPMARGS="$(get_rpm_args $dist $BUILDNAME)"
+#BUILDUTILSDIR=$HOMEDIR/Projects/etersoft-build-utils
+#INTBUILT=/home/$INTUSER/$RPMSDIR
+#RPMARGS="$(get_rpm_args $dist $BUILDNAME)"
 
 #dirty hack for postgresql
 if [ `echo $BUILDNAME | grep [0-9]` ] ; then
@@ -55,41 +48,44 @@ echo $WINNAME
 
 build_windows()
 {
-	local RET
+	local RET=0
 
-        mkdir -p $RPMDIR/SPECS $RPMDIR/SRPMS
+	# prevent gear detecting (operate inside our dir)
+	export IGNOREGEAR=1
+	# NOTE: we can do cd to some other dir...
+	export RPMTOPDIR=$RPMDIR/BPW
+	uni_rpminstall $BUILDSRPM
 
-        rpm -ivv $BUILDERHOME/tmp/${WINNAME}*.src.rpm
+        #mkdir -p $RPMDIR/SPECS $RPMDIR/SRPMS
+        #rpm -ivv $BUILDERHOME/tmp/${WINNAME}*.src.rpm
 
-        pushd $RPMDIR/SPECS
+        cd $RPMTOPDIR/SPECS
 		#TODO: test specfile?
+		#TODO: use uni_rpmbuild
 		#unpack sources and apply patches
-		rpmbuild -bp -v --nodeps ${WINNAME}*.spec
-        popd
+		uni_rpmbuild ${WINNAME}*.spec -bp -v --nodeps
+        cd -
 
-	pushd $RPMDIR/BUILD/$WINNAME*/${WINNAME}*win*
-		./windows.sh $RPMDIR $PACKAGERELEASE $PACKAGEVERSION || return 1
-	popd
+	ls -l $RPMTOPDIR/BUILD/$WINNAME*/
+	cd $RPMTOPDIR/BUILD/$WINNAME*/${WINNAME}*win*
+		./windows.sh $RPMTOPDIR $PACKAGERELEASE $PACKAGEVERSION || RET=$?
+	cd -
 
-        RET=$?
-        if [ $RET != 0 ] ; then
-                warning "Can't build"
-                return 1
-        fi
-        true
+        [ $RET = 0 ] || warning "Can't build"
+        return $RET
 }
 
 copying_windows()
 {
 	echo "Copying to ftp"
-        cp -f $RPMDIR/BUILD/$WINNAME*/${WINNAME}*installer*/*.exe $DESTDIR || { warning "Cannot copy packages" ; return 1; }
+        cp -f $RPMTOPDIR/BUILD/$WINNAME*/${WINNAME}*installer*/*.exe $DESTDIR || { warning "Cannot copy packages" ; return 1; }
 	echo "Done with copying"
         chmod g+rw -R $DESTDIR/* || true
 }
 
 clean_windows()
 {
-	echo "Cleaning $RPMDIR/BUILD/$WINNAME*"
-	rm -rf $RPMDIR/BUILD/$WINNAME*
-        true
+	echo "Cleaning $RPMTOPDIR/BUILD/$WINNAME*"
+	rm -rf $RPMTOPDIR/BUILD/$WINNAME*
+        #true
 }
