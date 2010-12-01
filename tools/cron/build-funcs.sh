@@ -44,9 +44,9 @@ pull_and_log()
 	git rev-parse HEAD >/dev/null || fatal "check repo failed"
 
 	# save TAG for last commit
-	TAG=$(git rev-parse HEAD)
+	CURTAG=$(git rev-parse HEAD)
 
-	# try pull and exit if all up-to-date
+	# try pull (with rebase) and exit if all up-to-date
 	gpull -c $REPOALIAS $WORKBRANCH && { echocon "No work" ; exit ; }
 
 	NEWTAG=$(git rev-parse HEAD)
@@ -54,14 +54,13 @@ pull_and_log()
 	NEWVEREL="$(get_version $SPECNAME)-alt$(get_numrelease $SPECNAME)"
 	NEWRELTAG=$(git rev-parse "$NEWVEREL")
 
-	[ "$TAG" = "$NEWTAG" ] && fatal "last commit is not changed after update"
+	[ "$CURTAG" = "$NEWTAG" ] && fatal "last commit is not changed after update"
 
 	# Если тег стоит на последнем коммите, не трогаем changelog
 	[ "$NEWTAG" = "$NEWRELTAG" ] && return
 
 	# сформировать лог, обновить spec с пред. момента до обновления
-	rpmlog -s -l $TAG
-
+	rpmlog -s -l $CURTAG
 
 	# обновляем VERSION и объединяем с предыдущим коммитом
 	update_version
@@ -73,7 +72,10 @@ pub_and_push()
 	rpmpub -r $WORKTARGET
 
 	# will works only if REPOALIAS is origin :)
-	gpush $REPOALIAS $WORKBRANCH || fatal
+	gpush $REPOALIAS $WORKBRANCH && return
+
+	# if push is failed
+	git reset --hard $CURTAG
 }
 
 ETERBUILDDIR=/srv/$USER/Projects/git/etersoft-build-utils/bin
