@@ -8,15 +8,14 @@ x86_64/SUSE/11.1
 x86_64/SUSE/11.2
 x86_64/SUSE/11.3
 
-. x86_64-fedora
-
-. x86_64-centos
+. fedora
+. centos
 
 x86_64/Debian/4.0
 x86_64/Debian/5.0
 
-. x86_64-ubuntu
+. ubuntu
 
-. x86_64-mandriva
+. mandriva
 
-. x86_64-alt
+. alt

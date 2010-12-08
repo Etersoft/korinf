@@ -96,8 +96,11 @@ get_target_list()
 	local TLIST RLIST
 	local FILE=$1
 	TLIST=$TARGETPATH/distro.list
+	# for compatibility
+	[ "$FILE" = "x86_64" ] && FILE="x86_64/ALL"
+
 	RLIST=$KORINFETC/lists/$FILE
-	if [ "$FILE" = "ALL" ] ; then
+	if [ "$FILE" = "ALL" ] || [ "$FILE" = "x86_64/ALL" ]; then
 		[ -f "$RLIST" ] && TLIST=$RLIST || fatal "Can't read ALL list"
 	else
 		# if can't find distro.list, use lists/
@@ -122,6 +125,8 @@ set_rebuildlist()
 		if [ -r "$REBUILDLIST" ] ; then
 			RESULT="Build for distros from full path $REBUILDLIST"
 		elif [ -r "$KORINFETC/lists/$REBUILDLIST" ] ; then
+			# for compatibility
+			[ "$REBUILDLIST" = "x86_64" ] && REBUILDLIST="x86_64/ALL"
 			REBUILDLIST=$KORINFETC/lists/$REBUILDLIST
 			RESULT="Build for distros from $REBUILDLIST"
 		else
