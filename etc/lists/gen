@@ -1,5 +1,4 @@
-# Автоматическая система сборки пропускает мимо задания на системы, которых нет в списке (без failed)
-# Не комментировать! Здесь полный список
+# Прочие системы
 
 # Linux online
 #LinuxXP/2006
@@ -17,30 +16,8 @@ ASPLinux/14
 #RedHat/9
 Scientific/4.1
 
-. centos
-
-. fedora
-
-. mandriva
-
 PCLinux/2009.2
 PCLinux/2010.07
-
-# Load deb system list
-. deb
-
-# Novell
-#SUSE/10
-#SUSE/10.2
-#SUSE/10.3
-SUSE/11
-SUSE/11.1
-SUSE/11.2
-SUSE/11.3
-#NLD/9
-
-SLED/10
-SLED/11
 
 # Slackware based
 #Slackware/10.2

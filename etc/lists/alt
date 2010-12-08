@@ -1,16 +1,1 @@
-# Автоматическая система сборки пропускает мимо задания на системы, которых нет в списке (без failed)
-# Не комментировать! Здесь полный список
-# Список для параллельной сборки
-# Список для сборки основных систем при создании ISO
-
-# ALT Linux
-#ALTLinux/2.3
-#ALTLinux/2.4
-#ALTLinux/3.0
-ALTLinux/4.0
-ALTLinux/4.1
-ALTLinux/p5
-ALTLinux/5.1
-ALTLinux/Sisyphus
-
-LINUX@Etersoft/4.1
+ALTLinux
