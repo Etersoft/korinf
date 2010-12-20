@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.8.9
+Version: 1.9.0
 Release: alt1
 
 Summary: Korinf multidistro build system
@@ -16,7 +16,7 @@ Source: %name-%version.tar
 
 BuildArchitectures: noarch
 
-Requires: etersoft-build-utils >= 1.9.1
+Requires: etersoft-build-utils >= 1.9.3
 Requires: alien
 
 %description
@@ -43,6 +43,16 @@ This package contains Korinf multidistro build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Mon Dec 20 2010 Vitaly Lipatov <lav@altlinux.ru> 1.9.0-alt1
+- add build/windows script
+- add Fedora/14, add Windows branch, add x86_64/SUSE/11.3
+- build_funcs: do reset hard if push is failed (see eterbug #6560)
+- copying: copy source if allowed, run genbase for ALT distro
+- get_bin_package: disable hack for use *buildname if buildname does not exist
+- move lists/x86_64-* to lists/x86_64 subdir
+- remove all CentOS 5.X (see eterbug #6292)
+- rename common distro lists files to the same name as the system
+
 * Sun Oct 24 2010 Vitaly Lipatov <lav@altlinux.ru> 1.8.9-alt1
 - add drop_failed_status.sh script for remove all .build.failed files
 - add FreeBSD/8.1, PCLinux/2010.07, SUSE/11.3, Ubuntu/10.10
