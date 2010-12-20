@@ -62,10 +62,9 @@ prepare_wine_etersoft()
 		fi
 
 		if [ "$TYPE" != "Local" ] ; then
-			#check_and_refresh_package_wine $PUBLOCAL/CIFS/$DIST etercifs
 			check_and_refresh_component bin-cifs $PUBLOCAL/CIFS/$DIST etercifs
 		fi
-		#check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST fonts-ttf-liberation
+		check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST fonts-ttf-liberation
 	fi
 
 	# Get file list
@@ -120,6 +119,8 @@ prepare_wine_etersoft()
 
 	check_package $FTPDIR wine-etersoft-${PRODUCT_name}
 	check_package $FTPDIR fonts-ttf-liberation
+	# user will download it from separate place
+	#check_package $FTPDIR fonts-ttf-ms
 
 	if [ "$TYPE" = "CAD" ] ; then
 		check_package $FTPDIR wine-etersoft-gl
