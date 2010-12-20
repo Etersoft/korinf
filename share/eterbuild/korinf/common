@@ -137,8 +137,10 @@ get_bin_package()
 	BUILDPKG="$(ls -1 $PATHPKG/$BUILDNAME[-_][0-9]* 2>/dev/null | head -n1)"
 
 	if [ ! -r "$BUILDPKG" ] ; then
+		# FIXME: Hack
 		# asterisk before name for possible rename NAME <-> libNAME
-		BUILDPKG="$(ls -1 $PATHPKG/*$BUILDNAME[-_][0-9]* 2>/dev/null | head -n1)"
+		#BUILDPKG="$(ls -1 $PATHPKG/*$BUILDNAME[-_][0-9]* 2>/dev/null | head -n1)"
+		BUILDPKG=
 	fi
 
 	echo $BUILDPKG
