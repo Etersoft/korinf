@@ -41,6 +41,9 @@ get_product_type()
 		*CAD*)
 			TYPE="CAD"
 			;;
+		*School*)
+			TYPE="School"
+			;;
 		*)
 			fatal "Unknown product $PRODUCT"
 			;;
