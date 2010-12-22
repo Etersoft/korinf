@@ -1,0 +1,12 @@
+PRODUCT="WINE@Etersoft 1.7 School (коробочная версия, локальная лицензия)"
+COMPONENTNAME="WINE@Etersoft 1.7 School"
+ETERREGNUM="7ED1-FE1D"
+DIST="Ubuntu/10.10"
+MAILTO="$USER@etersoft.ru"
+FULLNAME="Мельников Максим Андреевич"
+PROJECTVERSION="school"
+RELEASECANDIDAT=0
+TYPE_LICENSE=DemoTerminal
+OWNER='Мельников Максим'
+DATE_START='15/08/2008'
+DATE_END='31/12/2018'
