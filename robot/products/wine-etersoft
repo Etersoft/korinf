@@ -61,10 +61,8 @@ prepare_wine_etersoft()
 			check_and_refresh_component bin-hasp $PUBLOCAL/HASP/$DIST haspd
 		fi
 
-		if [ "$TYPE" != "Local" ] ; then
-			check_and_refresh_component bin-cifs $PUBLOCAL/CIFS/$DIST etercifs
-		fi
-		check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST fonts-ttf-liberation
+		[ "$TYPE" = "Local" ] || check_and_refresh_component bin-cifs $PUBLOCAL/CIFS/$DIST etercifs
+		[ "$TYPE" = "SchoolDIS" ] || check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST fonts-ttf-liberation
 	fi
 
 	# Get file list
@@ -102,12 +100,19 @@ prepare_wine_etersoft()
 		cp -fl $i $FTPDIR/extra/ || cp -f $i $FTPDIR/extra/ || fatal "Can't copy $i"
 	done
 
-	create_license $FTPDIR/WINE-ETERSOFT.LIC $AROBOTDIR/dsa/wine-etersoft.dsa
+	# FIXME: потом нужно сделать проверку по версии?
+	if [ "$TYPE" = "School" ] ; then
+		DSAKEY=wine-etersoft-2.0.dsa
+	else
+		DSAKEY=wine-etersoft.dsa
+	fi
+	create_license $FTPDIR/WINE-ETERSOFT.LIC $AROBOTDIR/dsa/$DSAKEY
 
 	# Ещё раз проверяем наличие обязательных пакетов
 	# Check package files
 	check_package $FTPDIR wine-etersoft
 
+	# FIXME: сделать простую проверку на систему
 	# skip on FreeBSD
 	if ! echo "$DIST" | grep -q "FreeBSD" ; then
 		check_package $FTPDIR haspd
@@ -118,7 +123,9 @@ prepare_wine_etersoft()
 	fi
 
 	check_package $FTPDIR wine-etersoft-${PRODUCT_name}
-	check_package $FTPDIR fonts-ttf-liberation
+
+	[ "$TYPE" = "SchoolDIS" ] || check_package $FTPDIR fonts-ttf-liberation
+
 	# user will download it from separate place
 	#check_package $FTPDIR fonts-ttf-ms
 
