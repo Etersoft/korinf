@@ -128,16 +128,25 @@ for dist in $CMDRE ; do
 	# Initialize LOGDIR and LOGFILE variables
 	init_dist_log "$dist"
 
-	if do_need_build_package $BUILDNAME || [ -n "$REBUILDPACKAGE" ] || [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
-		#logit "`basename $BUILDSRPM .src.rpm`"
+	if [ -n "$REBUILDPACKAGE" ] || [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
 		logit "package $BUILDNAME"
-	else
-		logit "$BUILDNAME is up-to-date" SKIPPED
-		# remove fatal flag if checking is passed
-		rm -fv "$DESTDIR/log/$BUILDNAME.autobuild.failed"
-		rm -fv "$DESTDIR/log/$BUILDNAME.build.failed"
-		echo `date` $BUILDNAME on $dist PASSED | write_report
-		continue
+	else 
+		if [ -r "$DESTDIR/log/$BUILDNAME.build.failed" ] ; then
+			logit "build already was broken in manual build" SKIPPED
+			echo "`date` $BUILDNAME on $dist ALREADY FAILED" | write_report
+			continue
+		fi
+
+		if do_need_build_package $BUILDNAME ; then
+			logit "package $BUILDNAME"
+		else
+			logit "$BUILDNAME is up-to-date" SKIPPED
+			# remove fatal flag if checking is passed
+			rm -fv "$DESTDIR/log/$BUILDNAME.autobuild.failed"
+			rm -fv "$DESTDIR/log/$BUILDNAME.build.failed"
+			echo `date` $BUILDNAME on $dist PASSED | write_report
+			continue
+		fi
 	fi
 
 	# Clean log
