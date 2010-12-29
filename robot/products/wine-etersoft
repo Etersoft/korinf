@@ -195,12 +195,17 @@ $CIFSTEXT
 C:\WINDOWS\INF.
 EOF
 	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" $FTPDIR/WINE-ETERSOFT.LIC >>$FILETO || fatal "Error with WINE-ETERSOFT.LIC "
+
+if [ "$TYPE" != "School" ] ; then
 	cat >>$FILETO <<EOF
 
 Для полного соответствия шрифтов в программах
 можно скачать и установить пакет fonts-ttf-ms,
 содержащий шрифты MS Core Fonts:
 $PUBDOWNLOAD1FONTS
+EOF
+fi
+	cat >>$FILETO <<EOF
 
 Ссылки для скачивания файлов экземпляра Продукта и сопутствующих файлов:
 EOF
