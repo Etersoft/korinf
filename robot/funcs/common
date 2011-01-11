@@ -87,7 +87,7 @@ printHTMLURL()
 check_dist()
 {
 	get_distro_list $(get_target_list ALL) | grep -q "$1" && return
-	warning "Destination $1 is not supported for build (missed in $REBUILDLIST)"
+	warning "Destination $1 is not supported for build (missed in '$REBUILDLIST')"
 	do_broken
 }
 

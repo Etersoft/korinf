@@ -106,7 +106,7 @@ prepare_wine_etersoft()
 	else
 		DSAKEY=wine-etersoft.dsa
 	fi
-	create_license $FTPDIR/WINE-ETERSOFT.LIC $AROBOTDIR/dsa/$DSAKEY
+	create_license $FTPDIR/$LICENSEFILE $AROBOTDIR/dsa/$DSAKEY
 
 	# Ещё раз проверяем наличие обязательных пакетов
 	# Check package files
@@ -182,19 +182,19 @@ ${BETA}
 
 Для получения Продукта необходимо скачать файлы по приведённым ссылкам, в их числе:
  - пакеты Продукта (wine-etersoft, wine-etersoft-$PRODUCT_name);
- - файл лицензии WINE-ETERSOFT.LIC;
+ - файл лицензии $LICENSEFILE;
  - документацию (файл manual.html);
  - пакеты с драйверами и менеджерами лицензий для аппаратных ключей защиты
-   HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel (пакет haspd и haspd-modules, dkms-aksparlnx для HASP LPT);
+   HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel (пакет haspd для HASP USB и haspd-modules, dkms-aksparlnx для HASP LPT);
  - пакет со свободными шрифтами Liberation (fonts-ttf-liberation)
    Во многих дистрибутивах он уже есть (в Ubuntu называется ttf-liberation),
    ставить наш вариант не обязательно.
 $CIFSTEXT
 ОБРАТИТЕ ВНИМАНИЕ!
-Файл лицензии WINE-ETERSOFT.LIC необходимо расположить в каталоге /etc/wine, ~/.wine или
-C:\WINDOWS\INF.
+Файл лицензии $LICENSEFILE необходимо расположить в каталоге /etc/wine, ~/.wine или
+C:\WINDOWS\INF и проверить права на его чтение пользователями.
 EOF
-	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" $FTPDIR/WINE-ETERSOFT.LIC >>$FILETO || fatal "Error with WINE-ETERSOFT.LIC "
+	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" $FTPDIR/$LICENSEFILE >>$FILETO || fatal "Error with $LICENSEFILE "
 
 if [ "$TYPE" != "School" ] ; then
 	cat >>$FILETO <<EOF
@@ -209,7 +209,7 @@ fi
 
 Ссылки для скачивания файлов экземпляра Продукта и сопутствующих файлов:
 EOF
-	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" `find -L $FTPDIR -maxdepth 1 -type f | sort | grep -v WINE-ETERSOFT.LIC` >>$FILETO || fatal "Error with files (files are missed) "
+	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" `find -L $FTPDIR -maxdepth 1 -type f | sort | grep -v $LICENSEFILE` >>$FILETO || fatal "Error with files (files are missed) "
 
 	cat >>$FILETO <<EOF
 (действительны в течение 4 суток)
@@ -238,13 +238,14 @@ http://wiki.etersoft.ru/WINE/knownbugs
 $THANKTEXT
 -- 
 Команда разработчиков
-Etersoft, 2010
+Etersoft, 2011
 EOF
 }
 
 build_wine_etersoft()
 {
 	PROJECTNAME="WINE@Etersoft"
+	LICENSEFILE="wine-etersoft.lic"
 	VERNAME=$PROJECTNAME/$PROJECTVERSION
 
 	TARGETDIR="/var/ftp/pub/download/WINE@Etersoft/$TARGETDIRNAME"
