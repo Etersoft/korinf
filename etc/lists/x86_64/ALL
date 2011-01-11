@@ -3,11 +3,7 @@
 
 #x86_64 systems (with prefix x86_64)
 
-x86_64/SUSE/10.3
-x86_64/SUSE/11.1
-x86_64/SUSE/11.2
-x86_64/SUSE/11.3
-
+. SUSE
 . Fedora
 . Centos
 
