@@ -78,7 +78,7 @@ filter_distro_list()
 			# skip distro if it in list
 			continue
 		fi
-		echo $N
+		echo $N 2>/dev/null
 	done
 
 }
