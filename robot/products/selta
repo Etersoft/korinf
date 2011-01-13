@@ -133,7 +133,7 @@ build_selta()
 
 	export ETERREGNUM
 	echo >> $ALOGDIR/autobuild.report.log
-	echo "Build $TYPE for $ETERREGNUM in $FTPDIR" >> $ALOGDIR/autobuild.report.log
+	echo "$(date): Build $TYPE for $ETERREGNUM in $FTPDIR" >> $ALOGDIR/autobuild.report.log
 
 	# Вывод скрипта не записывается в лог
 	export BUILDSTRAP=
