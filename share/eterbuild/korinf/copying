@@ -86,7 +86,7 @@ copying_packages()
 	clean_copying_destination
 
 	# Note: debug packages can contains source files
-	if [ "$ALLOWPUBLICDEBUG" == "1" ] ; then
+	if [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
 		# FIXME: some other names?
 		for i in *${BUILDNAME}-debuginfo* *${BUILDNAME}-debug-* ; do
 			if [ -e $i ] ; then
@@ -148,12 +148,11 @@ copying_packages()
 	esac
 
 	# Copying sources if possible
-	if [ "$ALLOWPUBLICDEBUG" == "1" ] ; then
-		mkdir -p $SOURCEPATH/$dist/
-		rm -f $SOURCEPATH/$dist/$BUILDNAME-[0-9]*.src.rpm 2>/dev/null
-		mv -f $TARGETSRPM $SOURCEPATH/$dist/$(basename "$TARGETSRPM")
+	if [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
+		mkdir -p "$SOURCEPATH/$dist/"
+		rm -f "$SOURCEPATH/$dist/$BUILDNAME-[0-9]*.src.rpm" 2>/dev/null
+		mv -fv "$TARGETSRPM" "$SOURCEPATH/$dist/$(basename "$TARGETSRPM")"
 	fi
-
 
 	return $RC
 }

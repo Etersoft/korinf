@@ -99,7 +99,7 @@ fi
 		{ warning "Do not hashered" ; [ -n "$ADEBUG" ] || ( export DEFAULTARCH=$BUILDARCH ; setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c $MENVARG) ; return 1 ; }
 
 	# search for binary packages
-	TARGETSRPM=$(ls -1 $HASHERDIR/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm)
+	TARGETSRPM=$(ls -1 $HASHERDIR/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm | head -n1)
 	BUILTBINPKGLIST=`get_binpkg_list $BUILTRPM $(basename $TARGETSRPM)`
 	echo "For $TARGETSRPM follow packages is found: $BUILTBINPKGLIST"
 
