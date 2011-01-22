@@ -8,5 +8,7 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
+export ALLOWPUBLICDEBUG=0
+
 build_project $WINEETER_PATH wine-etersoft-sql WINE-SQL $@
 

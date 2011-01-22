@@ -42,5 +42,5 @@ PRIVATESSHKEY=$KORINFETC/id_dsa.korinf
 #KORINFERJID=korinfer@localhost
 #KORINFERJIDPASSWD=secret
 
-# allow create debug subpackages with sources info
-ALLOWPUBLICDEBUG=1
+# allow create debug subpackages with sources info by default
+[ -n "$ALLOWPUBLICDEBUG" ] || ALLOWPUBLICDEBUG=1
