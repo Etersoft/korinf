@@ -25,7 +25,6 @@ load_mod rpm hasher
 
 function build_in_hasher()
 {
-	local BUILTSRPM
 	# default for ALT Linux
 	TARGET="rpm"
 
@@ -107,9 +106,9 @@ fi
 		{ warning "Cannot hashered" ; [ -n "$ADEBUG" ] || ( export DEFAULTARCH=$BUILDARCH ; setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c $MENVARG) ; return 1 ; }
 
 	# search for binary packages
-	BUILTSRPM=$(ls -1 $HASHERDIR/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm)
-	BUILTBINPKGLIST=`get_binpkg_list $BUILTRPM $(basename $BUILTSRPM)`
-	echo "For $BUILTSRPM follow packages is found: $BUILTBINPKGLIST"
+	TARGETSRPM=$(ls -1 $HASHERDIR/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm)
+	BUILTBINPKGLIST=`get_binpkg_list $BUILTRPM $(basename $TARGETSRPM)`
+	echo "For $TARGETSRPM follow packages is found: $BUILTBINPKGLIST"
 
 	# FIXME: breaks build for next systems
 	# if build extra files and we have name from hasher (some hack for rpm-build-compat)

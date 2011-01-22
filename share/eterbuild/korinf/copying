@@ -151,7 +151,7 @@ copying_packages()
 	if [ "$ALLOWPUBLICDEBUG" == "1" ] ; then
 		mkdir -p $SOURCEPATH/$dist/
 		rm -f $SOURCEPATH/$dist/$BUILDNAME-[0-9]*.src.rpm 2>/dev/null
-		cp -f $TARGETSRPM $SOURCEPATH/$dist/$(basename "$TARGETSRPM")
+		mv -f $TARGETSRPM $SOURCEPATH/$dist/$(basename "$TARGETSRPM")
 	fi
 
 

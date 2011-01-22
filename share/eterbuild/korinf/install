@@ -81,7 +81,7 @@ install_req()
 	init_home
 
 	# FIXME: remove already installed packages (f.i. if installed package does not exists in repo, install failed on Mandriva)
-	LISTPKG=$(rpmquery --requires -p $BUILDERHOME/tmp/$TARGETSRPM | clean_pkgreq | sed -e "s|rpm-build-altlinux-compat||g")
+	LISTPKG=$(rpmquery --requires -p $TARGETSRPM | clean_pkgreq | sed -e "s|rpm-build-altlinux-compat||g")
 	DISTRVENDOR=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -d`
 	CMD=$(get_install_package_command $DISTRVENDOR)
 	echo "Install build required packages $LISTPKG with '$CMD' command"

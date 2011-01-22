@@ -42,9 +42,9 @@ convert_rpm_to_target()
 	fi
 
 	# Get real src.rpm name
-	TARGETSRPM=`basename $(echo $BUILDERHOME/tmp/$BUILDNAME*.src.rpm | head -n1)`
-	[ -r "$BUILDERHOME/tmp/$TARGETSRPM" ] && [ -f "$BUILDERHOME/tmp/$TARGETSRPM" ] || { warning "Can't read target $TARGETSRPM src.rpm in $BUILDERHOME/tmp" ; return 1 ; }
-	$SUDO chown $LOCUSER $BUILDERHOME/tmp/$TARGETSRPM
+	TARGETSRPM=$(echo $BUILDERHOME/tmp/$BUILDNAME*.src.rpm | head -n1)
+	[ -r "$TARGETSRPM" ] && [ -f "$TARGETSRPM" ] || { warning "Can't read target $TARGETSRPM src.rpm" ; return 1 ; }
+	$SUDO chown $LOCUSER $TARGETSRPM
 
 	return 0
 }
@@ -81,7 +81,7 @@ build_rpms()
 	RPMBUILDNODEPS=""
 	# Skip buildreqs checking on non RPM systems
 	[ "$TARGET" != "rpm" ] && RPMBUILDNODEPS="--nodeps"
-	CMDBUILD="rpmbuild -v --rebuild $RPMBUILDNODEPS "$RPMARGS" --buildroot $RPMBUILDROOT /home/$INTUSER/tmp/$TARGETSRPM --target $BUILDARCH"
+	CMDBUILD="rpmbuild -v --rebuild $RPMBUILDNODEPS "$RPMARGS" --buildroot $RPMBUILDROOT /home/$INTUSER/tmp/$(basename $TARGETSRPM) --target $BUILDARCH"
 	CMDAFTERBUILD="cat ~/tmp/rpm-tmp.* ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.log; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h"
 
 	# Control file for check build result
