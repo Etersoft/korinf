@@ -76,10 +76,6 @@ cat <<EOF >~/.rpmmacros || fatal "Can't copy macros"
 EOF
 fi
 
-	# FIXME:
-	# We install src package here in ~/RPM
-	rpm -iv $BUILDSRPM || return 1;
-
 	# build source package
 	if [ -n "$MAKESPKG" ] ; then
 		BUILTRPM=$RPMDIR/SRPMS
@@ -88,7 +84,7 @@ fi
 		else
 			BUILDCOMMAND="$RPMBPH -n $MENVARG"
 		fi
-		$BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec || { warning "Cannot build srpm" ; return 1 ; }
+		$BUILDCOMMAND $BUILDSRPM || { warning "Cannot build srpm" ; return 1 ; }
 		return
 	fi
 
@@ -99,11 +95,8 @@ fi
 		BUILDCOMMAND="$RPMBPH $MENVARG"
 	fi
 
-	# FIXME: for wine only?
-	subst "1iBuildRequires: prelink" $RPMDIR/SPECS/$BUILDNAME.spec
-
-	( HASHER_NOCHECK=nvr,gpg,packager,changelog,deps DEFAULTARCH=$BUILDARCH $BUILDCOMMAND $RPMDIR/SPECS/$BUILDNAME.spec ) ||
-		{ warning "Cannot hashered" ; [ -n "$ADEBUG" ] || ( export DEFAULTARCH=$BUILDARCH ; setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c $MENVARG) ; return 1 ; }
+	( HASHER_NOCHECK=nvr,gpg,packager,changelog,deps DEFAULTARCH=$BUILDARCH $BUILDCOMMAND $BUILDSRPM ) ||
+		{ warning "Do not hashered" ; [ -n "$ADEBUG" ] || ( export DEFAULTARCH=$BUILDARCH ; setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c $MENVARG) ; return 1 ; }
 
 	# search for binary packages
 	TARGETSRPM=$(ls -1 $HASHERDIR/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm)
