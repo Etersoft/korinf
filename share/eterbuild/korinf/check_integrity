@@ -81,6 +81,10 @@ check_pkg_integrity()
 			check_xz_integrity "$PKG"
 			RET=$?
 			;;
+		exe)
+			# Skip checking
+			RET=0
+			;;
 		*)
 			fatal "Unknown package extension '$EXT' in $PKG package"
 			;;
