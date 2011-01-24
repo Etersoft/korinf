@@ -179,6 +179,7 @@ ${PRODUCT}
 (релиз $PROJECTVERSION) выполнен.
 ${BETA}
 Регистрационный номер Продукта: ${ETERREGNUM}.
+Заказать сборку еще раз вы можете по адресу http://sales.etersoft.ru/product/${ETERREGNUM}/email=${MAILTO}
 
 Для получения Продукта необходимо скачать файлы по приведённым ссылкам, в их числе:
  - пакеты Продукта (wine-etersoft, wine-etersoft-$PRODUCT_name);
