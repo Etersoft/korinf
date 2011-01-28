@@ -41,8 +41,9 @@ fi
 
 #exit
 
-autoreconf -f
+autoconf -f
 ./configure --prefix=/usr || exit 1
 #make depend || exit 1
 jmake || exit 1
 ./wine --version || exit 1
+gpush pure master || exit 1
