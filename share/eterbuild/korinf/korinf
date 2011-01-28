@@ -92,7 +92,8 @@ print_build_project_options()
 	echo "	-b - buildstrap (install package(s) after build)"
 	echo "	-q - enable quiet mode"
 	echo "	-c - print build status list"
-	echo "	-f - force rebuild package ever if it up-to-date"
+	echo "	-f - force rebuild only failed packages"
+	echo "	-F - force rebuild all packages ever if it up-to-date"
 	echo "	-i - install packages required for build package"
 }
 
@@ -128,7 +129,7 @@ build_project()
 
 	if [ "$1" = "-b" ] ; then
 		BOOTSTRAP=1
-		REBUILDPACKAGE=1
+		FORCEREBUILDPACKAGE=1
 		echo "Run with install built package after done"
 		shift
 	fi
@@ -136,6 +137,13 @@ build_project()
 	if [ "$1" = "-f" ] ; then
 		echo "Run with force to rebuild package"
 		REBUILDPACKAGE=1
+		shift
+	fi
+
+	if [ "$1" = "-F" ] ; then
+		echo "Run with force to rebuild all packages"
+		REBUILDPACKAGE=1
+		FORCEREBUILDPACKAGE=1
 		shift
 	fi
 
