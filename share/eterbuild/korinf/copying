@@ -85,15 +85,18 @@ copying_packages()
 
 	clean_copying_destination
 
-	# Note: debug packages can contains source files
+	# Debug packages can contains source files, copy only if allowed
 	if [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
 		# FIXME: some other names?
-		for i in *${BUILDNAME}-debuginfo* *${BUILDNAME}-debug-* ; do
+		for i in *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-* ; do
 			if [ -e $i ] ; then
 				mkdir_dest $DESTDIR/extra/
 				mv -f $i $DESTDIR/extra/ || warning "Cannot move debug package $i to extra"
 			fi
 		done
+	else
+		# Remove debug packages
+		rm -f *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-*
 	fi
 
 	if [ -n "$MAINFILESLIST" ] ; then
