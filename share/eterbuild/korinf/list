@@ -122,7 +122,8 @@ set_rebuildlist()
 {
 	local RESULT
 	if [ -n "$REBUILDLIST" ] && [ ! "$REBUILDLIST" = "all" ] ; then
-		if [ -r "$REBUILDLIST" ] ; then
+		# Test for absolute path
+		if [ -r "/$REBUILDLIST" ] ; then
 			RESULT="Build for distros from full path $REBUILDLIST"
 		elif [ -r "$KORINFETC/lists/$REBUILDLIST" ] ; then
 			# for compatibility
