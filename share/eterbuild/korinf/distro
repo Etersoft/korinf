@@ -59,11 +59,12 @@ build_dist_pkg()
 case $dist_name in
 "Windows")
 	kormod build/windows
-#	do copying by $TARGET
-	TARGET="exe"
 
-	echo "Doing build/windows/build_windows"
+	TARGET="exe"
+	TARGETPKGDISTRO="windows"
+
 	logit "build $dist" build_windows $dist || return 1
+
 	prepare_filelist
 	logit "copying built packages to $dist" copying_windows || return 1
 	logit "cleaning" clean_windows || return 1
@@ -72,17 +73,20 @@ case $dist_name in
 "FreeBSD")
 	kormod build/freebsd
 	kormod build/rpm
-	# FIXME
-	BUILDERHOME=~/tmp/korinfer
-	BUILDROOT=~/tmp/korinfer
 
-	mkdir -p $BUILDERHOME $BUILDROOT
-	set_target_var || return 1
+	TARGET="tbz"
+	TARGETPKGDISTRO="generic"
+
+	# used in convert_rpm_to_target
+	BUILDROOT=/var/empty
+	BUILDERHOME=~/tmp/korinfer
+	mkdir -p $BUILDERHOME
+
 
 	logit "convert src.rpm to target $TARGETPKGDISTRO" convert_rpm_to_target $dist || return 1
 	logit "build $dist" build_bsd $dist || return 1
-	#logit "build in FreeBSD $dist_ver" build_bsd || return 1
 	logit "convert RPM to $TARGET" convert_bsd || return 1
+
 	prepare_filelist
 	logit "copying built packages to $dist" copying_bsd || return 1
 	[ -n "$BOOTSTRAP" ] && logit "install built" install_bsd
@@ -91,7 +95,17 @@ case $dist_name in
 
 "OpenSolaris")
 	kormod build/solaris
+
+	TARGET="pkg.gz"
+	TARGETPKGDISTRO="generic"
+
+	# FIXME: rewrite build rules
+	# used in convert_rpm_to_target
+	BUILDROOT=/var/empty
+	BUILDERHOME=/var/empty
+
 	logit "build in Solaris $dist_ver" build_solaris || return 1
+
 	prepare_filelist
 	logit "copying built packages to $dist" copying_solaris || return 1
 	logit "cleaning" cleaning_solaris || return 1
@@ -103,7 +117,12 @@ case $dist_name in
 		logit "install requires" SKIPPED
 		return 0
 	fi
+
 	kormod build/hasher
+
+	TARGET="rpm"
+	TARGETPKGDISTRO="alt"
+
 	logit "build in hasher $dist_ver" build_in_hasher || return 1
 	prepare_filelist
 	logit "copying built packages to $dist" copying_packages || return 1
@@ -114,7 +133,10 @@ case $dist_name in
 	kormod build/archlinux
 	kormod build/gentoo
 	kormod build/rpm
+
 	logit "mount root dir" mount_linux || return 1
+
+	# set TARGET and TARGETPKGDISTRO
 	set_target_var || return 1
 
 	logit "convert src.rpm to target $TARGETPKGDISTRO" convert_rpm_to_target $dist || return 1

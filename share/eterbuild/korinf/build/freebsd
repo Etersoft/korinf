@@ -63,7 +63,7 @@ convert_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$TARGETPKGDISTRO.tbz
+	TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$TARGETPKGDISTRO.$TARGET
 	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF su - $INTUSER /$FREEBSDPATH/remote-freebsd.sh convert $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$FREEBSDPATH/$(basename $TARGETSRPM) $TARGETPKG $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
 }
 
@@ -74,7 +74,7 @@ copying_bsd()
 	clean_copying_destination
 
 	scp $FREEBSDKEY $FREEBSDSSH:$PREF/var/tmp/korinfer/work-$PACKAGE/$TARGETPKG $DESTDIR || { warning "Cannot copy $PACKAGE" ; return 1 ; }
-	chmod g+rw -R $DESTDIR/* || true
+	mark_build_done
 }
 
 cleaning_bsd()
