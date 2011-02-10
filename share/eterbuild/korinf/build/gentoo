@@ -59,7 +59,7 @@ convert_gentoo()
 
 copying_gentoo2007()
 {
-        prepare_copying
+	clean_copying_destination
 
 	echo "Copying to ftp"
         cp -f $BUILDROOT/usr/local/portage/packages/All/*$BUILDNAME*.tar.gz $DESTDIR || { warning "Cannot copy packages" ; return 1; }

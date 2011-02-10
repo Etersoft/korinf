@@ -71,7 +71,7 @@ copying_bsd()
 {
 	local PREF
 	PREF="/mnt/$dist_name/$dist_ver"
-	prepare_copying
+	clean_copying_destination
 
 	scp $FREEBSDKEY $FREEBSDSSH:$PREF/var/tmp/korinfer/work-$PACKAGE/$TARGETPKG $DESTDIR || { warning "Cannot copy $PACKAGE" ; return 1 ; }
 	chmod g+rw -R $DESTDIR/* || true

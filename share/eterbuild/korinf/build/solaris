@@ -41,7 +41,7 @@ build_solaris()
 
 copying_solaris()
 {
-	prepare_copying
+	clean_copying_destination
 
 	scp -i $PRIVATESSHKEY $REMOTESSH:/tmp/wine/ready/$PACKAGE[-_][0-9]*.pkg.gz $DESTDIR
 	chmod g+rw -R $DESTDIR/* || true

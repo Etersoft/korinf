@@ -47,7 +47,7 @@ convert_archlinux()
 
 copying_pkgbuild()
 {
-	prepare_copying
+	clean_copying_destination
 
 	cp -f $BUILDERHOME/abs/$BUILDNAME/*$BUILDNAME*.pkg* $DESTDIR || { warning "Cannot copy packages" ; return 1; }
 
