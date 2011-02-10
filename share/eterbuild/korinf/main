@@ -67,6 +67,9 @@ else
 	fi
 fi
 
+# Assure we have no too open perms on private key
+chmod 600 $PRIVATESSHKEY || fatal "SSH key problem"
+
 # disable gear using due pre hasher repacking problem
 export IGNOREGEAR=1
 
