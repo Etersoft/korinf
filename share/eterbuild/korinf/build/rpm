@@ -51,6 +51,7 @@ convert_rpm_to_target()
 
 set_target_var()
 {
+	[ -r "$BUILDROOT" ] || { warning "BUILDROOT is empty" ; return 1; }
 	TARGET=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -p`
 	TARGETPKGDISTRO=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -s`
 

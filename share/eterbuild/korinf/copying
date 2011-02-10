@@ -33,7 +33,7 @@ clean_copying_destination()
 {
 	# Remove old packages from main dir
 	if [ -n "$MAINFILESLIST" ] && [ -d "$DESTDIR" ] ; then
-		echo "Removing old '$MAINFILESLIST' from $DESTDIR..."
+		echo "Removing old '$MAINFILESLIST' by mask '$EXPMAINFILES' from $DESTDIR..."
 		pushd $DESTDIR >/dev/null || return 1
 		rm -fv $EXPMAINFILES
 		popd >/dev/null
@@ -41,7 +41,7 @@ clean_copying_destination()
 
 	# Remove old packages from extra dir
 	if [ -n "$EXTRAFILESLIST" ] && [ -d "$DESTDIR/extra" ] ; then
-		echo "Removing old '$EXTRAFILESLIST' from $DESTDIR/extra..."
+		echo "Removing old '$EXTRAFILESLIST' by mask '$EXPEXTRAFILES' from $DESTDIR/extra..."
 		pushd $DESTDIR/extra >/dev/null || return 1
 		rm -fv $EXPEXTRAFILES
 		popd >/dev/null
@@ -65,6 +65,30 @@ rpm file:$TARGETPATH$SUBDIR $dist main
 EOF
 }
 
+mark_build_done()
+{
+	# FIXME
+	chmod ug+rw $DESTDIR/* -R 2>/dev/null
+	chmod o+r $DESTDIR/* -R 2>/dev/null
+
+	# remove fatal flag
+	rm -fv $DESTDIR/log/$BUILDNAME.autobuild.failed
+	rm -fv $DESTDIR/log/$BUILDNAME.build.failed
+
+	true
+}
+
+copying_sources()
+{
+	# Copying sources if possible
+	if [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
+		mkdir -p "$SOURCEPATH/$dist/"
+		rm -f "$SOURCEPATH/$dist/$BUILDNAME-[0-9]*.src.rpm" 2>/dev/null
+		mv -fv "$TARGETSRPM" "$SOURCEPATH/$dist/$(basename "$TARGETSRPM")"
+	else
+		rm -fv "$TARGETSRPM"
+	fi
+}
 
 copying_packages()
 {
@@ -132,14 +156,6 @@ copying_packages()
 
 	popd >/dev/null
 
-	# remove fatal flag
-	rm -fv $DESTDIR/log/$BUILDNAME.autobuild.failed
-	rm -fv $DESTDIR/log/$BUILDNAME.build.failed
-
-	# FIXME
-	chmod ug+rw $DESTDIR/* -R 2>/dev/null
-	chmod o+r $DESTDIR/* -R 2>/dev/null
-
 	# Prepare binary repository
 	case $dist_name in
 		"ALTLinux")
@@ -150,14 +166,9 @@ copying_packages()
 			;;
 	esac
 
-	# Copying sources if possible
-	if [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
-		mkdir -p "$SOURCEPATH/$dist/"
-		rm -f "$SOURCEPATH/$dist/$BUILDNAME-[0-9]*.src.rpm" 2>/dev/null
-		mv -fv "$TARGETSRPM" "$SOURCEPATH/$dist/$(basename "$TARGETSRPM")"
-	else
-		rm -fv "$TARGETSRPM"
-	fi
+	mark_build_done
+
+	copying_sources
 
 	return $RC
 }
