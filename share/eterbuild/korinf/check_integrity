@@ -81,7 +81,7 @@ check_pkg_integrity()
 			check_xz_integrity "$PKG"
 			RET=$?
 			;;
-		exe)
+		exe|ebuild)
 			# Skip checking
 			RET=0
 			;;
