@@ -93,7 +93,7 @@ print_build_project_options()
 	echo "	-q - enable quiet mode"
 	echo "	-c - print build status list"
 	echo "	-f - force rebuild only failed packages"
-	echo "	-F - force rebuild all packages ever if it up-to-date"
+	echo "	-F - force rebuild all packages even if it up-to-date"
 	echo "	-i - install packages required for build package"
 }
 
