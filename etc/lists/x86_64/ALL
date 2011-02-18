@@ -7,11 +7,10 @@
 . Fedora
 . CentOS
 
-x86_64/Debian/4.0
-x86_64/Debian/5.0
-
 . Ubuntu
+. Debian
 
 . Mandriva
 
 . ALTLinux
+
