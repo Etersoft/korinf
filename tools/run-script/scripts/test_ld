@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# Test ld
+
+echo "Run script on `distr_vendor`"
+DISTRVENDOR=/usr/bin/distr_vendor
+INFO="$($DISTRVENDOR) LD"
+
+# Create test file
+cat >test_ld.c <<EOF
+static short int TABLE[1000000000];
+
+int main()
+{
+    return 0;
+}
+EOF
+
+# Run gcc with timeout in 2 sec (TODO: use timeout command for newest distros)
+gcc test_ld.c &
+CHILDPID=$!
+sleep 2
+kill $CHILDPID 2>/dev/null && echo -n "$INFO BUG: " || echo -n "$INFO OK: "
+rpmqf ld | grep binutils
+rm -f a.out test_ld.c
