@@ -59,8 +59,8 @@ shift
 
 USERCO="su -"
 [ "$1" = "-r" ] && shift || USERCO="su - $INTUSER"
-# TODO:
-[ -n "$1" ] && COMMANDTO="-c '$@\'"
+COMMANDTO=/bin/bash
+[ -n "$1" ] && COMMANDTO="-c '$@'"
 
 export TMPDIR=/tmp
 TESTDIR=`mktemp -d /tmp/autobuild/${SYS/\/*/}-$USER-XXXXXX`
