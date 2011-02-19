@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.9.0
+Version: 1.9.1
 Release: alt1
 
 Summary: Korinf multidistro build system
@@ -43,6 +43,24 @@ This package contains Korinf multidistro build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Sat Feb 19 2011 Vitaly Lipatov <lav@altlinux.ru> 1.9.1-alt1
+- add Debian 6.0
+- build/hasher: build src.rpm in hasher, not installed spec
+- check_integrity: skip ebuild, exe
+- deprecate debug packages and source copying for proprietary packages
+- do not use relative path to distr.list dir
+- dropout BUILTSRPM, use TARGETSRPM (contains full path now)
+- fix TARGET/TARGETPKGDISTRO/BUILDROOT/BUILDERHOME situation
+- korinf: add support for -F (force rebuild all). -f now rebuild only failed
+- korlogin: run bash by default, fix param using
+- main: fix private key permissions
+- prepare_copying was renamed to clean_copying_destination
+- remove debug packages if not permitted
+- remove src.rpm if do not need copy it
+- restructurization and remove obsoleted code
+- update system list
+- use latest package instead first one
+
 * Mon Dec 20 2010 Vitaly Lipatov <lav@altlinux.ru> 1.9.0-alt1
 - add build/windows script
 - add Fedora/14, add Windows branch, add x86_64/SUSE/11.3
