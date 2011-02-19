@@ -2,28 +2,32 @@
 
 # install package from ftp
 
+[ -n "$1" ] || { echo "Error: Run with package name as param" ; exit 1 ; }
+
 echo "Run install $1 script on `distr_vendor`"
 DISTRVENDOR=`/usr/bin/distr_vendor -d`
 
 [ "$DISTVENDOR" = "ALTLinux" ] && exit 1
 
-# Check package manager
-PKGSYSTEM=`/usr/bin/distr_vendor -p`
-
 cd /tmp
 
-PKGFILE=$(basename "$1")
-
-case $PKGSYSTEM in
-	rpm)
-		rpm -Uvh $1
+case $DISTRVENDOR in
+	"ALTLinux"|"Ubuntu"|"Debian"|"PCLinux")
+		[ -n "$INAC" ] && CMD="apt-get install" || CMD="apt-get -y --force-yes install"
 		;;
-	deb)
-		wget "$1" || exit
-		dpkg -i "$PKGFILE"
+	"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific")
+		[ -n "$INAC" ] && CMD="yum install" || CMD="yum -y install"
+		;;
+	"Mandriva")
+		[ -n "$INAC" ] && CMD="urpmi --no-verify-rpm" || CMD="urpmi --auto --no-verify-rpm"
+		;;
+	"SUSE")
+		[ -n "$INAC" ] && CMD="zypper --non-interactive install" || CMD="yes | zypper --non-interactive install"
 		;;
 	*)
-		echo ""
+		RET=1
+		CMD="echo \"Do not known install command for DISTRVENDOR $DISTRVENDOR\""
 		;;
 esac
 
+$CMD $1

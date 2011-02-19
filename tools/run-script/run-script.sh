@@ -4,11 +4,11 @@
 #  Korinf project
 #
 #  Run script task on all systems
-#  Usage: ./run-script.sh TASK [DISTR_LIST]
+#  Usage: ./run-script.sh DISTR_LIST TASK [ARGS]
 #  TASK - file from scripts/
 #
-#  Copyright (c) Etersoft <http://etersoft.ru> 2009
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#  Copyright (c) Etersoft <http://etersoft.ru> 2009, 2011
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2011
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -28,8 +28,10 @@
 #. `dirname $0`/../../share/eterbuild/korinf/common
 . /usr/share/eterbuild/korinf/common
 
+kormod list
+
 SUDO="sudo"
-if [ $UID = "0" ]; then
+if [ "$UID" = "0" ]; then
 	SUDO=""
 fi
 
@@ -91,19 +93,18 @@ $SUDO umount $TESTDIR && echo "Unmount $SYS"
 rmdir $TESTDIR
 }
 
+set_rebuildlist $1
+shift
+CMDRE=$(get_distro_list $REBUILDLIST)
+[ -z "$CMDRE" ] && fatal "build list is empty"
+
 TASK=$1
+[ -n "$TASK" ] && [ -f "scripts/$TASK" ] || exit 1
+shift
 
-[ -n "$TASK" ] || exit 1
 
-if [ -n "$2" ] ; then
-	DISTR_LIST="$2"
-else
-	DISTR_LIST=`print_distro $DEFAULTARCH`
-fi
-
-for SYS in $DISTR_LIST ; do
-    #echo $SYS
+for SYS in $CMDRE ; do
     cp -af scripts/$TASK $LOCALLINUXFARM/$SYS/tmp/remote-script.sh || continue
-    chroot_in /tmp/remote-script.sh
+    chroot_in /tmp/remote-script.sh "$@"
 done
 

@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# install package from ftp
+
+[ -n "$1" ] || { echo "Error: Run with package name as param" ; exit 1 ; }
+
+echo "Run install $1 script on `distr_vendor`"
+DISTRVENDOR=`/usr/bin/distr_vendor -d`
+
+[ "$DISTVENDOR" = "ALTLinux" ] && exit 1
+
+# Check package manager
+PKGSYSTEM=`/usr/bin/distr_vendor -p`
+
+cd /tmp
+
+PKGFILE=$(basename "$1")
+
+case $PKGSYSTEM in
+	rpm)
+		rpm -Uvh $1
+		;;
+	deb)
+		wget "$1" || exit
+		dpkg -i "$PKGFILE"
+		;;
+	*)
+		echo ""
+		;;
+esac
+
