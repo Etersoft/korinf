@@ -22,6 +22,7 @@ git checkout -f
 
 # try pull and exit if all up-to-date
 gpull -c winehq master && { echocon "No work now" ; exit 0; }
+# FIXME: как я понимаю, не присылаются теги
 gpull winehq master || { echocon "Some update error" ; exit 0; }
 
 NEWTAG=$(git rev-parse HEAD)
@@ -47,3 +48,4 @@ autoconf -f
 jmake || exit 1
 ./wine --version || exit 1
 gpush pure master || exit 1
+gpush -t pure master || exit 1
