@@ -29,7 +29,7 @@ gpull $ORIGINBRANCH master || { echocon "Some update error" ; exit 0; }
 
 NEWTAG=$(git rev-parse HEAD)
 
-[ "$OLDTAG" = "$NEWTAG" ] && return
+[ "$OLDTAG" = "$NEWTAG" ] && exit 0
 
 #exit
 
