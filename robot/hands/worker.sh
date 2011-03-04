@@ -66,7 +66,9 @@ fi
 for TASKTORUN in $(list_tasks task.run) ; do
 	TASKPID=$(cat $TASKTORUN)
 	[ -r "/proc/$TASKPID" ] && continue
-	echo "Pid $TASKPID from $TASKTORUN is unexisted, removing"
+	echo "Pid $TASKPID from $TASKTORUN is unexisted, set interrupted"
+	TASKFILE=${TASKTORUN/.run/}
+	mv -f $TASKFILE $TASKFILE.interrupted
 	rm -f $TASKTORUN
 done
 
