@@ -78,7 +78,18 @@ pub_and_push()
 	git reset --hard $CURTAG
 }
 
+korinf_wine()
+{
+	# FIXME: some detect korinf placing
+	cd /srv/$USER/Projects/git/korinf/bin-wine || cd $HOME/Projects/korinf/bin-wine || fatal "can't CD"
+	./wine-etersoft.sh $1 $2
+	cd -
+}
+
+
 ETERBUILDDIR=/srv/$USER/Projects/git/etersoft-build-utils/bin
 [ -d "$ETERBUILDDIR" ] || ETERBUILDDIR=$HOME/Projects/etersoft-build-utils/bin
 [ -d "$ETERBUILDDIR" ] || fatal "can't find eterbuild dir"
 export PATH=$ETERBUILDDIR:$PATH
+
+export LC_ALL=C

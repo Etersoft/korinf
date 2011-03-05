@@ -4,8 +4,6 @@
 
 . $(dirname $0)/build-funcs.sh
 
-export LC_ALL=C
-
 TEMPREPODIR=/srv/$USER/Projects
 REPO=git.office:/projects/eterhack.git
 REPOALIAS=origin
@@ -16,7 +14,5 @@ jump_to_repo
 pull_and_log
 pub_and_push
 
-cd /srv/$USER/Projects/git/korinf/bin-wine || cd $HOME/Projects/korinf/bin-wine || fatal "can't CD"
-
-./wine-etersoft.sh test $WORKTARGET
+korinf_wine test $WORKTARGET
 
