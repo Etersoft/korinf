@@ -222,6 +222,32 @@ EOF
 	${DOWNLOADDIR/ftp:/http:}/$TYPE-$PROJECTVERSION/$DIST
 	${DOWNLOADDIR}/$TYPE-$PROJECTVERSION/$DIST
 	${DOWNLOADDIR/download/ftp2}/$TYPE-$PROJECTVERSION/$DIST
+EOF
+
+if [ "$TYPE" = "School" ] ; then
+	cat >>$FILETO <<EOF
+
+Обязательно ознакомьтесь с известными проблемами в текущей сборке:
+http://wiki.etersoft.ru/WINE/knownbugs
+
+Ответы на частые вопросы смотрите на страницах 
+http://kb.etersoft.ru/WINE@Etersoft_School/FAQ
+и
+http://etersoft.ru/wine/faq
+
+Прочитайте документацию http://etersoft.ru/wine/manual
+
+По вопросам использования продукта пишите новое письмо
+на wine-school@etersoft.ru,
+указав в ТЕМЕ (Subject) письма регистрационный номер.
+
+Пожалуйста, отвечайте на это письмо только
+при возникновении затруднений со скачиванием файлов.
+
+Благодарим Вас за использование нашего продукта.
+EOF
+else
+	cat >>$FILETO <<EOF
 
 Обязательно ознакомьтесь с известными проблемами в текущей сборке:
 http://wiki.etersoft.ru/WINE/knownbugs
@@ -238,6 +264,10 @@ http://wiki.etersoft.ru/WINE/knownbugs
 при возникновении затруднений со скачиванием файлов.
 
 $THANKTEXT
+EOF
+fi
+	cat >>$FILETO <<EOF
+
 -- 
 Команда разработчиков
 Etersoft, 2011
