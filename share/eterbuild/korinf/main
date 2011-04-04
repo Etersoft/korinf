@@ -68,7 +68,9 @@ else
 fi
 
 # Assure we have no too open perms on private key
-chmod 600 $PRIVATESSHKEY || fatal "SSH key problem"
+if [-w "$PRIVATESSHKEY" ] ; then
+	chmod 600 "$PRIVATESSHKEY" || fatal "SSH key problem"
+fi
 
 # disable gear using due pre hasher repacking problem
 export IGNOREGEAR=1
@@ -132,7 +134,7 @@ for dist in $CMDRE ; do
 	init_dist_log "$dist"
 
 	if [ -n "$FORCEREBUILDPACKAGE" ] || [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
-		logit "force build packages $BUILDNAME"
+		logit "force build packages"
 	else 
 		if [ -n "$REBUILDPACKAGE" ] ; then
 			logit "force build failed packages $BUILDNAME"
