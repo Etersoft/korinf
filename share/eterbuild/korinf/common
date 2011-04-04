@@ -112,7 +112,7 @@ get_src_package()
 	if echo $BUILDNAME | grep -q "\.src\.rpm" ; then
 		BUILDSRPM="$SOURCEPATH/$BUILDNAME"
 	else
-		BUILDSRPM="$SOURCEPATH/$(ls -1 $SOURCEPATH/$BUILDNAME*.src.rpm 2>/dev/null | last_rpm).src.rpm"
+		BUILDSRPM="$SOURCEPATH/$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm 2>/dev/null | last_rpm).src.rpm"
 	fi
 
 	echo "$BUILDSRPM"
