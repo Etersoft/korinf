@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.9.1
+Version: 1.9.2
 Release: alt1
 
 Summary: Korinf multidistro build system
@@ -43,6 +43,14 @@ This package contains Korinf multidistro build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Mon Apr 04 2011 Vitaly Lipatov <lav@altlinux.ru> 1.9.2-alt1
+- add test_ld - for test LD bugs
+- add update_eterwine script
+- build/rpm: define='_unpackaged_files_terminate_build 0'
+- common: more strict check src.rpm
+- main: fix ssh key checking (only for local key)
+- worker: do interrupted if orphaned run is found
+
 * Sat Feb 19 2011 Vitaly Lipatov <lav@altlinux.ru> 1.9.1-alt1
 - add Debian 6.0
 - build/hasher: build src.rpm in hasher, not installed spec
