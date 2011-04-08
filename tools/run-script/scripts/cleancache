@@ -1,0 +1,48 @@
+#!/bin/sh
+
+# install package from ftp
+
+#[ -n "$1" ] || { echo "Error: Run with package name as param" ; exit 1 ; }
+
+#echo "Run install $1 script on `distr_vendor`"
+DISTRVENDOR=`/usr/bin/distr_vendor -d`
+
+[ "$DISTVENDOR" = "ALTLinux" ] && exit 1
+
+cd /tmp
+
+rm -rf /var/cache/beagle/*
+
+MASK=""
+
+case $DISTRVENDOR in
+	"ALTLinux"|"Ubuntu"|"Debian"|"PCLinux")
+		CMD="apt-get clean"
+		MASK="*.deb"
+		;;
+	"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific")
+		CMD="yum clean packages"
+		MASK="*.rpm"
+		;;
+	"Mandriva")
+		CMD="rm -f /var/cache/urpmi/rpms/*.rpm"
+		MASK="*.rpm"
+		;;
+	"SUSE")
+		CMD="zypper clean"
+		MASK="*.rpm"
+		;;
+	*)
+		RET=1
+		CMD="echo \"Do not known install command for DISTRVENDOR $DISTRVENDOR\""
+		;;
+esac
+
+echo "Run $CMD..."
+$CMD $1
+
+if [ -n "$MASK" ] ; then
+	echo "Find $MASK..."
+	find /var -name "$MASK" | grep -v "eter" | xargs rm -vf
+	find /root -name "$MASK" | grep -v "eter" | xargs rm -vf
+fi
