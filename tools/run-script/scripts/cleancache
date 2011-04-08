@@ -7,7 +7,7 @@
 #echo "Run install $1 script on `distr_vendor`"
 DISTRVENDOR=`/usr/bin/distr_vendor -d`
 
-[ "$DISTVENDOR" = "ALTLinux" ] && exit 1
+echo "$DISTVENDOR" | grep "ALTLinux" && exit 1
 
 cd /tmp
 

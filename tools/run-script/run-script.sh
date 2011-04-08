@@ -35,12 +35,6 @@ if [ "$UID" = "0" ]; then
 	SUDO=""
 fi
 
-# FIXME: make common function to get common distro list and per arch list
-print_distro()
-{
-	( cd /net/os/stable ; find -L ./$1 -maxdepth 2 -mindepth 2 -type d | sed -e "s|^./||" | sort | grep -v Windows | sed -e "s|^i586/||g" )
-}
-
 
 chroot_in()
 {
@@ -59,21 +53,19 @@ $SUDO mkdir -p $TESTDIR/{srv/wine,proc,home/$INTUSER,dev/pts}
 #$SUDO mount /srv/builder-login $BUILDERHOME --bind #|| exit 1
 #init_home
 
-BUILDARCH=$DEFAULTARCH
 if echo $SYS | grep x86_64 >/dev/null ; then
     BUILDARCH="x86_64"
 else
     BUILDARCH="i586"
 fi
+
 echo
 echo
 echo "==================================="
 echo "Chrooting in $SYS system with $BUILDARCH arch"
-# FIXME: why not DEFAULTARCH?
-REALARCH=$(uname -m)
-[ "$REALARCH" = "i686" ] && REALARCH="i586"
-if [ "$REALARCH" != "$BUILDARCH" ] ; then
-    echo "Please login to $BUILDARCH arch from a machine with the same arch (you TRY from $REALARCH)"
+
+if [ "$SYSARCH" != "$BUILDARCH" ] ; then
+    echo "Please login to $BUILDARCH arch from a machine with the same arch (you TRY from $SYSARCH)"
     exit 1
 fi
 
@@ -93,7 +85,8 @@ $SUDO umount $TESTDIR && echo "Unmount $SYS"
 rmdir $TESTDIR
 }
 
-set_rebuildlist $1
+REBUILDLIST=$1
+set_rebuildlist
 shift
 CMDRE=$(get_distro_list $REBUILDLIST)
 [ -z "$CMDRE" ] && fatal "build list is empty"
