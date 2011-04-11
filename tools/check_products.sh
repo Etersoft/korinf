@@ -31,7 +31,7 @@ grep_script()
 	#FIXME: Highlight this with another color
 	echo "Checking $1 for $2"
 # запускаем сборочные скрипты с параметром -c, выводим строки, содержащие сообщения об устаревших или пропущенных сборках
-	$PATHTOSCRIPT/$1.sh $CHECKONLY $2 | grep -e OBS -e MISSED | grep -v Legend | grep -v link | grep -v error || echo "Everything is built"
+	$PATHTOSCRIPT/$1.sh $CHECKONLY $2 $3 | grep -e OBS -e MISSED | grep -v Legend | grep -v link | grep -v error || echo "Everything is built"
 }
 
 
@@ -45,7 +45,8 @@ fi
 #start script
 KORINFROOTDIR="../"
 CHECKSYSLIST=$1
-CHECKPROJECT=$2
+CHECKPROJECT=$3
+CHECKVERSION=$2
 
 if [ -z $CHECKPROJECT ] ; then
     PRODUCTPATHS=`define_paths $KORINFROOTDIR`
@@ -53,12 +54,16 @@ else
     PRODUCTPATHS=$KORINFROOTDIR/bin-${CHECKPROJECT}
 fi
 
+if [ -z $CHECKVERSION ] ; then
+	$CHECKVERSION='last'
+fi
+
 echo PRODUCTPATHS=$PRODUCTPATHS
 
 for PATHTOSCRIPT in $PRODUCTPATHS ; do
 	COMPONENTS=`define_components $PATHTOSCRIPT`
 	for i in $COMPONENTS ; do
-		grep_script $i $CHECKSYSLIST
+		grep_script $i $CHECKSYSLIST $CHECKVERSION
 		echo
 	done
 done
