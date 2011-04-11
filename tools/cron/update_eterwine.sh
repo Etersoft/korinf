@@ -27,6 +27,9 @@ gpull -c $ORIGINBRANCH master && { echocon "No work now" ; exit 0; }
 # FIXME: как я понимаю, не присылаются теги
 gpull $ORIGINBRANCH master || { echocon "Some update error" ; exit 0; }
 
+# FIXME: помогает?
+gpull
+
 NEWTAG=$(git rev-parse HEAD)
 
 [ "$OLDTAG" = "$NEWTAG" ] && exit 0
@@ -38,3 +41,4 @@ autoconf -f
 #make depend || exit 1
 jmake || exit 1
 ./wine --version || exit 1
+grep "not found" ./config.log

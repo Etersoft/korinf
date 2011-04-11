@@ -49,3 +49,5 @@ jmake || exit 1
 ./wine --version || exit 1
 gpush pure master || exit 1
 gpush -t pure master || exit 1
+
+grep "not found" ./config.log
