@@ -8,7 +8,7 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
-major=9.0
+major=9.0eter
 pname=postgresql
 pnamever=${pname}-${major}
 POSTGRESDIR=/var/ftp/pub/Etersoft/Postgres@Etersoft/
