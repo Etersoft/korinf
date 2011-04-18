@@ -68,7 +68,7 @@ else
 fi
 
 # Assure we have no too open perms on private key
-if [-w "$PRIVATESSHKEY" ] ; then
+if [ -w "$PRIVATESSHKEY" ] ; then
 	chmod 600 "$PRIVATESSHKEY" || fatal "SSH key problem"
 fi
 

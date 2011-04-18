@@ -1,9 +1,10 @@
 #!/bin/sh
 
+RPATH=$(dirname $0)
 do_test()
 {
 
-SC=./list_nfound_libs.sh
+SC=$RPATH/list_nfound_libs.sh
 
 $SC stable
 $SC testing
