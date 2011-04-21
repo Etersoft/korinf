@@ -29,7 +29,10 @@ INTUSER=korinfer
 PRIVATESSHKEY=$KORINFETC/id_dsa.korinf
 
 # E-mails for info about robot fails
-#EMAILNOTIFY=your@localhost
+#EMAILNOTIFY="your@localhost other@localhost"
+
+# Jabber for info about robot fails
+#JABBERNOTIFY="your@im.localhost other@im.localhost"
 
 # force release for built packages
 #export KORINFTARGETRELEASE=eter

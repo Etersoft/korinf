@@ -63,11 +63,11 @@ check_host()
 	local HOST=sales.etersoft.ru
 	if ! ping -c1 $HOST && sleep 3 && ! ping -c1 $HOST ; then
 		echo Send mail...
-		mutt -s "Build system hangup" lav@etersoft.ru yurifil@etersoft.ru <<EOF
+		mutt -s "Build system hangup" $EMAILNOTIFY <<EOF
 Build system possible is hangup due sales.etersoft.ru unreachable.
 
 EOF
-		send_by_jabber -s "Build system hangup" lav@im.etersoft.ru yurifil@im.etersoft.ru <<EOF
+		send_by_jabber -s "Build system hangup" $JABBERNOTIFY <<EOF
 Build system possible is hangup due sales.etersoft.ru unreachable.
 EOF
 		return 1
@@ -88,7 +88,7 @@ echo "Old tasks: $OLDCOUNT"
 # Много застрявших заданий или поломанных сборок
 if [ $OLDCOUNT -ge 10 ] ||  [ $OLDFCOUNT -ge 7 ] ; then
 	echo Send mail...
-	mutt -s "Build system failed" lav@etersoft.ru yurifil@etersoft.ru <<EOF
+	mutt -s "Build system failed" $EMAILNOTIFY <<EOF
 Build system is supended with $OLDCOUNT tasks:
 `print_tasks task`
 
@@ -97,7 +97,7 @@ There are $OLDFCOUNT failed tasks:
 
 EOF
 
-	send_by_jabber -s "Build system failed" lav@im.etersoft.ru yurifil@im.etersoft.ru <<EOF
+	send_by_jabber -s "Build system failed" $JABBERNOTIFY <<EOF
 Build system is supended with $OLDCOUNT tasks:
 `print_tasks task`
 
@@ -111,7 +111,7 @@ fi
 # Не смонтирован каталог
 #if ! mount -l | grep $TASKDIR >/dev/null ; then
 if [ ! -r "$TASKDIR/SALESDIR" ] ; then
-	mutt -s "Build system failed" lav@etersoft.ru <<EOF
+	mutt -s "Build system failed" $EMAILNOTIFY <<EOF
 Build directory $TASKDIR is unmounted.
 Check it immediately.
 
