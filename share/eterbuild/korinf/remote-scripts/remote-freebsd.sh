@@ -20,7 +20,7 @@ fatal()
 if [ "$1" = "--internal" ] ; then
 	INTUSER=$2
 	shift 2
-	exec su - $INTUSER $0 $@
+	exec sudo su - $INTUSER $0 $@
 fi
 
 
