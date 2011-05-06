@@ -146,7 +146,7 @@ logit()
 		$* >>$LOGFILE 2>&1
 	fi
 	RET=$?
-	let TIMESTAMP=`date "+%s"`-$TIMESTAMP
+	TIMESTAMP=$(( `date "+%s"` - $TIMESTAMP))
 	[ -z "$NIGHTBUILD" ] && STRMSG=""
 
 	echo -n "$STRMSG"

@@ -84,7 +84,7 @@ copying_sources()
 	if [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
 		mkdir -p "$SOURCEPATH/$dist/"
 		rm -f "$SOURCEPATH/$dist/$BUILDNAME-[0-9]*.src.rpm" 2>/dev/null
-		mv -fv "$TARGETSRPM" "$SOURCEPATH/$dist/$(basename "$TARGETSRPM")"
+		mv -fv "$TARGETSRPM" "$SOURCEPATH/$dist/"
 	else
 		rm -fv "$TARGETSRPM"
 	fi

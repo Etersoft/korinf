@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# install package from ftp
+# install package
 
 [ -n "$1" ] || { echo "Error: Run with package name as param" ; exit 1 ; }
 
