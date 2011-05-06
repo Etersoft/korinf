@@ -1,27 +1,27 @@
 #M23 ALTLinux/2.3
-ALTLinux/5.1
+ALTLinux/p5
 #ALTLinux/4.1
 ALTLinux/Sisyphus
 #M30 ALTLinux/3.0
 
 
 #Debian/3.1
-Ubuntu/10.04
+Ubuntu/11.04
 
 #LinuxXP/2007
 
-SUSE/11.2
+SUSE/11.4
 ASPLinux/14
 
 #RedHat/9
 #Special/3.0
-Fedora/13
+Fedora/14
 
-Mandriva/2010.0
+Mandriva/2010.2
 
 #MOPSLinux/6.0
 
 # BSD
 #FreeBSD/5.4
 #FreeBSD/6.0
-FreeBSD/6.2
+FreeBSD/8.2
