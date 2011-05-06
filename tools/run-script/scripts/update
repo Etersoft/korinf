@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# install package
+
+echo "Run install $1 script on `distr_vendor`"
+DISTRVENDOR=`/usr/bin/distr_vendor -d`
+
+[ "$DISTVENDOR" = "ALTLinux" ] && exit 1
+
+cd /tmp
+
+case $DISTRVENDOR in
+	"ALTLinux"|"Ubuntu"|"Debian"|"PCLinux")
+		CMD="apt-get update"
+		;;
+	"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific")
+		CMD="yum update"
+		;;
+#	"Mandriva")
+#		CMD="urpmf"
+#		;;
+	"SUSE")
+		CMD="zypper update"
+		;;
+	*)
+		RET=1
+		CMD="echo \"Do not known install command for DISTRVENDOR $DISTRVENDOR\""
+		;;
+esac
+
+$CMD $1
