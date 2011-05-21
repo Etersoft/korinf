@@ -56,12 +56,18 @@ fi
 for i in *.failed ; do
 	test -f $i || continue
 	[ -z "$DIST" ] || grep -q "DIST=\"$DIST\"" $i || continue
-	mv -v $i `basename $i .failed` || exit 1
+	mv -v $i `basename $i .failed`
 done
 
 for i in *.broken ; do
 	test -f $i || continue
 	[ -z "$DIST" ] || grep -q "DIST=\"$DIST\"" $i || continue
-	mv -v $i `basename $i .broken` || exit 1
+	mv -v $i `basename $i .broken`
+done
+
+for i in *.interrupted ; do
+	test -f $i || continue
+	[ -z "$DIST" ] || grep -q "DIST=\"$DIST\"" $i || continue
+	mv -v $i `basename $i .interrupted`
 done
 
