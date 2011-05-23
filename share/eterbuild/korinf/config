@@ -59,9 +59,7 @@ EOF
 # Create need for build files in home dir
 init_home()
 {
-	if [ ! -d $BUILDERHOME/ ] ; then
-		return
-	fi
+	[ -d "$BUILDERHOME/" ] || return
 
 	mkdir -p "$BUILDERHOME/.config"
 	[ -r $BUILDERHOME/.config/eterbuild ] || echo "RPMBUILD=rpmbuild" > $BUILDERHOME/.config/eterbuild
