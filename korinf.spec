@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.9.2
+Version: 1.9.3
 Release: alt1
 
 Summary: Korinf multidistro build system
@@ -43,6 +43,19 @@ This package contains Korinf multidistro build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Mon May 23 2011 Vitaly Lipatov <lav@altlinux.ru> 1.9.3-alt1
+- add cleancache for cleanup repos from obsoleted packages
+- add grep for not found libs
+- fix run-script (use newest functions)
+- korlogin: fix system list, arch issues,
+- new check product and change in list for SUSE
+- run-script: add search and update
+- script for postgre-etersoft9.0 added
+- set emails/jabber in config
+- some changes in freebsd script, and new script for postgres8.4 added
+- update list_all_nfound script
+- update systems list
+
 * Mon Apr 04 2011 Vitaly Lipatov <lav@altlinux.ru> 1.9.2-alt1
 - add test_ld - for test LD bugs
 - add update_eterwine script
