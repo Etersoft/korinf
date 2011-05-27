@@ -1,9 +1,4 @@
-. mandriva
-. x86_64-mandriva
-. ubuntu
-Fedora/9
-Fedora/10
-Fedora/11
-Fedora/12
-Fedora/13
-
+. Mandriva
+. x86_64/Mandriva
+. Ubuntu
+. Fedora
