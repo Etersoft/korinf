@@ -86,7 +86,7 @@ $THANKTEXT
 
 -- 
 Команда разработчиков
-Etersoft, 2010
+Etersoft, 2011
 EOF
 }
 
@@ -98,10 +98,10 @@ build_selta()
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Windows"
 	PUBDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/Windows"
 
-	if [ "$PROJECTVERSION" = "1.0.7" ] ; then
-		PGVERSION="8.3"
-	else
+	if [ "$PROJECTVERSION" = "1.0.8" ] ; then
 		PGVERSION="8.4"
+	else
+		PGVERSION="9.0"
 	fi
 	PGLOCAL="/var/ftp/pub/Etersoft/Postgres@Etersoft/$PGVERSION"
 	PGDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/Postgres@Etersoft/$PGVERSION"
