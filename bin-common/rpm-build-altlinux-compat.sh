@@ -13,4 +13,4 @@ else
 	LIST=all
 fi
 
-../bin/korinf $LIST rpm-build-altlinux-compat /var/ftp/pub/Etersoft/Sisyphus $@
+. ../bin/korinf $LIST rpm-build-altlinux-compat /var/ftp/pub/Etersoft/Sisyphus $@

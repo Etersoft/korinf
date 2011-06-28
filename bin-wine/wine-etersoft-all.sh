@@ -1,7 +1,9 @@
 #!/bin/sh
 
+DIR=$(dirname $0)
+
 export ALLOWPUBLICDEBUG=0
 
 for i in sql network local ; do
-	./wine-etersoft-$i.sh $@
+	$DIR/wine-etersoft-$i.sh $@
 done
