@@ -163,6 +163,8 @@ for dist in $CMDRE ; do
 	if build_dist_pkg ; then
 		logit "copying log" copying_log || return 1
 	else
+		logit "copying sources of broken package" copying_sources
+
 		# Get error, umount if do not need debug
 		if [ -z "$ADEBUG" ] ; then
 			logit "umount" end_umount
