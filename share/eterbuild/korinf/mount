@@ -48,7 +48,7 @@ mount_linux()
 	ls -l $BUILDROOT
 	test -d $BUILDROOT/etc/ || fatal "Linux system is missed in $BUILDROOT"
 
-	$SUDO su - $LOCUSER -c "mkdir -p $BUILDROOT/{proc,home/$INTUSER,srv/wine}"
+	$SUDO su $LOCUSER -c "mkdir -p $BUILDROOT/{proc,home/$INTUSER,srv/wine}"
 	echo Mount proc...
 	$SUDO mount -t proc proc $BUILDROOT/proc || { warning "Cannot mount proc" ; return 1 ; }
 
@@ -59,6 +59,16 @@ mount_linux()
 	#$SUDO mount /net/wine $BUILD/srv/wine --bind || { warning "Cannot mount home" ; return 0 ; }
 }
 
+terminate_using()
+{
+	local u
+	local LISTPROC
+	u=$1
+	$SUDO fuser -vk $u
+	LISTPROC=`$SUDO su $LOCUSER -c "/usr/sbin/lsof | grep $u | awk '{print \\$2}' | sort -u"`
+	echo "Kill process use our dir (f.i. gpg-agent): $LISTPROC"
+	$SUDO su $LOCUSER -c "echo $LISTPROC | xargs kill"
+}
 
 end_umount()
 {
@@ -72,7 +82,11 @@ end_umount()
 	for i in /proc/bus/usb /proc/sys/fs/binfmt_misc /proc /home/$INTUSER / ; do
 		u=$BUILDROOT$i
 		if [ -d $u ] && mount | grep $i >/dev/null ; then
-			$SUDO umount -v $u || $SUDO fuser -v $u
+			if ! $SUDO umount -v $u ; then
+				terminate_using $u
+				sleep 1
+				$SUDO umount -v $u || terminate_using $u
+			fi
 			#|| echo "Failed $u umount"
 			#$SUDO umount $i || $SUDO umount $i -l || ERR=1
 		fi
@@ -80,8 +94,8 @@ end_umount()
 	[ $ERR = 0 ] && echo "DONE" || echo "Umount FAILED"
 	if [ -z "$ADEBUG" ] ; then
 		echo "Removing $BUILDROOT $BUILDERHOME ..."
-		$SUDO su - $LOCUSER -c "rm -rf $BUILDERHOME" || ERR=1
-		$SUDO su - $LOCUSER -c "rmdir -v $BUILDROOT" || ERR=1
+		$SUDO su $LOCUSER -c "rm -rf $BUILDERHOME" || ERR=1
+		$SUDO su $LOCUSER -c "rmdir -v $BUILDROOT" || ERR=1
 		[ $ERR = 0 ] && echo "DONE" || echo "Removing FAILED"
 	else
 		echo "Skip removing due ADEBUG set"
