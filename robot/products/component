@@ -86,10 +86,11 @@ build_anycomponent()
 	local PROJ=$DOWNLOADDIR
 	LOCALDIR=/var/ftp/pub/Etersoft/$PROJ
 	
-	if [ ! -d "$LOCALDIR/$DIST" ] ; then
-		warning "System $DIST not supported for build ($LOCALDIR/$DIST does not exist)"
-		do_broken
-	fi
+	# Lav 28.06.11: skip checking for previous built one
+	#if [ ! -d "$LOCALDIR/$DIST" ] ; then
+	#	warning "System $DIST not supported for build ($LOCALDIR/$DIST does not exist)"
+	#	do_broken
+	#fi
 
 	# Use real path if possible
 	# NOTE: replace PROJECTVERSION with linked version

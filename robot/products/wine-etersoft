@@ -294,10 +294,11 @@ build_wine_etersoft()
 	# Not: use original project version (other path, not pub)
 	PVTLOCAL="/var/ftp/pvt/Etersoft/$PROJECTNAME/$PROJECTVERSION/WINE-$(get_product_type "$COMPONENTNAME")"
 
-	if [ ! -d "$PUBLOCAL/WINE/$DIST" ] ; then
-		warning "System $DIST not supported for build ($PUBLOCAL/WINE/$DIST does not exist)"
-		do_broken
-	fi
+	# Lav 28.06.11: skip checking for previous built one
+	#if [ ! -d "$PUBLOCAL/WINE/$DIST" ] ; then
+	#	warning "System $DIST not supported for build ($PUBLOCAL/WINE/$DIST does not exist)"
+	#	do_broken
+	#fi
 	
 	TEXTDIST=$DIST
 	# Check for linked system (собираем для основной системы)
