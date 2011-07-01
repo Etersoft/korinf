@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.9.3
+Version: 1.9.4
 Release: alt1
 
 Summary: Korinf multidistro build system
@@ -43,6 +43,15 @@ This package contains Korinf multidistro build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Fri Jul 01 2011 Vitaly Lipatov <lav@altlinux.ru> 1.9.4-alt1
+- add CentOS/6
+- copying sources ever if build is broken
+- add initial script for build all packages for new system
+- mount: run su with -, skip login part
+- robot: disable checking target dir existing
+- update arobot-retouch.sh
+- use PG 9.0 for SELTA since 1.1.0
+
 * Mon May 23 2011 Vitaly Lipatov <lav@altlinux.ru> 1.9.3-alt1
 - add cleancache for cleanup repos from obsoleted packages
 - add grep for not found libs
