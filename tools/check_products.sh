@@ -10,7 +10,7 @@
 define_paths()
 {
 # выбираем в KORINFROOTDIR каталоги, содержащие сборочные скрипты
-	find $1 -name bin-\* -print | grep -v old
+	find $1 -name bin-\* -print | grep -v old | grep -v common
 }
 
 define_components()
@@ -45,8 +45,8 @@ fi
 #start script
 KORINFROOTDIR="../"
 CHECKSYSLIST=$1
-CHECKPROJECT=$3
 CHECKVERSION=$2
+CHECKPROJECT=$3
 
 if [ -z $CHECKPROJECT ] ; then
     PRODUCTPATHS=`define_paths $KORINFROOTDIR`
@@ -54,9 +54,9 @@ else
     PRODUCTPATHS=$KORINFROOTDIR/bin-${CHECKPROJECT}
 fi
 
-if [ -z $CHECKVERSION ] ; then
-	$CHECKVERSION='last'
-fi
+#if [ -z $CHECKVERSION ] ; then
+#	CHECKVERSION='last'
+#fi
 
 echo PRODUCTPATHS=$PRODUCTPATHS
 

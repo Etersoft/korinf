@@ -18,37 +18,27 @@ build()
     # install needed packages
     ../bin-$GROUP/$PACKAGE.sh -i $SYSTEM $TARGET || exit
     # run build
-    ../bin-$GROUP/$PACKAGE.sh $ARG $SYSTEM $TARGET $@ || exit
+    ../bin-$GROUP/$PACKAGE.sh $ARG $SYSTEM $TARGET $@
 }
 
-
-# Args:
-# package (package name)
-# options (optionally)
-build_wc()
+fatal()
 {
-    local GROUP=wine
-    local PACKAGE=$1
-    local ARG=$2
-    shift 2
-
-    [ -n "$ARG" ] || ARG=-f
-
-    echo
-    # install needed packages
-    ../bin-$GROUP/$PACKAGE.sh -i $SYSTEM $TARGET || exit
-    # run build
-    ../bin-$GROUP/$PACKAGE.sh $ARG $SYSTEM $TARGET $@ || exit
+    echo "$@" >&2
+    exit 1
 }
 
 SYSTEM=$1
-TARGET=$2
+PART=$2
 # Stop when error
 export NIGHTBUILD=1
 
-../bin-common/rpm-build-altlinux-compat.sh $SYSTEM -b || exit
+if [ -z "$PART" ] ; then
+    ../bin-common/rpm-build-altlinux-compat.sh $SYSTEM -b || fatal
+fi
 
 
+build_wine()
+{
 ######## WINE@Etersoft ############
 
 #for BRANCH in 1.0.12 testing school school-testing unstable
@@ -56,7 +46,7 @@ build wine fonts-ttf-liberation stable
 build wine fonts-ttf-ms stable
 
 # build and install wine
-build wine wine-etersoft stable -b
+build wine wine-etersoft stable -b || return
 build wine wine-etersoft-all stable
 
 #build wine wine-etersoft-cad
@@ -70,17 +60,34 @@ build hasp haspd stable
 build cifs etercifs stable
 # TODO: only for dkms target
 #build cifs dkms-etercifs stable
+}
+if [ -z "$PART" ] || [ "$PART" = "wine" ] ; then
+    build_wine
+fi
 
 
+build_rx()
+{
 ######## RX@Etersoft ###########
 
-build nx stable -b
+build nx nx stable -b || return
 build nx rx-etersoft stable
 build nx nxclient stable
 build nx nxsadmin stable
 build nx opennx stable
+}
+if [ -z "$PART" ] || [ "$PART" = "rx" ] ; then
+    build_rx
+fi
 
+
+build_pg()
+{
 ########## Postgre@Etersoft ############
 
 build postgres icu38 stable -b
 build postgres postgre-etersoft9.0 stable
+}
+if [ -z "$PART" ] || [ "$PART" = "pg" ] ; then
+    build_pg
+fi
