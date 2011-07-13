@@ -8,7 +8,7 @@
 
 querypackage()
 {
-        rpmquery -p --queryformat "%{$2}" $1
+        rpm -q -p --queryformat "%{$2}" $1
 }
 
 fatal()
@@ -48,7 +48,7 @@ get_binpkg_list()
 	local PKGDIR=$1
 	local PKGNAME=$(basename $2)
 	find "$PKGDIR" ! -name '*\.src\.rpm' -name '*\.rpm' -execdir \
-		rpmquery -p --qf='%{sourcerpm}\t%{name}-%{version}-%{release}.%{arch}.rpm\n' "{}" \; \
+		rpm -q -p --qf='%{sourcerpm}\t%{name}-%{version}-%{release}.%{arch}.rpm\n' "{}" \; \
 		| egrep "^$PKGNAME[[:space:]].*" | cut -f2 | xargs -n1 -I "{}" echo "$PKGDIR/{} "
 }
 
@@ -62,7 +62,7 @@ build_bsd()
 	rm -rf /usr/local/share/etercifs/sources/*$PACKAGE*
 	# FIXME: x86_64 support
 	BUILDARCH=i586
-	rpmbuild -v --rebuild $RPMBUILDNODEPS --buildroot $RPMBUILDROOT $SRPMNAME --target $BUILDARCH
+	rpm -v --rebuild $RPMBUILDNODEPS $SRPMNAME --target $BUILDARCH
 }
 
 convert_bsd()
@@ -71,22 +71,22 @@ convert_bsd()
 # remove this after find out, why built rpm is put into /usr/local/src/portbld/RPMS
 	#echo $BUILTRPM
 	#| grep '.rpm'
-	#BUILTRPM=$(echo /usr/local/src/portbld/RPMS/noarch/$PACKAGE*.rpm)
-	BUILTRPM=`find $RPMSDIR -name *$PACKAGE* -print | xargs echo`
-	ls -l $BUILTRPM
-	#[ -n "$RPMBUILDROOT" ] || fatal "RPMBUILDROOT var is empty"
+	BUILTRPM=$(echo $RPMSDIR/noarch/*$PACKAGE*.rpm)
+	#BUILTRPM=`find $RPMSDIR -name $PACKAGE*.rpm -print | xargs echo`
+	if [ ! -r "$BUILTRPM" ] ; then
+		BUILTRPM=$(echo $RPMSDIR/i586/*$PACKAGE*.rpm)
+		#ARCH=i586
+		#BUILTRPM=$(echo /usr/local/src/portbld/RPMS/$ARCH/$PACKAGE*.rpm)
+	fi
+	#ls -l $BUILTRPM
+	[ -n "$BUILTRPM" ] || fatal "BUILTRPM not found"
 	#cd $RPMBUILDROOT
 	
-	#if [ ! -r "$BUILTRPM" ] ; then
-	#	ARCH=i586
-	#	BUILTRPM=$(echo /usr/local/src/portbld/RPMS/$ARCH/$PACKAGE*.rpm)
-	#fi
 #end of hack
 
-	echo $BUILTRPM
+	#echo $BUILTRPM
 	mv $BUILTRPM $RPMSDIR
-	ls -l $RPMSDIR | grep $PACKAGE
-
+	#ls -l $RPMSDIR | grep $PACKAGE
 
 	#get bin package list
 #	BUILDRPMLIST=$(get_binpkg_list $WRKDIR $SRPMNAME)
@@ -133,8 +133,9 @@ convert_bsd()
 
 install_bsd()
 {
-	pkg_delete ${PACKAGE}*
-	pkg_add ../$TARGETPKG
+	PACKAGEDEL=$(pkg_info -x $PACKAGE | grep $PACKAGE | sed -e "s/.*\($PACKAGE-.*\):/\1/g")
+	pkg_delete $PACKAGEDEL
+	pkg_add $WRKDIR/$TARGETPKG
 }
 
 clean_bsd()
