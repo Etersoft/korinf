@@ -88,5 +88,5 @@ install_bsd()
 {
 	local PREF
 	PREF="/mnt/chroot/$dist_ver"
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh install $INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$(basename $TARGETSRPM) $TARGETPKG" || { warning "Can't install" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh install $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$FREEBSDPATH/$(basename $TARGETSRPM) $TARGETPKG" || { warning "Can't install" ; return 1 ; }
 }
