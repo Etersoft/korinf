@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.9.4
+Version: 1.9.5
 Release: alt1
 
 Summary: Korinf multidistro build system
@@ -43,6 +43,11 @@ This package contains Korinf multidistro build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Wed Jul 13 2011 Vitaly Lipatov <lav@altlinux.ru> 1.9.5-alt1
+- add links for LinuxWizard, NauLinux
+- build_for_new_system: rewrite for support separate build
+- fix build FreeBSD 8.2
+
 * Fri Jul 01 2011 Vitaly Lipatov <lav@altlinux.ru> 1.9.4-alt1
 - add CentOS/6
 - copying sources ever if build is broken
