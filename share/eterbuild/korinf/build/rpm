@@ -111,11 +111,9 @@ build_rpms()
 
 run_alien()
 {
-	if [ -n $ADEBUG ] ; then
-		BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version --veryverbose $@ || return
-	else
-		BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version $@ || return
-	fi
+	local VERBCOMMAND=
+	[ -n $ADEBUG ] && VERBCOMMAND="--veryverbose"
+	BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version $VERBCOMMAND $@ || return
 	# don't remove due using rpm after converting (f.i. for Gentoo)
 	# remove source rpm if converted successfully
 	#shift
@@ -132,14 +130,16 @@ convert_by_target()
 	if [ -n "$PACKAGESLIST" ] ; then
 		for i in $PACKAGESLIST ; do
 			if [ -e $i ] ; then
-				run_alien --scripts --to-$TARGET $i || { warning "alien problem with $TARGET"; RES=1 ; }
+				run_alien --scripts --to-$TARGET $i || { warning "alien problem with $TARGET"; RES=1 ; return $RES ; }
 			else
 				warning "Package $i missing check $DESTDIR"
 			fi
 		done
-	else fatal "No packages to pass to alien"
+	else
+		fatal "No packages to pass to alien"
 	fi
 
+	# Hack for tgz packages
 	# FIXME: will broken with package without BUILDNAME inside
 	if [ $TARGET == "tgz" ] ; then
 	    for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tgz ; done
