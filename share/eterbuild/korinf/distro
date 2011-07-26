@@ -49,6 +49,12 @@ prepare_filelist()
 		EXPMAINFILES="$EXPMAINFILES ${BUILDNAME}*.ebuild"
 	fi
 
+	# only lowercase for deb packages
+	if [ "$TARGET" = "deb" ] ; then
+	    EXPMAINFILES=$(echo $EXPMAINFILES | tr 'A-Z' 'a-z')
+	    EXPEXTRAFILES=$(echo $EXPEXTRAFILES | tr 'A-Z' 'a-z')
+	fi
+
 	[ -n "$ADEBUG" ] && echo "EXPMAINFILES: $EXPMAINFILES EXPEXTRAFILES: $EXPEXTRAFILES"
 	[ -z "$EXPMAINFILES$EXPEXTRAFILES" ] && fatal "Logical error with EXPMAINFILES EXPEXTRAFILES"
 
