@@ -72,7 +72,7 @@ pub_and_push()
 	rpmpub -r $WORKTARGET
 
 	# will works only if REPOALIAS is origin :)
-	gpush $REPOALIAS $WORKBRANCH && return
+	gpush -t $REPOALIAS $WORKBRANCH && return
 
 	# if push is failed
 	git reset --hard $CURTAG
