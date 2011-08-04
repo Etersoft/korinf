@@ -8,7 +8,7 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
-SKIPBUILDLIST="FreeBSD OpenSolaris"
+SKIPBUILDLIST="FreeBSD OpenSolaris Windows"
 
 build_project $WINEPUB_PATH/../CIFS@Etersoft etercifs "" $@
 #build_project $WINEPUB_PATH/../CIFS@Etersoft dkms-etercifs "" $@

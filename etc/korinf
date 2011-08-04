@@ -47,3 +47,4 @@ PRIVATESSHKEY=$KORINFETC/id_dsa.korinf
 
 # allow create debug subpackages with sources info by default
 [ -n "$ALLOWPUBLICDEBUG" ] || ALLOWPUBLICDEBUG=1
+

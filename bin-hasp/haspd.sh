@@ -3,6 +3,6 @@
 # Author: Vitaly Lipatov <lav@etersoft.ru>
 # GNU Public License version 3
 
-export SKIPBUILDLIST="FreeBSD OpenSolaris"
+export SKIPBUILDLIST="FreeBSD OpenSolaris Windows"
 
 $(dirname $0)/../bin/korinf all haspd /var/ftp/pub/Etersoft/HASP $@
