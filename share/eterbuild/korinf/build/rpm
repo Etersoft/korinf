@@ -114,10 +114,7 @@ run_alien()
 	local VERBCOMMAND=
 	[ -n $ADEBUG ] && VERBCOMMAND="--veryverbose"
 	BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version $VERBCOMMAND $@ || return
-	# don't remove due using rpm after converting (f.i. for Gentoo)
-	# remove source rpm if converted successfully
-	#shift
-	#rm -f $@
+	# don't remove original due using rpm after converting (f.i. for Gentoo)
 }
 
 convert_by_target()
@@ -175,7 +172,6 @@ convert_rpm()
 			convert_by_target
 			RES=$?
 	esac
-
 
 	popd
 	return $RES

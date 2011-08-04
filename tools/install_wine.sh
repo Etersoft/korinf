@@ -50,6 +50,7 @@ pkg_is_installed()
 install_pkg()
 {
 	echo $LIST
+	test -n "$LIST" || return
 	if [ "$DISTRIB_ID" = "Ubuntu" ] ; then
 		sudo dpkg -i $LIST $FORCE
 	else
