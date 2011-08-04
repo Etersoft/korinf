@@ -4,7 +4,7 @@
 
 [ -n "$1" ] || { echo "Error: Run with package name as param" ; exit 1 ; }
 
-echo "Run install $1 script on `distr_vendor`"
+echo "Run install "$1" script on `distr_vendor`"
 DISTRVENDOR=`/usr/bin/distr_vendor -d`
 
 [ "$DISTVENDOR" = "ALTLinux" ] && exit 1
@@ -30,4 +30,4 @@ case $DISTRVENDOR in
 		;;
 esac
 
-$CMD $1
+$CMD "$@"

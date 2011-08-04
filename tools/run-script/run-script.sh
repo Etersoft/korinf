@@ -97,6 +97,9 @@ shift
 
 
 for SYS in $CMDRE ; do
+    [ -d "$LOCALLINUXFARM/$SYS" ] || continue
+    [ -L "$LOCALLINUXFARM/$SYS" ] && continue
+
     cp -af scripts/$TASK $LOCALLINUXFARM/$SYS/tmp/remote-script.sh || continue
     chroot_in /tmp/remote-script.sh "$@"
 done

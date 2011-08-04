@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "Run update script on `distr_vendor`"
+echo "Run autoremove script on `distr_vendor`"
 DISTRVENDOR=`/usr/bin/distr_vendor -d`
 
 [ "$DISTVENDOR" = "ALTLinux" ] && exit 1
@@ -9,16 +9,16 @@ cd /tmp
 
 case $DISTRVENDOR in
 	"ALTLinux"|"Ubuntu"|"Debian"|"PCLinux")
-		CMD="apt-get update"
+		CMD="apt-get autoremove"
 		;;
 	"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific")
-		CMD="yum update"
+		CMD="yum FIXME"
 		;;
 #	"Mandriva")
 #		CMD="urpmf"
 #		;;
 	"SUSE")
-		CMD="zypper update"
+		CMD="zypper FIXME"
 		;;
 	*)
 		RET=1

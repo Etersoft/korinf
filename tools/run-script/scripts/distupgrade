@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "Run update script on `distr_vendor`"
+echo "Run dist-upgrade $1 script on `distr_vendor`"
 DISTRVENDOR=`/usr/bin/distr_vendor -d`
 
 [ "$DISTVENDOR" = "ALTLinux" ] && exit 1
@@ -9,7 +9,7 @@ cd /tmp
 
 case $DISTRVENDOR in
 	"ALTLinux"|"Ubuntu"|"Debian"|"PCLinux")
-		CMD="apt-get update"
+		CMD="apt-get dist-upgrade"
 		;;
 	"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific")
 		CMD="yum update"
