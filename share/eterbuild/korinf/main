@@ -57,7 +57,8 @@ PACKAGEVERSION=$(rpm -qp "$BUILDSRPM" --queryformat="%{VERSION}")
 PACKAGERELEASE=$(rpm -qp "$BUILDSRPM" --queryformat="%{RELEASE}" | sed -e "s|^alt|eter|g")
 [ -n "$PACKAGERELEASE" ] || fatal "Can't get release from $BUILDSRPM package"
 
-if [ -n "$NIGHTBUILD" ] ; then
+# always failed if gpg is missed
+if true || [ -n "$NIGHTBUILD" ] ; then
 	rpm --checksig $BUILDSRPM || fatal "GPG check failed"
 else
 	if [ -n "$QUIET" ] ; then
