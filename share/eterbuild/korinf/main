@@ -79,6 +79,7 @@ export IGNOREGEAR=1
 CMDRE=$(get_distro_list $REBUILDLIST)
 [ -z "$CMDRE" ] && fatal "build list is empty"
 
+RES=0
 for dist in $CMDRE ; do
 
 	# fill after hasher
@@ -142,6 +143,7 @@ for dist in $CMDRE ; do
 		elif [ -r "$DESTDIR/log/$BUILDNAME.build.failed" ] ; then
 			logit "build already was broken in manual build" SKIPPED
 			echo "`date` $BUILDNAME on $dist ALREADY FAILED" | write_report
+			RES=1
 			continue
 		fi
 
@@ -162,7 +164,7 @@ for dist in $CMDRE ; do
 
 	# Run build and check result
 	if build_dist_pkg ; then
-		logit "copying log" copying_log || return 1
+		logit "copying log" copying_log || fatal "Can't copying log"
 	else
 		logit "copying sources of broken package" copying_sources
 
@@ -179,6 +181,7 @@ for dist in $CMDRE ; do
 			echo `date` $BUILDNAME on $dist FATAL | write_report
 			fatal "Fatal autobuild"
 		fi
+		RES=1
 	fi
 
 	echo `date` $BUILDSRPM on $dist DONE | write_report
@@ -186,4 +189,6 @@ done
 
 # disable trap before exit
 trap - EXIT
+
+return $RES
 }
