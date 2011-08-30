@@ -78,6 +78,8 @@ build_windows()
 copying_windows()
 {
 	echo "Copying to ftp"
+	mkdir -p $DESTDIR
+	clean_copying_destination
         cp -f $RPMTOPDIR/BUILD/$WINNAME*/${WINNAME}*installer*/*.exe $DESTDIR || { warning "Cannot copy packages" ; return 1; }
 	echo "Done with copying"
         chmod g+rw -R $DESTDIR/* || true
