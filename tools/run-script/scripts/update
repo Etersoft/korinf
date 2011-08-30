@@ -11,15 +11,18 @@ case $DISTRVENDOR in
 	"ALTLinux"|"Ubuntu"|"Debian"|"PCLinux")
 		CMD="apt-get update"
 		;;
-	"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific")
-		CMD="yum update"
-		;;
+# skip, will do it automagically
+#	"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific")
+#		CMD="yum update"
+#		;;
 #	"Mandriva")
 #		CMD="urpmf"
 #		;;
-	"SUSE")
-		CMD="zypper update"
-		;;
+
+# skip, will do it automagically
+#	"SUSE")
+#		CMD="zypper update"
+#		;;
 	*)
 		RET=1
 		CMD="echo \"Do not known install command for DISTRVENDOR $DISTRVENDOR\""

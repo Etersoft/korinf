@@ -75,7 +75,11 @@ export PS1="[\u@$SYS \W]\$"
 #[\u@\h \W]\$
 $SUDO chroot $TESTDIR su -c "mount -t proc none /proc"
 $SUDO chroot $TESTDIR su -c "mount -t devpts none /dev/pts"
-setarch $BUILDARCH $SUDO chroot $TESTDIR sh $COMMANDTO
+
+$SUDO chroot $TESTDIR su -c "rm -f /tmp/remote-script.sh"
+
+cp -af scripts/$TASK $LOCALLINUXFARM/$SYS/tmp/remote-script.sh && setarch $BUILDARCH $SUDO chroot $TESTDIR sh $COMMANDTO
+
 #$SUDO umount $TESTDIR/home/$INTUSER && echo "Unmount home"
 #$SUDO umount $TESTDIR/usr/local $TESTDIR/srv/wine  && echo "Unmount swine"
 $SUDO chroot $TESTDIR su -c "umount /dev/pts"
@@ -100,7 +104,6 @@ for SYS in $CMDRE ; do
     [ -d "$LOCALLINUXFARM/$SYS" ] || continue
     [ -L "$LOCALLINUXFARM/$SYS" ] && continue
 
-    cp -af scripts/$TASK $LOCALLINUXFARM/$SYS/tmp/remote-script.sh || continue
     chroot_in /tmp/remote-script.sh "$@"
 done
 
