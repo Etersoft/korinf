@@ -18,6 +18,15 @@ case $DISTRVENDOR in
 	"ALTLinux"|"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific"|"PCLinux"|"Mandriva"|"SUSE")
 		CMD="rpm -e"
 		;;
+	"ArchLinux")
+		CMD="pacman -R"
+		;;
+	"MOPSLinux")
+		CMD="mpkg remove"
+		;;
+	"Gentoo")
+		CMD="emerge --unmerge"
+		;;
 	*)
 		RET=1
 		CMD="echo \"Do not known install command for DISTRVENDOR $DISTRVENDOR\""
