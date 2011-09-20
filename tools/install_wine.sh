@@ -54,7 +54,10 @@ install_pkg()
 	if [ "$DISTRIB_ID" = "Ubuntu" ] ; then
 		sudo dpkg -i $LIST $FORCE
 	else
-		rpmU $LIST $FORCE
+		if [ -n "$INITIAL" ] ; then
+			sudo apt-get install $LIST
+			rpmU $LIST $FORCE
+		fi
 	fi
 }
 
