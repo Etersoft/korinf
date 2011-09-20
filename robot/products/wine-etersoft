@@ -55,6 +55,8 @@ prepare_wine_etersoft()
 	check_and_refresh_package_wine $PVTLOCAL/$DIST wine-etersoft-${PRODUCT_name}
 	check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST wine-etersoft
 
+	[ "$TYPE" = "School" ] || check_and_refresh_component bin-wine $PUBLOCAL/fonts/$DIST fonts-ttf-ms
+
 	# skip on FreeBSD
 	if ! echo "$DIST" | grep -q "FreeBSD" ; then
 		if [ "$PROJECTVERSION" != "1.0.11" ] ; then
@@ -310,7 +312,7 @@ build_wine_etersoft()
 	mkdir -p "$PVTLOCAL/$DIST"
 	
 	PUBDOWNLOAD1FONTS="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/fonts/$DIST"
-	[ -d "$PUBLOCAL/fonts/$DIST/" ] || fatal "Can't locate fonts dir fonts/$DIST"
+	#[ -d "$PUBLOCAL/fonts/$DIST/" ] || fatal "Can't locate fonts dir fonts/$DIST"
 
 	TYPE="$(get_product_type "$COMPONENTNAME")"
 
