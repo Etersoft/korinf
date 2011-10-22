@@ -1,6 +1,6 @@
 Name: korinf
 Version: 1.9.5
-Release: alt1
+Release: alt1.1
 
 Summary: Korinf multidistro build system
 
@@ -43,6 +43,9 @@ This package contains Korinf multidistro build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Sat Oct 22 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.9.5-alt1.1
+- Rebuild with Python-2.7
+
 * Wed Jul 13 2011 Vitaly Lipatov <lav@altlinux.ru> 1.9.5-alt1
 - add links for LinuxWizard, NauLinux
 - build_for_new_system: rewrite for support separate build
