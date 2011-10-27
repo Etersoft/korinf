@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 ##
 #  Korinf project
 #
@@ -24,27 +24,45 @@
 # BUILD - root of current system
 # BUILDERHOME - absolute path to user dir in current system
 
-REMOTESSH=$LOCUSER@solaris
-REMOTEPATH=/export/home/$LOCUSER/work
+REMOTESSH=$INTUSER@solarisz10
+REMOTEPATH=/usr/home/$INTUSER/work-$PACKAGE
+
+SOLARISKEY="-i $PRIVATESSHKEY"
+
+RPMDIRPATH="/usr/home/$INTUSER/RPM"
+TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$TARGETPKGDISTRO
 
 # PACKAGE
 build_solaris()
 {
-	echo "Copying to Solaris"
-	ssh -i $PRIVATESSHKEY $REMOTESSH "mkdir -p $REMOTEPATH" || { warning "Cannot create dir $REMOTEPATH" ; return 1 ; }
-	scp -i $PRIVATESSHKEY $KORINFDIR/korinf/remote-scripts/remote-solaris.sh $REMOTESSH:$REMOTEPATH/ || { warning "Cannot copy script" ; return 1 ; }
-	echo "Building package with:"
-	echo "PACKAGE:$PACKAGE ETERREGNUM:$ETERREGNUM SOURCEURL:$SOURCEURL"
-	ssh -i $PRIVATESSHKEY $REMOTESSH "bash $REMOTEPATH/remote-solaris.sh $PACKAGE $SOURCEURL" || { warning "Can't build" ; return 1 ; }
+	echo "Copying to $REMOTESSH:$REMOTEPATH"
+	ssh $SOLARISKEY $REMOTESSH "mkdir -p $REMOTEPATH" || { warning "Cannot create dir $REMOTEPATH" ; return 1 ; }
+	echo "TARGETSRPM=$TARGETSRPM"
+	scp $SOLARISKEY $TARGETSRPM $REMOTESSH:$REMOTEPATH || { warning "Cannot copy $TARGETSRPM" ; return 1 ; }
+	# TODO: filter the script
+	echo "Copying done"
+	scp $SOLARISKEY $KORINFDIR/korinf/remote-scripts/remote-sunos.sh $REMOTESSH:$REMOTEPATH/ || { warning "Cannot copy script" ; return 1 ; }
+	ssh $SOLARISKEY $REMOTESSH "/$REMOTEPATH/remote-sunos.sh build $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$REMOTEPATH/$(basename $TARGETSRPM) $TARGETPKG" || { warning "Can't build" ; return 1 ; }
 	true
+}
+
+convert_solaris()
+{
+	TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$TARGETPKGDISTRO.$TARGET
+	ssh $SOLARISKEY $REMOTESSH "/$REMOTEPATH/remote-sunos.sh convert $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$REMOTEPATH/$(basename $TARGETSRPM) $TARGETPKG $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
 }
 
 copying_solaris()
 {
 	clean_copying_destination
+	echo $TARGETPKG
+	scp $SOLARISKEY "$REMOTESSH:/var/tmp/korinfer/work-$PACKAGE/$TARGETPKG" $DESTDIR || { warning "Cannot copy $PACKAGE" ; return 1 ; }
+	mark_build_done
+}
 
-	scp -i $PRIVATESSHKEY $REMOTESSH:/tmp/wine/ready/$PACKAGE[-_][0-9]*.pkg.gz $DESTDIR
-	chmod g+rw -R $DESTDIR/* || true
+install_solaris()
+{
+	ssh $SOLARISKEY $REMOTESSH "/opt/csw/bin/sudo /$REMOTEPATH/remote-sunos.sh install $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$REMOTEPATH/$(basename $TARGETSRPM) $TARGETPKG" || { warning "Can't install" ; return 1 ; }
 }
 
 cleaning_solaris()

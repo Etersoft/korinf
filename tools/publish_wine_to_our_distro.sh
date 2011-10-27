@@ -63,6 +63,7 @@ arch=i586
 copy_to "$arch" ALTLinux/4.1 $distro_path/4.1/branch
 copy_to "$arch" ALTLinux/p5 $distro_path/p5/branch
 copy_to "$arch" ALTLinux/Sisyphus $distro_path/Sisyphus
+copy_to "$arch" ALTLinux/p6 $distro_path/p6/branch
 
 #arch=x86_64
 #copy_to "$arch" ALTLinux/5.1 $distro_path/5.1/branch
