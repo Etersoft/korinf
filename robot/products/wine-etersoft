@@ -102,12 +102,18 @@ prepare_wine_etersoft()
 		cp -fl $i $FTPDIR/extra/ || cp -f $i $FTPDIR/extra/ || fatal "Can't copy $i"
 	done
 
+	DSAKEY=wine-etersoft.dsa
 	# FIXME: потом нужно сделать проверку по версии?
 	if [ "$TYPE" = "School" ] ; then
 		DSAKEY=wine-etersoft-2.0.dsa
-	else
-		DSAKEY=wine-etersoft.dsa
 	fi
+
+	if echo "$PRODUCT" | grep -q "^WINE@Etersoft 2" ; then
+		DSAKEY=wine-etersoft-2.0.dsa
+	fi
+	
+	
+	
 	create_license $FTPDIR/$LICENSEFILE $AROBOTDIR/dsa/$DSAKEY
 
 	# Ещё раз проверяем наличие обязательных пакетов
