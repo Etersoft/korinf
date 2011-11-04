@@ -108,10 +108,10 @@ prepare_wine_etersoft()
 		DSAKEY=wine-etersoft-2.0.dsa
 	fi
 
-	if echo "$PRODUCT" | grep -q "^WINE@Etersoft 2" ; then
+	# Тут же может быть testing в PROJECTVERSION, поэтому только его проверять нельзя
+	if echo "$PRODUCT" | grep -q "^WINE@Etersoft 2" && [ "$PROJECTVERSION" != "1.0.12" ] ; then
 		DSAKEY=wine-etersoft-2.0.dsa
 	fi
-	
 	
 	
 	create_license $FTPDIR/$LICENSEFILE $AROBOTDIR/dsa/$DSAKEY
