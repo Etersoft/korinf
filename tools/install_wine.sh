@@ -56,6 +56,7 @@ install_pkg()
 	else
 		if [ -n "$INITIAL" ] ; then
 			sudo apt-get install $LIST
+		else
 			rpmU $LIST $FORCE
 		fi
 	fi
