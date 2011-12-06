@@ -16,7 +16,9 @@ build()
 
     echo
     # install needed packages
-    ../bin-$GROUP/$PACKAGE.sh -i $SYSTEM $TARGET || exit
+    # commented out due bug:
+    # second packages. requires previous build packages, try to install one and failed via urpmi
+    ../bin-$GROUP/$PACKAGE.sh -i $SYSTEM $TARGET #|| exit
     # run build
     ../bin-$GROUP/$PACKAGE.sh $ARG $SYSTEM $TARGET $@
 }
