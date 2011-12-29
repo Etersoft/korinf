@@ -128,11 +128,11 @@ prepare_wine_etersoft()
 		if [ "$TYPE" != "Local" ] ; then
 			check_package $FTPDIR etercifs
 		fi
+		[ "$TYPE" = "SchoolDIS" ] || check_package $FTPDIR fonts-ttf-liberation
 	fi
 
 	check_package $FTPDIR wine-etersoft-${PRODUCT_name}
 
-	[ "$TYPE" = "SchoolDIS" ] || check_package $FTPDIR fonts-ttf-liberation
 
 	# user will download it from separate place
 	#check_package $FTPDIR fonts-ttf-ms
