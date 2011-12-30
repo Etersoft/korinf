@@ -76,7 +76,7 @@ $THANKTEXT
 
 -- 
 Команда разработчиков
-Etersoft, 2011
+Etersoft, 2012
 EOF
 }
 
@@ -127,6 +127,9 @@ build_anycomponent()
 			CHECKCOMP="nx $CHECKCOMP"
 		else
 			CHECKCOMP="nx nxclient $CHECKCOMP"
+		fi
+		if [ "$DIST" = "Windows" ] ; then
+			CHECKCOMP="nxclient"
 		fi
 		# TODO: nxsadmin
 		;;
