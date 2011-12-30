@@ -80,7 +80,7 @@ mark_build_done()
 
 copying_sources()
 {
-	if [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
+	if true || [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
 		echo "Copying converted source package"
 		mkdir -p "$SOURCEPATH/$dist/"
 		rm -f "$SOURCEPATH/$dist/$BUILDNAME-[0-9]*.src.rpm" 2>/dev/null
