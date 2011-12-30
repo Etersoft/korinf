@@ -23,6 +23,7 @@
 
 load_mod tarball
 
+# FIXME: use get_install_package_command?
 # install built packages
 install_built()
 {	
@@ -69,6 +70,25 @@ install_built()
 	return $RES
 }
 
+filter_out_installed_packages()
+{
+	# TODO: use this more effectively way
+	#for i in $(cat) ; do
+	#	rpm -q $i >/dev/null && continue
+	#	echo $i
+	#done | 
+	case $TARGET in
+		"rpm")
+			$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
+				su - -c "export LANG=C ; export LC_ALL=C ; xargs rpm -q 2>&1 | grep 'is not installed' | sed -e 's|^.*package \(.*\) is not installed.*|\1|g'" |
+					sed -e "s|rpm-build-altlinux-compat||g"
+			;;
+		*)
+			cat
+			;;
+	esac
+}
+
 # install required packages for build
 install_req()
 {
@@ -80,8 +100,10 @@ install_req()
 	# create needed files in home directory
 	init_home
 
+	# Note: see the same code in rpmgp
 	# FIXME: remove already installed packages (f.i. if installed package does not exists in repo, install failed on Mandriva)
-	LISTPKG=$(rpmquery --requires -p "$TARGETSRPM" | clean_pkgreq | sed -e "s|rpm-build-altlinux-compat||g")
+	LISTPKG=$(rpmquery --requires -p "$TARGETSRPM" | clean_pkgreq | filter_out_installed_packages)
+	LISTPKG=$(strip_spaces $LISTPKG)
 	DISTRVENDOR=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -d`
 	CMD=$(get_install_package_command $DISTRVENDOR)
 	echo "Install build required packages $LISTPKG with '$CMD' command"
