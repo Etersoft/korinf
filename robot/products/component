@@ -128,7 +128,7 @@ build_anycomponent()
 		else
 			CHECKCOMP="nx nxclient $CHECKCOMP"
 		fi
-		if [ "$DIST" = "Windows" ] ; then
+		if [ "$DIST" = "Windows/ALL" ] ; then
 			CHECKCOMP="nxclient"
 		fi
 		# TODO: nxsadmin
