@@ -51,11 +51,19 @@ get_distro_list()
 
 	# print out distro list
 	cat "$LIST" | grep -v "^#" | grep -v "^\." | sed -e "s|[ 	].*||g" | grep -v "^\$" | filter_distro_list
-	# get list included files
+
+	# get list included via . files
 	LIST=`cat "$LIST" | grep "^\." | sed -e "s|^\. ||g"`
 	for i in $LIST ; do
-		test -f "$DIR/$i" || continue
-		get_distro_list $DIR/$i
+		# if included file is exists in relative place
+		if [ -f "$DIR/$i" ] ; then
+			get_distro_list "$DIR/$i"
+		# if included file is exists in korinf list dir
+		elif [ -f "$KORINFETC/lists/$i" ] ; then
+			get_distro_list "$KORINFETC/lists/$i"
+		else
+			fatal "get_distro_list: included list is not found"
+		fi
 	done
 }
 
