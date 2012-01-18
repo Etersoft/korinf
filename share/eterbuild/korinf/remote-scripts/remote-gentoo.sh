@@ -9,6 +9,7 @@ COMMAND=$1
 PACKAGE="$2"
 DESTURL="$3"
 SRPMNAME=$4
+EXPMAINFILES="$5"
 LOCUSER=korinfer
 
 #FIXME: set package group to Gentoo option
@@ -32,7 +33,8 @@ gen_ebuild_remote()
 	WORKDIR=/home/$LOCUSER/tmp
 	RPMSDIR=/home/$LOCUSER/RPM/RPMS
         BUILTRPM=$(ls -1 $RPMSDIR/*.rpm | grep $PACKAGE | tail -n1)
-        BUILTTARS=$(ls -1 $RPMSDIR | grep tar.bz2 | grep $PACKAGE)
+#        BUILTTARS=$(ls -1 $RPMSDIR | grep tar.bz2 | grep $PACKAGE)
+	BUILTTARS=$(cd $RPMSDIR && ls -1 $EXPMAINFILES)
 	[ -n "$BUILTRPM" ] || fatal "BUILTRPM var is empty"
 	test -r ${BUILTRPM} || return 1
 	mkdir -p $WORKDIR
