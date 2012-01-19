@@ -62,7 +62,7 @@ get_distro_list()
 		elif [ -f "$KORINFETC/lists/$i" ] ; then
 			get_distro_list "$KORINFETC/lists/$i"
 		else
-			fatal "get_distro_list: included list is not found"
+			fatal "get_distro_list: included list '$i' is not found in $DIR or $KORINFETC/lists"
 		fi
 	done
 }

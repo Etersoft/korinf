@@ -60,3 +60,6 @@ check test2 "EndLinux/2038
 SomeLinux/2020"
 
 rm -f test1 test2
+
+echo "Full list:"
+get_distro_list ../etc/lists/ALL
