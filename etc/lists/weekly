@@ -1,25 +1,6 @@
-#M23 ALTLinux/2.3
+. dayly
+
 ALTLinux/p5
-#ALTLinux/4.1
-ALTLinux/Sisyphus
-#M30 ALTLinux/3.0
-
-
-#Debian/3.1
-Ubuntu/11.04
-
 SUSE/11.4
-ASPLinux/14
-
-#RedHat/9
-#Special/3.0
-Fedora/14
-
-Mandriva/2010.2
-
-#MOPSLinux/6.0
-
-# BSD
-#FreeBSD/5.4
-#FreeBSD/6.0
+CentOS/6
 FreeBSD/8.2
