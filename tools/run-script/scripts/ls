@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# ls on systems
+
+echo "Run $0 script on `distr_vendor`"
+DISTRVENDOR=`/usr/bin/distr_vendor -d`
+
+[ -n "$1" ] || { echo "Error: Run with dir as param" ; exit 1 ; }
+
+ls -l $1
