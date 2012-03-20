@@ -109,7 +109,7 @@ prepare_wine_etersoft()
 	fi
 
 	# Тут же может быть testing в PROJECTVERSION, поэтому только его проверять нельзя
-	if echo "$PRODUCT" | grep -q "^WINE@Etersoft 2" && [ "$PROJECTVERSION" != "1.0.12" ] ; then
+	if echo "$PRODUCT" | grep -q "WINE@Etersoft 2" && [ "$PROJECTVERSION" != "1.0.12" ] ; then
 		DSAKEY=wine-etersoft-2.0.dsa
 	fi
 	
