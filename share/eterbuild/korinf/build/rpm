@@ -57,6 +57,8 @@ set_target_var()
 
 	[ -z "$TARGET" ] && { warning "TARGET is empty" ; return 1 ; }
 
+	[ "$TARGETPKGDISTRO" = "gentoo" ] || return 0
+
 	# HACK for Gentoo
 	if [ -n "$BOOTSTRAP" ] ; then
 		[ "$TARGET" = "tbz2" ] && TARGET=rpm
@@ -79,9 +81,13 @@ build_rpms()
 	echo "Build '$BUILDSRPM' for $dist distro with args '$RPMARGS'"
 	# FIXME: problem if system's rpm does not recognize our src.rpm (as Mandriva 2007.1/2008)
 	RPMBUILDROOT="/home/$INTUSER/tmp/$BUILDNAME-buildroot"
+
 	RPMBUILDNODEPS=""
 	# Skip buildreqs checking on non RPM systems
-	[ "$TARGET" != "rpm" ] && RPMBUILDNODEPS="--nodeps"
+	[ "$TARGET" = "rpm" ] || RPMBUILDNODEPS="--nodeps"
+	# hack: we set target to rpm before for Gentoo
+	[ "$TARGETPKGDISTRO" = "gentoo" ] && RPMBUILDNODEPS="--nodeps"
+
 	CMDBUILD="rpmbuild -v --rebuild $RPMBUILDNODEPS "$RPMARGS" --define='_unpackaged_files_terminate_build 0' --buildroot $RPMBUILDROOT /home/$INTUSER/tmp/$(basename $TARGETSRPM) --target $BUILDARCH"
 	CMDAFTERBUILD="cat ~/tmp/rpm-tmp.* ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.log; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h"
 
