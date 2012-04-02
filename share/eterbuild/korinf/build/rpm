@@ -24,6 +24,22 @@
 # We hope here BUILDERHOME is clean already
 
 kormod buildargs
+load_mod repl
+
+check_alien()
+{
+    if (alien -h 2>&1 | grep -qws "depends" ); then
+	return 0
+    else
+	warning "Error: `alien -V` not support \"--depends\" option..."
+	return 1
+    fi
+}
+
+make_depends_list()
+{
+    [ -n "$1" ] && { echo "Creating dependencies list for `basename $1`"; rpm -qpR $1 > $DESTDIR/log/`basename $1`.depends; }
+}
 
 convert_rpm_to_target()
 {
@@ -123,6 +139,7 @@ build_rpms()
 
 run_alien()
 {
+	check_alien
 	local VERBCOMMAND=
 	[ -n $ADEBUG ] && VERBCOMMAND="--veryverbose"
 	BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version $VERBCOMMAND $@ || return
@@ -133,13 +150,27 @@ convert_by_target()
 {
 	local RELPKG=$PACKAGERELEASE$TARGETPKGDISTRO
 	local RES=0
+	local DEPPARAM=""
 
 	local PACKAGESLIST="$EXPRPMMAINFILES $EXPRPMEXTRAFILES"
 	echo "Packages to convert: $PACKAGESLIST"
 	if [ -n "$PACKAGESLIST" ] ; then
 		for i in $PACKAGESLIST ; do
 			if [ -e $i ] ; then
-				run_alien --scripts --to-$TARGET $i || { warning "alien problem with $TARGET"; RES=1 ; return $RES ; }
+				depf=$(echo `basename $i` | cut -d. -f1 )
+				if [ "$TARGET" = "deb" -a -s $DESTDIR/../../ALTLinux/Sisyphus/log/${depf}*.depends ]; then
+					alert "Prepare dependencies list"
+					listdep=`cat $DESTDIR/../../ALTLinux/Sisyphus/log/${depf}*.depends | sort -u`
+					touch $DESTDIR/log/${depf}.deb.depends
+					repl_list=`print_pkgrepl_list`
+					for j in $listdep; do
+						tolocal_anyrepl ${j} ${repl_list} || continue
+						[ -n "$TARGETPKGNAME" ] && alert "TARGETPKGNAME not set"
+						[ "$TARGETPKGNAME" == "" ] ||  echo "$TARGETPKGNAME" > $DESTDIR/log/${depf}.deb.depends
+					done
+					[ -s $DESTDIR/log/${depf}.deb.depends ] && { DEPPARAM="--depends $DESTDIR/log/${depf}.deb.depends"; alert "Call alien with ${DEPPARAM}"; }
+				fi
+				run_alien --scripts --to-$TARGET ${DEPPARAM} $i || { warning "alien problem with $TARGET"; RES=1 ; return $RES ; }
 			else
 				warning "Package $i missing check $DESTDIR"
 			fi

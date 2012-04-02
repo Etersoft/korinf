@@ -44,3 +44,8 @@ warning()
 	fi
 }
 
+alert()
+{
+	echo "Alert: $@" >&2
+	echo "`date` $dist Alert: $@" | write_report
+}

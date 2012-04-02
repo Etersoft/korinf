@@ -21,6 +21,8 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+kormod build/rpm log
+
 mkdir_dest()
 {
 	mkdir -p "$1" && return
@@ -130,6 +132,9 @@ copying_packages()
 		echo "Copying built packages to $DESTDIR..."
 		for i in $EXPMAINFILES ; do
 			if [ -e $i ] ; then
+				if [ "$dist" = "ALTLinux/Sisyphus" ];then
+				    logit "Creating depends " make_depends_list "$i" || return 1
+				fi
 				cp -v $i $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
 			else
 				warning "Cannot copy new package $i"
