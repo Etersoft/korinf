@@ -9,7 +9,7 @@ load_mod alt
 PROJECTVERSION=$1
 if [ -z "$PROJECTVERSION" ] ; then
 	PROJECTVERSION=last
-	UNIPVERSION=testing
+	UNIPVERSION=2.0-testing
 	COMPONENT=unstable
 else
 	UNIPVERSION=stable
