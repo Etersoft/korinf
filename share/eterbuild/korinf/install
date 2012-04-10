@@ -49,13 +49,13 @@ install_built()
 			$SUDO chroot $BUILDROOT $NICE installpkg "$INTBUILT/*${BUILDNAME}*.$TARGET"
 			RES=$?
 			;;
-		"tar.gz") # Hack for ArchLinux
+		"tar.xz") # Hack for ArchLinux
 			# FIXME: use ${EXPMAINFILES} ${EXPEXTRAFILES}
-			$SUDO chroot $BUILDROOT su - -c "LC_ALL=C $NICE pacman -U --force --nodeps /home/$INTUSER/abs/$PACKAGE/*${BUILDNAME}*.pkg.$TARGET"
+			$SUDO chroot $BUILDROOT su - -c "LC_ALL=C $NICE yes | pacman -v -U --force --nodeps /home/$INTUSER/abs/$PACKAGE/*${BUILDNAME}*.pkg.$TARGET"
 			#$SUDO chroot $BUILDROOT su - -c "cd / ; ls -1 $INTBUILT/*${BUILDNAME}*.$TARGET | xargs -n1 --no-run-if-empty $NICE tar xfvz "
 			RES=$?
 			;;
-		*)
+		"rpm")
 			# First time install without dependences
 			# DURING_INSTALL for disable start_service
 			[ -n "$WITHOUTEBU" ] && NODEPS=--nodeps
@@ -65,6 +65,9 @@ install_built()
 			#[ "$RES" = "0" ] || warning "install status: failed"
 			# Hack: broken return status on some systems
 			#RES=0
+			;;
+		*)
+			fatal "Target $TARGET does not supported yet for install"
 			;;
 	esac
 	return $RES
