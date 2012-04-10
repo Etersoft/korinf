@@ -52,7 +52,7 @@ mount_linux()
 	echo "Mount proc..."
 	$SUDO mount -t proc proc $BUILDROOT/proc || { warning "Cannot mount proc" ; return 1 ; }
 
-	if [ -d "$BUILDROOT/dev/shm" } ; then
+	if [ -d "$BUILDROOT/dev/shm" ] ; then
 		echo "Mount shm..."
 		$SUDO mount -t tmpfs shmfs $BUILDROOT/dev/shm || { warning "Cannot mount /dev/shm" ; return 1 ; }
 	fi
