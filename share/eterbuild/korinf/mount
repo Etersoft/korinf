@@ -48,9 +48,14 @@ mount_linux()
 	ls -l $BUILDROOT
 	test -d $BUILDROOT/etc/ || fatal "Linux system is missed in $BUILDROOT"
 
-	$SUDO su $LOCUSER -c "mkdir -p $BUILDROOT/{proc,home/$INTUSER,srv/wine}"
-	echo Mount proc...
+	$SUDO su $LOCUSER -c "mkdir -p $BUILDROOT/proc $BUILDROOT/sys $BUILDROOT/home/$INTUSER $BUILDROOT/srv/wine"
+	echo "Mount proc..."
 	$SUDO mount -t proc proc $BUILDROOT/proc || { warning "Cannot mount proc" ; return 1 ; }
+
+	if [ -d "$BUILDROOT/dev/shm" } ; then
+		echo "Mount shm..."
+		$SUDO mount -t tmpfs shmfs $BUILDROOT/dev/shm || { warning "Cannot mount /dev/shm" ; return 1 ; }
+	fi
 
 	echo Mount local home $BUILDERHOME ...
 	$SUDO mount $BUILDERHOME $BUILDROOT/home/$INTUSER --bind || { warning "Cannot mount home" ; return 1 ; }
@@ -79,7 +84,7 @@ end_umount()
 		return 1
 	fi
 	echo "Unmounting and cleaning..."
-	for i in /proc/bus/usb /proc/sys/fs/binfmt_misc /proc /home/$INTUSER / ; do
+	for i in /proc/bus/usb /proc/sys/fs/binfmt_misc /proc /home/$INTUSER /dev/shm / ; do
 		u=$BUILDROOT$i
 		if [ -d $u ] && mount | grep $i >/dev/null ; then
 			if ! $SUDO umount -v $u ; then
