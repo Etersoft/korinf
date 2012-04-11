@@ -11,6 +11,7 @@ fatal()
 
 jump_to_repo()
 {
+	mkdir -p $TEMPREPODIR/ || fatal
 	cd $TEMPREPODIR/ || fatal
 	
 	if ! test -d $WORKBRANCH ; then
@@ -62,7 +63,7 @@ pull_changes()
 }
 
 step_version()
-	local CURTAG=$1
+{
 	# сформировать лог, обновить spec с пред. момента до обновления
 	rpmlog -s -l $CURTAG
 
@@ -74,7 +75,7 @@ pull_and_log()
 {
 	pull_changes || return
 	# CURTAG defined in pull_changes
-	step_version $CURTAG
+	step_version
 }
 
 pub_and_push()
@@ -86,6 +87,7 @@ pub_and_push()
 	gpush -t $REPOALIAS $WORKBRANCH && return
 
 	# if push is failed
+	# CURTAG defined in pull_changes
 	git reset --hard $CURTAG
 }
 
