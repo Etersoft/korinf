@@ -23,7 +23,7 @@ jump_to_repo()
 }
 
 
-update_version()
+update_wine_version()
 {
 	local SPECNAME=etersoft/wine-etersoft.spec
 	test -f VERSION && test -f $SPECNAME || fatal "incorrect current dir $(pwd) or repo"
@@ -38,7 +38,7 @@ update_version()
 	git commit -a -C ORIG_HEAD
 }
 
-pull_and_log()
+pull_changes()
 {
 	# check repo
 	git rev-parse HEAD >/dev/null || fatal "check repo failed"
@@ -56,14 +56,25 @@ pull_and_log()
 
 	[ "$CURTAG" = "$NEWTAG" ] && fatal "last commit is not changed after update"
 
-	# Если тег стоит на последнем коммите, не трогаем changelog
-	[ "$NEWTAG" = "$NEWRELTAG" ] && return
+	# Если тег стоит на последнем коммите, не трогаем changelog (т.е. кто-то вручную сборку сделал)
+	[ "$NEWTAG" = "$NEWRELTAG" ] && return 1
+	return 0
+}
 
+step_version()
+	local CURTAG=$1
 	# сформировать лог, обновить spec с пред. момента до обновления
 	rpmlog -s -l $CURTAG
 
 	# обновляем VERSION и объединяем с предыдущим коммитом
-	update_version
+	update_wine_version
+}
+
+pull_and_log()
+{
+	pull_changes || return
+	# CURTAG defined in pull_changes
+	step_version $CURTAG
 }
 
 pub_and_push()
@@ -81,7 +92,7 @@ pub_and_push()
 korinf_wine()
 {
 	# FIXME: some detect korinf placing
-	cd /srv/$USER/Projects/git/korinf/bin-wine || cd $HOME/Projects/korinf/bin-wine || fatal "can't CD"
+	cd /srv/$USER/Projects/git/korinf/bin-wine 2>/dev/null || cd $HOME/Projects/korinf/bin-wine || fatal "can't CD"
 	./wine-etersoft.sh $1 $2
 	cd -
 }
