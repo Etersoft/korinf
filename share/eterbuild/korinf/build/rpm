@@ -87,8 +87,11 @@ build_rpms()
 	[ "$TARGET" = "rpm" ] || RPMBUILDNODEPS="--nodeps"
 	# hack: we set target to rpm before for Gentoo
 	[ "$TARGETPKGDISTRO" = "gentoo" ] && RPMBUILDNODEPS="--nodeps"
+	
+	DISABLEDEBUGFLAG=""
+	[ "$TARGET" = "rpm" ] || DISABLEDEBUGFLAG="--without debug"
 
-	CMDBUILD="rpmbuild -v --rebuild $RPMBUILDNODEPS "$RPMARGS" --define='_unpackaged_files_terminate_build 0' --buildroot $RPMBUILDROOT /home/$INTUSER/tmp/$(basename $TARGETSRPM) --target $BUILDARCH"
+	CMDBUILD="rpmbuild -v --rebuild $RPMBUILDNODEPS "$RPMARGS" $DISABLEDEBUGFLAG --define='_unpackaged_files_terminate_build 0' --buildroot $RPMBUILDROOT /home/$INTUSER/tmp/$(basename $TARGETSRPM) --target $BUILDARCH"
 	CMDAFTERBUILD="cat ~/tmp/rpm-tmp.* ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.log; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h"
 
 	# Control file for check build result
