@@ -11,9 +11,11 @@ do_test()
 
 SC=$RPATH/list_nfound_libs.sh
 
-$SC stable
+$SC 1.0.12
 $SC testing
-$SC 2.0.0
+$SC 2.0
+$SC 2.0-testing
+$SC cad
 $SC school
 $SC school-testing
 $SC unstable
