@@ -20,6 +20,14 @@ PROJECTVERSION=$1
 
 [ -n "$BUILDNAME" ] || BUILDNAME=wine-etersoft
 
+PRIVPART='SQL'
+[ "$PROJECTVERSION" = "cad" ] && PRIVPART='CAD'
+
+SYSTEM=ALTLinux/Sisyphus
+# p6 - needs some release rewrite (alt14 -> alt13.M60P.14)
+#SYSTEM=ALTLinux/p6
+
+
 get_version_release()
 {
 	SOURCEPATH=$TARGETPATH/../../../../sources
@@ -63,7 +71,6 @@ install_pkg()
 }
 
 #############
-SYSTEM=
 if [ -r "/etc/lsb-release" ] && [ ! -r "/etc/altlinux-release" ] ; then
 	. /etc/lsb-release
 	SYSTEM=$DISTRIB_ID/$DISTRIB_RELEASE
@@ -72,7 +79,6 @@ if [ -r "/etc/lsb-release" ] && [ ! -r "/etc/altlinux-release" ] ; then
 	fi
 	EXT=deb
 else
-	SYSTEM=ALTLinux/Sisyphus
 	EXT=rpm
 fi
 
@@ -96,8 +102,8 @@ fi
 
 #############
 VERSION=
-BUILDNAME=$BUILDNAME-sql
-TARGETPATH=$WINEETER_PATH/$PROJECTVERSION/WINE-SQL/$SYSTEM
+BUILDNAME=$BUILDNAME-$(echo $PRIVPART | tr [A-Z] [a-z])
+TARGETPATH=$WINEETER_PATH/$PROJECTVERSION/WINE-$PRIVPART/$SYSTEM
 get_version_release
 
 cd $TARGETPATH || fatal "Can't cd"
