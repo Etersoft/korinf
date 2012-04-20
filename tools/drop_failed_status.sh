@@ -34,3 +34,26 @@ for p in $PRODLIST ; do
 		done
 	done
 done
+
+FTPPATH=/var/ftp/pvt/Etersoft
+PRODLIST="RX@Etersoft/* WINE@Etersoft/*/WINE-Local WINE@Etersoft/*/WINE-Network WINE@Etersoft/*/WINE-SQL"
+
+PRODNAME=$1
+
+for p in $PRODLIST ; do
+	# skip all exclude PRODNAME if PRODNAME is filled
+	if [ -n "$PRODNAME" ] ; then
+		echo "$p" | grep -q $PRODNAME || continue
+	fi
+
+	VERLIST=$(echo $FTPPATH/$p)
+	for v in $VERLIST ; do
+		echo "Check in $v"
+		#for n in $(get_distro_list $v) ; do
+		for n in $v/x86_64/*/* $v/*/* ; do
+			[ -d "$n" ] || continue
+			rm -vf $n/log/*.build.failed
+			rm -vf $n/log/*.autobuild.failed
+		done
+	done
+done
