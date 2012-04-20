@@ -49,7 +49,7 @@ clean_copying_destination()
 
 }
 
-# Obsoleted due rpm-dir (since p5?)
+# Obsoleted due rpm-dir (since p5?) - but rpm-dir only work locally
 gen_base_apt_rpm()
 {
 	local SUBDIR=$1
@@ -59,6 +59,7 @@ gen_base_apt_rpm()
 	fi
 	genbasedir --create --progress --topdir=$TARGETPATH $dist$SUBDIR main
 	#chmod o+r $DIR/* -R
+# FIXME: need to set ftp/http URL
 	cat <<EOF > $DESTDIR$SUBDIR/base/README.korinf.txt
 You can add this repo to APT sources.list:
 rpm file:$TARGETPATH$SUBDIR $dist main
@@ -80,7 +81,7 @@ mark_build_done()
 
 copying_sources()
 {
-	if true || [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
+	if [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
 		echo "Copying converted source package"
 		mkdir -p "$SOURCEPATH/$dist/"
 		rm -f "$SOURCEPATH/$dist/$BUILDNAME-[0-9]*.src.rpm" 2>/dev/null
