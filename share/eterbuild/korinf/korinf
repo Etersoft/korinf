@@ -50,14 +50,9 @@ build_package()
 	MAINFILESLIST=$MAINFILES
 	EXTRAFILESLIST=$EXTRAFILES
 
-	# FIXME: remove HELPER support when unneeded
 	# Use default value for simple backward compatibility
 	if [ -z "$MAINFILESLIST$EXTRAFILESLIST" ] ; then
-		if [ "$2" = "HELPER" ] ; then
-			EXTRAFILESLIST="${BUILDNAME}"
-		else
-			MAINFILESLIST="${BUILDNAME}"
-		fi
+		MAINFILESLIST="${BUILDNAME}"
 	fi
 
 	if [ -z "$QUIET" ] ; then
