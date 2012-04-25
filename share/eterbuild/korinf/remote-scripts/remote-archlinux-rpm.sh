@@ -30,7 +30,7 @@ make_pkgbuild()
         sed -i "2cpkgver=$PKGVERSION" $PKGDIR/PKGBUILD
         sed -i "3cpkgrel=$PKGREL" $PKGDIR/PKGBUILD
         sed -i "5curl=$PKGURL" $PKGDIR/PKGBUILD
-        sed -i "6carch=(i686)" $PKGDIR/PKGBUILD
+        sed -i "6carch=$ARCH" $PKGDIR/PKGBUILD
         sed -i "7clicense=('$LICENSE')" $PKGDIR/PKGBUILD
 # inserting dependencies
 #       sed -i "7adepends="  $BUILDERHOME/abs/$PACKAGE/PKGBUILD
@@ -53,7 +53,7 @@ do
     PKGREL=`querypackage "$i" RELEASE`
     PKGURL=`querypackage "$i" URL`
     # doesn't work if ARCH != i686
-    ARCH=i686 #`querypackage "$i" ARCH`
+    ARCH="i686" #`querypackage "$i" ARCH`
     LICENSE=`querypackage "$i" LICENSE`
 
 #    PKGDIR=$ABSDIR/$PACKAGENAME
