@@ -26,7 +26,7 @@ add_and_remove()
 {
 	local i=$2
 	[ -n "$i" ] || return
-	cd $1 || fatal "Can't cd"
+	cd $1 || { warning "Can't cd" ; return ; }
 	#ls -l
 	local LIST="$i-[0-9]*.*.rpm"
 	for i in $LIST ; do
@@ -67,47 +67,18 @@ wine_copy_to()
 
 }
 
-# FROM TARGET
-other_copy_to()
-{
-	ARCH=$1
-	shift
-	NARCH=
-	[ "$ARCH" = "i586" ] || NARCH=$ARCH
-	local TP="$2/$ARCH/RPMS.$COMPONENT"
-
-	FPU="/var/ftp/pub/Etersoft/RX@Etersoft/$UNIPVERSION/$NARCH/$1"
-	add_and_remove "$FPU" nx
-	add_and_remove "$FPU" nxclient
-	add_and_remove "$FPU" rx-etersoft
-
-	FPU="/var/ftp/pub/Etersoft/Postgre@Etersoft/$UNIPVERSION/$NARCH/$1"
-	for i in libpq5.2-9.0eter libpq5.2-9.0eter postgre-etersoft9.0 postgre-etersoft9.0 postgre-etersoft9.0-seltaaddon postgre-etersoft9.0-server; do
-		add_and_remove "$FPU" $i
-	done
-
-	set_binaryrepo $(basename $1)
-	ssh git.eter genbases -b $BINARYREPO
-}
-
-all_copy_to()
-{
-    wine_copy_to "$@"
-    other_copy_to "$@"
-}
-
 distro_path=/var/ftp/pub/Etersoft/LINUX@Etersoft
 
 arch=i586
 #copy_to "$arch" ALTLinux/4.1 $distro_path/4.1/branch
-all_copy_to "$arch" ALTLinux/p5 $distro_path/p5/branch
-all_copy_to "$arch" ALTLinux/Sisyphus $distro_path/Sisyphus
-all_copy_to "$arch" ALTLinux/p6 $distro_path/p6/branch
-all_copy_to "$arch" ALTLinux/p6 $distro_path/t6/branch
+wine_copy_to "$arch" ALTLinux/p5 $distro_path/p5/branch
+wine_copy_to "$arch" ALTLinux/Sisyphus $distro_path/Sisyphus
+wine_copy_to "$arch" ALTLinux/p6 $distro_path/p6/branch
+wine_copy_to "$arch" ALTLinux/p6 $distro_path/t6/branch
 
 arch=x86_64
-#copy_to "$arch" ALTLinux/4.1 $distro_path/4.1/branch
-other_copy_to "$arch" ALTLinux/p5 $distro_path/p5/branch
-other_copy_to "$arch" ALTLinux/Sisyphus $distro_path/Sisyphus
-other_copy_to "$arch" ALTLinux/p6 $distro_path/p6/branch
-other_copy_to "$arch" ALTLinux/p6 $distro_path/t6/branch
+##copy_to "$arch" ALTLinux/4.1 $distro_path/4.1/branch
+#other_copy_to "$arch" ALTLinux/p5 $distro_path/p5/branch
+#other_copy_to "$arch" ALTLinux/Sisyphus $distro_path/Sisyphus
+#other_copy_to "$arch" ALTLinux/p6 $distro_path/p6/branch
+#other_copy_to "$arch" ALTLinux/p6 $distro_path/t6/branch

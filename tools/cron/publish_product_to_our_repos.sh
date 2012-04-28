@@ -10,3 +10,6 @@ cd $(dirname $0)/.. || exit
 
 ./publish_wine_to_our_distro.sh
 
+./publish_other_to_our_distro.sh stable
+
+./publish_other_to_our_distro.sh testing
