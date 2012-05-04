@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# build Etersoft's products for new system
+
 # Args:
 # group (wine-group dir)
 # package (package name)
@@ -44,27 +46,27 @@ build_wine()
 ######## WINE@Etersoft ############
 
 #for BRANCH in 1.0.12 testing school school-testing unstable
-build wine fonts-ttf-liberation stable
-build wine fonts-ttf-ms stable
+build wine fonts-ttf-liberation $1
+build wine fonts-ttf-ms $1
 
 # build and install wine
-build wine wine-etersoft stable -b || return
-build wine wine-etersoft-all stable
+build wine wine-etersoft $1 $2 || return
+build wine wine-etersoft-all $1
 
 #build wine wine-etersoft-cad
 
 # build hasp without target
-build hasp haspd stable
+build hasp haspd $1
 # TODO: only for dkms target
 # build hasp dkms-aksparlnx
 
 # build cifs without target
-build cifs etercifs stable
+build cifs etercifs $1
 # TODO: only for dkms target
 #build cifs dkms-etercifs stable
 }
 if [ -z "$PART" ] || [ "$PART" = "wine" ] ; then
-    build_wine
+    build_wine 2.0-testing -b
 fi
 
 
@@ -87,7 +89,7 @@ build_pg()
 {
 ########## Postgre@Etersoft ############
 
-build postgres icu38 stable -b
+#build postgres icu38 stable -b
 build postgres postgre-etersoft9.0 stable
 }
 if [ -z "$PART" ] || [ "$PART" = "pg" ] ; then
