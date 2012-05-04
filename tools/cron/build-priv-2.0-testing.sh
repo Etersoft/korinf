@@ -12,7 +12,7 @@ REPO=git.office:/projects/wine/wine-etersoft.git
 REPOALIAS=origin
 WORKBRANCH=eter-2.0.0
 WORKTARGET=2.0-testing
-SUBSPEC="local sql network"
+SUBSPEC="local sql network cad"
 
 jump_to_repo
 
@@ -42,10 +42,15 @@ git commit -a -m "auto build with $(basename $0) script"
 for sp in $SUBSPEC ; do
 	SPECNAME=wine-etersoft-$sp.spec
 	# публикуем на сборку
+	# Hack for cad
+	#if [ $sp = "cad" ] ; then
+	#	rpmpub -r cad $SPECNAME
+	#else
 	rpmpub -r $WORKTARGET $SPECNAME
+	#fi
 done
 
-# push , but reset is failed
+# push, but reset is failed
 # will works only if REPOALIAS is origin :)
 gpush -t $REPOALIAS $WORKBRANCH || git reset --hard $CURTAG
 
