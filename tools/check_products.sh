@@ -30,16 +30,18 @@ grep_script()
 {
 	#FIXME: Highlight this with another color
 	echo "Checking $1 for $2"
-# запускаем сборочные скрипты с параметром -c, выводим строки, содержащие сообщения об устаревших или пропущенных сборках
-	$PATHTOSCRIPT/$1.sh $CHECKONLY $2 $3 | grep -e OBS -e MISSED | grep -v Legend | grep -v link | grep -v error || echo "Everything is built"
+	if [ "$CHECKONLY" = "-c" ] ; then
+		# запускаем сборочные скрипты с параметром -c, выводим строки, содержащие сообщения об устаревших или пропущенных сборках
+		$PATHTOSCRIPT/$1.sh $CHECKONLY $2 $3 | grep -e OBS -e MISSED | grep -v Legend | grep -v link | grep -v error || echo "Everything is built"
+	else
+		$PATHTOSCRIPT/$1.sh $CHECKONLY $2 $3
+	fi
 }
 
-
-if [ "$1" = "-b" ] ; then
-	CHECKONLY=
+CHECKONLY=-c
+if [ "$1" = "-b" ] || [ "$1" = "-f" ] || [ "$1" = "-F" ] ; then
+	CHECKONLY="$1"
 	shift
-else
-	CHECKONLY="-c"
 fi
 
 #start script
