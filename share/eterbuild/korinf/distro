@@ -84,7 +84,6 @@ case $dist_name in
 	TARGETPKGDISTRO="generic"
 
 	# used in convert_rpm_to_target
-	BUILDROOT=/var/empty
 	BUILDERHOME=~/tmp/korinfer
 	mkdir -p $BUILDERHOME
 
@@ -107,7 +106,6 @@ case $dist_name in
 
 	# FIXME: rewrite build rules
 	# used in convert_rpm_to_target
-	BUILDROOT=/var/empty
 	BUILDERHOME=/var/empty
 
 	logit "build in Solaris $dist_ver" build_solaris || return 1

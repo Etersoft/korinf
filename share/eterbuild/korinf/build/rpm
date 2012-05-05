@@ -44,16 +44,18 @@ make_depends_list()
 convert_rpm_to_target()
 {
 	local dist=$1
+	local ROOTDIR=$BUILDROOT
+	[ -n "$ROOTDIR" ] || ROOTDIR="/var/empty"
 
 	# FIXME: when build to remote dist, we need generic src.rpm
 	echo "Convert '$BUILDSRPM' for $dist distro"
 	rm -f $BUILDERHOME/tmp/$BUILDNAME*
 	if [ -n "$MAKESPKG" ] ; then
-		ROOTDIR=$BUILDROOT DEFAULTARCH=$BUILDARCH $RPMBPH -v -n -z $BUILDSRPM
+		ROOTDIR=$ROOTDIR DEFAULTARCH=$BUILDARCH $RPMBPH -v -n -z $BUILDSRPM
 		BUILTRPM=~/$RPMSDIR
 		return 0
 	else
-		ROOTDIR=$BUILDROOT DEFAULTARCH=$BUILDARCH ETERDESTSRPM=$BUILDERHOME/tmp $RPMBPH -v -n $BUILDSRPM
+		ROOTDIR=$ROOTDIR DEFAULTARCH=$BUILDARCH ETERDESTSRPM=$BUILDERHOME/tmp $RPMBPH -v -n $BUILDSRPM
 		BUILTRPM=$BUILDERHOME/$RPMSDIR
 	fi
 

@@ -83,7 +83,7 @@ end_umount()
 		[ -z "$ADEBUG" ] || echo "Skip umount due empty BUILDROOT"
 		return 1
 	fi
-	echo "Unmounting and cleaning..."
+	echo "Unmounting and cleaning $BUILDROOT..."
 	for i in /proc/bus/usb /proc/sys/fs/binfmt_misc /proc /home/$INTUSER /dev/shm / ; do
 		u=$BUILDROOT$i
 		if [ -d $u ] && mount | grep $i >/dev/null ; then
