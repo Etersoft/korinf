@@ -64,6 +64,11 @@ build_dist_pkg()
 {
 case $dist_name in
 "Windows")
+	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
+		logit "install requires" SKIPPED
+		return 0
+	fi
+
 	kormod build/windows
 
 	TARGET="exe"
@@ -77,6 +82,11 @@ case $dist_name in
 	;;
 
 "FreeBSD")
+	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
+		logit "install requires" SKIPPED
+		return 0
+	fi
+
 	kormod build/freebsd
 	kormod build/rpm
 
@@ -99,6 +109,11 @@ case $dist_name in
 	;;
 
 "OpenSolaris")
+	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
+		logit "install requires" SKIPPED
+		return 0
+	fi
+
 	kormod build/solaris
 
 	TARGET="pkg.gz"
