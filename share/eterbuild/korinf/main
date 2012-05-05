@@ -120,7 +120,7 @@ for dist in $CMDRE ; do
 	DESTURL=$(echo $DESTDIR | sed -e "s|$FTPDIR/|$PUBLICURL/|g")
 
 	# skip linked destination (TODO: do not handle it at all)
-	[ -L "$DESTDIR" ] && warning "$dist: Does not support linked target, translate it in etc/linked" && continue
+	[ -L "$DESTDIR" ] && warning "$dist: Does not support linked target ($DESTDIR), translate it in etc/linked or remove link" && continue
 
 #	[ "$dist" = "Windows" ] && echo "Skip $dist: is not supported yet" && continue
 
