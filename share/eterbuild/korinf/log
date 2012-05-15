@@ -129,7 +129,7 @@ write_report()
 PREVSYSTEMLOGIT=
 logit()
 {
-	local RET STRMSG SYSNOW
+	local RET STRMSG SYSNOW logtimestamp
 	if [ "$PREVSYSTEMLOGIT" = "$dist" ] ; then
 		SYSNOW=`print_spaces_instead_string "$dist"`
 	else
@@ -141,16 +141,16 @@ logit()
 	# print one line if scripted night build
 	[ -z "$NIGHTBUILD" ] && echo -n "$STRMSG"
 	shift
-	TIMESTAMP=`date "+%s"`
+	logtimestamp=`date "+%s"`
 	if [ ! "$1" = "SKIPPED" ] && [ -n "$LOGFILE" ] ; then
 		$* >>$LOGFILE 2>&1
 	fi
 	RET=$?
-	TIMESTAMP=$(( `date "+%s"` - $TIMESTAMP))
+	logtimestamp=$(( `date "+%s"` - $logtimestamp))
 	[ -z "$NIGHTBUILD" ] && STRMSG=""
 
 	echo -n "$STRMSG"
-	[ $TIMESTAMP = "0" ] || echo -n "($TIMESTAMP secs) "
+	[ $logtimestamp = "0" ] || echo -n "($logtimestamp secs) "
 	if [ "$1" = "SKIPPED" ] ; then
 		skipped
 	else
