@@ -55,10 +55,11 @@ clean_copying_destination()
 make_alt_depends_list()
 {
     [ -n "$1" ] || return
-    echo "Creating dependencies list for `basename $1`"
+    echo "Dependencies list for `basename $1`:"
     #local depfname=$(rpm -qp --queryformat "%{NAME}" $1)
     #rpm -qpR $1 | clean_pkgreq > $DESTDIR/log/$(get_pkgname_from_filename $(basename $1)).rpm.depends
-    trans_rpmdeps_to_pkgname $1 > $DESTDIR/log/$(get_pkgname_from_filename $(basename $1)).rpm.depends
+    trans_rpmdeps_to_pkgname $1 | tee $DESTDIR/log/$(get_pkgname_from_filename $(basename $1)).rpm.depends
+    echo
 }
 
 # Obsoleted due rpm-dir (since p5?) - but rpm-dir only work locally
