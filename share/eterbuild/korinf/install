@@ -95,7 +95,7 @@ filter_out_installed_packages()
 # install required packages for build
 install_req()
 {
-	local LISTPKG CMD LOGFAILFILE DISTRVENDOR dist=$1
+	local LISTPKG CMD LOGFAILFILE DISTROVENDOR dist=$1
 	load_mod repl rpm
 
 	convert_rpm_to_target $dist
@@ -107,8 +107,8 @@ install_req()
 	# FIXME: remove already installed packages (f.i. if installed package does not exists in repo, install failed on Mandriva)
 	LISTPKG=$(rpmquery --requires -p "$TARGETSRPM" | clean_pkgreq | filter_out_installed_packages)
 	LISTPKG=$(strip_spaces $LISTPKG)
-	DISTRVENDOR=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -d`
-	CMD=$(get_install_package_command $DISTRVENDOR)
+	DISTROVENDOR=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -d`
+	CMD=$(get_install_package_command $DISTROVENDOR)
 	echo "Install build required packages $LISTPKG with '$CMD' command"
 
 	if [ -z "$LISTPKG" ] ; then
