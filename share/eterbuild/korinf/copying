@@ -51,6 +51,16 @@ clean_copying_destination()
 
 }
 
+# Create dependence file for ALT Linux Sisyphus package
+make_alt_depends_list()
+{
+    [ -n "$1" ] || return
+    echo "Creating dependencies list for `basename $1`"
+    #local depfname=$(rpm -qp --queryformat "%{NAME}" $1)
+    #rpm -qpR $1 | clean_pkgreq > $DESTDIR/log/$(get_pkgname_from_filename $(basename $1)).rpm.depends
+    trans_rpmdeps_to_pkgname $1 > $DESTDIR/log/$(get_pkgname_from_filename $(basename $1)).rpm.depends
+}
+
 # Obsoleted due rpm-dir (since p5?) - but rpm-dir only work locally
 gen_base_apt_rpm()
 {
@@ -134,7 +144,7 @@ copying_packages()
 		for i in $EXPMAINFILES ; do
 			if [ -e $i ] ; then
 				if [ "$dist" = "ALTLinux/Sisyphus" ];then
-				    logit "Creating depends " make_depends_list "$i" || return 1
+				    logit "Creating depends file " make_alt_depends_list "$i" || return 1
 				fi
 				cp -v $i $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
 			else

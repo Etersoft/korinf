@@ -36,11 +36,6 @@ check_alien()
     fi
 }
 
-make_depends_list()
-{
-    [ -n "$1" ] && { echo "Creating dependencies list for `basename $1`"; rpm -qpR $1 > $DESTDIR/log/`basename $1`.depends; }
-}
-
 convert_rpm_to_target()
 {
 	local dist=$1
@@ -141,11 +136,31 @@ build_rpms()
 
 run_alien()
 {
-	check_alien
 	local VERBCOMMAND=
 	[ -n $ADEBUG ] && VERBCOMMAND="--veryverbose"
 	BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version $VERBCOMMAND $@ || return
 	# don't remove original due using rpm after converting (f.i. for Gentoo)
+}
+
+# Converts ALT Linux Sisyphus dependencies to TARGET notation
+# needs TARGETPATH, DISTRVERSION, DEFAULTARCH, VENDOR, TARGET
+convert_deplist()
+{
+	local depf
+	#depf=$(rpm -qp --queryformat "%{NAME}" $1)
+	depf=$(get_pkgname_from_filename $(basename $1))
+	local depfile=$TARGETPATH/ALTLinux/Sisyphus/log/$depf.rpm.depends
+	if [ ! -s $depfile ]; then
+		warning "Cannot locate '$depfile' file"
+		return 1
+	fi
+	alert "Prepare dependencies list"
+	listdep=`cat $depfile | sort -u`
+	# needs DISTRVERSION, DEFAULTARCH, VENDOR, TARGET
+	repl_list=`VENDOR=$DISTRVENDOR DEFAULTARCH=$BUILDARCH DISTRVERSION=$dist_ver print_pkgrepl_list`
+	for j in $listdep; do
+		tolocal_anyrepl ${j} ${repl_list} && echo "$TARGETPKGNAME" || echo $j
+	done | sort -u
 }
 
 convert_by_target()
@@ -159,18 +174,17 @@ convert_by_target()
 	if [ -n "$PACKAGESLIST" ] ; then
 		for i in $PACKAGESLIST ; do
 			if [ -e $i ] ; then
-				depf=$(echo `basename $i` | cut -d. -f1 )
-				if [ "$TARGET" = "deb" -a -s $DESTDIR/../../ALTLinux/Sisyphus/log/${depf}*.depends ]; then
-					alert "Prepare dependencies list"
-					listdep=`cat $DESTDIR/../../ALTLinux/Sisyphus/log/${depf}*.depends | sort -u`
-					touch $DESTDIR/log/${depf}.deb.depends
-					repl_list=`print_pkgrepl_list`
-					for j in $listdep; do
-						tolocal_anyrepl ${j} ${repl_list} || continue
-						[ -n "$TARGETPKGNAME" ] && alert "TARGETPKGNAME not set"
-						[ "$TARGETPKGNAME" == "" ] ||  echo "$TARGETPKGNAME" > $DESTDIR/log/${depf}.deb.depends
-					done
-					[ -s $DESTDIR/log/${depf}.deb.depends ] && { DEPPARAM="--depends $DESTDIR/log/${depf}.deb.depends"; alert "Call alien with ${DEPPARAM}"; }
+				local depf=$(get_pkgname_from_filename $i)
+				# FIXME: write separate convert_by_target
+				if [ "$TARGET" = "deb" ] ; then
+				if convert_deplist $i > $DESTDIR/log/$depf.deb.depends ; then
+					if check_alien ; then
+						DEPPARAM="--depends $DESTDIR/log/${depf}.deb.depends"
+						alert "Call alien with ${DEPPARAM}";
+					fi
+				else
+					rm -f $DESTDIR/log/$depf.deb.depends
+				fi
 				fi
 				run_alien --scripts --to-$TARGET ${DEPPARAM} $i || { warning "alien problem with $TARGET"; RES=1 ; return $RES ; }
 			else
@@ -178,7 +192,7 @@ convert_by_target()
 			fi
 		done
 	else
-		fatal "No packages to pass to alien"
+		fatal "Empty packages list for alien"
 	fi
 
 	# Hack for tgz packages
