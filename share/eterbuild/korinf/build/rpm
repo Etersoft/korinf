@@ -143,7 +143,7 @@ run_alien()
 }
 
 # Converts ALT Linux Sisyphus dependencies to TARGET notation
-# needs TARGETPATH, DISTRVERSION, DEFAULTARCH, VENDOR, TARGET
+# needs TARGETPATH, distr_ver, BUILDARCH, TARGET
 convert_deplist()
 {
 	local depf
@@ -154,10 +154,12 @@ convert_deplist()
 		warning "Cannot locate '$depfile' file"
 		return 1
 	fi
-	alert "Prepare dependencies list"
 	listdep=`cat $depfile | sort -u`
+	local vendor=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -s`
 	# needs DISTRVERSION, DEFAULTARCH, VENDOR, TARGET
-	repl_list=`VENDOR=$DISTRVENDOR DEFAULTARCH=$BUILDARCH DISTRVERSION=$dist_ver print_pkgrepl_list`
+	# Example: 12.10 i586 ubuntu deb
+	repl_list=`VENDOR=$vendor DEFAULTARCH=$BUILDARCH DISTRVERSION=$dist_ver print_pkgrepl_list`
+	alert "Used replacement file order: $repl_list"
 	for j in $listdep; do
 		tolocal_anyrepl ${j} ${repl_list} && echo "$TARGETPKGNAME" || echo $j
 	done | sort -u
@@ -177,7 +179,7 @@ convert_by_target()
 				local depf=$(get_pkgname_from_filename $i)
 				# FIXME: write separate convert_by_target
 				if [ "$TARGET" = "deb" ] ; then
-				if convert_deplist $i > $DESTDIR/log/$depf.deb.depends ; then
+				if convert_deplist $i | tee $DESTDIR/log/$depf.deb.depends ; then
 					if check_alien ; then
 						DEPPARAM="--depends $DESTDIR/log/${depf}.deb.depends"
 						alert "Call alien with ${DEPPARAM}";
