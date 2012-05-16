@@ -1,5 +1,6 @@
 # Список тестируемых в первую очередь систем
-x86_64/Ubuntu/11.10
+Ubuntu/12.04
 ALTLinux/Sisyphus
-Ubuntu/10.04
+x86_64/Ubuntu/10.04
 ALTLinux/p6
+CentOS/6
