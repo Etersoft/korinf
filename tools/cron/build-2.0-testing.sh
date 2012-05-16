@@ -11,7 +11,7 @@ WORKBRANCH=eter-2.0.0
 WORKTARGET=2.0-testing
 
 jump_to_repo
-pull_and_log
+pull_and_log -r
 pub_and_push
 
 korinf_wine test $WORKTARGET

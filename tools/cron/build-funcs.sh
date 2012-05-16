@@ -65,7 +65,7 @@ pull_changes()
 step_version()
 {
 	# сформировать лог, обновить spec с пред. момента до обновления
-	rpmlog -s -l $CURTAG
+	rpmlog $1 -l $CURTAG
 
 	# обновляем VERSION и объединяем с предыдущим коммитом
 	update_wine_version
@@ -75,7 +75,7 @@ pull_and_log()
 {
 	pull_changes || return
 	# CURTAG defined in pull_changes
-	step_version
+	step_version $@
 }
 
 pub_and_push()

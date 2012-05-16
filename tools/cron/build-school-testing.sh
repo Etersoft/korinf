@@ -11,7 +11,7 @@ WORKBRANCH=eter-1.7.0
 WORKTARGET=school-testing
 
 jump_to_repo
-pull_and_log
+pull_and_log -s
 pub_and_push
 
 korinf_wine test $WORKTARGET

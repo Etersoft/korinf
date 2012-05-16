@@ -11,7 +11,7 @@ WORKBRANCH=eterhack
 WORKTARGET=unstable
 
 jump_to_repo
-pull_and_log
+pull_and_log -r
 pub_and_push
 
 korinf_wine test $WORKTARGET
