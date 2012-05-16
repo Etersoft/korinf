@@ -7,7 +7,7 @@
 
 . $(dirname $0)/build-funcs.sh
 
-TEMPREPODIR=/srv/$USER/Projects/wine-priv
+TEMPREPODIR=/srv/$USER/Projects/autobuild/wine-priv
 REPO=git.office:/projects/wine/wine-etersoft.git
 REPOALIAS=origin
 WORKBRANCH=eter-2.0.0
