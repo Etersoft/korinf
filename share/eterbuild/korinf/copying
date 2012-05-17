@@ -144,7 +144,7 @@ copying_packages()
 		echo "Copying built packages to $DESTDIR..."
 		for i in $EXPMAINFILES ; do
 			if [ -e $i ] ; then
-				if [ "$dist" = "ALTLinux/Sisyphus" ];then
+				if [ "$dist" = "ALTLinux/Sisyphus" ]; then
 				    logit "Creating depends file " make_alt_depends_list "$i" || return 1
 				fi
 				cp -v $i $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
@@ -160,6 +160,9 @@ copying_packages()
 		echo "Copying built packages to $DESTDIR/extra..."
 		for i in $EXPEXTRAFILES ; do
 			if [ -e $i ] ; then
+				if [ "$dist" = "ALTLinux/Sisyphus" ]; then
+				    logit "Creating depends file " make_alt_depends_list "$i" || return 1
+				fi
 				cp -v $i $DESTDIR/extra/ || { RC=1 ; warning "Cannot copy extra packages $EXPEXTRAFILES" ; }
 			else
 				warning "Cannot copy extra package $i"
