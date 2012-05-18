@@ -24,11 +24,17 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+# hack
+cd ..
+
 # load common functions, compatible with local and installed script
-#. `dirname $0`/../../share/eterbuild/korinf/common
-. /usr/share/eterbuild/korinf/common
+. `dirname $0`/../share/eterbuild/korinf/common
+#. /usr/share/eterbuild/korinf/common
 
 kormod list
+
+# hack
+cd run-script
 
 SUDO="sudo"
 if [ "$UID" = "0" ]; then
@@ -65,7 +71,7 @@ echo "==================================="
 echo "Chrooting in $SYS system with $BUILDARCH arch"
 
 if [ "$SYSARCH" != "$BUILDARCH" ] ; then
-    echo "Please login to $BUILDARCH arch from a machine with the same arch (you TRY from $SYSARCH)"
+    echo "Please login to $BUILDARCH arch from a machine with the same arch (you were try from $SYSARCH)"
     exit 1
 fi
 

@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# get owner package for file
+
+echo "Run $0 $1 script on `distr_vendor`"
+DISTRVENDOR=`/usr/bin/distr_vendor -d`
+
+[ -n "$1" ] || { echo "Error: Run with dir as param" ; exit 1 ; }
+
+[ "$DISTVENDOR" = "ALTLinux" ] && exit 1
+
+cd /tmp
+
+case $DISTRVENDOR in
+	"ALTLinux"|"PCLinux")
+		CMD="apt-get --simulate install"
+		;;
+	"Ubuntu"|"Debian")
+		CMD="apt-get --simulate install"
+		;;
+	"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific")
+		CMD="yum provides"
+		;;
+#	"Mandriva")
+#		CMD=""
+#		;;
+#	"SUSE")
+#		CMD=""
+#		;;
+	*)
+		RET=1
+		CMD="echo \"Do not known install command for DISTRVENDOR $DISTRVENDOR\""
+		;;
+esac
+
+$CMD $1 && echo "All is OK" || echo "Error"
