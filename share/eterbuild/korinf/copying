@@ -92,6 +92,32 @@ mark_build_done()
 	true
 }
 
+# used $dist
+copying_packages_by_list()
+{
+	local i
+	local destdir="$1"
+	local fileslist="$2"
+	local expfiles="$3"
+	[ -n "$fileslist" ] || return
+
+	mkdir_dest $destdir/
+	echo "Copying built packages $expfiles to $destdir..."
+	for i in $expfiles ; do
+		if [ ! -e $i ] ; then
+			warning "Cannot find package $i, skip copy"
+			continue
+		fi
+
+		if [ "$dist" = "ALTLinux/Sisyphus" ]; then
+		    make_alt_depends_list "$i" || warning "Some depends error with $i"
+		fi
+
+		cp -v $i $destdir/ || { warning "Cannot copy new packages $expfiles" ; return 1; }
+	done
+	make_md5sum $destdir/
+}
+
 copying_sources()
 {
 	# We need generated src.rpm in any case (only on the private ftp)
@@ -139,37 +165,8 @@ copying_packages()
 		rm -f *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-*
 	fi
 
-	if [ -n "$MAINFILESLIST" ] ; then
-		mkdir_dest $DESTDIR/
-		echo "Copying built packages to $DESTDIR..."
-		for i in $EXPMAINFILES ; do
-			if [ -e $i ] ; then
-				if [ "$dist" = "ALTLinux/Sisyphus" ]; then
-				    logit "Creating depends file " make_alt_depends_list "$i" || return 1
-				fi
-				cp -v $i $DESTDIR/ || { RC=1 ; warning "Cannot copy new packages $EXPMAINFILES" ; }
-			else
-				warning "Cannot copy new package $i"
-			fi
-		done
-		make_md5sum $DESTDIR/
-	fi
-
-	if [ -n "$EXTRAFILESLIST" ] ; then
-		mkdir_dest $DESTDIR/extra
-		echo "Copying built packages to $DESTDIR/extra..."
-		for i in $EXPEXTRAFILES ; do
-			if [ -e $i ] ; then
-				if [ "$dist" = "ALTLinux/Sisyphus" ]; then
-				    logit "Creating depends file " make_alt_depends_list "$i" || return 1
-				fi
-				cp -v $i $DESTDIR/extra/ || { RC=1 ; warning "Cannot copy extra packages $EXPEXTRAFILES" ; }
-			else
-				warning "Cannot copy extra package $i"
-			fi
-		done
-		make_md5sum $DESTDIR/extra/
-	fi
+	copying_packages_by_list "$DESTDIR" "$MAINFILESLIST" "$EXPMAINFILES" || RC=1
+	copying_packages_by_list "$DESTDIR/extra" "$EXTRAMAINFILESLIST" "$EXPEXTRAMAINFILES" || RC=1
 
 	# Return OK if one of files is exists
 	for i in $EXPMAINFILES $EXPEXTRAFILES ; do
