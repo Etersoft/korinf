@@ -157,6 +157,9 @@ copying_packages()
 		for i in *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-* ; do
 			if [ -e $i ] ; then
 				mkdir_dest $DESTDIR/extra/
+				# FIXME: already done when copying, but not for extra
+				rm -f $DESTDIR/extra/*${BUILDNAME}-*debuginfo*
+				rm -f $DESTDIR/extra/*${BUILDNAME}-*debug-*
 				mv -f $i $DESTDIR/extra/ || warning "Cannot move debug package $i to extra"
 			fi
 		done
