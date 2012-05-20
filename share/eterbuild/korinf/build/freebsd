@@ -63,7 +63,7 @@ copying_bsd()
 {
 	clean_copying_destination
 
-	scp $FREEBSDKEY $FREEBSDSSH:$BSDPREF/var/tmp/korinfer/work-$PACKAGE/$TARGETPKG $DESTDIR || { warning "Cannot copy $PACKAGE" ; return 1 ; }
+	scp $FREEBSDKEY $FREEBSDSSH:$BSDPREF/var/tmp/korinfer/work-$PACKAGE/$TARGETPKG.$PKGFORMAT $DESTDIR || { warning "Cannot copy $PACKAGE" ; return 1 ; }
 	mark_build_done
 }
 
@@ -75,5 +75,5 @@ cleaning_bsd()
 
 install_bsd()
 {
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $BSDPREF /$FREEBSDPATH/remote-freebsd.sh install $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$FREEBSDPATH/$(basename $TARGETSRPM) $TARGETPKG" || { warning "Can't install" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $BSDPREF /$FREEBSDPATH/remote-freebsd.sh install $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$FREEBSDPATH/$(basename $TARGETSRPM) $TARGETPKG.$PKGFORMAT" || { warning "Can't install" ; return 1 ; }
 }
