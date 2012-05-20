@@ -27,11 +27,6 @@ check_built_package()
 	local BUILDNAME=$1
 	local NAME FILEDATE FILESIZE BASENAME FILENAME
 
-	if [ ! -d "$TARGETPATH" ] ; then
-		echo "Path TARGETPATH:'$TARGETPATH' is missed"
-		return 1
-	fi
-
 	for i in $(get_distro_list $REBUILDLIST) ; do
 
 		NAME=$i

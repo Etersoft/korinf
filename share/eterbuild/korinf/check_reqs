@@ -21,6 +21,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+kormod filelist
 load_mod rpm
 
 try_install_by_list()
@@ -74,17 +75,12 @@ check_package_requires()
 	local BUILDNAME=$1
 	local reqs
 
-	if [ ! -d "$TARGETPATH" ] ; then
-		echo "Path TARGETPATH:'$TARGETPATH' is missed"
-		return 1
-	fi
-
-	test -L "$TARGETPATH/$dist" && continue
-
 	echo "Note: we do not use info from built packages, only check if file is exists"
 
 	for dist in $(get_distro_list $REBUILDLIST) ; do
 		# fills $BUILDARCH, $DISTRNAME, $DISTRVERSION
+		test -L "$TARGETPATH/$dist" && continue
+
 		parse_dist_name $dist
 		[ -z "$DISTRNAME" ] && fatal "Empty DISTRNAME for $dist"
 
