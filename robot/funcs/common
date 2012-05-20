@@ -29,6 +29,8 @@
 # FIXME: если в имени запятая, разделяет на два адреса
 #
 
+kormod status
+
 exit_now()
 {
 	[ -n "$1" ] && exit $1 || exit 0
@@ -95,17 +97,21 @@ check_dist()
 check_package()
 {
 	local NAME=$2
-	local TARGETPATH=$1
 	local FILENAME
 
-	FILENAME=$(get_bin_package "$TARGETPATH" $NAME)
+	DESTDIR=$1
+
+	FILENAME=$(get_bin_package "$DESTDIR" $NAME)
+
 	if [ ! -r "$FILENAME" ] ; then
-		fatal "Package $NAME is missed in $TARGETPATH"
+		fatal "Package $NAME is missed in $DESTDIR"
 	fi
-	if [ -r "$TARGETPATH/log/$NAME.autobuild.failed" ] ; then
+
+	if is_autobuild_failed ; then
 		fatal "Note! autobuild.failed for $NAME is present"
 	fi
-	if [ -r "$TARGETPATH/log/$NAME.build.failed" ] ; then
+
+	if is_build_failed ; then
 		fatal "Note! build.failed for $NAME is present"
 	fi
 }
