@@ -3,14 +3,16 @@
 echo "Run update script on `distr_vendor`"
 DISTRNAME=`/usr/bin/distr_vendor -d`
 
-[ "$DISTRNAME" = "ALTLinux" ] && exit 1
-
 cd /tmp
 
 case $DISTRNAME in
-	"ALTLinux"|"Ubuntu"|"Debian"|"PCLinux")
-		CMDU="apt-get update"
-		CMDF="apt-get -f install"
+	"ALTLinux")
+		exit 0
+		;;
+	"Ubuntu"|"Debian"|"PCLinux")
+		apt-get update || exit
+		apt-get -f install || exit
+		apt-get autoremove
 		;;
 # skip, will do it automagically
 #	"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific")
@@ -26,9 +28,7 @@ case $DISTRNAME in
 #		;;
 	*)
 		RET=1
-		CMDU="echo \"Do not known install command for DISTRNAME $DISTRNAME\""
-		CMDF="false"
+		echo \"Do not known install command for DISTRNAME $DISTRNAME\"
+		exit 1
 		;;
 esac
-
-$CMDU && $CMDF
