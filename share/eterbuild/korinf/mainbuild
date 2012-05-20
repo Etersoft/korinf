@@ -26,11 +26,14 @@ kormod distro check_built
 
 mainbuild()
 {
-RES=0
+local BUILTLOGFILE=$ALOGDIR/distrobuilt.log
+local RES=0
+rm -f $BUILTLOGFILE
 for dist in $(get_distro_list $REBUILDLIST) ; do
 
 	# FIXME: add i586 support
 	#dist is x86_64/Name/Version or Name/Version
+	echo $dist >>$BUILTLOGFILE
 
 	# fill after hasher
 	BUILTBINPKGLIST=
@@ -64,7 +67,8 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 		dist=$LINKED
 		# Set target dir for built packages
 		DESTDIR=$TARGETPATH/$dist
-		#continue
+		# if already built
+		grep -q $dist $BUILTLOGFILE && continue
 	fi
 
 	# Set target URL for get tarballs or checking
