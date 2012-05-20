@@ -40,9 +40,12 @@ esac
 
 echo "Run $CMD..."
 $CMD $1
+RES=$?
 
 if [ -n "$MASK" ] ; then
 	echo "Find $MASK..."
 	find /var -name "$MASK" | grep -v "eter" | xargs rm -vf
 	find /root -name "$MASK" | grep -v "eter" | xargs rm -vf
 fi
+
+exit $RES

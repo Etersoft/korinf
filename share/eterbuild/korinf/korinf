@@ -27,7 +27,7 @@
 #  build_package your-package-name
 
 
-kormod message main check_built
+kormod message main
 
 
 # build binary packages according to REBUILDLIST
@@ -66,7 +66,14 @@ build_package()
 	fi
 
 	if [ -n "$CHECKPACKAGE" ] ; then
+		kormod check_built
 		check_built_package "$BUILDNAME"
+		return $?
+	fi
+
+	if [ -n "$CHECKREQUIRES" ] ; then
+		kormod check_reqs
+		check_package_requires "$BUILDNAME"
 		return $?
 	fi
 
@@ -90,6 +97,8 @@ print_build_project_options()
 	echo "	-f - force rebuild only failed packages"
 	echo "	-F - force rebuild all packages even if it up-to-date"
 	echo "	-i - install packages required for build package"
+	echo "	-r - check install requires"
+	echo "	-R - check install requires with full output"
 }
 
 # args: 1) path to project dir (where versions) 2) package name [3) target subdir ] [ 4) other project version ]
@@ -145,6 +154,12 @@ build_project()
 	if [ "$1" = "-i" ] ; then
 		echo "Run install required package procedure"
 		INSTALLREQUIREDPACKAGE=1
+		shift
+	fi
+
+	if [ "$1" = "-r" ] || [ "$1" = "-R" ] ; then
+		CHECKREQUIRES="$1"
+		echo "Run check package requirements status"
 		shift
 	fi
 

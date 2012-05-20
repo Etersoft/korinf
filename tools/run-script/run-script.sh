@@ -65,9 +65,9 @@ else
     BUILDARCH="i586"
 fi
 
-echo
-echo
-echo "==================================="
+#echo
+#echo
+#echo "==================================="
 echo "Chrooting in $SYS system with $BUILDARCH arch"
 
 if [ "$SYSARCH" != "$BUILDARCH" ] ; then
@@ -85,7 +85,8 @@ $SUDO chroot $TESTDIR su -c "mount -t devpts none /dev/pts"
 $SUDO chroot $TESTDIR su -c "rm -f /tmp/remote-script.sh"
 
 cp -af scripts/$TASK $LOCALLINUXFARM/$SYS/tmp/remote-script.sh && setarch $BUILDARCH $SUDO chroot $TESTDIR sh $COMMANDTO
-
+local RES=$?
+[ "$RES" = "0" ] && echo "All is OK" || echo "Failed"
 #$SUDO umount $TESTDIR/home/$INTUSER && echo "Unmount home"
 #$SUDO umount $TESTDIR/usr/local $TESTDIR/srv/wine  && echo "Unmount swine"
 $SUDO chroot $TESTDIR su -c "umount /dev/pts"
@@ -93,6 +94,7 @@ $SUDO chroot $TESTDIR su -c "umount /proc"
 $SUDO umount $TESTDIR && echo "Unmount $SYS"
 # -f not supported
 rmdir $TESTDIR
+return $RES
 }
 
 REBUILDLIST=$1
@@ -111,5 +113,7 @@ for SYS in $CMDRE ; do
     [ -L "$LOCALLINUXFARM/$SYS" ] && continue
 
     chroot_in /tmp/remote-script.sh "$@"
+    RES=$?
 done
 
+exit $RES

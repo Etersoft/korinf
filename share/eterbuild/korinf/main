@@ -22,7 +22,7 @@
 ##
 
 kormod mount copying install log
-kormod distro
+kormod distro check_built
 
 
 exit_handler()

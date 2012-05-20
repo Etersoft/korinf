@@ -1,0 +1,80 @@
+#!/bin/sh
+##
+#  Korinf project
+#
+#  Check for package requires is present in distro
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2012
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2012
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+load_mod rpm
+
+try_install_by_list()
+{
+	local dist=$1
+	shift
+	cd ../tools/run-script
+	./run-script.sh $dist checkreqs "$@"
+	local RES=$?
+	cd -
+	return $RES
+}
+
+# check package existing by REBUILDLIST
+# used: TARGETPATH REBUILDLIST
+check_package_requires()
+{
+	local BUILDNAME=$1
+
+	if [ ! -d "$TARGETPATH" ] ; then
+		echo "Path TARGETPATH:'$TARGETPATH' is missed"
+		return 1
+	fi
+
+	test -L "$TARGETPATH/$i" && continue
+
+	#SRCPKG=$(get_src_package "$SOURCEPATH" $BUILDNAME)
+	#[ -n "$QUIET" ] || echo "Source package: $SRCPKG"
+
+	for dist in $(get_distro_list $REBUILDLIST) ; do
+		# fills $BUILDARCH, $DISTRNAME, $DISTRVERSION
+		parse_dist_name $dist
+		[ -z "$DISTRNAME" ] && fatal "Empty DISTRNAME for $dist"
+
+		# fills $PKGFORMAT, $PKGVENDOR, $RPMVENDOR
+		set_target_var
+		echo
+		[ "$CHECKREQUIRES" = "-R" ] && echo "====================="
+		printf "%-20s\n" "$BUILDARCH/$DISTRNAME/$DISTRVERSION"
+		for j in $TARGETPATH/$dist/*.$PKGFORMAT $TARGETPATH/$dist/extra/*.$PKGFORMAT ; do
+			[ -r "$j" ] || continue
+			pkgname=$(get_pkgname_from_filename $j)
+			reqs=$(get_target_deplist $pkgname)
+			if [ "$CHECKREQUIRES" = "-R" ] ; then
+				printf "* %s: %s" "$(basename $j)" "$(echo $reqs)"
+				[ -z "$reqs" ] && echo "EMPTY" && continue
+				echo
+				try_install_by_list $dist "$reqs" && echo "  OK" || echo "FAIL"
+			else
+				printf "  * %60s: " "$(basename $j)"
+				[ -z "$reqs" ] && echo "Empty list" && continue
+				try_install_by_list $dist "$reqs" >/dev/null 2>&1 && echo "  OK" || echo "FAIL"
+			fi
+		done
+	done
+}
+

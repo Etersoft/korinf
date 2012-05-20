@@ -33,4 +33,4 @@ case $DISTRVENDOR in
 		;;
 esac
 
-$CMD $1 && echo "All is OK" || echo "Error"
+$CMD $@
