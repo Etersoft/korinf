@@ -147,24 +147,24 @@ run_alien()
 }
 
 # Converts ALT Linux Sisyphus dependencies to target notation
+# and print out result dependencies
 # needs TARGETPATH, DISTRVENDOR, BUILDARCH, PKGFORMAT and so one
-convert_deplist()
+# call with packagename
+get_target_deplist()
 {
-	local depf
-	#depf=$(rpm -qp --queryformat "%{NAME}" $1)
-	depf=$(get_pkgname_from_filename $(basename $1))
+	local depf="$1"
 	local depfile=$TARGETPATH/ALTLinux/Sisyphus/log/$depf.rpm.depends
-	if [ ! -s $depfile ]; then
+	if [ ! -r $depfile ]; then
 		warning "Cannot locate '$depfile' file"
 		return 1
 	fi
 	listdep=`cat $depfile | sort -u`
 	repl_list=$(print_pkgrepl_list)
-	alert "Used replacement file order: $repl_list"
+	#[ -n "$VERBOSE" ] && alert "Used replacement file order: $repl_list"
 
 	local j
 	for j in $listdep; do
-		tolocal_anyrepl ${j} ${repl_list} && echo "$TARGETPKGNAME" || echo $j
+		tolocal_anyrepl $j $repl_list && echo "$TARGETPKGNAME" || echo $j
 	done | sort -u
 }
 
@@ -179,10 +179,10 @@ convert_rpm_to_deb()
 	for i in $PACKAGESLIST ; do
 		if [ -e $i ] ; then
 			local depf=$(get_pkgname_from_filename $i)
-			if convert_deplist $i | tee $DESTDIR/log/$depf.deb.depends ; then
+			if get_target_deplist $depf | tee $DESTDIR/log/$depf.deb.depends ; then
 				if check_alien ; then
 					DEPPARAM="--depends $DESTDIR/log/${depf}.deb.depends"
-					alert "Call alien with ${DEPPARAM}";
+					alert "Call alien with ${DEPPARAM}"
 				fi
 			else
 				rm -f $DESTDIR/log/$depf.deb.depends

@@ -6,9 +6,9 @@
 kormod build/rpm
 load_mod rpm
 
-testfile=$(echo /var/ftp/pub/Etersoft/RX@Etersoft/testing/CentOS/6/nxclient-*.i586.rpm)
-#echo $testfile
-#rpm --requires -p $testfile
+#testfile=$(echo /var/ftp/pub/Etersoft/RX@Etersoft/testing/CentOS/6/nxclient-*.i586.rpm)
+testfile=$(echo /var/ftp/pub/Etersoft/WINE@Etersoft/2.0-testing/Debian/6/fonts-ttf-liberation*)
+
 echo
 TARGETPATH=/var/ftp/pub/Etersoft/RX@Etersoft/testing
 # alt
@@ -21,7 +21,7 @@ DISTRVERSION=6
 
 BUILDARCH=i586
 
-convert_deplist $testfile | tee test.file
+get_target_deplist $(get_pkgname_from_filename $testfile) | tee test.file
 diff -u /var/ftp/pub/Etersoft/RX@Etersoft/testing/ALTLinux/Sisyphus/log/nxclient*depends test.file
 #rm -f test.file
 
