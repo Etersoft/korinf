@@ -27,66 +27,53 @@
 FREEBSDSSH=$INTUSER@freebsd
 #FREEBSDSSH=$LOCUSER@freebsd
 
+BSDPREF="/mnt/chroot/$DISTRVERSION"
+
 # possibly conflict
 FREEBSDPATH=home/$INTUSER/work-$PACKAGE
 
 FREEBSDKEY="-i $PRIVATESSHKEY"
 
 RPMDIRPATH="/home/$INTUSER/RPM"
-TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$TARGETPKGDISTRO
+TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$PKGVENDOR
 
-#RPMBUILDROOT=$RPMDIRPATH/BUILD/$PACKAGE-$PACKAGEVERSION
-
-#VARS=$INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG
 
 # PACKAGE
 build_bsd()
 {
-	local PREF
-	PREF="/mnt/chroot/$dist_ver"
-	echo $PREF
 
-echo $TARGETPKG
-	echo "Copying to $FREEBSDSSH:$PREF/$FREEBSDPATH"
-	ssh $FREEBSDKEY $FREEBSDSSH mkdir -p $PREF/$FREEBSDPATH/ || { warning "Cannot create dir $FREEBSDPATH" ; return 1 ; }
-	scp $FREEBSDKEY $TARGETSRPM $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy $TARGETSRPM" ; return 1 ; }
+	echo "Copying to $FREEBSDSSH:$BSDPREF/$FREEBSDPATH"
+	ssh $FREEBSDKEY $FREEBSDSSH mkdir -p $BSDPREF/$FREEBSDPATH/ || { warning "Cannot create dir $FREEBSDPATH" ; return 1 ; }
+	scp $FREEBSDKEY $TARGETSRPM $FREEBSDSSH:$BSDPREF/$FREEBSDPATH/ || { warning "Cannot copy $TARGETSRPM" ; return 1 ; }
 	# TODO: filter the script
-	scp $FREEBSDKEY $KORINFDIR/korinf/remote-scripts/remote-freebsd.sh $FREEBSDSSH:$PREF/$FREEBSDPATH/ || { warning "Cannot copy script" ; return 1 ; }
+	scp $FREEBSDKEY $KORINFDIR/korinf/remote-scripts/remote-freebsd.sh $FREEBSDSSH:$BSDPREF/$FREEBSDPATH/ || { warning "Cannot copy script" ; return 1 ; }
 	echo "Copying done"
 
 	# from man su: Note that all command line arguments before the target login name are processed by su itself,
 	# everything after the target login name gets passed to the login shell.
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF su - $INTUSER /$FREEBSDPATH/remote-freebsd.sh build $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$FREEBSDPATH/$(basename $TARGETSRPM) $TARGETPKG" || { warning "Can't build" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $BSDPREF su - $INTUSER /$FREEBSDPATH/remote-freebsd.sh build $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$FREEBSDPATH/$(basename $TARGETSRPM) $TARGETPKG" || { warning "Can't build" ; return 1 ; }
 }
 
 convert_bsd()
 {
-	local PREF
-	PREF="/mnt/chroot/$dist_ver"
-	TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$TARGETPKGDISTRO.$TARGET
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF su - $INTUSER /$FREEBSDPATH/remote-freebsd.sh convert $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$FREEBSDPATH/$(basename $TARGETSRPM) $TARGETPKG $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $BSDPREF su - $INTUSER /$FREEBSDPATH/remote-freebsd.sh convert $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$FREEBSDPATH/$(basename $TARGETSRPM) $TARGETPKG.$PKGFORMAT $TARGETPKG.$PKGFORMAT" || { warning "Can't clean" ; return 1 ; }
 }
 
 copying_bsd()
 {
-	local PREF
-	PREF="/mnt/chroot/$dist_ver"
 	clean_copying_destination
 
-	scp $FREEBSDKEY $FREEBSDSSH:$PREF/var/tmp/korinfer/work-$PACKAGE/$TARGETPKG $DESTDIR || { warning "Cannot copy $PACKAGE" ; return 1 ; }
+	scp $FREEBSDKEY $FREEBSDSSH:$BSDPREF/var/tmp/korinfer/work-$PACKAGE/$TARGETPKG $DESTDIR || { warning "Cannot copy $PACKAGE" ; return 1 ; }
 	mark_build_done
 }
 
 cleaning_bsd()
 {
-	local PREF
-	PREF="/mnt/chroot/$dist_ver"
-	#ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh clean $INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
+	true
+	#ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $BSDPREF /$FREEBSDPATH/remote-freebsd.sh clean $INTUSER $RPMBUILDROOT $PACKAGE /$FREEBSDPATH/$TARGETSRPM $TARGETPKG" || { warning "Can't clean" ; return 1 ; }
 }
 
 install_bsd()
 {
-	local PREF
-	PREF="/mnt/chroot/$dist_ver"
-	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $PREF /$FREEBSDPATH/remote-freebsd.sh install $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$FREEBSDPATH/$(basename $TARGETSRPM) $TARGETPKG" || { warning "Can't install" ; return 1 ; }
+	ssh $FREEBSDKEY $FREEBSDSSH "sudo chroot $BSDPREF /$FREEBSDPATH/remote-freebsd.sh install $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$FREEBSDPATH/$(basename $TARGETSRPM) $TARGETPKG" || { warning "Can't install" ; return 1 ; }
 }

@@ -25,13 +25,10 @@ load_mod rpm hasher
 
 function build_in_hasher()
 {
-	# default for ALT Linux
-	TARGET="rpm"
-
-	set_target_type $(get_altdistr_mod $dist_ver)
+	set_target_type $(get_altdistr_mod $DISTRVERSION)
 	detect_target_env >>$LOGFILE 2>&1
 	# workaround for detect needed path build for another target
-	HASHERDIR=$(DEFAULTARCH=$BUILDARCH set_hasherdir; echo $HASHERDIR )
+	HASHERDIR=$(set_hasherdir; echo $HASHERDIR )
 	BUILTRPM=$HASHERDIR/repo/$BUILDARCH/RPMS.hasher
 
 	if [ -d "$DESTDIR/RPMS.main" ] ; then
@@ -95,8 +92,8 @@ fi
 		BUILDCOMMAND="$RPMBPH $MENVARG"
 	fi
 
-	( HASHER_NOCHECK=nvr,gpg,packager,changelog,deps DEFAULTARCH=$BUILDARCH $BUILDCOMMAND $BUILDSRPM ) ||
-		{ warning "Do not hashered" ; [ -n "$ADEBUG" ] || ( export DEFAULTARCH=$BUILDARCH ; setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c $MENVARG) ; return 1 ; }
+	( HASHER_NOCHECK=nvr,gpg,packager,changelog,deps $BUILDCOMMAND $BUILDSRPM ) ||
+		{ warning "Do not hashered" ; [ -n "$ADEBUG" ] || ( setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c $MENVARG) ; return 1 ; }
 
 	# search for binary packages
 	TARGETSRPM=$(ls -1 $HASHERDIR/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm | head -n1)

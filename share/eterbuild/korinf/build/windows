@@ -25,7 +25,6 @@
 # BUILDROOT - root of current system
 # BUILDERHOME - absolute path to user dir in current system
 
-# TODO: user dist_ver
 load_mod rpm build
 
 #$PACKAGEVERSION

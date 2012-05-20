@@ -22,7 +22,7 @@
 ##
 
 # needed version etersoft-build-utils package
-NEEDETERBUILD=2011
+NEEDETERBUILD=2012
 
 realpath()
 {
@@ -147,20 +147,21 @@ get_bin_package()
 	test -r "$BUILDPKG"
 }
 
-# fills dist_ver, dist_name, dist_arch by arg with target name
+# fills DISTRNAME, DISTRVERSION, BUILDARCH by arch/SystemName/Version
 parse_dist_name()
 {
 	local dist=$1
 	local v
 	# dist format: [arch/]Name/Version
-	dist_ver=`echo $dist | sed -e "s|.*/||g"`
-	v=`echo $dist | sed -e "s|/$dist_ver\$||g"`
-	dist_name=`echo $v | sed -e "s|.*/||g"`
-	dist_arch=`echo $v | sed -e "s|/.*||g"`
-	# FIXME: i586 by default (DEFAULTARCH is a current arch)
-	test "$dist_arch" = "$v" && dist_arch=i586
+	DISTRVERSION=`echo $dist | sed -e "s|.*/||g"`
+	v=`echo $dist | sed -e "s|/$DISTRVERSION\$||g"`
+	DISTRNAME=`echo $v | sed -e "s|.*/||g"`
+	BUILDARCH=`echo $v | sed -e "s|/.*||g"`
+	# FIXME: i586 by default, some x86_64 detection?
+	test "$BUILDARCH" = "$v" && BUILDARCH=i586
 	# if parse error
-	test "$dist_name" = "$dist_ver" && dist_name="" && dist_ver=""
+	test "$DISTRNAME" = "$DISTRVERSION" && DISTRNAME="" && DISTRVERSION=""
+	export DISTRNAME DISTRVERSION BUILDARCH
 }
 
 # return full path to sources, detected by TARGET dir

@@ -82,12 +82,16 @@ CMDRE=$(get_distro_list $REBUILDLIST)
 RES=0
 for dist in $CMDRE ; do
 
+	# FIXME: add i586 support
+	#dist is x86_64/Name/Version or Name/Version
+
 	# fill after hasher
 	BUILTBINPKGLIST=
 
 	# Set target dir for built packages
 	DESTDIR=$TARGETPATH/$dist
 
+	# FIXME: will do LINKED local var?
 	LINKED=$(get_linked_system $dist)
 	if [ -n "$LINKED" ] ; then
 		if [ ! -L "$DESTDIR" ] && [ -d "$DESTDIR" ] ; then
@@ -122,15 +126,15 @@ for dist in $CMDRE ; do
 	# skip linked destination (TODO: do not handle it at all)
 	[ -L "$DESTDIR" ] && warning "$dist: Does not support linked target ($DESTDIR), translate it in etc/linked or remove link" && continue
 
-#	[ "$dist" = "Windows" ] && echo "Skip $dist: is not supported yet" && continue
-
 	# FIXME: Hack
 	[ "$TARGETPRIVPATH" ] && DESTDIR=$TARGETPRIVPATH
 
-	# fills dist_arch, dist_name, dist_ver from dist
+	# fills $BUILDARCH, $DISTRNAME, $DISTRVERSION
 	parse_dist_name $dist
-	[ -z "$dist_name" ] && warning "Empty dist_name for $dist"
-	BUILDARCH=$dist_arch
+	[ -z "$DISTRNAME" ] && fatal "Empty DISTRNAME for $dist"
+
+	# fills $PKGFORMAT, $PKGVENDOR, $RPMVENDOR
+	set_target_var
 
 	# Initialize LOGDIR and LOGFILE variables
 	init_dist_log "$dist"

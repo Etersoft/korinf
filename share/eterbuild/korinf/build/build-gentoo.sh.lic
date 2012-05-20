@@ -24,8 +24,6 @@
 # BUILDROOT - root of current system
 # BUILDERHOME - absolute path to user dir in current system
 
-# TODO: user dist_ver
-
 REMOTESSHG7=builder@gentoo
 REMOTEPATHG7=/home/builder/work
 

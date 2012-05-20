@@ -13,13 +13,11 @@ echo
 TARGETPATH=/var/ftp/pub/Etersoft/RX@Etersoft/testing
 # alt
 #VENDOR=$($DISTRVENDOR -s)
-VENDOR=centos
-# rpm
-#TARGET=$($DISTRVENDOR -p)
-TARGET=rpm
+PKGVENDOR=centos
+
+PKGFORMAT=rpm
 # 
-#DISTRVERSION=12.04
-dist_ver=6
+DISTRVERSION=6
 
 BUILDARCH=i586
 

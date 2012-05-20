@@ -29,7 +29,7 @@ mount_linux()
 	local MOUNTPARAM
 
 	# Создаём необходимые каталоги
-	BUILDROOT=`mktemp -d $CHROOTDIR/$dist_name-XXXXXX`
+	BUILDROOT=`mktemp -d $CHROOTDIR/$DISTRNAME-XXXXXX`
 	mkdir -p $CHROOTDIR
 	$SUDO chown $LOCUSER $CHROOTDIR
 	BUILDERHOME=$BUILDROOT-home

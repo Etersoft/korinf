@@ -24,7 +24,7 @@
 # BUILDROOT - root of current system
 # BUILDERHOME - absolute path to user dir in current system
 
-# TODO: user dist_ver
+# TODO: user DISTRVERSION
 load_mod rpm
 
 
@@ -42,13 +42,15 @@ gen_ebuild()
         true
 }
 
+# FIXME: is it used? we already have convertor
 convert_gentoo()
 {
+	fatal "Can't use this code"
 	echo "Using alien now"
 	for i in *${BUILDNAME}*.rpm ; do
 	    run_alien --to-tgz $i || { warning "alien problem with tbz2"; RES=11 ; }
 	    local TARARCH=`querypackage "$i" ARCH`
-	    local RELPKG=$PACKAGERELEASE$TARGETPKGDISTRO.$TARARCH
+	    local RELPKG=$PACKAGERELEASE$PKGVENDOR.$TARARCH
 	    for j in *${BUILDNAME}*.tgz ; do
 		local TARBNAME=`basename $j .tgz`
 		cat "$j" | gunzip -c | bzip -c > "$TARBNAME-$RELPKG.tar.bz2" || { warning "can't repack files" ; RES=11 ; }

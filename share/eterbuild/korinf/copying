@@ -136,7 +136,7 @@ copying_packages()
 	local i
 
 	pushd $BUILTRPM >/dev/null || warning "Can't cd to built rpm dir '$BUILTRPM'"
-	echo "Copying $TARGET packages from $BUILTRPM"
+	echo "Copying $PKGFORMAT packages from $BUILTRPM"
 
 	# Check if first package in the list is built
 	for i in $EXPMAINFILES ; do
@@ -156,12 +156,14 @@ copying_packages()
 			if [ -e $i ] ; then
 				mkdir_dest $DESTDIR/extra/
 				# FIXME: already done when copying, but not for extra
+				# HACK: can be not *BUILDNAME*
 				rm -f $DESTDIR/extra/*${BUILDNAME}-*debuginfo*
 				rm -f $DESTDIR/extra/*${BUILDNAME}-*debug-*
 				mv -f $i $DESTDIR/extra/ || warning "Cannot move debug package $i to extra"
 			fi
 		done
 	else
+		# HACK: can be not *BUILDNAME*
 		# Remove debug packages
 		rm -f *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-*
 	fi
@@ -177,8 +179,8 @@ copying_packages()
 	popd >/dev/null
 
 	# Prepare binary repository
-	case $dist_name in
-		"ALTLinux")
+	case $PKGVENDOR in
+		"alt")
 			gen_base_apt_rpm
 			gen_base_apt_rpm /extra
 			;;

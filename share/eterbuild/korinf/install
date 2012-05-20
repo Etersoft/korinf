@@ -33,25 +33,25 @@ install_built()
 		return 0
 	fi
 
-	echo "Install built $TARGET packages to $BUILDROOT root dir..."
+	echo "Install built $PKGFORMAT packages to $BUILDROOT root dir..."
 	# Do not install debug packages
 	#rm -f $BUILTRPM/*debug*
-	#BUILDFILES=`echo *${BUILDNAME}*$TARGET`
+	#BUILDFILES=`echo *${BUILDNAME}*$PKGFORMAT`
 	#popd
 	# Note: немного странно с кавычками и разворачиванием звёздочек
-	case $TARGET in
+	case $PKGFORMAT in
 		"deb") # Debian/Ubuntu
 			$SUDO chroot $BUILDROOT su - -c "export LC_ALL=C ; cd $INTBUILT && $NICE dpkg -i --force-all ${EXPMAINFILES} ${EXPEXTRAFILES}"
 			RES=$?
 			;;
 		"tgz") # Slackware
 			# FIXME: use ${EXPMAINFILES} ${EXPEXTRAFILES}
-			$SUDO chroot $BUILDROOT $NICE installpkg "$INTBUILT/*${BUILDNAME}*.$TARGET"
+			$SUDO chroot $BUILDROOT $NICE installpkg "$INTBUILT/*${BUILDNAME}*.$PKGFORMAT"
 			RES=$?
 			;;
 		"tar.xz") # Hack for ArchLinux
 			# FIXME: use ${EXPMAINFILES} ${EXPEXTRAFILES}
-			$SUDO chroot $BUILDROOT su - -c "export LC_ALL=C ; $NICE yes | pacman -v -U --force --nodeps /home/$INTUSER/abs/$PACKAGE/*${BUILDNAME}*.pkg.$TARGET"
+			$SUDO chroot $BUILDROOT su - -c "export LC_ALL=C ; $NICE yes | pacman -v -U --force --nodeps /home/$INTUSER/abs/$PACKAGE/*${BUILDNAME}*.pkg.$PKGFORMAT"
 			#$SUDO chroot $BUILDROOT su - -c "cd / ; ls -1 $INTBUILT/*${BUILDNAME}*.$TARGET | xargs -n1 --no-run-if-empty $NICE tar xfvz "
 			RES=$?
 			;;
@@ -67,7 +67,7 @@ install_built()
 			#RES=0
 			;;
 		*)
-			fatal "Target $TARGET does not supported yet for install"
+			fatal "Target $PKGFORMAT does not supported yet for install"
 			;;
 	esac
 	return $RES
@@ -80,7 +80,7 @@ filter_out_installed_packages()
 	#	rpm -q $i >/dev/null && continue
 	#	echo $i
 	#done | 
-	case $TARGET in
+	case $PKGFORMAT in
 		"rpm")
 			$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
 				su - -c "export LANG=C ; export LC_ALL=C ; xargs rpm -q 2>&1 | grep 'is not installed' | sed -e 's|^.*package \(.*\) is not installed.*|\1|g'" |
@@ -95,7 +95,7 @@ filter_out_installed_packages()
 # install required packages for build
 install_req()
 {
-	local LISTPKG CMD LOGFAILFILE DISTROVENDOR dist=$1
+	local LISTPKG CMD LOGFAILFILE dist=$1
 	load_mod repl rpm
 
 	convert_rpm_to_target $dist
@@ -107,8 +107,8 @@ install_req()
 	# FIXME: remove already installed packages (f.i. if installed package does not exists in repo, install failed on Mandriva)
 	LISTPKG=$(rpmquery --requires -p "$TARGETSRPM" | clean_pkgreq | filter_out_installed_packages)
 	LISTPKG=$(strip_spaces $LISTPKG)
-	DISTROVENDOR=`ROOTDIR=$BUILDROOT /usr/bin/distr_vendor -d`
-	CMD=$(get_install_package_command $DISTROVENDOR)
+
+	CMD=$(get_install_package_command $DISTRNAME)
 	echo "Install build required packages $LISTPKG with '$CMD' command"
 
 	if [ -z "$LISTPKG" ] ; then

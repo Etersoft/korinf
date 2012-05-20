@@ -23,9 +23,9 @@ check()
 	parse_dist_name "$TEST1"
 	echo
 	echo "Source line: '$TEST1' (wait for '$@') "
-	comp "$dist_arch" dist_arch $1
-	comp "$dist_name" dist_name $2
-	comp "$dist_ver" dist_ver $3
+	comp "$BUILDARCH" BUILDARCH $1
+	comp "$DISTRNAME" DISTRNAME $2
+	comp "$DISTRVERSION" DISTRVERSION $3
 	echo
 }
 
@@ -51,9 +51,9 @@ PGVERSION=last
 # FIXME: check correctly only if real target exists
 check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/WINE/$TESTSYSTEM $PATHSOURCE
 check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/WINE/x86_64/$TESTSYSTEM $PATHSOURCE
-check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/x86_64/$TESTSYSTEM $PATHSOURCE
-check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/$TESTSYSTEM $PATHSOURCE
-check_source /var/ftp/pub/Etersoft/Postgres@Etersoft/$PGVERSION/Windows /var/ftp/pub/Etersoft/Postgres@Etersoft/$PGVERSION/sources
+#check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/x86_64/$TESTSYSTEM $PATHSOURCE
+#check_source /var/ftp/pub/Etersoft/WINE@Etersoft/last/$TESTSYSTEM $PATHSOURCE
+check_source /var/ftp/pub/Etersoft/Postgres@Etersoft/$PGVERSION/Windows $(readlink -f /var/ftp/pub/Etersoft/Postgres@Etersoft/$PGVERSION/sources)
 
 SOURCEPATH=/var/ftp/pub/Etersoft/Postgres@Etersoft/$PGVERSION/sources
 PRVERSION=

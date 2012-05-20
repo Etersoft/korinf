@@ -22,35 +22,35 @@
 ##
 
 
-# Internal: printout args with add *.$TARGET
+# Internal: printout args with add *.$PKGFORMAT
 expand_filelist()
 {
-        [ -n"$TARGET" ] || fatal "TARGET is empty"
+        [ -n"$PKGFORMAT" ] || fatal "PKGFORMAT is empty"
         declare -a ar
         ar=( $@ )
         for i in `seq 0 $(( ${#ar[@]} - 1))`; do
-                echo -n "${ar[i]}*.${TARGET} "
+                echo -n "${ar[i]}*.${PKGFORMAT} "
         done
 }
 
 prepare_filelist()
 {
 	[ -z "$MAINFILESLIST$EXTRAFILESLIST" ] && fatal "Logical error with MAINFILESLIST EXTRAFILESLIST"
-	# expand file masks by TARGET
+	# expand file masks by PKGFORMAT
 	EXPMAINFILES=$(expand_filelist $MAINFILESLIST)
 	EXPEXTRAFILES=$(expand_filelist $EXTRAFILESLIST)
 
 	# expand file masks by rpm
-	EXPRPMMAINFILES=$(TARGET=rpm expand_filelist $MAINFILESLIST)
-	EXPRPMEXTRAFILES=$(TARGET=rpm expand_filelist $EXTRAFILESLIST)
+	EXPRPMMAINFILES=$(PKGFORMAT=rpm expand_filelist $MAINFILESLIST)
+	EXPRPMEXTRAFILES=$(PKGFORMAT=rpm expand_filelist $EXTRAFILESLIST)
 
 	# check for ebuild if gentoo
-	if [ "$dist_name" = "Gentoo" ] ; then
+	if [ "$PKGVENDOR" = "gentoo" ] ; then
 		EXPMAINFILES="$EXPMAINFILES ${BUILDNAME}*.ebuild"
 	fi
 
 	# only lowercase for deb packages
-	if [ "$TARGET" = "deb" ] ; then
+	if [ "$PKGFORMAT" = "deb" ] ; then
 	    EXPMAINFILES=$(echo $EXPMAINFILES | tr 'A-Z' 'a-z')
 	    EXPEXTRAFILES=$(echo $EXPEXTRAFILES | tr 'A-Z' 'a-z')
 	fi
@@ -62,7 +62,8 @@ prepare_filelist()
 
 build_dist_pkg()
 {
-case $dist_name in
+# FIXME: more correctly use PKGVENDOR here
+case $DISTRNAME in
 "Windows")
 	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
 		logit "install requires" SKIPPED
@@ -70,9 +71,6 @@ case $dist_name in
 	fi
 
 	kormod build/windows
-
-	TARGET="exe"
-	TARGETPKGDISTRO="windows"
 
 	logit "build $dist" build_windows $dist || return 1
 
@@ -90,17 +88,14 @@ case $dist_name in
 	kormod build/freebsd
 	kormod build/rpm
 
-	TARGET="tbz"
-	TARGETPKGDISTRO="generic"
-
 	# used in convert_rpm_to_target
 	BUILDERHOME=~/tmp/korinfer
 	mkdir -p $BUILDERHOME
 
 
-	logit "convert src.rpm to target $TARGETPKGDISTRO" convert_rpm_to_target $dist || return 1
+	logit "convert src.rpm to target $PKGVENDOR" convert_rpm_to_target $dist || return 1
 	logit "build $dist" build_bsd $dist || return 1
-	logit "convert RPM to $TARGET" convert_bsd || return 1
+	logit "convert RPM to $PKGFORMAT" convert_bsd || return 1
 
 	prepare_filelist
 	logit "copying built packages to $dist" copying_bsd || return 1
@@ -116,14 +111,11 @@ case $dist_name in
 
 	kormod build/solaris
 
-	TARGET="pkg.gz"
-	TARGETPKGDISTRO="generic"
-
 	# FIXME: rewrite build rules
 	# used in convert_rpm_to_target
 	BUILDERHOME=/var/empty
 
-	logit "build in Solaris $dist_ver" build_solaris || return 1
+	logit "build in $DISTRNAME $DISTRNAME" build_solaris || return 1
 
 	prepare_filelist
 	logit "copying built packages to $dist" copying_solaris || return 1
@@ -139,10 +131,7 @@ case $dist_name in
 
 	kormod build/hasher
 
-	TARGET="rpm"
-	TARGETPKGDISTRO="alt"
-
-	logit "build in hasher $dist_ver" build_in_hasher || return 1
+	logit "build in hasher $DISTRVERSION" build_in_hasher || return 1
 	prepare_filelist
 	logit "copying built packages to $dist" copying_packages || return 1
 	;;
@@ -155,10 +144,7 @@ case $dist_name in
 
 	logit "mount root dir" mount_linux || return 1
 
-	# set TARGET and TARGETPKGDISTRO
-	set_target_var || return 1
-
-	logit "convert src.rpm to target $TARGETPKGDISTRO" convert_rpm_to_target $dist || return 1
+	logit "convert src.rpm to target $PKGVENDOR" convert_rpm_to_target $dist || return 1
 
 	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
 		logit "install requires" install_req $dist || return 1
@@ -169,8 +155,8 @@ case $dist_name in
 	logit "build RPM package" build_rpms $dist || return 1
 	prepare_filelist
 
-	if [ "$TARGET" != "rpm" ] && [ -z "$MAKESPKG" ] ; then
-		logit "convert RPM to $TARGET ($PACKAGERELEASE$TARGETPKGDISTRO)" convert_rpm || return 1
+	if [ "$PKGFORMAT" != "rpm" ] && [ -z "$MAKESPKG" ] ; then
+		logit "convert RPM to $PKGFORMAT ($PACKAGERELEASE$PKGVENDOR)" convert_rpm || return 1
 	fi
 
 	if [ -n "$BOOTSTRAP" ] && [ -z "$MAKESPKG" ]; then
