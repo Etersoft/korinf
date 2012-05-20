@@ -1,0 +1,157 @@
+#!/bin/sh
+##
+#  Korinf project
+#
+#  convert built packages in chrooted Linux system
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+# We believe BUILDERHOME is clean already here
+
+kormod buildargs
+load_mod repl
+
+check_alien()
+{
+    if (alien -h 2>&1 | grep -qws "depends" ); then
+	return 0
+    else
+	warning "Error: `alien -V` not support \"--depends\" option..."
+	return 1
+    fi
+}
+
+run_alien()
+{
+	local VERBCOMMAND=
+	[ -n $ADEBUG ] && VERBCOMMAND="--veryverbose"
+	BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version $VERBCOMMAND $@ || return
+	# don't remove original due using rpm after converting (f.i. for Gentoo)
+}
+
+# Converts ALT Linux Sisyphus dependencies to target notation
+# and print out result dependencies
+# needs TARGETPATH, DISTRVENDOR, BUILDARCH, PKGFORMAT and so one
+# call with packagename
+get_target_deplist()
+{
+	local depf="$1"
+	local depfile=$TARGETPATH/ALTLinux/Sisyphus/log/$depf.rpm.depends
+	if [ ! -r $depfile ]; then
+		warning "Cannot locate '$depfile' file"
+		return 1
+	fi
+	convert_pkgreqs_to_target $(cat $depfile)
+}
+
+convert_rpm_to_deb()
+{
+	local RELPKG=$PACKAGERELEASE$PKGVENDOR
+	local RES=0
+	local DEPPARAM=""
+
+	local PACKAGESLIST="$EXPRPMMAINFILES $EXPRPMEXTRAFILES"
+	echo "Packages to convert: $PACKAGESLIST"
+	for i in $PACKAGESLIST ; do
+		if [ -e $i ] ; then
+			local depf=$(get_pkgname_from_filename $i)
+			if get_target_deplist $depf | tee $DESTDIR/log/$depf.deb.depends ; then
+				if check_alien ; then
+					DEPPARAM="--depends $DESTDIR/log/${depf}.deb.depends"
+					alert "Call alien with ${DEPPARAM}"
+				fi
+			else
+				rm -f $DESTDIR/log/$depf.deb.depends
+			fi
+			run_alien --scripts --to-$PKGFORMAT ${DEPPARAM} $i || { warning "alien problem with $PKGFORMAT"; RES=1 ; return $RES ; }
+		else
+			warning "Package $i is missed in $DESTDIR"
+		fi
+	done
+
+	return $RES
+}
+
+convert_by_target()
+{
+	local RELPKG=$PACKAGERELEASE$PKGVENDOR
+	local RES=0
+	local DEPPARAM=""
+
+	local PACKAGESLIST="$EXPRPMMAINFILES $EXPRPMEXTRAFILES"
+	echo "Packages to convert: $PACKAGESLIST"
+	for i in $PACKAGESLIST ; do
+		if [ -e $i ] ; then
+			run_alien --scripts --to-$PKGFORMAT ${DEPPARAM} $i || { warning "alien problem with $PKGFORMAT"; RES=1 ; return $RES ; }
+		else
+			warning "Package $i is missed in $DESTDIR"
+		fi
+	done
+
+	# Hack for tgz packages
+	# FIXME: will broken with package without BUILDNAME inside
+	if [ $PKGFORMAT == "tgz" ] ; then
+	    for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.tgz ; done
+	fi
+
+	return $RES
+}
+
+# Only with $TARGET
+convert_rpm()
+{
+	local RELPKG=$PACKAGERELEASE$PKGVENDOR.$BUILDARCH
+	local RES=0
+	pushd $BUILTRPM
+	ls -l
+	echo "Make target packages for $PKGFORMAT ($PKGVENDOR)"
+#	echo "Packages to convert: $PACKAGESLIST"
+#	[ -n "$PACKAGESLIST" ] || fatal "Empty packages list in convert_rpm"
+
+	case $PKGVENDOR in
+		"gentoo")
+			# Gentoo
+			convert_gentoo || fatal "Cannot convert for Gentoo"
+			echo "Generate ebuild"
+			gen_ebuild
+			RES=$?
+			;;
+		"archlinux")
+			# ArchLinux
+			convert_archlinux
+			RES=$?
+			;;
+		*)
+			case $PKGFORMAT in
+			    "deb")
+				convert_rpm_to_deb
+				RES=$?
+				;;
+			    "tgz")
+				convert_by_target
+				RES=$?
+				;;
+			    *)
+				fatal "unknown $PKGFORMAT"
+			esac
+	esac
+
+	popd
+	return $RES
+}
+

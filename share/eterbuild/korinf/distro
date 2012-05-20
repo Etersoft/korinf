@@ -21,8 +21,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-kormod filelist
-
+kormod convert filelist
 
 build_dist_pkg()
 {
@@ -101,6 +100,7 @@ case $DISTRNAME in
 	kormod build/archlinux
 	kormod build/gentoo
 	kormod build/rpm
+	kormod check_reqs
 
 	logit "mount root dir" mount_linux || return 1
 
