@@ -95,14 +95,8 @@ export NIGHTBUILD=1
 # split to subscript
 case $COMPONENTNAME in
 	*WINE@Etersoft*)
-		# Compat
-		if [ "$PROJECTVERSION" = "1.0.8" ] || [ "$PROJECTVERSION" = "1.0.9" ] ; then
-			. $AROBOTDIR/products/wine-compat
-			build_wine
-		else
-			. $AROBOTDIR/products/wine-etersoft
-			build_wine_etersoft
-		fi
+		. $AROBOTDIR/products/wine-etersoft
+		build_wine_etersoft
 		;;
 	*SELTA@Etersoft*)
 		. $AROBOTDIR/products/selta
