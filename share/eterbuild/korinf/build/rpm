@@ -158,14 +158,7 @@ get_target_deplist()
 		warning "Cannot locate '$depfile' file"
 		return 1
 	fi
-	listdep=`cat $depfile | sort -u`
-	repl_list=$(print_pkgrepl_list)
-	#[ -n "$VERBOSE" ] && alert "Used replacement file order: $repl_list"
-
-	local j
-	for j in $listdep; do
-		tolocal_anyrepl $j $repl_list && echo "$TARGETPKGNAME" || echo $j
-	done | sort -u
+	convert_pkgreqs_to_target $(cat $depfile)
 }
 
 convert_rpm_to_deb()
