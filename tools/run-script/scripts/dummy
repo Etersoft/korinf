@@ -3,6 +3,6 @@
 # Dummy script
 
 echo "Run script on `distr_vendor`"
-DISTRVENDOR=`/usr/bin/distr_vendor -d`
+DISTRNAME=`/usr/bin/distr_vendor -d`
 
-echo "I am dummy script on $DISTVENDOR"
+echo "I am dummy script on $DISTRNAME"

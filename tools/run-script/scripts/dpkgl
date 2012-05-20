@@ -3,15 +3,15 @@
 # get owner package for file
 
 echo "Run $0 $1 script on `distr_vendor`"
-DISTRVENDOR=`/usr/bin/distr_vendor -d`
+DISTRNAME=`/usr/bin/distr_vendor -d`
 
 [ -n "$1" ] || { echo "Error: Run with dir as param" ; exit 1 ; }
 
-[ "$DISTVENDOR" = "ALTLinux" ] && exit 1
+[ "$DISTRNAME" = "ALTLinux" ] && exit 1
 
 cd /tmp
 
-case $DISTRVENDOR in
+case $DISTRNAME in
 	"ALTLinux"|"PCLinux")
 		CMD="rpm -qf"
 		;;
@@ -29,7 +29,7 @@ case $DISTRVENDOR in
 		;;
 	*)
 		RET=1
-		CMD="echo \"Do not known install command for DISTRVENDOR $DISTRVENDOR\""
+		CMD="echo \"Do not known install command for DISTRNAME $DISTRNAME\""
 		;;
 esac
 

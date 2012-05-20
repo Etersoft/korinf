@@ -5,9 +5,9 @@
 #[ -n "$1" ] || { echo "Error: Run with package name as param" ; exit 1 ; }
 
 #echo "Run install $1 script on `distr_vendor`"
-DISTRVENDOR=`/usr/bin/distr_vendor -d`
+DISTRNAME=`/usr/bin/distr_vendor -d`
 
-echo "$DISTVENDOR" | grep "ALTLinux" && exit 1
+echo "$DISTRNAME" | grep "ALTLinux" && exit 1
 
 cd /tmp
 
@@ -15,7 +15,7 @@ rm -rf /var/cache/beagle/*
 
 MASK=""
 
-case $DISTRVENDOR in
+case $DISTRNAME in
 	"ALTLinux"|"Ubuntu"|"Debian"|"PCLinux")
 		CMD="apt-get clean"
 		MASK="*.deb"
@@ -34,7 +34,7 @@ case $DISTRVENDOR in
 		;;
 	*)
 		RET=1
-		CMD="echo \"Do not known install command for DISTRVENDOR $DISTRVENDOR\""
+		CMD="echo \"Do not known install command for DISTRNAME $DISTRNAME\""
 		;;
 esac
 

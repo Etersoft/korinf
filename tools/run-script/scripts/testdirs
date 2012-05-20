@@ -3,11 +3,11 @@
 # Dummy script
 
 echo "Run $0 script on `distr_vendor`"
-DISTRVENDOR=`/usr/bin/distr_vendor -d`
+DISTRNAME=`/usr/bin/distr_vendor -d`
 
 check_dir()
 {
-	test -d "$1" || echo "Dir $1 is missed in $DISTVENDOR"
+	test -d "$1" || echo "Dir $1 is missed in $DISTRNAME"
 }
 
 check_dir /etc/sysconfig

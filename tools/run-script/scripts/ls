@@ -3,7 +3,7 @@
 # ls on systems
 
 echo "Run $0 script on `distr_vendor`"
-DISTRVENDOR=`/usr/bin/distr_vendor -d`
+DISTRNAME=`/usr/bin/distr_vendor -d`
 
 [ -n "$1" ] || { echo "Error: Run with dir as param" ; exit 1 ; }
 

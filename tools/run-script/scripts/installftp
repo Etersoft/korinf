@@ -5,9 +5,9 @@
 [ -n "$1" ] || { echo "Error: Run with package name as param" ; exit 1 ; }
 
 echo "Run install $1 script on `distr_vendor`"
-DISTRVENDOR=`/usr/bin/distr_vendor -d`
+DISTRNAME=`/usr/bin/distr_vendor -d`
 
-[ "$DISTVENDOR" = "ALTLinux" ] && exit 1
+[ "$DISTRNAME" = "ALTLinux" ] && exit 1
 
 # Check package manager
 PKGSYSTEM=`/usr/bin/distr_vendor -p`

@@ -3,8 +3,8 @@
 # Clean tmp script
 
 echo "Run script on `distr_vendor`"
-DISTRVENDOR=`/usr/bin/distr_vendor -d`
+DISTRNAME=`/usr/bin/distr_vendor -d`
 
-[ "$DISTRVENDOR" = "ALTLinux" ] && exit 1
+[ "$DISTRNAME" = "ALTLinux" ] && exit 1
 
 rm -rf /tmp/* /var/tmp/*

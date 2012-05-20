@@ -1,8 +1,8 @@
 #!/bin/sh
 
 echo "Run script on `distr_vendor`"
-DISTRVENDOR=`/usr/bin/distr_vendor -d`
-case $DISTRVENDOR in
+DISTRNAME=`/usr/bin/distr_vendor -d`
+case $DISTRNAME in
 	"Ubuntu"|"Debian")
 		CMD="dpkg -l | grep -i openoffice"
 		;;
@@ -19,7 +19,7 @@ case $DISTRVENDOR in
 		CMD="rpm -qa | grep -i openoffice"
 		;;
 	*)
-		echo "Skipping unknown DISTRVENDOR $DISTRVENDOR"
+		echo "Skipping unknown DISTRNAME $DISTRNAME"
 		;;
 esac
 

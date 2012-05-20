@@ -3,8 +3,8 @@
 # Test ld
 
 echo "Run script on `distr_vendor`"
-DISTRVENDOR=/usr/bin/distr_vendor
-INFO="$($DISTRVENDOR) LD"
+DISTRNAME=/usr/bin/distr_vendor
+INFO="$($DISTRNAME) LD"
 
 # Create test file
 cat >test_ld.c <<EOF
