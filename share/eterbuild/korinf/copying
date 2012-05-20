@@ -169,7 +169,7 @@ copying_packages()
 	fi
 
 	copying_packages_by_list "$DESTDIR" "$MAINFILESLIST" "$EXPMAINFILES" || RC=1
-	copying_packages_by_list "$DESTDIR/extra" "$EXTRAMAINFILESLIST" "$EXPEXTRAMAINFILES" || RC=1
+	copying_packages_by_list "$DESTDIR/extra" "$EXTRAFILESLIST" "$EXPEXTRAFILES" || RC=1
 
 	# Return OK if one of files is exists
 	for i in $EXPMAINFILES $EXPEXTRAFILES ; do

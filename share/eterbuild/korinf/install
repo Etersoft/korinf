@@ -98,13 +98,13 @@ install_req()
 	local LISTPKG CMD LOGFAILFILE dist=$1
 	load_mod repl rpm
 
+	# TODO: we can do direct translation and skip this package creating
 	convert_rpm_to_target $dist
 
 	# create needed files in home directory
 	init_home
 
 	# Note: see the same code in rpmgp
-	# FIXME: remove already installed packages (f.i. if installed package does not exists in repo, install failed on Mandriva)
 	LISTPKG=$(rpmquery --requires -p "$TARGETSRPM" | clean_pkgreq | filter_out_installed_packages)
 	LISTPKG=$(strip_spaces $LISTPKG)
 

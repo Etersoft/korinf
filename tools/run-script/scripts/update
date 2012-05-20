@@ -9,7 +9,8 @@ cd /tmp
 
 case $DISTRNAME in
 	"ALTLinux"|"Ubuntu"|"Debian"|"PCLinux")
-		CMD="apt-get update"
+		CMDU="apt-get update"
+		CMDF="apt-get -f install"
 		;;
 # skip, will do it automagically
 #	"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific")
@@ -25,8 +26,9 @@ case $DISTRNAME in
 #		;;
 	*)
 		RET=1
-		CMD="echo \"Do not known install command for DISTRVENDOR $DISTRVENDOR\""
+		CMDU="echo \"Do not known install command for DISTRNAME $DISTRNAME\""
+		CMDF="false"
 		;;
 esac
 
-$CMD $1
+$CMDU && $CMDF
