@@ -80,9 +80,10 @@ check_package_requires()
 	echo "Note: we do not use info from built packages, only check if file is exists"
 
 	for dist in $(get_distro_list $REBUILDLIST) ; do
-		# fills $BUILDARCH, $DISTRNAME, $DISTRVERSION
-		test -L "$TARGETPATH/$dist" && continue
+		DESTDIR="$TARGETPATH/$dist"
+		test -L "$DESTDIR" && continue
 
+		# fills $BUILDARCH, $DISTRNAME, $DISTRVERSION
 		parse_dist_name $dist
 		[ -z "$DISTRNAME" ] && fatal "Empty DISTRNAME for $dist"
 
@@ -97,7 +98,7 @@ check_package_requires()
 		reqs=$(convert_pkgreqs_to_target $reqs)
 		print_check_reqs_item $dist $BUILDSRPM $reqs
 
-		for j in $(expand_mask_in_dir $TARGETPATH/$dist $EXPMAINFILES) $(expand_mask_in_dir $TARGETPATH/$dist/extra $EXPEXTRAFILES) ; do
+		for j in $(expand_mask_in_dir $DESTDIR $EXPMAINFILES) $(expand_mask_in_dir $DESTDIR/extra $EXPEXTRAFILES) ; do
 			[ -r "$j" ] || continue
 			pkgname=$(get_pkgname_from_filename $j)
 			reqs=$(get_target_deplist $pkgname)
