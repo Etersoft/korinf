@@ -70,6 +70,10 @@ install_built()
 			fatal "Target $PKGFORMAT does not supported yet for install"
 			;;
 	esac
+
+	# mark as failed if install is not completed succefully
+	[ "$RES" = 0 ] || set_build_failed
+
 	return $RES
 }
 
