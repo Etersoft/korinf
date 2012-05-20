@@ -24,6 +24,7 @@
 expand_filelist()
 {
         [ -n"$PKGFORMAT" ] || fatal "PKGFORMAT is empty"
+        # FIXME: bash related
         declare -a ar
         ar=( $@ )
         for i in `seq 0 $(( ${#ar[@]} - 1))`; do

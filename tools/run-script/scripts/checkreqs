@@ -2,7 +2,7 @@
 
 # get owner package for file
 
-echo "Run $0 $1 script on `distr_vendor`"
+echo "Run $0 script on `distr_vendor`"
 DISTRNAME=`/usr/bin/distr_vendor -d`
 
 [ -n "$1" ] || { echo "Error: Run with dir as param" ; exit 1 ; }

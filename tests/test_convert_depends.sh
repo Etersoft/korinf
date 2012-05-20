@@ -20,8 +20,9 @@ PKGFORMAT=rpm
 DISTRVERSION=6
 
 BUILDARCH=i586
-
+echo "==="
 get_target_deplist $(get_pkgname_from_filename $testfile) | tee test.file
+echo "==="
 diff -u /var/ftp/pub/Etersoft/RX@Etersoft/testing/ALTLinux/Sisyphus/log/nxclient*depends test.file
 #rm -f test.file
 

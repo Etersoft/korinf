@@ -9,6 +9,7 @@ if [ -z "$CHROOTDIR" ] ; then
 # We need rw group and permit reading to all
 umask 0002
 
+USER_LANG=$LANG
 export LANG=C
 export LC_ALL=C
 

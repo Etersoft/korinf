@@ -27,10 +27,11 @@ function build_in_hasher()
 {
 	set_target_type $(get_altdistr_mod $DISTRVERSION)
 	detect_target_env >>$LOGFILE 2>&1
-	# workaround for detect needed path build for another target
+	# workaround for detect needed path build for other target arch
 	HASHERDIR=$(set_hasherdir; echo $HASHERDIR )
 	BUILTRPM=$HASHERDIR/repo/$BUILDARCH/RPMS.hasher
 
+	# HACK: try to use previous built packages
 	if [ -d "$DESTDIR/RPMS.main" ] ; then
 		# FIXME: it works only for Sisyphus, needs /extra too...
 		export ETERBUILD_APTREPO="rpm-dir file:$(dirname $DESTDIR) $(basename $DESTDIR) main"
