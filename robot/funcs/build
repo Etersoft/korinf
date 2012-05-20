@@ -29,33 +29,6 @@
 
 kormod check_integrity
 
-# do not used, obsoleted
-check_and_refresh_package()
-{
-	# Etersoft/WINE@Etersoft/last/WINE/SUSE/12
-	local TARGETPATH="$1"
-	# Etersoft/WINE@Etersoft/last/sources
-	local SOURCEPATH="$(readlink -f "$TARGETPATH/$2")"
-	# Etersoft/WINE@Etersoft
-	local PUBPATH="$(readlink -f "$SOURCEPATH/../..")"
-	# WINE
-	local PUBPART="$(basename $(readlink -f "$TARGETPATH/../.."))"
-	# haspd
-	local BUILDNAME=$3
-
-	return 1
-	# FIXMEP get_..._package always returns true
-	#local SRCRPM=$(get_src_package $BUILDNAME || fatal "Source package for $BUILDNAME is not found")
-	#local BINPKG=$(get_bin_package $BUILDNAME || fatal "Binary package $BUILDNAME is not found")
-
-	# if binary is newer than src.rpm, return OK
-	test $BINPKG -nt $SRCRPM && return 0
-
-	#build_project $PUBPATH $BUILDNAME $PUBPART $DIST $WINENUMVERSION && return 0
-	$AROBOTDIR/../bin-wine/$4 $DIST $WINENUMVERSION && return 0
-
-	return 1
-}
 
 # Specially WINE@Etersoft case (use external DIST and PROJECTVERSION)
 check_and_refresh_package_wine()
