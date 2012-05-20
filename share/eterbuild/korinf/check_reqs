@@ -34,6 +34,18 @@ try_install_by_list()
 	return $RES
 }
 
+# FIXME: move to common funcs
+# args: dir mask
+expand_mask_in_dir()
+{
+	local tdir=$1
+	shift
+	local i
+	for i in $@ ; do
+		echo $tdir/$i
+	done
+}
+
 # check package existing by REBUILDLIST
 # used: TARGETPATH REBUILDLIST
 check_package_requires()
@@ -57,10 +69,10 @@ check_package_requires()
 
 		# fills $PKGFORMAT, $PKGVENDOR, $RPMVENDOR
 		set_target_var
-		echo
+		prepare_filelist
 		[ "$CHECKREQUIRES" = "-R" ] && echo "====================="
 		printf "%-20s\n" "$BUILDARCH/$DISTRNAME/$DISTRVERSION"
-		for j in $TARGETPATH/$dist/*.$PKGFORMAT $TARGETPATH/$dist/extra/*.$PKGFORMAT ; do
+		for j in $(expand_mask_in_dir $TARGETPATH/$dist $EXPMAINFILES) $(expand_mask_in_dir $TARGETPATH/$dist/extra $EXPEXTRAFILES) ; do
 			[ -r "$j" ] || continue
 			pkgname=$(get_pkgname_from_filename $j)
 			reqs=$(get_target_deplist $pkgname)
