@@ -57,13 +57,15 @@ print_check_reqs_item()
 
 	if [ "$CHECKREQUIRES" = "-R" ] ; then
 		printf "* %s: %s" "$fname" "$(echo $reqs)"
-		[ -z "$reqs" ] && echo "EMPTY" && continue
+		[ -z "$reqs" ] && skipped && echo && continue
 		echo
-		try_install_by_list $dist "$reqs" && echo "  OK" || echo "FAIL"
+		try_install_by_list $dist "$reqs" && success || failure
+		echo
 	else
 		printf "  * %60s: " "$fname"
 		[ -z "$reqs" ] && echo "Empty list" && continue
-		try_install_by_list $dist "$reqs" >/dev/null 2>&1 && echo "  OK" || echo "FAIL"
+		try_install_by_list $dist "$reqs" >/dev/null 2>&1 && success || failure
+		echo
 	fi
 }
 
