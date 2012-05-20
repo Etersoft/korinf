@@ -92,9 +92,8 @@ copying_packages_by_list()
 {
 	local i
 	local destdir="$1"
-	local fileslist="$2"
-	local expfiles="$3"
-	[ -n "$fileslist" ] || return
+	local expfiles="$2"
+	[ -n "$expfiles" ] || return
 
 	mkdir_dest $destdir/
 	echo "Copying built packages $expfiles to $destdir..."
@@ -166,8 +165,8 @@ copying_packages()
 		rm -f *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-*
 	fi
 
-	copying_packages_by_list "$DESTDIR" "$MAINFILESLIST" "$EXPMAINFILES" || RC=1
-	copying_packages_by_list "$DESTDIR/extra" "$EXTRAFILESLIST" "$EXPEXTRAFILES" || RC=1
+	copying_packages_by_list "$DESTDIR" "$EXPMAINFILES" || RC=1
+	copying_packages_by_list "$DESTDIR/extra" "$EXPEXTRAFILES" || RC=1
 
 	# Return OK if one of files is exists
 	for i in $EXPMAINFILES $EXPEXTRAFILES ; do
