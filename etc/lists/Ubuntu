@@ -5,12 +5,12 @@
 # LTS until 04.2013
 Ubuntu/8.04
 #Ubuntu/8.10
-Ubuntu/9.04
-Ubuntu/9.10
+#Ubuntu/9.04
+#Ubuntu/9.10
 
 # LTS until 04.2015
 Ubuntu/10.04
-Ubuntu/10.10
+#Ubuntu/10.10
 Ubuntu/11.04
 Ubuntu/11.10
 
