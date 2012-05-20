@@ -84,11 +84,7 @@ mark_build_done()
 	chmod ug+rw $DESTDIR/* -R 2>/dev/null
 	chmod o+r $DESTDIR/* -R 2>/dev/null
 
-	# remove fatal flag
-	rm -fv $DESTDIR/log/$BUILDNAME.autobuild.failed
-	rm -fv $DESTDIR/log/$BUILDNAME.build.failed
-
-	true
+	clear_build_status
 }
 
 # used $dist

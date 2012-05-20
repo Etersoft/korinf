@@ -22,28 +22,30 @@
 ##
 
 # check package existing by REBUILDLIST
+# used TARGETPATH
 check_built_package()
 {
-	local BUILDNAME=$1
 	local NAME FILEDATE FILESIZE BASENAME FILENAME
+
+	BUILDNAME=$1
 
 	for i in $(get_distro_list $REBUILDLIST) ; do
 
 		NAME=$i
 		ST="   "
-		test -L "$TARGETPATH/$i" && NAME="$NAME [L]"
-
-		FILENAME=$(get_bin_package "$TARGETPATH/$i" $BUILDNAME check)
+		DESTDIR=$TARGETPATH/$i
+		test -L "$DESTDIR" && NAME="$NAME [L]"
+		FILENAME=$(get_bin_package "$DESTDIR" $BUILDNAME check)
 
 		if [ -r "$FILENAME" ] ; then
 			FILEDATE=`stat -c"%y" $FILENAME | sed -e "s|:[0-9][0-9]\..*$||"`
 			FILESIZE=`stat -c"%s" $FILENAME`
 			BASENAME=`basename $FILENAME`
 			[ "$BUILDSRPM" -nt "$FILENAME" ] && ST="OBS"
-			[ -f "$TARGETPATH/$i/log/$BUILDNAME.autobuild.failed" ] && ST="ABF"
-			[ -f "$TARGETPATH/$i/log/$BUILDNAME.build.failed" ] && ST="FIL"
+			is_autobuild_failed && ST="ABF"
+			is_build_failed && ST="FIL"
 		else
-			if [ -d "$TARGETPATH/$i/" ] ; then
+			if [ -d "$DESTDIR/" ] ; then
 				FILEDATE="MISSED"
 			else
 				FILEDATE="MISDIR"
@@ -58,7 +60,7 @@ check_built_package()
 		printf " %s " "$ST"
 		SETCOLOR_NORMAL
 		printf "%s" "$BASENAME"
-		test -L "$TARGETPATH/$i" && echo -n " (link to `readlink $TARGETPATH/$i`)"
+		test -L "$DESTDIR" && echo -n " (link to `readlink $DESTDIR`)"
 		echo
 	done
 	echo "Legend: MIS - missed, OBS - obsoleted build, ABF - autobuild failed, FIL - manual build failed"
