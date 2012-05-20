@@ -98,9 +98,6 @@ install_req()
 	local LISTPKG CMD LOGFAILFILE dist=$1
 	load_mod repl rpm
 
-	# TODO: we can do direct translation and skip this package creating
-	convert_rpm_to_target $dist
-
 	# create needed files in home directory
 	init_home
 
