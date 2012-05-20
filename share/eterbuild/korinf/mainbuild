@@ -21,7 +21,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-kormod mount copying install log
+kormod mount copying install log status
 kormod distro check_built
 
 mainbuild()
@@ -102,15 +102,14 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 			fi
 			loginfo "build already failed package $BUILDNAME"
 		else
+			if ! do_need_build_package $BUILDNAME ; then
+				logit "$BUILDNAME is up-to-date" SKIPPED
+				# remove fatal flag if checking is passed
+				clear_build_status
+				echo `date` $BUILDNAME on $dist PASSED | write_report
+				continue
+			fi
 			loginfo "build package $BUILDNAME"
-		fi
-
-		if ! do_need_build_package $BUILDNAME ; then
-			logit "$BUILDNAME is up-to-date" SKIPPED
-			# remove fatal flag if checking is passed
-			clear_build_status
-			echo `date` $BUILDNAME on $dist PASSED | write_report
-			continue
 		fi
 	fi
 
