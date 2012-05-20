@@ -1,0 +1,60 @@
+#!/bin/bash
+##
+#  Korinf project
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+
+# Internal: printout args with add *.$PKGFORMAT
+expand_filelist()
+{
+        [ -n"$PKGFORMAT" ] || fatal "PKGFORMAT is empty"
+        declare -a ar
+        ar=( $@ )
+        for i in `seq 0 $(( ${#ar[@]} - 1))`; do
+                echo -n "${ar[i]}*.${PKGFORMAT} "
+        done
+}
+
+prepare_filelist()
+{
+	[ -z "$MAINFILESLIST$EXTRAFILESLIST" ] && fatal "Logical error with MAINFILESLIST EXTRAFILESLIST"
+	# expand file masks by PKGFORMAT
+	EXPMAINFILES=$(expand_filelist $MAINFILESLIST)
+	EXPEXTRAFILES=$(expand_filelist $EXTRAFILESLIST)
+
+	# expand file masks by rpm
+	EXPRPMMAINFILES=$(PKGFORMAT=rpm expand_filelist $MAINFILESLIST)
+	EXPRPMEXTRAFILES=$(PKGFORMAT=rpm expand_filelist $EXTRAFILESLIST)
+
+	# check for ebuild if gentoo
+	if [ "$PKGVENDOR" = "gentoo" ] ; then
+		EXPMAINFILES="$EXPMAINFILES ${BUILDNAME}*.ebuild"
+	fi
+
+	# only lowercase for deb packages
+	if [ "$PKGFORMAT" = "deb" ] ; then
+	    EXPMAINFILES=$(echo $EXPMAINFILES | tr 'A-Z' 'a-z')
+	    EXPEXTRAFILES=$(echo $EXPEXTRAFILES | tr 'A-Z' 'a-z')
+	fi
+
+	[ -n "$ADEBUG" ] && echo "EXPMAINFILES: $EXPMAINFILES EXPEXTRAFILES: $EXPEXTRAFILES"
+	[ -z "$EXPMAINFILES$EXPEXTRAFILES" ] && fatal "Logical error with EXPMAINFILES EXPEXTRAFILES"
+
+}
+
