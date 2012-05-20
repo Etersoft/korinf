@@ -64,7 +64,7 @@ build_package()
 	fi
 
 	if [ -z "$QUIET" ] ; then
-		echo "Build $BUILDNAME package"
+		#echo "Build $BUILDNAME package"
 		echo "Source dir: $SOURCEPATH"
 		echo "Target dir: $TARGETPATH"
 	fi
@@ -72,8 +72,6 @@ build_package()
 	if [ -z "$SOURCEPATH" ] || [ -z "$TARGETPATH" ] ; then
 		fatal "Source or target path is not set"
 	fi
-
-	[ -n "$ADEBUG" ] && echo "BUILDNAME: $BUILDNAME"
 
 	# HACK: Url for remote building
 	SOURCEURL=$(echo $SOURCEPATH | sed -e "s|/var/ftp/|ftp://server/|g")

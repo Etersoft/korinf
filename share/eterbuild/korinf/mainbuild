@@ -91,20 +91,21 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 	init_dist_log "$dist"
 
 	if [ -n "$FORCEREBUILDPACKAGE" ] || [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
-		logit "force build packages"
+		loginfo "forced build package $BUILDNAME"
 	else 
-		if [ -n "$REBUILDPACKAGE" ] ; then
-			logit "force build failed packages $BUILDNAME"
-		elif is_build_failed ; then
-			logit "build already was broken in manual build" SKIPPED
-			echo "`date` $BUILDNAME on $dist ALREADY FAILED" | write_report
-			RES=1
-			continue
+		if is_build_failed ; then
+			if [ -z "$REBUILDPACKAGE" ] ; then
+				loginfo "build was already broken in manual build" SKIPPED
+				echo "`date` $BUILDNAME on $dist ALREADY FAILED" | write_report
+				RES=1
+				continue
+			fi
+			loginfo "build already failed package $BUILDNAME"
+		else
+			loginfo "build package $BUILDNAME"
 		fi
 
-		if do_need_build_package $BUILDNAME ; then
-			logit "package $BUILDNAME"
-		else
+		if ! do_need_build_package $BUILDNAME ; then
 			logit "$BUILDNAME is up-to-date" SKIPPED
 			# remove fatal flag if checking is passed
 			clear_build_status

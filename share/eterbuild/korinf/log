@@ -113,7 +113,8 @@ print_spaces_instead_string()
 	STR="$1"
 	LEN=${#STR}
 	SPACES="                                                  "
-	echo "$SPACES" | cut -c 1-$LEN
+	#echo -n "$(echo "$SPACES" | cut -c 1-$LEN)"
+	echo -n "   "
 }
 
 
@@ -126,18 +127,25 @@ write_report()
 	fi
 }
 
+# internal
 PREVSYSTEMLOGIT=
-logit()
+print_pretty_distroname()
 {
-	local RET STRMSG SYSNOW logtimestamp
 	if [ "$PREVSYSTEMLOGIT" = "$dist" ] ; then
-		SYSNOW=`print_spaces_instead_string "$dist"`
+		print_spaces_instead_string "$dist"
 	else
 		echo
-		SYSNOW=$dist
+		echo -n "$dist"
 	fi
-	STRMSG="$SYSNOW * [`date '+%R'`] $1 ... "
 	PREVSYSTEMLOGIT=$dist
+}
+
+logit()
+{
+	local RET STRMSG logtimestamp
+	print_pretty_distroname
+
+	STRMSG=" * [`date '+%T'`] $1 ... "
 	# print one line if scripted night build
 	[ -z "$NIGHTBUILD" ] && echo -n "$STRMSG"
 	shift
@@ -163,4 +171,10 @@ logit()
 	fi
 	echo
 	return $RET
+}
+
+loginfo()
+{
+	print_pretty_distroname
+	echo " : $1"
 }
