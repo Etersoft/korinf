@@ -144,13 +144,13 @@ case $DISTRNAME in
 
 	logit "mount root dir" mount_linux || return 1
 
-	logit "convert src.rpm to target $PKGVENDOR" convert_rpm_to_target $dist || return 1
-
 	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
 		logit "install requires" install_req $dist || return 1
 		logit "umount" end_umount || return 1
 		return 0
 	fi
+
+	logit "convert src.rpm to target $PKGVENDOR" convert_rpm_to_target $dist || return 1
 
 	logit "build RPM package" build_rpms $dist || return 1
 	prepare_filelist
