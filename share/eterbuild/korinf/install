@@ -86,6 +86,11 @@ filter_out_installed_packages()
 				su - -c "export LANG=C ; export LC_ALL=C ; xargs rpm -q 2>&1 | grep 'is not installed' | sed -e 's|^.*package \(.*\) is not installed.*|\1|g'" |
 					sed -e "s|rpm-build-altlinux-compat||g"
 			;;
+		"deb")
+			$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
+				su - -c "export LANG=C ; export LC_ALL=C ; xargs dpkg -L 2>&1 | grep 'is not installed.' | sed -e 's|^Package .\(.*\). is not installed.*|\1|g'" |
+					sed -e "s|rpm-build-altlinux-compat||g"
+			;;
 		*)
 			cat
 			;;
