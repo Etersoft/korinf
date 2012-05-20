@@ -54,10 +54,11 @@ clean_copying_destination()
 # Create dependence file for ALT Linux Sisyphus package
 make_alt_depends_list()
 {
-    [ -n "$1" ] || return
-    local pkgname=`basename $1`
-    echo "Dependencies list for $pkgname:"
-    trans_rpmdeps_to_pkgname $1 | tee $DESTDIR/log/$(get_pkgname_from_filename $pkgname).rpm.depends
+    local pkg="$1"
+    [ -n "$pkg" ] || return
+    echo "Dependencies list for $pkg:"
+    local reqlist="$(get_rpmpkg_requires -p "$pkg")"
+    trans_rpmdeps_to_pkgname $reqlist | tee $DESTDIR/log/$(get_pkgname_from_filename $pkg).rpm.depends
 }
 
 # Obsoleted due rpm-dir (since p5?) - but rpm-dir only work locally
@@ -107,6 +108,7 @@ copying_packages_by_list()
 			continue
 		fi
 
+		# FIXME: need move to build/hasher
 		if [ "$dist" = "ALTLinux/Sisyphus" ]; then
 		    make_alt_depends_list "$i" || warning "Some depends error with $i"
 		fi
