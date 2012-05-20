@@ -154,7 +154,12 @@ logit()
 	if [ "$1" = "SKIPPED" ] ; then
 		skipped
 	else
-		[ "$RET" = 0 ] && success || failure
+		case "$RET" in
+			0) success ;;
+			1) failure ;;
+			2) skipped ;;
+			*) failure ;;
+		esac
 	fi
 	echo
 	return $RET
