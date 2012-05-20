@@ -72,7 +72,6 @@ print_check_reqs_item()
 check_package_requires()
 {
 	local BUILDNAME=$1
-	local SRCPKG
 	local reqs
 
 	if [ ! -d "$TARGETPATH" ] ; then
@@ -83,8 +82,6 @@ check_package_requires()
 	test -L "$TARGETPATH/$dist" && continue
 
 	echo "Note: we do not use info from built packages, only check if file is exists"
-	SRCPKG=$(get_src_package "$SOURCEPATH" $BUILDNAME)
-	[ -n "$QUIET" ] || echo "Source package: $SRCPKG"
 
 	for dist in $(get_distro_list $REBUILDLIST) ; do
 		# fills $BUILDARCH, $DISTRNAME, $DISTRVERSION
@@ -98,9 +95,9 @@ check_package_requires()
 		printf "%-20s\n" "$BUILDARCH/$DISTRNAME/$DISTRVERSION"
 
 		# first print about source package
-		reqs=$(get_rpmpkg_requires -p $SRCPKG)
+		reqs=$(get_rpmpkg_requires -p $BUILDSRPM)
 		reqs=$(convert_pkgreqs_to_target $reqs)
-		print_check_reqs_item $dist $SRCPKG $reqs
+		print_check_reqs_item $dist $BUILDSRPM $reqs
 
 		for j in $(expand_mask_in_dir $TARGETPATH/$dist $EXPMAINFILES) $(expand_mask_in_dir $TARGETPATH/$dist/extra $EXPEXTRAFILES) ; do
 			[ -r "$j" ] || continue

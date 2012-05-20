@@ -26,15 +26,11 @@ check_built_package()
 {
 	local BUILDNAME=$1
 	local NAME FILEDATE FILESIZE BASENAME FILENAME
-	local SRCPKG
 
 	if [ ! -d "$TARGETPATH" ] ; then
 		echo "Path TARGETPATH:'$TARGETPATH' is missed"
 		return 1
 	fi
-
-	SRCPKG=$(get_src_package "$SOURCEPATH" $BUILDNAME)
-	[ -n "$QUIET" ] || echo "Source package: $SRCPKG"
 
 	for i in $(get_distro_list $REBUILDLIST) ; do
 
@@ -48,7 +44,7 @@ check_built_package()
 			FILEDATE=`stat -c"%y" $FILENAME | sed -e "s|:[0-9][0-9]\..*$||"`
 			FILESIZE=`stat -c"%s" $FILENAME`
 			BASENAME=`basename $FILENAME`
-			[ "$SRCPKG" -nt "$FILENAME" ] && ST="OBS"
+			[ "$BUILDSRPM" -nt "$FILENAME" ] && ST="OBS"
 			[ -f "$TARGETPATH/$i/log/$BUILDNAME.autobuild.failed" ] && ST="ABF"
 			[ -f "$TARGETPATH/$i/log/$BUILDNAME.build.failed" ] && ST="FIL"
 		else
