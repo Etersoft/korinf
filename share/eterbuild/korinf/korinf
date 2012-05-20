@@ -26,12 +26,20 @@
 #  export REBUILDLIST=Fedora/10
 #  build_package your-package-name
 
+kormod message log mainbuild mount
 
-kormod message main
+exit_handler()
+{
+    local rc=$?
+    trap - EXIT
+    warning "Interrupted, exiting..."
+    end_umount
+    exit $rc
+}
 
 
 # build binary packages according to REBUILDLIST
-# arg: package_name [HELPER]
+# arg: package_name
 build_package()
 {
 	# FIXME: for compatibility
@@ -65,22 +73,54 @@ build_package()
 		fatal "Source or target path is not set"
 	fi
 
+	[ -n "$ADEBUG" ] && echo "BUILDNAME: $BUILDNAME"
+
+	# HACK: Url for remote building
+	SOURCEURL=$(echo $SOURCEPATH | sed -e "s|/var/ftp/|ftp://server/|g")
+
+	# On systems with portage change wine package name
+	# FIXME: set PACKAGE individually
+	[ "$BUILDNAME" = "wine" ] && PACKAGE="wine-etersoft-public" || PACKAGE=$BUILDNAME
+
+	# IMPROVE: get src.rpm from some private dir
+	BUILDSRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME || fatal "Can't find package for $BUILDNAME")
+
+	PACKAGEVERSION=$(rpm -qp "$BUILDSRPM" --queryformat="%{VERSION}")
+	[ -n "$PACKAGEVERSION" ] || fatal "Can't get version from $BUILDSRPM package"
+
+	PACKAGERELEASE=$(rpm -qp "$BUILDSRPM" --queryformat="%{RELEASE}" | sed -e "s|^alt|eter|g")
+	[ -n "$PACKAGERELEASE" ] || fatal "Can't get release from $BUILDSRPM package"
+
+	# always failed if gpg is missed
+	rpm --checksig $BUILDSRPM || fatal "GPG check failed"
+
+	# Assure we have no too open perms on private key
+	if [ -w "$PRIVATESSHKEY" ] ; then
+		chmod 600 "$PRIVATESSHKEY" || fatal "SSH key permissions problem"
+	fi
+
+	# disable gear using due pre hasher repacking problem
+	export IGNOREGEAR=1
+
+
+	trap exit_handler EXIT HUP INT QUIT PIPE TERM
+
 	if [ -n "$CHECKPACKAGE" ] ; then
 		kormod check_built
 		check_built_package "$BUILDNAME"
-		return $?
-	fi
-
-	if [ -n "$CHECKREQUIRES" ] ; then
+	elif [ -n "$CHECKREQUIRES" ] ; then
 		kormod check_reqs
 		check_package_requires "$BUILDNAME"
-		return $?
+	else
+		mainbuild
 	fi
 
-	main_build
+	# disable trap before exit
+	trap - EXIT
 }
 
 
+# FIXME: remove this func
 # build source packages according to REBUILDLIST
 # args: package_name
 build_srcrpm()

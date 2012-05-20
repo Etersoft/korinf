@@ -24,63 +24,10 @@
 kormod mount copying install log
 kormod distro check_built
 
-
-exit_handler()
+mainbuild()
 {
-    local rc=$?
-    trap - EXIT
-    warning "Interrupted, exiting..."
-    end_umount
-    exit $rc
-}
-
-main_build()
-{
-
-trap exit_handler EXIT HUP INT QUIT PIPE TERM
-
-[ -n "$ADEBUG" ] && echo "BUILDNAME: $BUILDNAME"
-
-# HACK: Url for remote building
-SOURCEURL=$(echo $SOURCEPATH | sed -e "s|/var/ftp/|ftp://server/|g")
-
-# On systems with portage change wine package name
-# FIXME: set PACKAGE individually
-[ "$BUILDNAME" = "wine" ] && PACKAGE="wine-etersoft-public" || PACKAGE=$BUILDNAME
-
-# IMPROVE: get src.rpm from some private dir
-BUILDSRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME || fatal "Can't find package for $BUILDNAME")
-
-PACKAGEVERSION=$(rpm -qp "$BUILDSRPM" --queryformat="%{VERSION}")
-[ -n "$PACKAGEVERSION" ] || fatal "Can't get version from $BUILDSRPM package"
-
-PACKAGERELEASE=$(rpm -qp "$BUILDSRPM" --queryformat="%{RELEASE}" | sed -e "s|^alt|eter|g")
-[ -n "$PACKAGERELEASE" ] || fatal "Can't get release from $BUILDSRPM package"
-
-# always failed if gpg is missed
-if true || [ -n "$NIGHTBUILD" ] ; then
-	rpm --checksig $BUILDSRPM || fatal "GPG check failed"
-else
-	if [ -n "$QUIET" ] ; then
-		rpm --checksig $BUILDSRPM >/dev/null || warning "GPG check failed"
-	else
-		rpm --checksig $BUILDSRPM || warning "GPG check failed"
-	fi
-fi
-
-# Assure we have no too open perms on private key
-if [ -w "$PRIVATESSHKEY" ] ; then
-	chmod 600 "$PRIVATESSHKEY" || fatal "SSH key permissions problem"
-fi
-
-# disable gear using due pre hasher repacking problem
-export IGNOREGEAR=1
-
-CMDRE=$(get_distro_list $REBUILDLIST)
-[ -z "$CMDRE" ] && fatal "build list is empty"
-
 RES=0
-for dist in $CMDRE ; do
+for dist in $(get_distro_list $REBUILDLIST) ; do
 
 	# FIXME: add i586 support
 	#dist is x86_64/Name/Version or Name/Version
@@ -166,11 +113,14 @@ for dist in $CMDRE ; do
 	# Clean log
 	reset_dist_log "$dist"
 
+	# Expand MAINFILELIST, EXTRAFILELIST
+	prepare_filelist
+
 	# Run build and check result
 	if build_dist_pkg ; then
 		logit "copying log" copying_log || fatal "Can't copying log"
 	else
-		logit "copying sources of broken package" copying_sources
+		[ -z "$INSTALLREQUIREDPACKAGE" ] && logit "copying sources of broken package" copying_sources
 
 		# Get error, umount if do not need debug
 		if [ -z "$ADEBUG" ] ; then
@@ -190,9 +140,6 @@ for dist in $CMDRE ; do
 
 	echo `date` $BUILDSRPM on $dist DONE | write_report
 done
-
-# disable trap before exit
-trap - EXIT
 
 return $RES
 }
