@@ -21,13 +21,16 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-kormod filelist
+kormod filelist log
 load_mod rpm
 
 try_install_by_list()
 {
 	local dist=$1
 	shift
+	echo
+	echo "=========================="
+	echo "Simulate install for $dist"
 	cd ../tools/run-script
 	./run-script.sh $dist checkreqs "$@"
 	local RES=$?
@@ -47,6 +50,17 @@ expand_mask_in_dir()
 	done
 }
 
+# get package names extact from real names
+# internal
+# Note: I think it is the same like MAINFILES and EXTRAFILES
+get_real_package_names()
+{
+	local j
+	for j in $(expand_mask_in_dir $DESTDIR $EXPMAINFILES) $(expand_mask_in_dir $DESTDIR/extra $EXPEXTRAFILES) ; do
+		get_pkgname_from_filename $j
+	done
+}
+
 # args: dist file reqs
 print_check_reqs_item()
 {
@@ -63,7 +77,7 @@ print_check_reqs_item()
 		echo
 	else
 		printf "  * %60s: " "$fname"
-		[ -z "$reqs" ] && echo "Empty list" && continue
+		[ -z "$reqs" ] && skipped && echo && continue
 		try_install_by_list $dist "$reqs" >/dev/null 2>&1 && success || failure
 		echo
 	fi
@@ -93,15 +107,18 @@ check_package_requires()
 		[ "$CHECKREQUIRES" = "-R" ] && echo "====================="
 		printf "%-20s\n" "$BUILDARCH/$DISTRNAME/$DISTRVERSION"
 
+		local pkgnames="$(get_real_package_names)"
 		# first print about source package
 		reqs=$(get_rpmpkg_requires -p $BUILDSRPM)
 		reqs=$(convert_pkgreqs_to_target $reqs)
+		reqs=$(do_exclude_list "$pkgnames" "$reqs")
 		print_check_reqs_item $dist $BUILDSRPM $reqs
-
+		# FIXME: use pkgnames instead expand_mask_in_dir?
 		for j in $(expand_mask_in_dir $DESTDIR $EXPMAINFILES) $(expand_mask_in_dir $DESTDIR/extra $EXPEXTRAFILES) ; do
 			[ -r "$j" ] || continue
 			pkgname=$(get_pkgname_from_filename $j)
 			reqs=$(get_target_deplist $pkgname)
+			reqs=$(do_exclude_list "$pkgnames" "$reqs")
 			print_check_reqs_item $dist $j $reqs
 		done
 	done
