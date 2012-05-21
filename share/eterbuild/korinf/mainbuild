@@ -100,7 +100,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 				RES=1
 				continue
 			fi
-			loginfo "build already failed package $BUILDNAME"
+			loginfo "rebuild previously failed package $BUILDNAME"
 		else
 			if ! do_need_build_package $BUILDNAME ; then
 				logit "$BUILDNAME is up-to-date" SKIPPED

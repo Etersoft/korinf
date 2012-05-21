@@ -101,6 +101,9 @@ check_package_requires()
 		parse_dist_name $dist
 		[ -z "$DISTRNAME" ] && fatal "Empty DISTRNAME for $dist"
 
+		# hack to skip ALT checking
+		[ "$DISTRNAME" = "ALTLinux" ] && continue
+
 		# fills $PKGFORMAT, $PKGVENDOR, $RPMVENDOR
 		set_target_var
 		prepare_filelist

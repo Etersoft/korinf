@@ -128,7 +128,6 @@ write_report()
 }
 
 # internal
-PREVSYSTEMLOGIT=
 print_pretty_distroname()
 {
 	if [ "$PREVSYSTEMLOGIT" = "$dist" ] ; then
@@ -136,8 +135,8 @@ print_pretty_distroname()
 	else
 		echo
 		echo -n "$dist"
+		PREVSYSTEMLOGIT=$dist
 	fi
-	PREVSYSTEMLOGIT=$dist
 }
 
 logit()
