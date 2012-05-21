@@ -124,3 +124,14 @@ check_package_requires()
 	done
 }
 
+# used DESTDIR, dist, EXPMAINFILES, EXPEXTRAFILES
+test_package_requirements()
+{
+	local pkgname
+	local pkgnames="$(get_real_package_names)"
+	for pkgname in $pkgnames ; do
+		reqs=$(get_target_deplist $pkgname)
+		reqs=$(do_exclude_list "$pkgnames" "$reqs")
+		try_install_by_list $dist "$reqs" || return
+	done
+}

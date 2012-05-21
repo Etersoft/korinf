@@ -118,9 +118,14 @@ case $DISTRNAME in
 		logit "convert RPM to $PKGFORMAT ($PACKAGERELEASE$PKGVENDOR)" convert_rpm || return 1
 	fi
 
+	if [ -z "$MAKESPKG" ]; then
+		logit "test built packages requirements" test_package_requirements || return 1
+	fi
+
 	if [ -n "$BOOTSTRAP" ] && [ -z "$MAKESPKG" ]; then
 		logit "install built packages" install_built || return 1
 	fi
+	
 
 	logit "copying to FTP dir $dist" copying_packages || return 1
 	logit "umount" end_umount || return 1
