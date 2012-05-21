@@ -71,8 +71,7 @@ fi
 echo "Chrooting in $SYS system with $BUILDARCH arch"
 
 if [ "$SYSARCH" != "$BUILDARCH" ] ; then
-    echo "Please login to $BUILDARCH arch from a machine with the same arch (you were try from $SYSARCH)"
-    exit 1
+    echo "Note: It is better to login to $BUILDARCH arch from a machine with the same arch (you were try from $SYSARCH)"
 fi
 
 USERCO="su -"

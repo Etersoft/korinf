@@ -28,8 +28,8 @@ case $DISTRNAME in
 #		CMD=""
 #		;;
 	*)
-		RET=1
-		CMD="echo \"Do not known install command for DISTRNAME $DISTRNAME\""
+ 		echo "Do not known install command for DISTRNAME $DISTRNAME"
+ 		return 2
 		;;
 esac
 
