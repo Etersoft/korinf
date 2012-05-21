@@ -41,7 +41,7 @@ install_built()
 	# Note: немного странно с кавычками и разворачиванием звёздочек
 	case $PKGFORMAT in
 		"deb") # Debian/Ubuntu
-			$SUDO chroot $BUILDROOT su - -c "export LC_ALL=C ; cd $INTBUILT && $NICE dpkg -i --force-all ${EXPMAINFILES} ${EXPEXTRAFILES}"
+			$SUDO chroot $BUILDROOT su - -c "export LC_ALL=C ; cd $INTBUILT && $NICE dpkg -i ${EXPMAINFILES} ${EXPEXTRAFILES} && apt-get -f install"
 			RES=$?
 			;;
 		"tgz") # Slackware
