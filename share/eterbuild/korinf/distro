@@ -92,7 +92,7 @@ case $DISTRNAME in
 	kormod build/hasher
 
 	logit "build in hasher $DISTRVERSION" build_in_hasher || return 1
-	logit "copying built packages to $dist" copying_packages || return 1
+	logit "copying to FTP dir" copying_packages || return 1
 	;;
 
 # Generic way
@@ -125,9 +125,8 @@ case $DISTRNAME in
 	if [ -n "$BOOTSTRAP" ] && [ -z "$MAKESPKG" ]; then
 		logit "install built packages" install_built || return 1
 	fi
-	
 
-	logit "copying to FTP dir $dist" copying_packages || return 1
+	logit "copying to FTP dir" copying_packages || return 1
 	logit "umount" end_umount || return 1
 	;;
 esac

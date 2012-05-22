@@ -52,7 +52,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 			# TODO: check linking
 			#logit "Link $dist to $(readlink $DESTDIR) already exists" SKIPPED
 			if [ $(readlink "$DESTDIR") != "../$LINKED" ] ; then
-				warning "Overwrite existed link $(readlink $DESTDIR) to ../$LINKED"
+				warning "Overwrite already existed link $(readlink $DESTDIR) to ../$LINKED"
 				rm -rfv "$DESTDIR"
 			else
 				logit "Linked to $(readlink $DESTDIR)" SKIPPED
@@ -60,8 +60,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 		fi
 		if [ ! -L "$DESTDIR" ] ; then
 			mkdir -p $(dirname "$DESTDIR")
-			ln -s ../$LINKED $DESTDIR
-			logit "Create link $dist to $LINKED" PASSED
+			logit "Create link $dist to $LINKED" ln -s ../$LINKED $DESTDIR
 		fi
 		# replace dist with linked
 		dist=$LINKED

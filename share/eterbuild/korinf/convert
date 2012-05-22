@@ -99,7 +99,7 @@ convert_by_target()
 		if [ -e $i ] ; then
 			run_alien --scripts --to-$PKGFORMAT ${DEPPARAM} $i || { warning "alien problem with $PKGFORMAT"; RES=1 ; return $RES ; }
 		else
-			warning "Package $i is missed in $DESTDIR"
+			warning "Package $i is missed in $(pwd)"
 		fi
 	done
 

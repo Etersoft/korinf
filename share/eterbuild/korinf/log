@@ -150,6 +150,8 @@ logit()
 	shift
 	logtimestamp=`date "+%s"`
 	if [ ! "$1" = "SKIPPED" ] && [ -n "$LOGFILE" ] ; then
+		echo >>$LOGFILE
+		echo "STEP $STRMSG" >>$LOGFILE
 		$* >>$LOGFILE 2>&1
 	fi
 	RET=$?

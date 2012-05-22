@@ -30,7 +30,7 @@ try_install_by_list()
 	shift
 	echo
 	echo "=========================="
-	echo "Simulate install for $dist"
+	echo "Simulate install '$@' for $dist"
 	cd ../tools/run-script
 	./run-script.sh $dist checkreqs "$@"
 	local RES=$?
@@ -127,6 +127,7 @@ check_package_requires()
 	done
 }
 
+# run before packages are copied, so can't use real files
 # used DESTDIR, dist, EXPMAINFILES, EXPEXTRAFILES
 test_package_requirements()
 {
