@@ -50,13 +50,12 @@ expand_mask_in_dir()
 	done
 }
 
-# get package names extact from real names
+# get package names extracted from package mask
 # internal
-# Note: I think it is the same like MAINFILES and EXTRAFILES
-get_real_package_names()
+get_target_package_names()
 {
 	local j
-	for j in $(expand_mask_in_dir $DESTDIR $EXPMAINFILES) $(expand_mask_in_dir $DESTDIR/extra $EXPEXTRAFILES) ; do
+	for j in $EXPMAINFILES $EXPEXTRAFILES ; do
 		get_pkgname_from_filename $j
 	done
 }
@@ -110,19 +109,21 @@ check_package_requires()
 		[ "$CHECKREQUIRES" = "-R" ] && echo "====================="
 		printf "%-20s\n" "$BUILDARCH/$DISTRNAME/$DISTRVERSION"
 
-		local pkgnames="$(get_real_package_names)"
+		local pkgnames="$(get_target_package_names)"
 		# first print about source package
 		reqs=$(get_rpmpkg_requires -p $BUILDSRPM)
 		reqs=$(convert_pkgreqs_to_target $reqs)
 		reqs=$(do_exclude_list "$pkgnames" "$reqs")
 		print_check_reqs_item $dist $BUILDSRPM $reqs
+		
+		for pkgname in $pkgnames ; do
 		# FIXME: use pkgnames instead expand_mask_in_dir?
-		for j in $(expand_mask_in_dir $DESTDIR $EXPMAINFILES) $(expand_mask_in_dir $DESTDIR/extra $EXPEXTRAFILES) ; do
-			[ -r "$j" ] || continue
-			pkgname=$(get_pkgname_from_filename $j)
+		#for j in $(expand_mask_in_dir $DESTDIR $EXPMAINFILES) $(expand_mask_in_dir $DESTDIR/extra $EXPEXTRAFILES) ; do
+		#	[ -r "$j" ] || continue
+		#	pkgname=$(get_pkgname_from_filename $j)
 			reqs=$(get_target_deplist $pkgname)
 			reqs=$(do_exclude_list "$pkgnames" "$reqs")
-			print_check_reqs_item $dist $j $reqs
+			print_check_reqs_item $dist $pkgname $reqs
 		done
 	done
 }
@@ -132,10 +133,12 @@ check_package_requires()
 test_package_requirements()
 {
 	local pkgname
-	local pkgnames="$(get_real_package_names)"
+	local pkgnames="$(get_target_package_names)"
 	for pkgname in $pkgnames ; do
 		reqs=$(get_target_deplist $pkgname)
 		reqs=$(do_exclude_list "$pkgnames" "$reqs")
+		echo "Try install '$reqs' for $pkgname"
+		[ -z "$reqs" ] && echo " empty list, skipped" && continue
 		try_install_by_list $dist "$reqs" || return
 	done
 }
