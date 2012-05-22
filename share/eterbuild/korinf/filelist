@@ -50,8 +50,8 @@ prepare_filelist()
 
 	# only lowercase for deb packages
 	if [ "$PKGFORMAT" = "deb" ] ; then
-	    EXPMAINFILES=$(echo $EXPMAINFILES | tr 'A-Z' 'a-z')
-	    EXPEXTRAFILES=$(echo $EXPEXTRAFILES | tr 'A-Z' 'a-z')
+	    EXPMAINFILES=$(echo $EXPMAINFILES | filter_deb_pkgnames)
+	    EXPEXTRAFILES=$(echo $EXPEXTRAFILES | filter_deb_pkgnames)
 	fi
 
 	[ -n "$ADEBUG" ] && echo "EXPMAINFILES: $EXPMAINFILES EXPEXTRAFILES: $EXPEXTRAFILES"
