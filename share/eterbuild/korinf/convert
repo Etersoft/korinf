@@ -59,10 +59,22 @@ get_target_deplist()
 	convert_pkgreqs_to_target $(cat $depfile)
 }
 
+# FIXME HACK: do the same name conversion as alien
+internal_get_deb_pkgname_from_rpm()
+{
+	echo $1 | tr [A-Z] [a-z] | sed -e "s|\.i586.rpm|_i386.deb|g" | sed -e "s|\.x86_64.rpm|_amd64.deb|g" |
+		sed -e "s|-\([0-9a-z\.]*\)-alt\(.*\)_|_\1-eter\2${PKGVENDOR}_|g"
+}
+
+# full package name tranlation rpm->deb
+get_deb_pkgname_from_rpm()
+{
+	internal_get_deb_pkgname_from_rpm $1 | filter_deb_pkgnames
+}
+
 convert_rpm_to_deb()
 {
 	local RELPKG=$PACKAGERELEASE$PKGVENDOR
-	local RES=0
 	local DEPPARAM=""
 
 	local PACKAGESLIST="$EXPRPMMAINFILES $EXPRPMEXTRAFILES"
@@ -78,13 +90,19 @@ convert_rpm_to_deb()
 			else
 				rm -f $DESTDIR/log/$depf.deb.depends
 			fi
-			run_alien --scripts --to-$PKGFORMAT ${DEPPARAM} $i || { warning "alien problem with $PKGFORMAT"; RES=1 ; return $RES ; }
+			run_alien --scripts --to-$PKGFORMAT ${DEPPARAM} $i || { warning "alien problem with $PKGFORMAT"; return 1; }
+			# rename result package to filtered name
+			local debname=$(internal_get_deb_pkgname_from_rpm $i)
+			local newdebname=$(get_deb_pkgname_from_rpm $i)
+			[ "$newdebname" != "$debname" ] && mv -v $debname $newdebname
 		else
-			warning "Package $i is missed in $DESTDIR"
+			warning "Fatal: Package $i is missed in $(pwd)"
+			# FIXME: some projects has variable package list
+			return 1
 		fi
 	done
 
-	return $RES
+	return 0
 }
 
 convert_by_target()
