@@ -1,6 +1,6 @@
 Name: korinf
-Version: 1.9.5
-Release: alt1.1
+Version: 1.9.6
+Release: alt1
 
 Summary: Korinf multidistro build system
 
@@ -16,7 +16,7 @@ Source: %name-%version.tar
 
 BuildArchitectures: noarch
 
-Requires: etersoft-build-utils >= 1.9.3
+Requires: etersoft-build-utils >= 2.0.11
 Requires: alien
 
 %description
@@ -43,6 +43,34 @@ This package contains Korinf multidistro build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Tue May 22 2012 Vitaly Lipatov <lav@altlinux.ru> 1.9.6-alt1
+- major rewrite
+- add autobuild script for wine private
+- add check-x86_64-wine.sh (eterbug #4550)
+- add initial script for install wine on vanilla
+- add status module with build status related functions and use it
+- introduce check_reqs for test dependencies (deb only)
+- rewrite copying
+- do build output more pretty looks
+- do not define BUILDROOT if not needed
+- fixed bug #8410. Tested for Gentoo/2009
+- fix run-script to allow any user, add scripts for remove packages, fix update/install
+- fix Windows version, add x86_64/Windows
+- improve rpm -> deb dependecies conversion (eterbug #8345)
+- install: do apt-get -f install after dpkg -i
+- install: install only not installed packages
+- install: mark as failed if afterbuild install is failed
+- install_req: convert reqs to target directly, without package conversion
+- korinf: add -r/-R option for check install requires
+- list: add support for include files from korinf/lists dir
+- mainbuild: do not build twice linked systems
+- mainbuild: do not just pass up-to-date packages
+- mount: mount /dev/shm if possible
+- move rpm-to-target part in separate convert file
+- move to use DISTRNAME, DISTRVERSION, BUILDARCH, PKGVENDOR..
+- rpm: add --without debug for nonrpm builds
+- wine-etersoft: autorebuild fonts-ttf-ms
+
 * Sat Oct 22 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.9.5-alt1.1
 - Rebuild with Python-2.7
 
