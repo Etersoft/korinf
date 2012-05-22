@@ -50,8 +50,7 @@ run_alien()
 # call with packagename
 get_target_deplist()
 {
-	local depf="$1"
-	local depfile=$TARGETPATH/ALTLinux/Sisyphus/log/$depf.rpm.depends
+	local depfile=$TARGETPATH/ALTLinux/Sisyphus/log/$1.rpm.depends
 	if [ ! -r $depfile ]; then
 		warning "Cannot locate '$depfile' file"
 		return 1

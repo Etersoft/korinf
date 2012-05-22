@@ -93,14 +93,14 @@ copying_packages_by_list()
 	local i
 	local destdir="$1"
 	local expfiles="$2"
-	[ -n "$expfiles" ] || return
+	[ -n "$expfiles" ] || return 0
 
 	mkdir_dest $destdir/
 	echo "Copying built packages $expfiles to $destdir..."
 	for i in $expfiles ; do
 		if [ ! -e $i ] ; then
 			warning "Cannot find package $i, skip copy"
-			continue
+			return 1
 		fi
 
 		# FIXME: need move to build/hasher
@@ -111,6 +111,7 @@ copying_packages_by_list()
 		cp -v $i $destdir/ || { warning "Cannot copy new packages $expfiles" ; return 1; }
 	done
 	make_md5sum $destdir/
+	true
 }
 
 copying_sources()
@@ -135,7 +136,7 @@ copying_packages()
 	pushd $BUILTRPM >/dev/null || warning "Can't cd to built rpm dir '$BUILTRPM'"
 	echo "Copying $PKGFORMAT packages from $BUILTRPM"
 
-	# Check if first package in the list is built
+	# Check if the first package in the list is built
 	for i in $EXPMAINFILES ; do
 		[ -e $i ] && break
 		RC=1
@@ -168,9 +169,9 @@ copying_packages()
 	copying_packages_by_list "$DESTDIR" "$EXPMAINFILES" || RC=1
 	copying_packages_by_list "$DESTDIR/extra" "$EXPEXTRAFILES" || RC=1
 
-	# Return OK if one of files is exists
+	# Return OK if all files are exists
 	for i in $EXPMAINFILES $EXPEXTRAFILES ; do
-		test -r $i && RC=0
+		test -r $i || RC=1
 	done
 
 	popd >/dev/null
@@ -185,9 +186,10 @@ copying_packages()
 			;;
 	esac
 
-	mark_build_done
-
-	copying_sources
+	if [ "$RC" = 0 ] ; then
+		copying_sources
+		mark_build_done
+	fi
 
 	return $RC
 }
