@@ -33,4 +33,4 @@ case $DISTRNAME in
 		;;
 esac
 
-$CMD $1
+eval "$CMD $1"
