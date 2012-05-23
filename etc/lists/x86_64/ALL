@@ -3,15 +3,15 @@
 
 #x86_64 systems (with prefix x86_64)
 
-. SUSE
-. Fedora
-. CentOS
+. x86_64/SUSE
+. x86_64/Fedora
+. x86_64/CentOS
 
-. Ubuntu
-. Debian
+. x86_64/Ubuntu
+. x86_64/Debian
 
-. Mandriva
+. x86_64/Mandriva
 
-. ALTLinux
+. x86_64/ALTLinux
 
-. gen
+. x86_64/gen

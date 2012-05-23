@@ -1,7 +1,7 @@
-x86_64/Fedora/11
-x86_64/Fedora/12
-x86_64/Fedora/13
-x86_64/Fedora/14
+#x86_64/Fedora/11
+#x86_64/Fedora/12
+#x86_64/Fedora/13
+#x86_64/Fedora/14
 x86_64/Fedora/15
 x86_64/Fedora/16
 x86_64/Fedora/17
