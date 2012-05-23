@@ -35,14 +35,14 @@ if [ -z "$1" ] || [ "$1" = "-h" ]; then
 	echo "     TARGETDIR - target dir instead default" >&2
 	echo "     version - set target project version" >&2
 	echo "you can use following options:" >&2
-	echo "	-r - set version of the target project" >&2
+	echo "	-v - set version of the target project" >&2
 	print_build_project_options >&2
 	exit 1
 fi
 
 # publish to unstable by default
 ALPHA=
-if [ "$1" = "-r" ] ; then
+if [ "$1" = "-v" ] ; then
 	ALPHA=$2
 	ALPHAARG="$1 $2"
 	shift 2
