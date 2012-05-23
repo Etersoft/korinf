@@ -140,7 +140,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 		RES=1
 	fi
 
-	echo `date` $BUILDSRPM on $dist DONE | write_report
+	echo `date` "$BUILDSRPM on $dist DONE with status '$RES'" | tee -a $LOGFILE | write_report
 done
 
 return $RES
