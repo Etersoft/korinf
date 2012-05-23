@@ -102,15 +102,11 @@ prepare_wine_etersoft()
 		cp -fl $i $FTPDIR/extra/ || cp -f $i $FTPDIR/extra/ || fatal "Can't copy $i"
 	done
 
-	DSAKEY=wine-etersoft.dsa
-	# FIXME: потом нужно сделать проверку по версии?
-	if [ "$TYPE" = "School" ] ; then
-		DSAKEY=wine-etersoft-2.0.dsa
-	fi
+	DSAKEY=wine-etersoft-2.0.dsa
 
 	# Тут же может быть testing в PROJECTVERSION, поэтому только его проверять нельзя
-	if echo "$PRODUCT" | grep -q "WINE@Etersoft 2" && [ "$PROJECTVERSION" != "1.0.12" ] ; then
-		DSAKEY=wine-etersoft-2.0.dsa
+	if echo "$PRODUCT" | grep -q "WINE@Etersoft 1\.0" ; then
+		DSAKEY=wine-etersoft.dsa
 	fi
 	
 	
