@@ -139,6 +139,17 @@ print_pretty_distroname()
 	fi
 }
 
+print_status()
+{
+	case "$1" in
+		0) success ;;
+		1) failure ;;
+		2) skipped ;;
+		*) failure ;;
+	esac
+	echo
+}
+
 logit()
 {
 	local RET STRMSG logtimestamp
@@ -162,15 +173,12 @@ logit()
 	[ $logtimestamp = "0" ] || echo -n "($logtimestamp secs) "
 	if [ "$1" = "SKIPPED" ] ; then
 		skipped
+		echo
 	else
-		case "$RET" in
-			0) success ;;
-			1) failure ;;
-			2) skipped ;;
-			*) failure ;;
-		esac
+		print_status $RET
 	fi
-	echo
+	# skipped status
+	[ "$RET" = 2 ] && RET=0
 	return $RET
 }
 

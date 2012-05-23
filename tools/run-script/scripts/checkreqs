@@ -29,7 +29,7 @@ case $DISTRNAME in
 #		;;
 	*)
  		echo "Do not known install command for DISTRNAME $DISTRNAME"
- 		return 2
+ 		exit 2
 		;;
 esac
 

@@ -72,13 +72,13 @@ print_check_reqs_item()
 		printf "* %s: %s" "$fname" "$(echo $reqs)"
 		[ -z "$reqs" ] && skipped && echo && continue
 		echo
-		try_install_by_list $dist "$reqs" && success || failure
-		echo
+		try_install_by_list $dist "$reqs"
+		print_status $?
 	else
 		printf "  * %60s: " "$fname"
 		[ -z "$reqs" ] && skipped && echo && continue
-		try_install_by_list $dist "$reqs" >/dev/null 2>&1 && success || failure
-		echo
+		try_install_by_list $dist "$reqs" >/dev/null 2>&1
+		print_status $?
 	fi
 }
 
