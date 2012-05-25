@@ -59,13 +59,14 @@ gen_ebuild_remote()
 #Set other variables
 #test: emerge doesn't work with release
 	EBUILDFILE=${WORKDIR}/${PACKAGE}-${EBUILDVERSION}.ebuild
-	export $EBUILDFILE
+	export EBUILDFILE
 	TARGET="tar.bz2"
+	SRC_URI="\$BASE_URI/${PACKAGE}-${EBUILDVERSION}-${EBUILDRELEASE}.${EBUILDARCH}.$TARGET"
 
 #Add all built TARs to SRC_URI variable
-	for i in $BUILTRPM ; do
-	    SRC_URI="\$BASE_URI/`basename $i .rpm`.$TARGET $SRC_URI"
-	done
+#	for i in $BUILTRPM ; do
+#	    SRC_URI="\$BASE_URI/`basename $i .rpm`.$TARGET $SRC_URI"
+#	done
 
 	cat > $EBUILDFILE << EOF
 # Copyright 2012 Etersoft

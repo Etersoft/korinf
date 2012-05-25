@@ -45,7 +45,7 @@ gen_ebuild()
 # FIXME: is it used? we already have convertor
 convert_gentoo()
 {
-	fatal "Can't use this code"
+#	fatal "Can't use this code"
 	echo "Using alien now"
 	for i in *${BUILDNAME}*.rpm ; do
 	    run_alien --to-tgz $i || { warning "alien problem with tbz2"; RES=11 ; }
