@@ -3,11 +3,11 @@
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
-kormod build/rpm
+kormod build/rpm convert
 load_mod rpm
 
-#testfile=$(echo /var/ftp/pub/Etersoft/RX@Etersoft/testing/CentOS/6/nxclient-*.i586.rpm)
-testfile=$(echo /var/ftp/pub/Etersoft/WINE@Etersoft/2.0-testing/Debian/6/fonts-ttf-liberation*)
+testfile=$(echo /var/ftp/pub/Etersoft/RX@Etersoft/testing/CentOS/6/nxclient-*.i586.rpm)
+#testfile=$(echo /var/ftp/pub/Etersoft/WINE@Etersoft/2.0-testing/Debian/6/fonts-ttf-liberation*)
 
 echo
 TARGETPATH=/var/ftp/pub/Etersoft/RX@Etersoft/testing
