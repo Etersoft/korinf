@@ -132,6 +132,7 @@ build_anycomponent()
 			CHECKCOMP="nxclient"
 		fi
 		# TODO: nxsadmin
+		create_license $FTPDIR/rx-etersoft.lic $AROBOTDIR/dsa/rx-etersoft.dsa
 		;;
 	"Postgres@Etersoft")
 		COMPONENTSCRIPT="bin-postgres"
@@ -158,8 +159,6 @@ build_anycomponent()
 		check_and_refresh_component $COMPONENTSCRIPT $LOCALDIR/$DIST $i
 		check_package $LOCALDIR/$DIST $i
 	done
-
-	#create_license $FTPDIR/selta.lic $AROBOTDIR/dsa/selta.dsa
 
 	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8
