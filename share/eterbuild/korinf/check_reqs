@@ -31,7 +31,8 @@ try_install_by_list()
 	echo
 	echo "=========================="
 	echo "Simulate install '$@' for $dist"
-	cd ../tools/run-script
+	# FIXME: hack with use run-script
+	cd $KORINFDIR/tools/run-script
 	./run-script.sh $dist checkreqs "$@"
 	local RES=$?
 	cd -
