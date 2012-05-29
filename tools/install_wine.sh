@@ -1,6 +1,11 @@
 #!/bin/bash
 
-# Script to install WINE@Etersoft to Sisyphus based system
+# (c) Etersoft 2009-2012
+# Script to install WINE@Etersoft to ALT Linux Sisyphus or Ubuntu based system
+
+# Args
+# 1. version (2.0 or last or testing)
+# 2. product (empty for WINE@Etersoft, vanilla or public for other)
 
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
@@ -18,6 +23,16 @@ fi
 PROJECTVERSION=$1
 [ -n "$PROJECTVERSION" ] || PROJECTVERSION=last
 
+LIBBUILDNAME=
+EXTRADIR=extra/
+BASEBUILDNAME=$2
+if [ -n "$BASEBUILDNAME" ] ; then
+    BUILDNAME=wine-$BASEBUILDNAME
+    [ "$BASEBUILDNAME" = "public" ] && BUILDNAME=wine
+    LIBBUILDNAME=lib$BUILDNAME
+    EXTRADIR=
+fi
+
 [ -n "$BUILDNAME" ] || BUILDNAME=wine-etersoft
 
 PRIVPART='SQL'
@@ -32,6 +47,7 @@ get_version_release()
 {
 	SOURCEPATH=$TARGETPATH/../../../../sources
 	[ -d "$SOURCEPATH" ] || SOURCEPATH=$TARGETPATH/../../../sources
+    [ -d "$SOURCEPATH" ] || SOURCEPATH=$TARGETPATH/../../sources
 
 if [ -z "$VERSION" ] ; then
 	BUILDSRPM="$SOURCEPATH/$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm | last_rpm).src.rpm"
@@ -82,25 +98,31 @@ else
 	EXT=rpm
 fi
 
-TARGETPATH=$WINEPUB_PATH/$PROJECTVERSION/WINE/$SYSTEM
+if [ -n "$BASEBUILDNAME" ] ; then
+	TARGETPATH=/var/ftp/pub/Etersoft/Wine-$BASEBUILDNAME/$PROJECTVERSION/$SYSTEM
+else
+	TARGETPATH=$WINEPUB_PATH/$PROJECTVERSION/WINE/$SYSTEM
+fi
 get_version_release
 
 if cd $TARGETPATH ; then
 	pwd
 
 	LIST=
-	for i in $BUILDNAME ; do
+	for i in $LIBBUILDNAME $BUILDNAME ; do
 		pkg_is_installed $i && LIST="$LIST $i[-_]$VERSION-*$RELEASE[._]*.$EXT"
 	done
 
+	# FIXME: not for wine / wine-vanilla
 	for i in lib$BUILDNAME-devel $BUILDNAME-gl $BUILDNAME-twain ; do
-		pkg_is_installed $i && LIST="$LIST extra/$i[-_]$VERSION-*$RELEASE[._]*.$EXT"
+		pkg_is_installed $i && LIST="$LIST $EXTRADIR$i[-_]$VERSION-*$RELEASE[._]*.$EXT"
 	done
 
 	install_pkg
 fi
 
 #############
+# private public
 VERSION=
 BUILDNAME=$BUILDNAME-$(echo $PRIVPART | tr [A-Z] [a-z])
 TARGETPATH=$WINEETER_PATH/$PROJECTVERSION/WINE-$PRIVPART/$SYSTEM
