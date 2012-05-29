@@ -1,6 +1,7 @@
 # Список тестируемых в первую очередь систем
-Ubuntu/12.04
+# Sisyphus должен быть первым, от него считаются зависимости
 ALTLinux/Sisyphus
+Ubuntu/12.04
 x86_64/Ubuntu/10.04
 ALTLinux/p6
 CentOS/6
