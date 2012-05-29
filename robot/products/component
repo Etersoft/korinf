@@ -132,7 +132,8 @@ build_anycomponent()
 			CHECKCOMP="nxclient"
 		fi
 		# TODO: nxsadmin
-		create_license $FTPDIR/rx-etersoft.lic $AROBOTDIR/dsa/rx-etersoft.dsa
+		# FIXME: Мы отгружаем напрямую с ftp. Для лицензии нужно готовить в отдельном каталоге
+		# create_license $FTPDIR/rx-etersoft.lic $AROBOTDIR/dsa/rx-etersoft.dsa
 		;;
 	"Postgres@Etersoft")
 		COMPONENTSCRIPT="bin-postgres"
