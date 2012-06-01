@@ -155,15 +155,16 @@ copying_packages()
 				mkdir_dest $DESTDIR/extra/
 				# FIXME: already done when copying, but not for extra
 				# HACK: can be not *BUILDNAME*
-				rm -f $DESTDIR/extra/*${BUILDNAME}-*debuginfo*
-				rm -f $DESTDIR/extra/*${BUILDNAME}-*debug-*
+				rm -vf $DESTDIR/extra/*${BUILDNAME}-*debuginfo*
+				rm -vf $DESTDIR/extra/*${BUILDNAME}-*debug-*
 				mv -f $i $DESTDIR/extra/ || warning "Cannot move debug package $i to extra"
+				EXPMAINFILES=$(regexp_exclude_list ".*debuginfo.* .*debug.*" "$EXPMAINFILES")
 			fi
 		done
 	else
 		# HACK: can be not *BUILDNAME*
-		# Remove debug packages
-		rm -f *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-*
+		echo "Debug packages is forbidden, Remove debug packages"
+		rm -vf *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-*
 	fi
 
 	copying_packages_by_list "$DESTDIR" "$EXPMAINFILES" || RC=1
