@@ -35,9 +35,6 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 	#dist is x86_64/Name/Version or Name/Version
 	echo $dist >>$BUILTLOGFILE
 
-	# fill after hasher
-	BUILTBINPKGLIST=
-
 	# Set target dir for built packages
 	DESTDIR=$TARGETPATH/$dist
 
@@ -114,9 +111,6 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 
 	# Clean log
 	reset_dist_log "$dist"
-
-	# Expand MAINFILELIST, EXTRAFILELIST
-	prepare_filelist
 
 	# Run build and check result
 	if build_dist_pkg ; then

@@ -70,6 +70,9 @@ build_windows()
 		./windows.sh $RPMTOPDIR $PACKAGERELEASE $PACKAGEVERSION || RET=$?
 	cd -
 
+	# Expand MAINFILELIST, EXTRAFILELIST
+	prepare_filelist
+
         [ $RET = 0 ] || warning "Can't build"
         return $RET
 }

@@ -44,6 +44,8 @@ build_solaris()
 	scp $SOLARISKEY $KORINFDIR/korinf/remote-scripts/remote-sunos.sh $REMOTESSH:$REMOTEPATH/ || { warning "Cannot copy script" ; return 1 ; }
 	ssh $SOLARISKEY $REMOTESSH "/$REMOTEPATH/remote-sunos.sh build $INTUSER $RPMDIRPATH $PACKAGE $PACKAGEVERSION /$REMOTEPATH/$(basename $TARGETSRPM) $TARGETPKG" || { warning "Can't build" ; return 1 ; }
 	true
+	# Expand MAINFILELIST, EXTRAFILELIST
+	prepare_filelist
 }
 
 convert_solaris()

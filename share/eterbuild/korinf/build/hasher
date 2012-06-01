@@ -96,15 +96,11 @@ fi
 	( HASHER_NOCHECK=nvr,gpg,packager,changelog,deps $BUILDCOMMAND $BUILDSRPM ) ||
 		{ warning "Do not hashered" ; [ -n "$ADEBUG" ] || ( setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c $MENVARG) ; return 1 ; }
 
+
 	# search for binary packages
 	TARGETSRPM=$(ls -1 $HASHERDIR/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm | head -n1)
-	BUILTBINPKGLIST=`get_binpkg_list $BUILTRPM $(basename $TARGETSRPM)`
-	echo "For $TARGETSRPM follow packages is found: $BUILTBINPKGLIST"
 
-	if [ -z "$MAINFILES$EXTRAFILES" ] ; then
-		if [ -n "$BUILTBINPKGLIST" ] ; then
-			MAINFILESLIST=$(rpm -qp $BUILTBINPKGLIST --queryformat="%{NAME} ")
-		fi
-	fi
+	# Set and expand MAINFILELIST, EXTRAFILELIST
+	fill_filelist
 }
 

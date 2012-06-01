@@ -123,6 +123,8 @@ build_rpms()
 	test -d x86_64 && mv -f x86_64/* ./
 	test -d noarch && mv -f noarch/* ./
 	popd
-	return 0
+
+	# Set and expand MAINFILELIST, EXTRAFILELIST
+	fill_filelist
 }
 

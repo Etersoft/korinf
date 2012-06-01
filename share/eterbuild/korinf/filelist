@@ -3,7 +3,7 @@
 #  Korinf project
 #
 #  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2012
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,11 @@ expand_filelist()
 
 prepare_filelist()
 {
-	[ -z "$MAINFILESLIST$EXTRAFILESLIST" ] && fatal "Logical error with MAINFILESLIST EXTRAFILESLIST"
+	# Use default value for simple backward compatibility
+	if [ -z "$MAINFILESLIST$EXTRAFILESLIST" ] ; then
+		MAINFILESLIST="${BUILDNAME}"
+	fi
+
 	# expand file masks by PKGFORMAT
 	EXPMAINFILES=$(expand_filelist $MAINFILESLIST)
 	EXPEXTRAFILES=$(expand_filelist $EXTRAFILESLIST)
@@ -48,7 +52,7 @@ prepare_filelist()
 		EXPMAINFILES="$EXPMAINFILES ${BUILDNAME}*.ebuild"
 	fi
 
-	# only lowercase for deb packages
+	# do lowercase for deb packages only
 	if [ "$PKGFORMAT" = "deb" ] ; then
 	    EXPMAINFILES=$(echo $EXPMAINFILES | filter_deb_pkgnames)
 	    EXPEXTRAFILES=$(echo $EXPEXTRAFILES | filter_deb_pkgnames)
@@ -57,5 +61,33 @@ prepare_filelist()
 	[ -n "$ADEBUG" ] && echo "EXPMAINFILES: $EXPMAINFILES EXPEXTRAFILES: $EXPEXTRAFILES"
 	[ -z "$EXPMAINFILES$EXPEXTRAFILES" ] && fatal "Logical error with EXPMAINFILES EXPEXTRAFILES"
 
+	true
 }
 
+# use: BUILDNAME, BUILTRPM, TARGETSRPM
+# fill MAILFILELIST and run prepare_filelist
+fill_filelist()
+{
+	# TODO: use real package name list
+	# HACK: remove unneeded debug packages
+	if [ "$ALLOWPUBLICDEBUG" != "1" ] ; then
+		rm -vf $BUILTRPM/*${BUILDNAME}-*debuginfo* $BUILTRPM/*${BUILDNAME}-*debug-*
+	fi
+
+	# HACK: the follow code copied from build/hasher
+	# search for binary packages
+	local BUILTBINPKGLIST=`get_binpkg_list $BUILTRPM $(basename $TARGETSRPM)`
+	echo "For $TARGETSRPM follow packages is found:"
+	echo "$BUILTBINPKGLIST"
+
+	# hack: replace file list with real built packages filenames
+	if [ -z "$MAINFILES$EXTRAFILES" ] ; then
+		if [ -n "$BUILTBINPKGLIST" ] ; then
+			MAINFILESLIST=$(rpm -qp $BUILTBINPKGLIST --queryformat="%{NAME} ")
+			echo "Real MAINFILESLIST: $MAINFILESLIST"
+		fi
+	fi
+
+	# Expand MAINFILELIST, EXTRAFILELIST
+	prepare_filelist
+}
