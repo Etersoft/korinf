@@ -99,7 +99,7 @@ copying_packages_by_list()
 	echo "Copying built packages $expfiles to $destdir..."
 	for i in $expfiles ; do
 		if [ ! -e $i ] ; then
-			warning "Cannot find package $i, skip copy"
+			error "Cannot find package $i, skip copy"
 			return 1
 		fi
 
@@ -108,7 +108,7 @@ copying_packages_by_list()
 		    make_alt_depends_list "$i" || warning "Some depends error with $i"
 		fi
 
-		cp -v $i $destdir/ || { warning "Cannot copy new packages $expfiles" ; return 1; }
+		cp -v $i $destdir/ || { error "Cannot copy new packages $expfiles" ; return 1; }
 	done
 	make_md5sum $destdir/
 	true
@@ -133,14 +133,14 @@ copying_packages()
 	local RC=0
 	local i
 
-	pushd $BUILTRPM >/dev/null || warning "Can't cd to built rpm dir '$BUILTRPM'"
+	pushd $BUILTRPM >/dev/null || fatal "Can't cd to built rpm dir '$BUILTRPM'"
 	echo "Copying $PKGFORMAT packages from $BUILTRPM"
 
 	# Check if the first package in the list is built
 	for i in $EXPMAINFILES ; do
 		[ -e $i ] && break
 		RC=1
-		warning "First package '$i' from MAINFILES list wasn't built"
+		error "First package '$i' from MAINFILES list wasn't built"
 		popd >/dev/null
 		return $RC
 	done

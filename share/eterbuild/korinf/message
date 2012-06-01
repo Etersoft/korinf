@@ -42,6 +42,20 @@ warning()
 		trap - EXIT
 		exit 1
 	fi
+	return 1
+}
+
+error()
+{
+	echo "ERROR: $@" >&2
+	echo "`date` $dist ERROR: $@" | write_report
+	if [ -n "$CAREBUILD" ] ; then
+		[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount
+		# disable trap before exit
+		trap - EXIT
+		exit 1
+	fi
+	return 1
 }
 
 alert()
