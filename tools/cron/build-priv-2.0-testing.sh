@@ -52,7 +52,7 @@ done
 
 # push, but reset is failed
 # will works only if REPOALIAS is origin :)
-gpush -t $REPOALIAS $WORKBRANCH || git reset --hard $CURTAG
+gpush $REPOALIAS $WORKBRANCH || git reset --hard $CURTAG
 
 # FIXME: some detect korinf placing
 cd /srv/$USER/Projects/git/korinf/bin-wine 2>/dev/null || cd $HOME/Projects/korinf/bin-wine || fatal "can't CD"

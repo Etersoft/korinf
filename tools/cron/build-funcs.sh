@@ -86,7 +86,7 @@ pub_and_push()
 	rpmpub -r $WORKTARGET
 
 	# will works only if REPOALIAS is origin :)
-	gpush -t $REPOALIAS $WORKBRANCH && return
+	gpush $REPOALIAS $WORKBRANCH && return
 
 	# if push is failed
 	# CURTAG defined in pull_changes

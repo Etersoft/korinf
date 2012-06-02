@@ -16,25 +16,11 @@ cd /srv/wine/Projects/eterwine || exit 1
 # check repo
 git rev-parse HEAD >/dev/null || fatal "check repo failed"
 
-# save TAG for last commit
-OLDTAG=$(git rev-parse HEAD)
-
 # Cleanup before update
 git checkout -f
 
 # try pull and exit if all up-to-date
 gpull -c $ORIGINBRANCH master && { echocon "No work now" ; exit 0; }
-# FIXME: как я понимаю, не присылаются теги
-gpull $ORIGINBRANCH master || { echocon "Some update error" ; exit 0; }
-
-# FIXME: помогает?
-gpull
-
-NEWTAG=$(git rev-parse HEAD)
-
-[ "$OLDTAG" = "$NEWTAG" ] && exit 0
-
-#exit
 
 autoconf -f
 ./configure --prefix=/usr || exit 1

@@ -22,8 +22,6 @@ git checkout -f
 
 # try pull and exit if all up-to-date
 gpull -c winehq master && { echocon "No work now" ; exit 0; }
-# FIXME: как я понимаю, не присылаются теги
-gpull winehq master || { echocon "Some update error" ; exit 0; }
 
 NEWTAG=$(git rev-parse HEAD)
 
@@ -39,8 +37,6 @@ if [ -n "$LINES" ] ; then
 		git log $OLDTAG..$NEWTAG -U --author=".*@etersoft.ru" ) | \
 		LANG=ru_RU.UTF-8 LC_ALL=ru_RU.UTF-8 mutt -s "Eter's patch is applied to winehq repo $(date "+%x")" $MAILTO
 fi
-
-#exit
 
 autoconf -f
 ./configure --prefix=/usr || exit 1
