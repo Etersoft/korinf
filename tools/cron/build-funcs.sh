@@ -52,8 +52,10 @@ pull_changes()
 
 	NEWTAG=$(git rev-parse HEAD)
 
+	# получаем по спеку предполагаемое название тэга
+	# FIXME: проверять просто на тэг
 	NEWVEREL="$(get_version $SPECNAME)-alt$(get_numrelease $SPECNAME)"
-	NEWRELTAG=$(git rev-parse "$NEWVEREL")
+	NEWRELTAG=$(git rev-parse "$NEWVEREL^0")
 
 	[ "$CURTAG" = "$NEWTAG" ] && fatal "last commit is not changed after update"
 
