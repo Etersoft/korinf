@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . /usr/share/eterbuild/eterbuild
+load_mod git
 
 fatal()
 {
@@ -21,6 +22,7 @@ jump_to_repo()
 		exit
 	fi
 	cd $WORKBRANCH
+	reset_to_good_state
 }
 
 
@@ -48,7 +50,11 @@ pull_changes()
 	CURTAG=$(git rev-parse HEAD)
 
 	# try pull (with rebase) and exit if all up-to-date
-	gpull -c $REPOALIAS $WORKBRANCH && { echocon "No work" ; exit ; }
+	if gpull -c $REPOALIAS $WORKBRANCH ; then
+		echocon "No work"
+		save_good_state
+		exit
+	fi
 
 	NEWTAG=$(git rev-parse HEAD)
 
@@ -86,11 +92,9 @@ pub_and_push()
 	rpmpub -r $WORKTARGET
 
 	# will works only if REPOALIAS is origin :)
-	gpush $REPOALIAS $WORKBRANCH && return
+	gpush $REPOALIAS $WORKBRANCH
 
-	# if push is failed
-	# CURTAG defined in pull_changes
-	git reset --hard $CURTAG
+	save_good_state
 }
 
 korinf_wine()
@@ -101,6 +105,25 @@ korinf_wine()
 	cd -
 }
 
+# save PREVCOMMIT
+reset_to_good_state()
+{
+	if [ -r prevcommit ] ; then
+		PREVCOMMIT=$(cat prevcommit)
+		docmd git reset --hard $PREVCOMMIT
+	fi
+	rm -rfv .git/rebase-apply
+	rm -f prevcommit
+	docmd git clean -d -f
+	# recreate prevcommit after git clean
+	PREVCOMMIT=$(git rev-parse HEAD)
+	echo $PREVCOMMIT > prevcommit
+}
+
+save_good_state()
+{
+	rm -f prevcommit
+}
 
 ETERBUILDDIR=/srv/$USER/Projects/git/etersoft-build-utils/bin
 [ -d "$ETERBUILDDIR" ] || ETERBUILDDIR=$HOME/Projects/etersoft-build-utils/bin

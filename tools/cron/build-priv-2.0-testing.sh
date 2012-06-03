@@ -50,9 +50,10 @@ for sp in $SUBSPEC ; do
 	#fi
 done
 
-# push, but reset is failed
 # will works only if REPOALIAS is origin :)
-gpush $REPOALIAS $WORKBRANCH || git reset --hard $CURTAG
+gpush $REPOALIAS $WORKBRANCH
+
+save_good_state
 
 # FIXME: some detect korinf placing
 cd /srv/$USER/Projects/git/korinf/bin-wine 2>/dev/null || cd $HOME/Projects/korinf/bin-wine || fatal "can't CD"
