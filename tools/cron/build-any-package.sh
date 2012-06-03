@@ -2,6 +2,8 @@
 
 # Обновляет репозиторий и выкладывает новую сборку в случае необходимости
 
+# FIXME: использует системные etersoft-build-utils и korinf
+
 . $(dirname $0)/build-funcs.sh
 
 # git.office:/projects/wine/wine-etersoft.git
@@ -48,8 +50,7 @@ mkdir -p $TARGETDIR
 docmd rpmpub $TARGETDIR || exit
 
 
-#docmd korinf $REPONAME $TARGETDIR || exit
-docmd /home/lav/Projects/git/korinf/bin/korinf $REPONAME $TARGETDIR || exit
+docmd korinf $REPONAME $TARGETDIR || exit
 
 docmd gpush || exit
 
