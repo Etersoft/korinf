@@ -39,10 +39,11 @@ if [ -n "$LINES" ] ; then
 fi
 
 autoconf -f
-./configure --prefix=/usr || exit 1
-#make depend || exit 1
-jmake || exit 1
-./wine --version || exit 1
+if ./configure --prefix=/usr ; then
+	#make depend || exit 1
+	jmake
+	./wine --version
+fi
 gpush pure master || exit 1
 gpush -t pure master || exit 1
 
