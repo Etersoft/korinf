@@ -1,3 +1,4 @@
 #x86_64/Debian/4.0
-#x86_64/Debian/5.0
+# end of support date: Feb 2012
+x86_64/Debian/5.0
 x86_64/Debian/6.0
