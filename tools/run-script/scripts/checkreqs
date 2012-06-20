@@ -21,12 +21,12 @@ case $DISTRNAME in
 	"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific")
 		CMD="yum provides"
 		;;
-#	"Mandriva")
-#		CMD=""
-#		;;
-#	"SUSE")
-#		CMD=""
-#		;;
+	"Mandriva")
+		CMD="urpmi --test --auto"
+		;;
+	"SUSE")
+		CMD="zypper install --dry-run"
+		;;
 	*)
  		echo "Do not known install command for DISTRNAME $DISTRNAME"
  		exit 2
