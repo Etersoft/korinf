@@ -125,16 +125,15 @@ get_bin_package()
 	local BUILDPKG
 	local TARGETPATH="$1"
 	local BUILDNAME="$2"
-	local CHECKMAINFILES="$3"
-	local PATHPKG
-
-	PATHPKG=$TARGETPATH
-	if [ -n "$CHECKMAINFILES" ] && [ -z "$MAINFILESLIST" ] ; then
-		PATHPKG=$TARGETPATH/extra
-	fi
 
 	# check for package started with NAME
-	BUILDPKG="$(ls -1 $PATHPKG/$BUILDNAME[-_][0-9]* 2>/dev/null | tail -n1)"
+	BUILDPKG="$(ls -1 $TARGETPATH/$BUILDNAME[-_][0-9]* 2>/dev/null | tail -n1)"
+
+	# try check in extra
+	if [ ! -r "$BUILDPKG" ] ; then
+		# check for package started with NAME
+		BUILDPKG="$(ls -1 $TARGETPATH/extra/$BUILDNAME[-_][0-9]* 2>/dev/null | tail -n1)"
+	fi
 
 	if [ ! -r "$BUILDPKG" ] ; then
 		# FIXME: Hack

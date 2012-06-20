@@ -76,6 +76,7 @@ do_need_build_package()
 	FILENAME=$(get_bin_package "$DESTDIR" $BUILDNAME check)
 	# (extra dir already checked in get_bin_package)
 
+	[ -n "$BUILDSRPM" ] || fatal "BUILDSRPM is empty"
 	if [ -r "$FILENAME" ] ; then
 		[ "$BUILDSRPM" -nt "$FILENAME" ] || return 1
 	elif [ -n "$FILENAME" ] ; then
