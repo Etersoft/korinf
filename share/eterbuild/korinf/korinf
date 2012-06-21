@@ -95,7 +95,6 @@ build_package()
 	# disable gear using due pre hasher repacking problem
 	export IGNOREGEAR=1
 
-
 	trap exit_handler EXIT HUP INT QUIT PIPE TERM
 
 	if [ -n "$CHECKPACKAGE" ] ; then
@@ -108,8 +107,10 @@ build_package()
 		mainbuild
 	fi
 
+	local rc=$?
 	# disable trap before exit
 	trap - EXIT
+	return $rc
 }
 
 
