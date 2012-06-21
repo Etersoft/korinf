@@ -23,28 +23,39 @@
 
 # used vars: DESTDIR, BUILDNAME
 
+status_check_used_vars()
+{
+	[ -n "$DESTDIR" ] || fatal "DESTDIR is empty"
+	[ -n "$BUILDNAME" ] || fatal "BUILDNAME is empty"
+}
+
 set_build_failed()
 {
+	status_check_used_vars
 	touch "$DESTDIR/log/$BUILDNAME.build.failed"
 }
 
 set_autobuild_failed()
 {
+	status_check_used_vars
 	touch "$DESTDIR/log/$BUILDNAME.autobuild.failed"
 }
 
 is_build_failed()
 {
+	status_check_used_vars
 	[ -r "$DESTDIR/log/$BUILDNAME.build.failed" ]
 }
 
 is_autobuild_failed()
 {
+	status_check_used_vars
 	[ -r "$DESTDIR/log/$BUILDNAME.autobuild.failed" ]
 }
 
 clear_build_status()
 {
+	status_check_used_vars
 	rm -fv "$DESTDIR/log/$BUILDNAME.build.failed"
 	rm -fv "$DESTDIR/log/$BUILDNAME.autobuild.failed"
 	true
