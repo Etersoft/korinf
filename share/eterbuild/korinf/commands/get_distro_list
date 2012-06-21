@@ -1,0 +1,101 @@
+#!/bin/bash
+##
+#  Korinf project
+#
+#  Distro list functions
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005-2012
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2010, 2012
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+fatal()
+{
+	echo "FATAL: $@"
+	exit 1
+}
+
+
+filter_distro_list()
+{
+	if [ -z "$SKIPBUILDLIST" ] ; then
+		cat 2>/dev/null
+		return
+	fi
+	# SKIPBUILDLIST contains DistroName or DistroName/2010
+	for N in $(cat) ; do
+		if ( echo $SKIPBUILDLIST | grep -q "$N" ) ; then
+			# skip distro if it in list
+			continue
+		fi
+		# search without version
+		local DN=`dirname $(echo $N)`
+		# sed is workaround to match DistroName_2010 as a word (-w)
+		if ( echo $SKIPBUILDLIST | sed -e "s|/|_|g" | grep -q -w "$DN" ) ; then
+			# skip distro if it in list
+			continue
+		fi
+		echo $N 2>/dev/null
+	done
+
+}
+
+
+# get distro list from arg/directory/file
+# from DIR/distro.list if arg is dir
+# from FILE if arg is file name
+# from ARG if arg is list
+get_distro_list()
+{
+	local i
+	local LIST
+	local DIR
+
+	# get list from directory
+	if [ -d "$1" ] ; then
+		LIST="$1/distro.list"
+		if [ ! -r "$LIST" ] ; then
+			fatal "get_distro_list: $LIST is not found"
+		fi
+		DIR=$1
+	# get list from file
+	elif [ -r "$1" ] ; then
+		LIST="$1"
+		DIR=`dirname $1`
+	# list in the variable
+	else
+		echo "$@" | filter_distro_list
+		return
+	fi
+
+	# print out distro list
+	cat "$LIST" | grep -v "^#" | grep -v "^\." | sed -e "s|[ 	].*||g" | grep -v "^\$" | filter_distro_list
+
+	# get list included via . files
+	LIST=`cat "$LIST" | grep "^\." | sed -e "s|^\. ||g"`
+	for i in $LIST ; do
+		# if included file is exists in relative place
+		if [ -f "$DIR/$i" ] ; then
+			get_distro_list "$DIR/$i"
+		# if included file is exists in korinf list dir
+		elif [ -f "$KORINFETC/lists/$i" ] ; then
+			get_distro_list "$KORINFETC/lists/$i"
+		else
+			fatal "get_distro_list: included list '$i' is not found in $DIR or $KORINFETC/lists"
+		fi
+	done
+}
+
+get_distro_list "$@"
