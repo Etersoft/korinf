@@ -13,7 +13,7 @@ AROBOTDIR=$(pwd)
 . $AROBOTDIR/funcs/task
 . $AROBOTDIR/funcs/etersoft
 
-PRPATH=/var/ftp/pub/Etersoft/CIFS@Etersoft/stable/Ubuntu
-check_package $PRPATH/10.04 etercifs && echo "OK with 10.04"
+PRPATH=/var/ftp/pub/Etersoft/WINE@Etersoft/2.0-testing/WINE/ALTLinux/p6
+assert_present_package $PRPATH wine-etersoft && echo "OK with 10.04"
 
-check_package $PRPATH/10.10 etercifs && echo "OK with 10.10"
+#assert_present_package $PRPATH/10.10 etercifs && echo "OK with 10.10"

@@ -94,24 +94,24 @@ check_dist()
 }
 
 # Check for package in target path
-check_package()
+assert_present_package()
 {
-	local NAME=$2
+	local BUILDNAME=$2
 	local FILENAME
 
 	DESTDIR=$1
 
-	FILENAME=$(get_bin_package "$DESTDIR" $NAME)
+	FILENAME=$(get_bin_package "$DESTDIR" $BUILDNAME)
 
 	if [ ! -r "$FILENAME" ] ; then
-		fatal "Package $NAME is missed in $DESTDIR"
+		fatal "Package $BUILDNAME is missed in $DESTDIR"
 	fi
 
 	if is_autobuild_failed ; then
-		fatal "Note! autobuild.failed for $NAME is present"
+		fatal "Note! autobuild.failed for $BUILDNAME is present"
 	fi
 
 	if is_build_failed ; then
-		fatal "Note! build.failed for $NAME is present"
+		fatal "Note! build.failed for $BUILDNAME is present"
 	fi
 }

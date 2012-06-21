@@ -115,27 +115,27 @@ prepare_wine_etersoft()
 
 	# Ещё раз проверяем наличие обязательных пакетов
 	# Check package files
-	check_package $FTPDIR wine-etersoft
+	assert_present_package $FTPDIR wine-etersoft
 
 	# FIXME: сделать простую проверку на систему
 	# skip on FreeBSD
 	if ! echo "$DIST" | grep -q "FreeBSD" ; then
-		check_package $FTPDIR haspd
-		check_package $FTPDIR haspd-modules
+		assert_present_package $FTPDIR haspd
+		assert_present_package $FTPDIR haspd-modules
 		if [ "$TYPE" != "Local" ] ; then
-			check_package $FTPDIR etercifs
+			assert_present_package $FTPDIR etercifs
 		fi
-		[ "$TYPE" = "SchoolDIS" ] || check_package $FTPDIR fonts-ttf-liberation
+		[ "$TYPE" = "SchoolDIS" ] || assert_present_package $FTPDIR fonts-ttf-liberation
 	fi
 
-	check_package $FTPDIR wine-etersoft-${PRODUCT_name}
+	assert_present_package $FTPDIR wine-etersoft-${PRODUCT_name}
 
 
 	# user will download it from separate place
-	#check_package $FTPDIR fonts-ttf-ms
+	#assert_present_package $FTPDIR fonts-ttf-ms
 
 	if [ "$TYPE" = "CAD" ] ; then
-		check_package $FTPDIR wine-etersoft-gl
+		assert_present_package $FTPDIR wine-etersoft-gl
 	fi
 
 	# вставляем регистрационный номер в readme и в каталог

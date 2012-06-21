@@ -158,7 +158,7 @@ build_anycomponent()
 
 	for i in $CHECKCOMP ; do
 		check_and_refresh_component $COMPONENTSCRIPT $LOCALDIR/$DIST $i
-		check_package $LOCALDIR/$DIST $i
+		assert_present_package $LOCALDIR/$DIST $i
 	done
 
 	# Для отправки писем обязательно нужна локаль!
