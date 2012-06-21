@@ -23,7 +23,7 @@
 
 fatal()
 {
-	echo "FATAL: $@"
+	echo "FATAL: $@" >&2
 	exit 1
 }
 
