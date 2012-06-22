@@ -24,4 +24,6 @@ PVTLOCAL="/var/ftp/pvt/Etersoft/$VERNAME/WINE-$(get_product_type "$COMPONENTNAME
 
 SOURCEPATH=$PUBLOCAL/../sources
 TARGETPATH=$PUBLOCAL
-check_built_package  haspd
+
+REBUILDLIST=ALTLinux/p6
+check_built_package wine-etersoft
