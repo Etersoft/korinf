@@ -55,6 +55,9 @@ build_package()
 	# disable changelog editing
 	export EDITOR=
 
+	# used in external get_distro_list
+	export SKIPBUILDLIST
+
 	MAINFILESLIST=$MAINFILES
 	EXTRAFILESLIST=$EXTRAFILES
 

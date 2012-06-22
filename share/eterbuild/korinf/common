@@ -89,6 +89,7 @@ if ! dirname $0 | grep ^/usr/share >/dev/null ; then
 fi
 
 test -n "$KORINFDIR" && PATH=$KORINFDIR/korinf/commands:$PATH
+export KORINFETC KORINFDIR
 
 # Try to set clear environment
 LC_ALL=C
