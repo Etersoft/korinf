@@ -60,6 +60,7 @@ EOF
 # Create need for build files in home dir
 init_home()
 {
+	assert_var BUILDERHOME
 	[ -d "$BUILDERHOME/" ] || return
 
 	mkdir -p "$BUILDERHOME/.config"

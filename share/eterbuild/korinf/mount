@@ -28,6 +28,7 @@ mount_linux()
 {
 	local MOUNTPARAM
 
+	assert_var CHROOTDIR LOCUSER
 	# Создаём необходимые каталоги
 	BUILDROOT=`mktemp -d $CHROOTDIR/$DISTRNAME-XXXXXX`
 	mkdir -p $CHROOTDIR

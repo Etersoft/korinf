@@ -107,6 +107,7 @@ install_req()
 	local reqs CMD LOGFAILFILE dist=$1
 	load_mod repl rpm
 
+	assert_var BUILDNAME BUILDARCH BUILDROOT BUILDSRPM PKGFORMAT
 	# create needed files in home directory
 	init_home
 

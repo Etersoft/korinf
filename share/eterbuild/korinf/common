@@ -181,4 +181,14 @@ get_rpm_sources()
 	return 0
 }
 
+# FIXME: move to etersoft-build-utils
+assert_var()
+{
+	local i re
+	for i in $@ ; do
+		re=$(eval echo \$$i)
+		[ -n "$re" ] || fatal "assert: $i nonexist"
+	done
+}
+
 kormod config log list
