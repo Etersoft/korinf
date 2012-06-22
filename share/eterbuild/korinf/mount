@@ -26,13 +26,17 @@ MOUNT_MODULE_INCLUDED=1
 
 mount_linux()
 {
+	local distr=$1
 	local MOUNTPARAM
 
 	assert_var CHROOTDIR LOCUSER
+
+	# x86_64/Debian/6.0 -> x86_64-Debian-6.0
+	BUILDROOT=`mktemp -d $CHROOTDIR/${distr//\//-}-XXXXXX`
 	# Создаём необходимые каталоги
-	BUILDROOT=`mktemp -d $CHROOTDIR/$DISTRNAME-XXXXXX`
 	mkdir -p $CHROOTDIR
 	$SUDO chown $LOCUSER $CHROOTDIR
+
 	BUILDERHOME=$BUILDROOT-home
 	mkdir -p $BUILDERHOME/{,tmp,RPM,RPM/BUILD,RPM/RPMS} || fatal "Can't create $BUILDERHOME"
 	chmod g+rwx $BUILDROOT $BUILDERHOME
@@ -84,6 +88,7 @@ end_umount()
 		[ -z "$ADEBUG" ] || echo "Skip umount due empty BUILDROOT"
 		return 1
 	fi
+
 	echo "Unmounting and cleaning $BUILDROOT..."
 	for i in /proc/bus/usb /proc/sys/fs/binfmt_misc /proc /home/$INTUSER /dev/shm / ; do
 		u=$BUILDROOT$i

@@ -102,7 +102,7 @@ case $DISTRNAME in
 	kormod build/rpm
 	kormod check_reqs
 
-	logit "mount root dir" mount_linux || return 1
+	logit "mount root dir" mount_linux $dist || return 1
 
 	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
 		logit "install requires" install_req $dist || return 1
