@@ -22,7 +22,7 @@
 ##
 
 # needed version etersoft-build-utils package
-NEEDETERBUILD=2012
+NEEDETERBUILD=2013
 
 realpath()
 {

@@ -57,8 +57,10 @@ make_alt_depends_list()
     local pkg="$1"
     [ -n "$pkg" ] || return
     echo "Dependencies list for $pkg:"
-    local reqlist="$(get_rpmpkg_requires -p "$pkg")"
-    trans_rpmdeps_to_pkgname $reqlist | tee $DESTDIR/log/$(get_pkgname_from_filename $pkg).rpm.depends
+    local TFILE=$(make_temp_file)
+    $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || fatal "error with rpmreqs"
+    cat $TFILE | tee $DESTDIR/log/$(get_pkgname_from_filename $pkg).rpm.depends
+    rm -f $TFILE
 }
 
 # Obsoleted due rpm-dir (since p5?) - but rpm-dir only work locally
