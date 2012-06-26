@@ -83,6 +83,10 @@ print_check_reqs_item()
 	fi
 }
 
+filter_out_internal_packages()
+{
+	sed -e "s|rpm-build-altlinux-compat||g"
+}
 
 # check package existing by REBUILDLIST
 # used: TARGETPATH REBUILDLIST
@@ -113,7 +117,7 @@ check_package_requires()
 		local pkgnames="$(get_target_package_names)"
 		# first print about source package
 		reqs=$(get_rpmpkg_requires -p $BUILDSRPM)
-		reqs=$(convert_pkgreqs_to_target $reqs)
+		reqs=$(convert_pkgreqs_to_target $reqs | filter_out_internal_packages)
 		reqs=$(do_exclude_list "$pkgnames" "$reqs")
 		print_check_reqs_item $dist $BUILDSRPM $reqs
 		

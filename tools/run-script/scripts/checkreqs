@@ -25,7 +25,7 @@ case $DISTRNAME in
 		CMD="urpmi --test --auto"
 		;;
 	"SUSE")
-		CMD="zypper install --dry-run"
+		CMD="zypper --non-interactive install --dry-run"
 		;;
 	*)
  		echo "Do not known install command for DISTRNAME $DISTRNAME"

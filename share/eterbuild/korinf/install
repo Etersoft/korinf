@@ -84,6 +84,7 @@ filter_out_installed_packages()
 	#	rpm -q $i >/dev/null && continue
 	#	echo $i
 	#done | 
+	assert_var PKGFORMAT BUILDARCH BUILDROOT
 	case $PKGFORMAT in
 		"rpm")
 			$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
