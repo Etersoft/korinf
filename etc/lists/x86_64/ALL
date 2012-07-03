@@ -10,6 +10,7 @@
 . x86_64/Ubuntu
 . x86_64/Debian
 
+. x86_64/ROSA
 . x86_64/Mandriva
 
 . x86_64/ALTLinux
