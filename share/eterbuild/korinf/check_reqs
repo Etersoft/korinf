@@ -85,7 +85,9 @@ print_check_reqs_item()
 
 filter_out_internal_packages()
 {
-	sed -e "s|rpm-build-altlinux-compat||g"
+	# hack with libwine due Mandriva
+	# fixme: use filter_installed
+	sed -e "s|rpm-build-altlinux-compat||g" | sed -e "s|libwine-etersoft-devel||g" | sed -e "s|nx||g"
 }
 
 # check package existing by REBUILDLIST
