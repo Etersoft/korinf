@@ -14,8 +14,8 @@ DATESTAMP=`date "+%Y%m%d"`
 
 # Path to hold ISOs
 PATHTOFTP=/var/local/iso
-WINENUMVERSION=1.0.8
-PGVERSION=8.4
+WINENUMVERSION=1.1.0
+PGVERSION=9.0
 
 WRITER=$EMAIL
 test -n "$WRITER" || fatal "WRITER is empty"
@@ -23,7 +23,7 @@ test -n "$WINENUMVERSION" || fatal "WINENUMVERSION is empty"
 
 SOURCE_PATH=/var/ftp/pub/Etersoft
 SELTAPUB_PATH=$SOURCE_PATH/SELTA@Etersoft/$WINENUMVERSION
-PGPUB_PATH=$SOURCE_PATH/PostgreSQL/$PGVERSION
+PGPUB_PATH=$SOURCE_PATH/Postgre@Etersoft/$PGVERSION
 
 exit_handler()
 {
@@ -43,11 +43,12 @@ makeiso()
 	-p "$WRITER, $DATESTAMP" \
 	-m "*MD5SUM*" \
 	-m "*/log/*" \
+	-m "*sources*" \
+	-m "*RPMS.main*" \
 	-publisher "Etersoft, selta@etersoft.ru" \
 	-sysid LINUX -o $PATHTOFTP/$FILENAME.building  -r -J -graft-points -quiet -f \
 	SELTA@Etersoft=$SELTAPUB_PATH \
 	PostgreSQL=$PGPUB_PATH \
-	Updates.html=$SELTAPUB_PATH/docs/Updates.htm \
 	README.html=$SELTAPUB_PATH/docs/README.html \
 	autorun.inf=$SELTAPUB_PATH/docs/autorun.inf \
 	docs=$SELTAPUB_PATH/docs \
