@@ -21,7 +21,7 @@ case $DISTRNAME in
 	"LinuxXP"|"Fedora"|"ASPLinux"|"CentOS"|"RHEL"|"Scientific")
 		CMD="yum provides"
 		;;
-	"Mandriva")
+	"Mandriva"|"ROSA")
 		CMD="urpmi --test --auto"
 		;;
 	"SUSE")
