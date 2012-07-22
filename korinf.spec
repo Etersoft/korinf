@@ -1,5 +1,5 @@
 Name: korinf
-Version: 1.9.7
+Version: 2.0.0
 Release: alt1
 
 Summary: Korinf multidistro build system
@@ -16,7 +16,8 @@ Source: %name-%version.tar
 
 BuildArchitectures: noarch
 
-Requires: etersoft-build-utils >= 2.0.11
+Requires: epm >= 0.6
+Requires: etersoft-build-utils >= 2.0.13
 Requires: alien
 
 %description

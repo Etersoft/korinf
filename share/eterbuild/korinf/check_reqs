@@ -139,13 +139,13 @@ check_package_requires()
 # used DESTDIR, dist, EXPMAINFILES, EXPEXTRAFILES
 test_package_requirements()
 {
-	local pkgname
+	local pkgname reqs
 	local pkgnames="$(get_target_package_names)"
 	for pkgname in $pkgnames ; do
 		reqs=$(get_target_deplist $pkgname)
 		reqs=$(do_exclude_list "$pkgnames" "$reqs")
 		echo "Try install '$reqs' for $pkgname"
 		[ -z "$reqs" ] && echo " empty list, skipped" && continue
-		try_install_by_list $dist "$reqs" || return
+		run_in_chroot epm simulate $reqs || return
 	done
 }

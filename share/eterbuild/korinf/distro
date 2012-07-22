@@ -118,7 +118,7 @@ case $DISTRNAME in
 		logit "convert RPM to $PKGFORMAT ($PACKAGERELEASE$PKGVENDOR)" convert_rpm || return 1
 	fi
 
-	if [ -z "$MAKESPKG" ]; then
+	if [ -z "$MAKESPKG" ] && [ -z "$BOOTSTRAP" ] ; then
 		logit "test built packages requirements" test_package_requirements || return 1
 	fi
 
