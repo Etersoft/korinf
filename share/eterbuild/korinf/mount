@@ -115,3 +115,19 @@ end_umount()
 	return $ERR
 }
 
+run_in_chroot()
+{
+	local LOGFAILFILE
+	assert_var BUILDERHOME BUILDNAME BUILDARCH BUILDROOT INTUSER
+
+	# Control file for check build result
+        LOGFAILFILE="$BUILDERHOME/tmp/$BUILDNAME.log.failed"
+	rm -f "$LOGFAILFILE"
+
+	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
+		su - -c "export LANG=C ; export LC_ALL=C ; $@ || touch /home/$INTUSER/tmp/$BUILDNAME.log.failed"
+
+	[ -r "$LOGFAILFILE" ] || return 0
+	rm -f "$LOGFAILFILE"
+	return 1
+}
