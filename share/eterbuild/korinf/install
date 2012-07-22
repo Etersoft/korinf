@@ -38,6 +38,10 @@ install_built()
 	#rm -f $BUILTRPM/*debug*
 	#BUILDFILES=`echo *${BUILDNAME}*$PKGFORMAT`
 	#popd
+
+	# TODO: use epm... but how to install epm first time?
+	# Possible we need just get command from epm
+
 	# Note: немного странно с кавычками и разворачиванием звёздочек
 	case $PKGFORMAT in
 		"deb") # Debian/Ubuntu
@@ -77,35 +81,10 @@ install_built()
 	return $RES
 }
 
-filter_out_installed_packages()
-{
-	# TODO: use this more effectively way
-	#for i in $(cat) ; do
-	#	rpm -q $i >/dev/null && continue
-	#	echo $i
-	#done | 
-	assert_var PKGFORMAT BUILDARCH BUILDROOT
-	case $PKGFORMAT in
-		"rpm")
-			$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-				su - -c "export LANG=C ; export LC_ALL=C ; xargs rpm -q 2>&1 | grep 'is not installed' | sed -e 's|^.*package \(.*\) is not installed.*|\1|g'" |
-					sed -e "s|rpm-build-altlinux-compat||g"
-			;;
-		"deb")
-			$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-				su - -c "export LANG=C ; export LC_ALL=C ; xargs dpkg -L 2>&1 | grep 'is not installed.' | sed -e 's|^Package .\(.*\). is not installed.*|\1|g'" |
-					sed -e "s|rpm-build-altlinux-compat||g"
-			;;
-		*)
-			cat
-			;;
-	esac
-}
-
 # install required packages for build under the system (f.i., Debian/6.0)
 install_req()
 {
-	local reqs CMD LOGFAILFILE dist=$1
+	local reqs RET dist=$1
 	load_mod repl rpm
 
 	assert_var BUILDNAME BUILDARCH BUILDROOT BUILDSRPM PKGFORMAT
@@ -117,22 +96,12 @@ install_req()
 	# create needed files in home directory
 	init_home
 
-	#reqs=$(rpmquery --requires -p "$TARGETSRPM" | clean_pkgreq | filter_out_installed_packages)
 	reqs=$(get_rpmpkg_requires -p "$BUILDSRPM" | clean_pkgreq)
-	reqs=$(convert_pkgreqs_to_target $reqs | filter_out_installed_packages)
+	reqs=$(convert_pkgreqs_to_target $reqs)
 
-	reqs=$(strip_spaces $reqs)
-
-	CMD=$(get_install_package_command $DISTRNAME)
-	echo "Install build required packages $reqs with '$CMD' command"
-
-	if [ -z "$reqs" ] ; then
-		echo "Skip empty install list"
-		return 2;
-	fi
-
-	run_in_chroot $CMD $reqs && return 0
-
+	run_in_chroot epm --skip-installed install $reqs && return 0
+	RET=$?
+	[ "$RET" = 2 ] return $RET
 	warning "install failed"
-	return 1
+	return $RET
 }
