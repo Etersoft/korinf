@@ -7,6 +7,6 @@
 
 kormod check_integrity
 
-check_files_integrity /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.12-eter4/sources
-check_files_integrity /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.12-eter4/sources/tarball
-check_files_integrity /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.12-eter4/WINE/Debian/5.0
+check_files_integrity /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.12/sources
+check_files_integrity /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.12/sources/tarball
+check_files_integrity /var/ftp/pub/Etersoft/WINE@Etersoft/1.0.12/WINE/Debian/5.0
