@@ -99,9 +99,9 @@ install_req()
 	reqs=$(get_rpmpkg_requires -p "$BUILDSRPM" | clean_pkgreq)
 	reqs=$(convert_pkgreqs_to_target $reqs)
 
-	run_in_chroot epm --skip-installed install $reqs && return 0
+	run_in_chroot epm --auto --skip-installed install $reqs && return 0
 	RET=$?
-	[ "$RET" = 2 ] return $RET
+	[ "$RET" = 2 ] && return $RET
 	warning "install failed"
 	return $RET
 }

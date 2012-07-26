@@ -59,12 +59,12 @@ print_check_reqs_item()
 		printf "* %s: %s" "$fname" "$(echo $reqs)"
 		[ -z "$reqs" ] && skipped && echo && continue
 		echo
-		run_in_chroot epm simulate $reqs
+		run_in_chroot epm --verbose simulate $reqs
 		print_status $?
 	else
 		printf "  * %60s: " "$fname"
 		[ -z "$reqs" ] && skipped && echo && continue
-		run_in_chroot epm simulate $reqs >/dev/null 2>&1
+		run_in_chroot epm --verbose simulate $reqs >/dev/null 2>&1
 		print_status $?
 	fi
 }
