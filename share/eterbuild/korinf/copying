@@ -59,7 +59,8 @@ make_alt_depends_list()
     echo "Dependencies list for $pkg:"
     local TFILE=$(make_temp_file)
     $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || fatal "error with rpmreqs"
-    cat $TFILE | tee $DESTDIR/log/$(get_pkgname_from_filename $pkg).rpm.depends
+    set_destlogdir
+    cat $TFILE | tee $DESTLOGDIR/$(get_pkgname_from_filename $pkg).rpm.depends
     rm -f $TFILE
 }
 

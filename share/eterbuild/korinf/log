@@ -91,19 +91,21 @@ reset_dist_log()
 	>$LOGFILE || fatal "Can't create log $LOGFILE"
 }
 
+set_destlogdir()
+{
+	assert_var DESTDIR BUILDNAME
+	export DESTLOGDIR=$DESTDIR/log
+	mkdir -p $DESTLOGDIR/ || fatal "Error with $DESTLOGDIR"
+}
 
 copying_log()
 {
-	local DESTLOGFILE DESTLOGDIR
-	if [ -n "$MAINFILESLIST" ] ; then
-		DESTLOGDIR=$DESTDIR/log/
-	else
-		DESTLOGDIR=$DESTDIR/extra/log/
-	fi
-	mkdir -p $DESTLOGDIR
+	local DESTLOGFILE
+	set_destlogdir
+
 	DESTLOGFILE=$DESTLOGDIR/`basename $LOGFILE`
 	rm -f $DESTLOGFILE.bz2
-	cp $LOGFILE $DESTLOGFILE && bzip $DESTLOGFILE
+	cp -f $LOGFILE $DESTLOGFILE && bzip $DESTLOGFILE
 }
 
 
