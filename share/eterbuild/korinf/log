@@ -166,20 +166,18 @@ logit()
 		echo >>$LOGFILE
 		echo "STEP $STRMSG" >>$LOGFILE
 		$* >>$LOGFILE 2>&1
+		RET=$?
 	fi
-	RET=$?
 	logtimestamp=$(( `date "+%s"` - $logtimestamp))
 	[ -z "$NIGHTBUILD" ] && STRMSG=""
 
 	echo -n "$STRMSG"
 	[ $logtimestamp = "0" ] || echo -n "($logtimestamp secs) "
-	if [ "$1" = "SKIPPED" ] ; then
-		skipped
-		echo
-	else
-		print_status $RET
-	fi
-	# skipped status
+
+	[ "$1" = "SKIPPED" ] && RET=2
+	print_status $RET
+
+	# fix skipped status
 	[ "$RET" = 2 ] && RET=0
 	return $RET
 }

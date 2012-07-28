@@ -84,7 +84,7 @@ install_built()
 # install required packages for build under the system (f.i., Debian/6.0)
 install_req()
 {
-	local reqs RET dist=$1
+	local reqs dist=$1
 	load_mod repl rpm
 
 	assert_var BUILDNAME BUILDARCH BUILDROOT BUILDSRPM PKGFORMAT
@@ -99,9 +99,5 @@ install_req()
 	reqs=$(get_rpmpkg_requires -p "$BUILDSRPM" | clean_pkgreq)
 	reqs=$(convert_pkgreqs_to_target $reqs)
 
-	run_in_chroot epm --auto --skip-installed install $reqs && return 0
-	RET=$?
-	[ "$RET" = 2 ] && return $RET
-	warning "install failed"
-	return $RET
+	run_in_chroot epm --auto --skip-installed install $reqs
 }

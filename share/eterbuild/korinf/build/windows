@@ -47,8 +47,6 @@ echo $WINNAME
 
 build_windows()
 {
-	local RET=0
-
 	# prevent gear detecting (operate inside our dir)
 	export IGNOREGEAR=1
 	# NOTE: we can do cd to some other dir...
@@ -62,19 +60,16 @@ build_windows()
 		#TODO: test specfile?
 		#TODO: use uni_rpmbuild
 		#unpack sources and apply patches
-		uni_rpmbuild ${WINNAME}*.spec -bp -v --nodeps
+		uni_rpmbuild ${WINNAME}*.spec -bp -v --nodeps || return
         cd -
 
 	ls -l $RPMTOPDIR/BUILD/$WINNAME*/
-	cd $RPMTOPDIR/BUILD/$WINNAME*/${WINNAME}*win*
-		./windows.sh $RPMTOPDIR $PACKAGERELEASE $PACKAGEVERSION || RET=$?
+	cd $RPMTOPDIR/BUILD/$WINNAME*/${WINNAME}*win* || return
+		./windows.sh $RPMTOPDIR $PACKAGERELEASE $PACKAGEVERSION || return
 	cd -
 
 	# Expand MAINFILELIST, EXTRAFILELIST
 	prepare_filelist
-
-        [ $RET = 0 ] || warning "Can't build"
-        return $RET
 }
 
 copying_windows()

@@ -120,7 +120,7 @@ copying_packages_by_list()
 copying_sources()
 {
 	# We need generated src.rpm in any case (only on the private ftp)
-	if true || [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
+	if [ -r "$TARGETSRPM" ] && [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
 		echo "Copying converted source package"
 		mkdir -p "$SOURCEPATH/$dist/"
 		rm -f "$SOURCEPATH/$dist/$BUILDNAME-[0-9]*.src.rpm" 2>/dev/null

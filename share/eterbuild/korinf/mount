@@ -117,17 +117,20 @@ end_umount()
 
 run_in_chroot()
 {
-	local LOGFAILFILE
+	local LOGFAILFILE RES
 	assert_var BUILDERHOME BUILDNAME BUILDARCH BUILDROOT INTUSER
 
 	# Control file for check build result
         LOGFAILFILE="$BUILDERHOME/tmp/$BUILDNAME.log.failed"
 	rm -f "$LOGFAILFILE"
+	[ -r "$LOGFAILFILE" ] && fatal "$LOGFAILFILE still exists"
 
+	# CHECKME: some problems with return 2 from command
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-		su - -c "export LANG=C ; export LC_ALL=C ; $@ || touch /home/$INTUSER/tmp/$BUILDNAME.log.failed"
+		su - -c "export LANG=C ; export LC_ALL=C ; $@ || echo $? >/home/$INTUSER/tmp/$BUILDNAME.log.failed"
 
 	[ -r "$LOGFAILFILE" ] || return 0
+	RES=$(cat "$LOGFAILFILE")
 	rm -f "$LOGFAILFILE"
-	return 1
+	return $RES
 }
