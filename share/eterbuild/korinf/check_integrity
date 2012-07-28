@@ -21,12 +21,17 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+check_pkg_integrity()
+{
+	epm integrity $@
+}
+
 check_files_integrity()
 {
 	local DIR="$1" EXT
 	for EXT in deb rpm tgz tar.gz tar.bz2 tbz zip ; do
 		for i in $(find "$DIR" -maxdepth 1 -name "*.$EXT") ; do
-			epm integrity $i && echo "Package $i is OK" || echo "Package $i is broken"
+			check_pkg_integrity $i && echo "Package $i is OK" || echo "Package $i is broken"
 		done
 	done
 }
