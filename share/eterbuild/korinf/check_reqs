@@ -59,21 +59,13 @@ print_check_reqs_item()
 		printf "* %s: %s" "$fname" "$(echo $reqs)"
 		[ -z "$reqs" ] && skipped && echo && continue
 		echo
-		run_in_chroot epm --verbose simulate $reqs
-		print_status $?
+		run_in_chroot epm --verbose --skip-installed simulate $reqs
 	else
 		printf "  * %60s: " "$fname"
 		[ -z "$reqs" ] && skipped && echo && continue
-		run_in_chroot epm --verbose simulate $reqs >/dev/null 2>&1
-		print_status $?
+		run_in_chroot epm --verbose --skip-installed simulate $reqs >/dev/null 2>&1
 	fi
-}
-
-filter_out_internal_packages()
-{
-	# hack with libwine due Mandriva
-	# fixme: use filter_installed
-	sed -e "s|rpm-build-altlinux-compat||g" | sed -e "s|libwine-etersoft-devel||g" | sed -e "s|nx||g"
+	print_status $?
 }
 
 # check package existing by REBUILDLIST
@@ -102,12 +94,12 @@ check_package_requires()
 		[ "$CHECKREQUIRES" = "-R" ] && echo "====================="
 		printf "%-20s\n" "$BUILDARCH/$DISTRNAME/$DISTRVERSION"
 
-		mount_linux $dist >/dev/null || continnue
+		mount_linux $dist >/dev/null || continue
 
 		local pkgnames="$(get_target_package_names)"
 		# first print about source package
 		reqs=$(rpmreqs -p $BUILDSRPM)
-		reqs=$(convert_pkgreqs_to_target $reqs | filter_out_internal_packages)
+		reqs=$(convert_pkgreqs_to_target $reqs)
 		reqs=$(do_exclude_list "$pkgnames" "$reqs")
 		print_check_reqs_item $dist $BUILDSRPM $reqs
 		
@@ -136,6 +128,6 @@ test_package_requirements()
 		reqs=$(do_exclude_list "$pkgnames" "$reqs")
 		echo "Try install '$reqs' for $pkgname"
 		[ -z "$reqs" ] && echo " empty list, skipped" && continue
-		run_in_chroot epm simulate $reqs || return
+		run_in_chroot epm --skip-installed simulate $reqs || return
 	done
 }
