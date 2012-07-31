@@ -158,16 +158,27 @@ logit()
 	print_pretty_distroname
 
 	STRMSG=" * [`date '+%T'`] $1 ... "
+	shift
+
+	if [ "$1" = "SKIPPED" ] ; then
+		echo -n "$STRMSG"
+		print_status 2
+		return 0
+	fi
+
 	# print one line if scripted night build
 	[ -z "$NIGHTBUILD" ] && echo -n "$STRMSG"
-	shift
 	logtimestamp=`date "+%s"`
-	if [ ! "$1" = "SKIPPED" ] && [ -n "$LOGFILE" ] ; then
+
+	if [ -n "$LOGFILE" ] ; then
 		echo >>$LOGFILE
 		echo "STEP $STRMSG" >>$LOGFILE
 		$* >>$LOGFILE 2>&1
-		RET=$?
+	else
+		$*
 	fi
+	RET=$?
+
 	logtimestamp=$(( `date "+%s"` - $logtimestamp))
 	[ -z "$NIGHTBUILD" ] && STRMSG=""
 
