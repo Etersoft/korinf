@@ -11,7 +11,7 @@ x86_64/RHEL/6 Scientific/6
 MOPSLinux/6.1 MOPSLinux/6.0
 CentOS/4.0 Scientific/4.1
 CentOS/6 Scientific/6
-x86_64/CentOS/6 Scientific/6
+x86_64/CentOS/6 x86_64/Scientific/6
 SLES/10 SLED/10
 SLES/11 SLED/11
 SUSE/10.2 SUSE/10.1

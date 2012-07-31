@@ -45,11 +45,15 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 			warning "Removing target dir for replace to link"
 			rm -rfv "$DESTDIR" && success
 		fi
+
+		local LFROM=../$LINKED
+		echo $LINKED | grep -q x86_64 && LFROM=../../$LINKED
+
 		if [ -L "$DESTDIR" ] ; then
 			# TODO: check linking
 			#logit "Link $dist to $(readlink $DESTDIR) already exists" SKIPPED
-			if [ $(readlink "$DESTDIR") != "../$LINKED" ] ; then
-				warning "Overwrite already existed link $(readlink $DESTDIR) to ../$LINKED"
+			if [ $(readlink "$DESTDIR") != "$LFROM" ] ; then
+				warning "Overwrite already existed link $(readlink $DESTDIR) to $LFROM"
 				rm -rfv "$DESTDIR"
 			else
 				logit "Linked to $(readlink $DESTDIR)" SKIPPED
@@ -57,7 +61,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 		fi
 		if [ ! -L "$DESTDIR" ] ; then
 			mkdir -p $(dirname "$DESTDIR")
-			logit "Create link $dist to $LINKED" ln -s ../$LINKED $DESTDIR
+			logit "Create link $dist to $LINKED" ln -s $LFROM $DESTDIR
 		fi
 		# replace dist with linked
 		dist=$LINKED
