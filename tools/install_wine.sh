@@ -47,7 +47,7 @@ get_version_release()
 {
 	SOURCEPATH=$TARGETPATH/../../../../sources
 	[ -d "$SOURCEPATH" ] || SOURCEPATH=$TARGETPATH/../../../sources
-    [ -d "$SOURCEPATH" ] || SOURCEPATH=$TARGETPATH/../../sources
+	[ -d "$SOURCEPATH" ] || SOURCEPATH=$TARGETPATH/../../sources
 
 if [ -z "$VERSION" ] ; then
 	BUILDSRPM="$SOURCEPATH/$(ls -1 $SOURCEPATH/$BUILDNAME-[0-9]*.src.rpm | last_rpm).src.rpm"
@@ -64,29 +64,18 @@ fi
 pkg_is_installed()
 {
 	test -n "$INITIAL" && return
-	if [ "$DISTRIB_ID" = "Ubuntu" ] ; then
-		dpkg -s "$1" &>/dev/null
-	else
-		rpm -q "$1" &>/dev/null
-	fi
+	epm -q "$1" &>/dev/null
 }
 
 install_pkg()
 {
 	echo $LIST
 	test -n "$LIST" || return
-	if [ "$DISTRIB_ID" = "Ubuntu" ] ; then
-		sudo dpkg -i $LIST $FORCE
-	else
-		if [ -n "$INITIAL" ] ; then
-			sudo apt-get install $LIST
-		else
-			rpmU $LIST $FORCE
-		fi
-	fi
+	epm install $LIST
 }
 
 #############
+# FIXME: use distr_info
 if [ -r "/etc/lsb-release" ] && [ ! -r "/etc/altlinux-release" ] ; then
 	. /etc/lsb-release
 	SYSTEM=$DISTRIB_ID/$DISTRIB_RELEASE
