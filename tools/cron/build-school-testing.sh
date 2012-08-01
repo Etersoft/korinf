@@ -14,5 +14,5 @@ jump_to_repo
 pull_and_log -s
 pub_and_push
 
-korinf_wine test $WORKTARGET
+korinf_wine -f test $WORKTARGET
 

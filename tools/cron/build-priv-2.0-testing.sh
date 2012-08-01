@@ -57,6 +57,6 @@ save_good_state
 
 # FIXME: some detect korinf placing
 cd /srv/$USER/Projects/git/korinf/bin-wine 2>/dev/null || cd $HOME/Projects/korinf/bin-wine || fatal "can't CD"
-./wine-etersoft-all.sh test $WORKTARGET
+./wine-etersoft-all.sh -f test $WORKTARGET
 cd -
 
