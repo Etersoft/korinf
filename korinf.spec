@@ -16,7 +16,7 @@ Source: %name-%version.tar
 
 BuildArchitectures: noarch
 
-Requires: eepm >= 0.9
+Requires: eepm >= 1.0
 Requires: etersoft-build-utils >= 2.0.13
 Requires: alien
 
@@ -44,7 +44,11 @@ This package contains Korinf multidistro build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
-* Fri Jul 27 2012 Vitaly Lipatov <lav@altlinux.ru> 2.0.0-alt1
+* Wed Aug 01 2012 Vitaly Lipatov <lav@altlinux.ru> 2.0.0-alt1
+- check_reqs: use epm --skip-installed simulate instead filter_out_internal_packages
+- fix run from logit before log initialization
+- fix x86_64 linked
+- introduce set_destlogdir and use it
 - install_req: use epm --skip-installed install instead internal code
 - check_reqs: drop try_install_by_list (use epm simulate)
 - check_integrity: use epm integrity
