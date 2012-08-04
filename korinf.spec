@@ -17,7 +17,7 @@ Source: %name-%version.tar
 BuildArchitectures: noarch
 
 Requires: eepm >= 1.0
-Requires: etersoft-build-utils >= 2.0.13
+Requires: etersoft-build-utils >= 2.0.14
 Requires: alien
 
 %description

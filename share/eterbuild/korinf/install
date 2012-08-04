@@ -4,8 +4,8 @@
 #
 #  After build install functions
 #
-#  Copyright (c) Etersoft <http://etersoft.ru> 2005-2010
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009-2010
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005-2010, 2012
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009-2012
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -23,62 +23,21 @@
 
 load_mod tarball
 
-# FIXME: use get_install_package_command?
 # install built packages
 install_built()
-{	
-	local NODEPS
-	if [ -n "$WITHOUTEBU" ] ; then
-		echo "Skip install due boot strap mode"
-		return 0
+{
+	assert_var BUILDROOT DISTRNAME INTBUILT EPMCMD
+
+	# try use preinstalled epm
+	#if [ "$BUILDNAME" != "eepm" ] && [ "$BUILDNAME" != "rpm-build-altlinux-compat" ] ; then
+	if [ -x "$BUILDROOT/usr/bin/epm" ] ; then
+		run_in_chroot "cd $INTBUILT && epm --auto --skip-installed install ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
+		return
 	fi
 
-	echo "Install built $PKGFORMAT packages to $BUILDROOT root dir..."
-	# Do not install debug packages
-	#rm -f $BUILTRPM/*debug*
-	#BUILDFILES=`echo *${BUILDNAME}*$PKGFORMAT`
-	#popd
-
-	# TODO: use epm... but how to install epm first time?
-	# Possible we need just get command from epm
-
-	# Note: немного странно с кавычками и разворачиванием звёздочек
-	case $PKGFORMAT in
-		"deb") # Debian/Ubuntu
-			$SUDO chroot $BUILDROOT su - -c "export LC_ALL=C ; cd $INTBUILT && { $NICE dpkg -i ${EXPMAINFILES} ${EXPEXTRAFILES} ; apt-get -f -y install; }"
-			RES=$?
-			;;
-		"tgz") # Slackware
-			# FIXME: use ${EXPMAINFILES} ${EXPEXTRAFILES}
-			$SUDO chroot $BUILDROOT $NICE installpkg "$INTBUILT/*${BUILDNAME}*.$PKGFORMAT"
-			RES=$?
-			;;
-		"tar.xz") # Hack for ArchLinux
-			# FIXME: use ${EXPMAINFILES} ${EXPEXTRAFILES}
-			$SUDO chroot $BUILDROOT su - -c "export LC_ALL=C ; $NICE yes | pacman -v -U --force --nodeps /home/$INTUSER/abs/$PACKAGE/*${BUILDNAME}*.pkg.$PKGFORMAT"
-			#$SUDO chroot $BUILDROOT su - -c "cd / ; ls -1 $INTBUILT/*${BUILDNAME}*.$TARGET | xargs -n1 --no-run-if-empty $NICE tar xfvz "
-			RES=$?
-			;;
-		"rpm")
-			# First time install without dependences
-			# DURING_INSTALL for disable start_service
-			[ -n "$WITHOUTEBU" ] && NODEPS=--nodeps
-			[ -n "$BOOTSTRAP" ] && NODEPS=--nodeps
-			$SUDO chroot $BUILDROOT su - -c "export LC_ALL=C ; cd $INTBUILT && DURING_INSTALL=1 $NICE rpm -Uvh ${EXPMAINFILES} ${EXPEXTRAFILES} --force $NODEPS"
-			RES=$?
-			#[ "$RES" = "0" ] || warning "install status: failed"
-			# Hack: broken return status on some systems
-			#RES=0
-			;;
-		*)
-			fatal "Target $PKGFORMAT does not supported yet for install"
-			;;
-	esac
-
-	# mark as failed if install is not completed succefully
-	[ "$RES" = 0 ] || set_build_failed
-
-	return $RES
+	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || fatal "Can't get install command"
+	echo "Install built packages to $BUILDROOT root dir with $INSTALLCOMMAND command"
+	$SUDO chroot $BUILDROOT su - -c "export LC_ALL=C ; cd $INTBUILT && $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
 }
 
 # install required packages for build under the system (f.i., Debian/6.0)

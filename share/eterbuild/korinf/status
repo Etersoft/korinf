@@ -25,12 +25,14 @@ set_build_failed()
 {
 	set_destlogdir
 	touch "$DESTLOGDIR/$BUILDNAME.build.failed" || fatal "Can't set build status"
+	return 1
 }
 
 set_autobuild_failed()
 {
 	set_destlogdir
 	touch "$DESTLOGDIR/$BUILDNAME.autobuild.failed" || fatal "Can't set autobuild status"
+	return 1
 }
 
 is_build_failed()
@@ -50,5 +52,5 @@ clear_build_status()
 	set_destlogdir
 	rm -fv "$DESTLOGDIR/$BUILDNAME.build.failed"
 	rm -fv "$DESTLOGDIR/$BUILDNAME.autobuild.failed"
-	true
+	return 0
 }
