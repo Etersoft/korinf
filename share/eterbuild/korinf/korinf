@@ -128,11 +128,12 @@ build_srcrpm()
 
 print_build_project_options()
 {
-	echo "	-b - buildstrap (install package(s) after build)"
+	echo "	-b - buildstrap (build if needed, install package(s) after build)"
+	echo "	-B - force buildstrap (even if it is up-to-date)"
 	echo "	-q - enable quiet mode"
 	echo "	-c - print build status list"
 	echo "	-f - force rebuild only failed packages"
-	echo "	-F - force rebuild all packages even if it up-to-date"
+	echo "	-F - force rebuild all packages even if it is up-to-date"
 	echo "	-i - install packages required for build package"
 	echo "	-r - check install requires"
 	echo "	-R - check install requires with full output"
@@ -170,8 +171,15 @@ build_project()
 
 	if [ "$1" = "-b" ] ; then
 		BOOTSTRAP=1
-		FORCEREBUILDPACKAGE=1
+		REBUILDPACKAGE=1
 		echo "Run with install built package after done"
+		shift
+	fi
+
+	if [ "$1" = "-B" ] ; then
+		BOOTSTRAP=1
+		FORCEREBUILDPACKAGE=1
+		echo "Run with install built package after force build done"
 		shift
 	fi
 
