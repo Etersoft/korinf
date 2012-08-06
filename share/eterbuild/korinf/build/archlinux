@@ -4,8 +4,8 @@
 #
 #  Arch Linux build related functions
 #
-#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009, 2012
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2012
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -31,26 +31,12 @@ convert_archlinux()
 	echo "Copying to $BUILDROOT/tmp"
 	cp -f  $KORINFDIR/korinf/remote-scripts/remote-archlinux-rpm.sh $BUILDROOT/tmp || { warning "Cannot copy script" ; return 1 ; }
 	echo "chrooting and converting"
-#	$SUDO chroot $BUILDROOT /bin/sh -c '/bin/su -l -c "$NICE sh -x /tmp/remote-archlinux-rpm.sh \"$PACKAGE\"" lav'
-	$SUDO chroot $BUILDROOT su -l -c "sh -x /tmp/remote-archlinux-rpm.sh \"$PACKAGE\" \"$BUILDNAME\" \"$INTUSER\"" korinfer
+	$SUDO chroot $BUILDROOT su -l -c "sh -x /tmp/remote-archlinux-rpm.sh \"$PACKAGE\" \"$BUILDNAME\" \"$INTUSER\" \"$INTBUILT\"" korinfer
 	RET=$?
 	if [ $RET != 0 ] ; then
 		warning "Can't build"
 		#cat $BUILDROOT/var/tmp/portage/app-emulation/$PACKAGE-*/temp/build.log
 		return 1
 	fi
-	true
-	BUILTRPM=$BUILDERHOME/abs/$BUILDNAME/
 }
 
-copying_pkgbuild()
-{
-	clean_copying_destination
-
-	cp -f $BUILDERHOME/abs/$BUILDNAME/*$BUILDNAME*.pkg* $DESTDIR || { warning "Cannot copy packages" ; return 1; }
-
-	chmod g+rw -R $DESTDIR/* || true
-
-}
-
-#exit 0

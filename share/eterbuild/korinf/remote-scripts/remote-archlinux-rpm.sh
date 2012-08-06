@@ -80,4 +80,4 @@ do
     cd $RPMTEMPDIR/RPMS
 done
 
-exit 0
+mv -f $ABSDIR/$BUILDNAME/*$BUILDNAME*.pkg* $RPMTEMPDIR/RPMS/
