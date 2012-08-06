@@ -29,15 +29,17 @@ install_built()
 	assert_var BUILDROOT DISTRNAME INTBUILT EPMCMD
 
 	# try use preinstalled epm
-	#if [ "$BUILDNAME" != "eepm" ] && [ "$BUILDNAME" != "rpm-build-altlinux-compat" ] ; then
-	if [ -x "$BUILDROOT/usr/bin/epm" ] ; then
-		run_in_chroot "cd $INTBUILT && epm --auto --skip-installed install ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
+	run_in_chroot "cd $INTBUILT && epm --auto --skip-installed install ${EXPMAINFILES} ${EXPEXTRAFILES}" && return
+
+	# it is failed for all packages except eepm
+	if [ "$BUILDNAME" != "eepm" ] ; then
+		set_build_failed
 		return
 	fi
 
 	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || fatal "Can't get install command"
 	echo "Install built packages to $BUILDROOT root dir with $INSTALLCOMMAND command"
-	$SUDO chroot $BUILDROOT su - -c "export LC_ALL=C ; cd $INTBUILT && $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
+	$SUDO chroot $BUILDROOT su - -c "export LC_ALL=C ; cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
 }
 
 # install required packages for build under the system (f.i., Debian/6.0)

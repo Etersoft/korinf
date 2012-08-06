@@ -93,7 +93,7 @@ reset_dist_log()
 
 set_destlogdir()
 {
-	assert_var DESTDIR BUILDNAME
+	assert_var DESTDIR
 	export DESTLOGDIR=$DESTDIR/log
 	mkdir -p $DESTLOGDIR/ || fatal "Error with $DESTLOGDIR"
 }
