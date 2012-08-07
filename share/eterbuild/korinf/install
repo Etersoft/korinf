@@ -39,7 +39,7 @@ install_built()
 
 	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || fatal "Can't get install command"
 	echo "Install built packages to $BUILDROOT root dir with $INSTALLCOMMAND command"
-	$SUDO chroot $BUILDROOT su - -c "export LC_ALL=C ; cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
+	run_in_chroot "export LC_ALL=C ; cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
 }
 
 # install required packages for build under the system (f.i., Debian/6.0)
@@ -60,5 +60,5 @@ install_req()
 	reqs=$(get_rpmpkg_requires -p "$BUILDSRPM" | clean_pkgreq)
 	reqs=$(convert_pkgreqs_to_target $reqs)
 
-	run_in_chroot epm --auto --skip-installed install $reqs
+	run_in_chroot "epm --auto --skip-installed install $reqs"
 }
