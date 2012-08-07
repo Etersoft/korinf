@@ -60,7 +60,7 @@ install_req()
 	buildsystempkgs="libtool automake autoconf"
 
 	reqs=$(get_rpmpkg_requires -p "$BUILDSRPM" | clean_pkgreq)
-	reqs=$(convert_pkgreqs_to_target $reqs $buildsystempkgs)
+	reqs=$(convert_pkgreqs_to_target $reqs $buildsystempkgs | xargs -n 1000 echo)
 
 	run_in_chroot "epm --auto --skip-installed install $reqs"
 }
