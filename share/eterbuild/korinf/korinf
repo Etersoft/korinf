@@ -135,6 +135,7 @@ print_build_project_options()
 	echo "	-f - force rebuild only failed packages"
 	echo "	-F - force rebuild all packages even if it is up-to-date"
 	echo "	-i - install packages required for build package"
+	echo "	-I - force install packages required for build package"
 	echo "	-r - check install requires"
 	echo "	-R - check install requires with full output"
 }
@@ -199,6 +200,13 @@ build_project()
 	if [ "$1" = "-i" ] ; then
 		echo "Run install required package procedure"
 		INSTALLREQUIREDPACKAGE=1
+		shift
+	fi
+
+	if [ "$1" = "-I" ] ; then
+		echo "Force install required package procedure"
+		INSTALLREQUIREDPACKAGE=1
+		FORCEREBUILDPACKAGE=1
 		shift
 	fi
 
