@@ -8,4 +8,6 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
+SKIPBUILDLIST="FreeBSD OpenSolaris Windows"
+
 build_project /var/ftp/pub/Etersoft/RX@Etersoft rx-etersoft "" $@
