@@ -18,7 +18,7 @@ BuildArchitectures: noarch
 
 Requires: eepm >= 1.0
 Requires: etersoft-build-utils >= 2.0.14
-Requires: alien
+Requires: alien >= 8.86-alt3
 
 %description
 This package contains Korinf multidistro build system.
@@ -44,7 +44,21 @@ This package contains Korinf multidistro build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
-* Wed Aug 01 2012 Vitaly Lipatov <lav@altlinux.ru> 2.0.0-alt1
+* Fri Aug 17 2012 Vitaly Lipatov <lav@altlinux.ru> 2.0.0-alt1
+- release 2.0
+- fast add epm support to run-script.sh
+- install: use one-line args
+- install: add packages from minimal build environment
+- introduce -I for force install, -i now installs only for failed builds
+- rewrite run_in_chroot: simpled and correct return state
+- install: use direct install only for eepm and only if preinstalled epm is failed
+- introduce -B (force build and install), change -b: now do things only if build needed
+- cleanup and fix ArchLinux build
+- install: use epm install instead internal case
+- update/add install wine/gecko-mono script
+- cront/build: always use -f
+
+* Wed Aug 01 2012 Vitaly Lipatov <lav@altlinux.ru> 1.9.8-alt1
 - check_reqs: use epm --skip-installed simulate instead filter_out_internal_packages
 - fix run from logit before log initialization
 - fix x86_64 linked
