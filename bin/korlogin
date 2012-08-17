@@ -50,7 +50,7 @@ if [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
 	echo "Use: korlogin System/Version [-r] [command]" >&2
 	echo "	run without params for get available systems"
 	echo "	-r - login as root"
-	echo "	-n - login via network (unsupported now)"
+	#echo "	-n - login via network (unsupported now)"
 	exit 0
 fi
 

@@ -23,7 +23,7 @@
 
 check_pkg_integrity()
 {
-	epm integrity $@
+	$EPMCMD integrity $@
 }
 
 check_files_integrity()
