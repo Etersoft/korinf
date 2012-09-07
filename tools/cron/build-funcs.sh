@@ -102,7 +102,7 @@ korinf_wine()
 {
 	# FIXME: some detect korinf placing
 	cd /srv/$USER/Projects/git/korinf/bin-wine 2>/dev/null || cd $HOME/Projects/korinf/bin-wine || fatal "can't CD"
-	./wine-etersoft.sh $1 $2
+	./wine-etersoft.sh "$@"
 	cd -
 }
 
