@@ -3,6 +3,8 @@
 . /usr/share/eterbuild/eterbuild
 load_mod git
 
+SPECNAME=etersoft/wine-etersoft.spec
+
 fatal()
 {
 	echo "Error $@"
@@ -28,7 +30,6 @@ jump_to_repo()
 
 update_wine_version()
 {
-	local SPECNAME=etersoft/wine-etersoft.spec
 	test -f VERSION && test -f $SPECNAME || fatal "incorrect current dir $(pwd) or repo"
 
 	git reset --soft HEAD^
