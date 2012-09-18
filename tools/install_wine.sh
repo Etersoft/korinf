@@ -71,7 +71,7 @@ install_pkg()
 {
 	echo $LIST
 	test -n "$LIST" || return
-	epm install $LIST
+	epm install --auto $LIST
 }
 
 #############

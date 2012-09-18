@@ -1,4 +1,4 @@
 #!/bin/bash
 
 epm update
-epm install wine-gecko wine-mono
+epm install --auto wine-gecko wine-mono
