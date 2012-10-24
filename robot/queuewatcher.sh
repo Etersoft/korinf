@@ -74,6 +74,17 @@ while true ; do
 		sleep 60
 		continue
 	fi
+	# FIXME: local hack
+	if [ ! -r /var/ftp/pub ] ; then
+		echo "Paused due unreached /var/ftp/pub dir"
+		sleep 60
+		continue
+	fi
+	if [ ! -r /var/ftp/pvt ] ; then
+		echo "Paused due unreached /var/ftp/pvt dir"
+		sleep 60
+		continue
+	fi
 	timeout 30m $AROBOT/hands/worker.sh $TASKDIR 2>&1
 	test -n "$FLAGNOW" && break
 	sleep 30
