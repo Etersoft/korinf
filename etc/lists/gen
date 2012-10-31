@@ -1,16 +1,5 @@
 # Прочие системы
 
-# Linux online
-#LinuxXP/2006
-#LinuxXP/2007
-#LinuxXP/2008
-
-# Fedora based
-#ASPLinux/10
-#ASPLinux/11
-#ASPLinux/11.2
-ASPLinux/12
-ASPLinux/14
 
 PCLinux/2009.2
 PCLinux/2010.07
@@ -18,12 +7,7 @@ PCLinux/2010.07
 # Slackware based
 #Slackware/10.2
 Slackware/13
-#MOPSLinux/4.0
-#MOPSLinux/5.0
-#MOPSLinux/6.0
-#MOPSLinux/6.2
 
-#Gentoo/2007
 Gentoo/2009
 
 Special/3.0
