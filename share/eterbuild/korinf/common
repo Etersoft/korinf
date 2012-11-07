@@ -181,6 +181,27 @@ get_rpm_sources()
 	return 0
 }
 
+# set target vars before package build
+# can change BUILDARCH
+set_target_var()
+{
+	# defines PKGFORMAT, PKGVENDOR, RPMVENDOR
+	set_target_pkg_env # (from etersoft-build-utils)
+
+	[ -z "$PKGFORMAT" ] && { warning "PKGFORMAT is empty" ; return 1 ; }
+
+	[ "$PKGVENDOR" = "gentoo" ] || return 0
+
+	# HACK for Gentoo
+	if [ -n "$BOOTSTRAP" ] ; then
+		[ "$PKGFORMAT" = "tbz2" ] && PKGFORMAT=rpm
+	else
+		[ "$PKGFORMAT" = "tbz2" ] && PKGFORMAT=tar.bz2
+	fi
+	return 0
+}
+
+
 # FIXME: move to etersoft-build-utils
 assert_var()
 {

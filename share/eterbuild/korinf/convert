@@ -26,6 +26,36 @@
 kormod buildargs
 load_mod repl
 
+# used BUILDERHOME to put in src.rpm
+convert_rpm_to_target()
+{
+	local dist=$1
+
+        [ -n "$BUILDERHOME" ] || BUILDERHOME=~/tmp/korinfer
+
+	# rpmbph will use DISTRNAME/DISTRVERSION and so on
+
+	# FIXME: when build to remote dist, we need generic src.rpm
+	echo "Convert '$BUILDSRPM' for $dist distro"
+	rm -f $BUILDERHOME/tmp/$BUILDNAME*
+	if [ -n "$MAKESPKG" ] ; then
+		$RPMBPH -v -n -z $BUILDSRPM
+		BUILTRPM=~/$RPMSDIR
+		return 0
+	else
+		ETERDESTSRPM=$BUILDERHOME/tmp $RPMBPH -v -n $BUILDSRPM
+		BUILTRPM=$BUILDERHOME/$RPMSDIR
+	fi
+
+	# Get real src.rpm name
+	TARGETSRPM=$(echo $BUILDERHOME/tmp/$BUILDNAME*.src.rpm | head -n1)
+	[ -r "$TARGETSRPM" ] && [ -f "$TARGETSRPM" ] || { warning "Can't read target $TARGETSRPM src.rpm" ; return 1 ; }
+	$SUDO chown $LOCUSER $TARGETSRPM
+
+	return 0
+}
+
+
 check_alien()
 {
     if (alien -h 2>&1 | grep -qws "depends" ); then
