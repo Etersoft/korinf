@@ -53,22 +53,30 @@ build_rpms()
 	[ "$PKGFORMAT" = "rpm" ] || DISABLEDEBUGFLAG="--without debug"
 	[ "$ALLOWPUBLICDEBUG" = "1" ] || DISABLEDEBUGFLAG="--without debug"
 
-	CMDBUILD="rpmbuild -v --rebuild $RPMBUILDNODEPS "$RPMARGS" $DISABLEDEBUGFLAG --define='_unpackaged_files_terminate_build 0' --buildroot $RPMBUILDROOT /home/$INTUSER/tmp/$(basename $TARGETSRPM) --target $BUILDARCH"
-	CMDAFTERBUILD="cat ~/tmp/rpm-tmp.* ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.log; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h"
+	## Control file for check build result
+	#LOGFAILFILE="$BUILDERHOME/RPM/log/$BUILDNAME.log.failed"
+	#rm -f "$LOGFAILFILE" "$LOGFAILFILE.clog"
 
-	# Control file for check build result
-        LOGFAILFILE="$BUILDERHOME/RPM/log/$BUILDNAME.log.failed"
-	rm -f "$LOGFAILFILE" "$LOGFAILFILE.clog"
+	echo "Chrooting as $INTUSER and run script in $BUILDARCH system"
+	cat <<EOF | run_in_chroot --user $INTUSER "bash -x -" || return
+	echo "Run in \$(distr_info)"
+	umask 002
+	mkdir -p ~/RPM/log
+	rm -f ~/tmp/rpm-tmp.*
+	# FIXME: has quote problem
+	RPMARGS="$RPMARGS"
+	rpmbuild -v --rebuild $RPMBUILDNODEPS \$RPMARGS $DISABLEDEBUGFLAG \
+		--define='_unpackaged_files_terminate_build 0' \
+		--buildroot $RPMBUILDROOT \
+		/home/$INTUSER/tmp/$(basename $TARGETSRPM) --target $BUILDARCH # || touch /home/$INTUSER/RPM/log/$BUILDNAME.log.failed
+	#( cat ~/tmp/rpm-tmp.* ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.log; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h ) >~/RPM/log/$BUILDNAME.log.failed.clog
+EOF
 
-	echo "Chrooting as $INTUSER and run $CMDBUILD command in $BUILDARCH system"
-	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-		su - $INTUSER -c "export LANG=C ; export LC_ALL=C ; umask 002 ; mkdir -p ~/RPM/log ; rm -f ~/tmp/rpm-tmp.* ; $CMDBUILD || touch ~/RPM/log/$BUILDNAME.log.failed ; ( $CMDAFTERBUILD ) >~/RPM/log/$BUILDNAME.log.failed.clog "
-
-	if [ -r "$LOGFAILFILE" ] ; then
-		rm -f "$LOGFAILFILE" ; warning "build failed"
-		[ -r "$LOGFAILFILE.clog" ] && mv "$LOGFAILFILE.clog" "${LOGFILE/.log/.conf.log}"
-		return 1
-	fi
+	#if [ -r "$LOGFAILFILE" ] ; then
+	#	rm -f "$LOGFAILFILE" ; warning "build failed"
+	#	[ -r "$LOGFAILFILE.clog" ] && mv "$LOGFAILFILE.clog" "${LOGFILE/.log/.conf.log}"
+	#	return 1
+	#fi
 
 	# Workaround again flow target dirs
 	pushd $BUILTRPM || { warning "can't chdir to $BUILTRPM" ; return 1; }
