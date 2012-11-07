@@ -115,10 +115,17 @@ end_umount()
 	return $ERR
 }
 
+# use --user USER for change to local user USER
 run_in_chroot()
 {
 	assert_var BUILDERHOME BUILDNAME BUILDARCH BUILDROOT INTUSER
 
+	local USER
+	if [ "$1" = "--user" ] ; then
+		USER=$2
+		shift 2
+	fi
+
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-		su - -c "export LANG=C ; export LC_ALL=C ; $@"
+		su - $USER -c "export LANG=C ; export LC_ALL=C ; $@"
 }
