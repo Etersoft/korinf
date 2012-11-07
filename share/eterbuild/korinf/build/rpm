@@ -76,12 +76,13 @@ EOF
 	#	return 1
 	#fi
 
+	# Не пойму, зачем это в локальной системе
 	# Workaround again flow target dirs
-	pushd $BUILTRPM || { warning "can't chdir to $BUILTRPM" ; return 1; }
-	test -d i586 && mv -f i586/* ./
-	test -d x86_64 && mv -f x86_64/* ./
-	test -d noarch && mv -f noarch/* ./
-	popd
+	#pushd $BUILTRPM || { warning "can't chdir to $BUILTRPM" ; return 1; }
+	#test -d i586 && mv -f i586/* ./
+	#test -d x86_64 && mv -f x86_64/* ./
+	#test -d noarch && mv -f noarch/* ./
+	#popd
 
 	# Set and expand MAINFILELIST, EXTRAFILELIST
 	fill_filelist
