@@ -115,17 +115,27 @@ end_umount()
 	return $ERR
 }
 
-# use --user USER for change to local user USER
+# use --user for change to local user INTUSER
 run_in_chroot()
 {
-	assert_var BUILDERHOME BUILDNAME BUILDARCH BUILDROOT INTUSER
+	assert_var DISTRNAME DISTRVERSION INTUSER
 
 	local USER
 	if [ "$1" = "--user" ] ; then
-		USER=$2
-		shift 2
+		USER=$INTUSER
+		shift
 	fi
 
+	# run via ssh if remote build system
+	local rhost rcommands
+	rhost=$(get_remote_host $DISTRNAME/$DISTRVERSION)
+	if [ -n "$rhost" ] ; then
+		rcommands=$(get_remote_commands $DISTRNAME/$DISTRVERSION)
+		ssh -i $PRIVATESSHKEY $INTUSER@$rhost $rcommands "\"export LANG=C ; export LC_ALL=C ; $@\""
+		return
+	fi
+
+	assert_var BUILDARCH BUILDROOT
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
 		su - $USER -c "export LANG=C ; export LC_ALL=C ; $@"
 }

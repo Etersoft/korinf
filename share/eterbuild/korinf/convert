@@ -23,7 +23,6 @@
 
 # We believe BUILDERHOME is clean already here
 
-kormod buildargs
 load_mod repl
 
 # used BUILDERHOME to put in src.rpm

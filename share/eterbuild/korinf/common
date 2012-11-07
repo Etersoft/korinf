@@ -201,6 +201,24 @@ set_target_var()
 	return 0
 }
 
+# $1 - dist like CentOS/5.4
+get_rpm_args()
+{
+        grep "^$2 " $KORINFETC/rpmopt/rpm | cut -f2-100 -d" "
+}
+
+# $1 - dist like CentOS/5.4
+get_remote_host()
+{
+        grep "^$1 " $KORINFETC/remote | ( read d host commands ; echo $host ; )
+}
+
+# $1 - dist like CentOS/5.4
+get_remote_commands()
+{
+        grep "^$1 " $KORINFETC/remote | ( read d host commands ; echo $commands ; )
+}
+
 
 # FIXME: move to etersoft-build-utils
 assert_var()

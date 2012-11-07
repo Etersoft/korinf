@@ -23,12 +23,10 @@
 
 # We believe BUILDERHOME is clean already here
 
-kormod buildargs
-
-
-
 build_rpms()
 {
+	assert_var INTUSER RPMSDIR BUILDNAME BUILDSRPM
+	assert_var PKGFORMAT PKGVENDOR
 	local dist=$1
 
 	# create needed files in home directory
@@ -57,8 +55,8 @@ build_rpms()
 	#LOGFAILFILE="$BUILDERHOME/RPM/log/$BUILDNAME.log.failed"
 	#rm -f "$LOGFAILFILE" "$LOGFAILFILE.clog"
 
-	echo "Chrooting as $INTUSER and run script in $BUILDARCH system"
-	cat <<EOF | run_in_chroot --user $INTUSER "bash -x -" || return
+	echo "Chrooting as $INTUSER and run script"
+	cat <<EOF | run_in_chroot --user "bash -x -" || return
 	echo "Run in \$(distr_info)"
 	umask 002
 	mkdir -p ~/RPM/log
