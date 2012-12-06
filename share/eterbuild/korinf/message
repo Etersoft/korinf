@@ -21,27 +21,25 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+exit_now()
+{
+	# disable trap before exit
+	trap - EXIT
+	[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount
+	exit 1
+}
 
 fatal()
 {
 	echo "FATAL: $@" >&2
-	[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount
-	# disable trap before exit
-	trap - EXIT
-	exit 1
+	exit_now
 }
 
 warning()
 {
 	echo "WARNING: $@" >&2
-#	continue
 	echo "`date` $dist WARNING: $@" | write_report
-	if [ -n "$CAREBUILD" ] ; then
-		[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount
-		# disable trap before exit
-		trap - EXIT
-		exit 1
-	fi
+	[ -n "$CAREBUILD" ] && exit_now
 	return 1
 }
 
@@ -49,12 +47,7 @@ error()
 {
 	echo "ERROR: $@" >&2
 	echo "`date` $dist ERROR: $@" | write_report
-	if [ -n "$CAREBUILD" ] ; then
-		[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount
-		# disable trap before exit
-		trap - EXIT
-		exit 1
-	fi
+	[ -n "$CAREBUILD" ] && exit_now
 	return 1
 }
 
