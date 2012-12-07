@@ -67,7 +67,8 @@ pull_changes()
 	[ "$CURTAG" = "$NEWTAG" ] && fatal "last commit is not changed after update"
 
 	# Если тег стоит на последнем коммите, не трогаем changelog (т.е. кто-то вручную сборку сделал)
-	[ "$NEWTAG" = "$NEWRELTAG" ] && return 1
+	[ "$NEWTAG" = "$NEWRELTAG" ] && echo "Skip, last commit has appropriate tag" && return 1
+	is_last_commit_tag && && echo "Skip, last commit has last tag (checked with is_last_commit_tag" && return 1
 	return 0
 }
 
