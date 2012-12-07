@@ -31,11 +31,12 @@ done
 # we will get spec version from sql spec
 SPECNAME=wine-etersoft-sql.spec
 
-echo "WINE@Etersoft version $(get_version $SPECNAME)-eter$(get_numrelease $SPECNAME)" >VERSION
+ETERVERSION="$(get_version $SPECNAME)-eter$(get_numrelease $SPECNAME)"
+echo "WINE@Etersoft version $ETERVERSION" >VERSION
 # rebuild needed files
 autoreconf -f || fatal "autoreconf failed"
 
-git commit -a -m "auto build with $(basename $0) script"
+git commit -a -m "auto build $ETERVERSION with $(basename $0) script"
 
 
 #pub_and_push
