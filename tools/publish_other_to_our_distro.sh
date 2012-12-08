@@ -20,21 +20,7 @@ fi
 
 SOURCEPATH=$WINEPUB_PATH/$PROJECTVERSION/sources
 
-add_and_remove()
-{
-	local i=$2
-	[ -n "$i" ] || return
-	cd $1 || { warning "Can't cd" ; return ; }
-	#ls -l
-	local LIST="$i-[0-9]*.*.rpm"
-	for i in $LIST ; do
-	    [ -r "$i" ] || { echo "Skip $LIST (missed now)" ; return ; }
-	done
-	rm -fv $TP/$i-[0-9]*.rpm
-	#echo "## $(pwd) ## $LIST"
-	cp -flv $LIST $TP 2>/dev/null || cp -fv $LIST $TP || fatal "Can't copy $LIST"
-	cd - >/dev/null
-}
+. `dirname $0`/publish-funcs.sh
 
 # FROM TARGET
 other_copy_to()
@@ -45,6 +31,7 @@ other_copy_to()
 	[ "$ARCH" = "i586" ] || NARCH=$ARCH
 	local TP="$2/$ARCH/RPMS.$COMPONENT"
 
+	GENBASE=
 	FPU="/var/ftp/pub/Etersoft/RX@Etersoft/$UNIPVERSION/$NARCH/$1"
 	add_and_remove "$FPU" nx
 	add_and_remove "$FPU" nxclient
@@ -55,8 +42,7 @@ other_copy_to()
 		add_and_remove "$FPU" $i
 	done
 
-	set_binaryrepo $(basename $1)
-	ssh git.eter genbases -b $BINARYREPO
+	gen_baserepo $1
 }
 
 distro_path=/var/ftp/pub/Etersoft/LINUX@Etersoft

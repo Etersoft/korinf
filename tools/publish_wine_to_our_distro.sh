@@ -7,12 +7,14 @@
 load_mod alt
 
 PROJECTVERSION=$1
-if [ -z "$PROJECTVERSION" ] ; then
-	PROJECTVERSION=last
-	UNIPVERSION=2.0-testing
+[ -z "$PROJECTVERSION" ] && fatal "Run with version (2.0, 2.0-testing and so on)"
+
+if echo "$PROJECTVERSION" | grep -q testing ; then
+	#PROJECTVERSION=last
+	#UNIPVERSION=$PROJECTVERSION
 	COMPONENT=unstable
 else
-	UNIPVERSION=stable
+	#UNIPVERSION=stable
 	COMPONENT=nonfree
 fi
 
@@ -22,22 +24,7 @@ fi
 
 SOURCEPATH=$WINEPUB_PATH/$PROJECTVERSION/sources
 
-add_and_remove()
-{
-	local i=$2
-	[ -n "$i" ] || return
-	cd $1 || { warning "Can't cd" ; return ; }
-	#ls -l
-	local LIST="$i-[0-9]*.*.rpm"
-	for file in $LIST ; do
-		[ -r "$file" ] || { echo "Skip $file (missed now)" ; continue ; }
-		cmp "$file" $TP/$(basename $file) && { echo "Skip $file (not changed)" ; continue ; }
-		cp -flv $file $TP 2>/dev/null || cp -fv $file $TP || fatal "Can't copy $file"
-	done
-	#rm -fv $TP/$i-[0-9]*.rpm
-	#echo "## $(pwd) ## $LIST"
-	cd - >/dev/null
-}
+. `dirname $0`/publish-funcs.sh
 
 # FROM TARGET
 wine_copy_to()
@@ -50,6 +37,7 @@ wine_copy_to()
 	local HASPFPU="$WINEPUB_PATH/$PROJECTVERSION/HASP/$NARCH/$1"
 	local TP="$2/$ARCH/RPMS.$COMPONENT"
 
+	GENBASE=
 	add_and_remove "$FPU" wine-etersoft
 	add_and_remove "$FPU/extra" wine-etersoft-gl
 	add_and_remove "$FPU/extra" wine-etersoft-twain
@@ -66,6 +54,7 @@ wine_copy_to()
 	#TP="$2/noarch/RPMS.addon"
 	add_and_remove "$FPU" etercifs
 
+	gen_baserepo $1
 }
 
 distro_path=/var/ftp/pub/Etersoft/LINUX@Etersoft
