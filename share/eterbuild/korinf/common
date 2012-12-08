@@ -219,6 +219,13 @@ get_remote_commands()
         grep "^$1 " $KORINFETC/remote | ( read d host commands ; echo $commands ; )
 }
 
+is_remote_build()
+{
+	local rhost
+	assert_var DISTRNAME DISTRVERSION
+	rhost=$(get_remote_host $DISTRNAME/$DISTRVERSION)
+	test -n "$rhost"
+}
 
 # FIXME: move to etersoft-build-utils
 assert_var()

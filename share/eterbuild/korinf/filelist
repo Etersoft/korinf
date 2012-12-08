@@ -76,7 +76,7 @@ fill_filelist()
 
 	# HACK: the follow code copied from build/hasher
 	# search for binary packages
-	local BUILTBINPKGLIST=`get_binpkg_list $BUILTRPM $(basename $TARGETSRPM)`
+	BUILTBINPKGLIST=`get_binpkg_list $BUILTRPM $(basename $TARGETSRPM)`
 	echo "For $TARGETSRPM follow packages is found:"
 	echo "$BUILTBINPKGLIST"
 

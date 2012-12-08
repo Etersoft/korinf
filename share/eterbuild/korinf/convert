@@ -30,7 +30,9 @@ convert_rpm_to_target()
 {
 	local dist=$1
 
-        [ -n "$BUILDERHOME" ] || BUILDERHOME=~/tmp/korinfer
+	# FIXME: hack
+	[ -n "$BUILDERHOME" ] || BUILDERHOME=~/tmp/korinfer
+	mkdir -p $BUILDERHOME
 
 	# rpmbph will use DISTRNAME/DISTRVERSION and so on
 
@@ -49,7 +51,13 @@ convert_rpm_to_target()
 	# Get real src.rpm name
 	TARGETSRPM=$(echo $BUILDERHOME/tmp/$BUILDNAME*.src.rpm | head -n1)
 	[ -r "$TARGETSRPM" ] && [ -f "$TARGETSRPM" ] || { warning "Can't read target $TARGETSRPM src.rpm" ; return 1 ; }
-	$SUDO chown $LOCUSER $TARGETSRPM
+
+	if is_remote_build ; then
+		cat $TARGETSRPM | run_in_chroot --user "mkdir -p /home/$INTUSER/tmp ; cat >/home/$INTUSER/tmp/$(basename $TARGETSRPM)"
+		return
+	else
+		$SUDO chown $LOCUSER $TARGETSRPM
+	fi
 
 	return 0
 }

@@ -63,10 +63,25 @@ build_rpms()
 	rm -f ~/tmp/rpm-tmp.*
 	# FIXME: has quote problem
 	RPMARGS="$RPMARGS"
-	rpmbuild -v --rebuild $RPMBUILDNODEPS \$RPMARGS $DISABLEDEBUGFLAG \
+	RPMCMD=rpmbuild
+	DDF="$DISABLEDEBUGFLAG"
+	# some systems has no rpmbuild, only rpm (or just install rpm-build package?)
+	#which \$RPMCMD 2>/dev/null || { RPMCMD=rpm ; DDF="" ; }
+
+	\$RPMCMD -v --rebuild $RPMBUILDNODEPS \$RPMARGS \$DDF \
 		--define='_unpackaged_files_terminate_build 0' \
 		--buildroot $RPMBUILDROOT \
-		/home/$INTUSER/tmp/$(basename $TARGETSRPM) --target $BUILDARCH # || touch /home/$INTUSER/RPM/log/$BUILDNAME.log.failed
+		/home/$INTUSER/tmp/$(basename $TARGETSRPM) --target $BUILDARCH
+	RES=\$?
+
+	# Workaround again flow target dirs
+	pushd /home/$INTUSER/RPM/RPMS/
+	test -d i586 && mv -f i586/* ./ && rmdir i586
+	test -d x86_64 && mv -f x86_64/* ./ && rmdir x86_64
+	test -d noarch && mv -f noarch/* ./ && rmdir noarch
+	popd
+
+	exit \$RES
 	#( cat ~/tmp/rpm-tmp.* ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.log; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h ) >~/RPM/log/$BUILDNAME.log.failed.clog
 EOF
 
@@ -76,13 +91,15 @@ EOF
 	#	return 1
 	#fi
 
-	# Не пойму, зачем это в локальной системе
-	# Workaround again flow target dirs
-	#pushd $BUILTRPM || { warning "can't chdir to $BUILTRPM" ; return 1; }
-	#test -d i586 && mv -f i586/* ./
-	#test -d x86_64 && mv -f x86_64/* ./
-	#test -d noarch && mv -f noarch/* ./
-	#popd
+	if is_remote_build ; then
+		mkdir -p $BUILTRPM
+		local tmptar
+		tmptar=$(basename $TARGETSRPM .src.rpm)
+		run_in_chroot --user "cd /home/$INTUSER/RPM/RPMS/ && tar -cvf - *" >$BUILTRPM/$tmptar.tar || return
+		pushd $BUILTRPM
+		tar xfv $BUILTRPM/$tmptar.tar && rm -f $BUILTRPM/$tmptar.tar
+		popd
+	fi
 
 	# Set and expand MAINFILELIST, EXTRAFILELIST
 	fill_filelist

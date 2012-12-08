@@ -26,6 +26,7 @@ MOUNT_MODULE_INCLUDED=1
 
 mount_linux()
 {
+	is_remote_build && return
 	local distr=$1
 	local MOUNTPARAM
 
@@ -82,6 +83,7 @@ terminate_using()
 
 end_umount()
 {
+	is_remote_build && return
 	local i u ERR
 	ERR=0
 	if [ -z "$BUILDROOT" ] ; then
@@ -120,9 +122,9 @@ run_in_chroot()
 {
 	assert_var DISTRNAME DISTRVERSION INTUSER
 
-	local USER
+	local LOUSER=""
 	if [ "$1" = "--user" ] ; then
-		USER=$INTUSER
+		LOUSER=$INTUSER
 		shift
 	fi
 
@@ -130,12 +132,12 @@ run_in_chroot()
 	local rhost rcommands
 	rhost=$(get_remote_host $DISTRNAME/$DISTRVERSION)
 	if [ -n "$rhost" ] ; then
-		rcommands=$(get_remote_commands $DISTRNAME/$DISTRVERSION)
+		rcommands=`eval echo $(get_remote_commands $DISTRNAME/$DISTRVERSION)`
 		ssh -i $PRIVATESSHKEY $INTUSER@$rhost $rcommands "\"export LANG=C ; export LC_ALL=C ; $@\""
 		return
 	fi
 
 	assert_var BUILDARCH BUILDROOT
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-		su - $USER -c "export LANG=C ; export LC_ALL=C ; $@"
+		su - $LOUSER -c "export LANG=C ; export LC_ALL=C ; $@"
 }
