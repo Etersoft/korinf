@@ -29,12 +29,13 @@ add_and_remove()
 	cd $1 || { warning "Can't cd" ; return ; }
 	#ls -l
 	local LIST="$i-[0-9]*.*.rpm"
-	for i in $LIST ; do
-	    [ -r "$i" ] || { echo "Skip $LIST (missed now)" ; return ; }
+	for file in $LIST ; do
+		[ -r "$file" ] || { echo "Skip $file (missed now)" ; continue ; }
+		cmp "$file" $TP/$(basename $file) && { echo "Skip $file (not changed)" ; continue ; }
+		cp -flv $file $TP 2>/dev/null || cp -fv $file $TP || fatal "Can't copy $file"
 	done
-	rm -fv $TP/$i-[0-9]*.rpm
+	#rm -fv $TP/$i-[0-9]*.rpm
 	#echo "## $(pwd) ## $LIST"
-	cp -flv $LIST $TP 2>/dev/null || cp -fv $LIST $TP || fatal "Can't copy $LIST"
 	cd - >/dev/null
 }
 
