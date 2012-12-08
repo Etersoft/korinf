@@ -21,8 +21,11 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+EXIT_PROCESSING=
 exit_now()
 {
+	[ -n "$EXIT_PROCESSING" ] && exit 1
+	EXIT_PROCESSING=1
 	# disable trap before exit
 	trap - EXIT
 	[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount
