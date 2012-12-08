@@ -37,6 +37,7 @@ PART=$2
 export NIGHTBUILD=1
 
 if [ -z "$PART" ] ; then
+    ../bin/korinf $SYSTEM eepm -b || fatal
     ../bin-common/rpm-build-altlinux-compat.sh $SYSTEM -b || fatal
 fi
 
@@ -56,12 +57,12 @@ build wine wine-etersoft-all $1
 #build wine wine-etersoft-cad
 
 # build hasp without target
-build hasp haspd $1
+build hasp haspd stable
 # TODO: only for dkms target
 # build hasp dkms-aksparlnx
 
 # build cifs without target
-build cifs etercifs $1
+build cifs etercifs stable
 # TODO: only for dkms target
 #build cifs dkms-etercifs stable
 }
