@@ -29,12 +29,9 @@
 # FIXME: если в имени запятая, разделяет на два адреса
 #
 
-# TARGETDIR - user download dir on the site
-# TYPE - CAD/SQL/Network/Local/Network Lite/SQL Unique
-prepare_wine_etersoft()
+prepare_wine_etersoft_license()
 {
-	# PRODUCT_name - sql/network/local
-	PRODUCT_name=`echo "$TYPE" | sed -e "s| ||g" | tr A-Z a-z`
+	assert_var PROJECTVERSION TYPE_LICENSE PRODUCT AROBOTDIR
 
 	if [ "$PROJECTVERSION" = "1.0.11" ] ; then
 		[ "$TYPE_LICENSE" = "DemoTerminal" ] && TYPE_LICENSE="Demo"
@@ -42,8 +39,24 @@ prepare_wine_etersoft()
 
 	LICENSE_name=`echo "$TYPE_LICENSE" | sed -e "s| ||g" | tr "[A-Z]" "[a-z]"`
 
-	# due ( below
-	export FTPDIR=$TARGETDIR/$TYPE-$PROJECTVERSION/$DIST
+	local DSAKEY=wine-etersoft-2.0.dsa
+
+	# Тут же может быть testing в PROJECTVERSION, поэтому только его проверять нельзя
+	# Обязательно нужно проверять на версию, потому что для WINE@Etersoft 2.0 мы отгружаем 1.0.12
+	if echo "$PRODUCT" | grep -q "WINE@Etersoft 1\.0" || [ "$PROJECTVERSION" = "1.0.12" ] ; then
+		DSAKEY=wine-etersoft.dsa
+	fi
+	
+	
+	create_license $1 $AROBOTDIR/dsa/$DSAKEY
+}
+
+# TARGETDIR - user download dir on the site
+# TYPE - CAD/SQL/Network/Local/Network Lite/SQL Unique
+prepare_wine_etersoft()
+{
+	# PRODUCT_name - sql/network/local
+	PRODUCT_name=`echo "$TYPE" | sed -e "s| ||g" | tr A-Z a-z`
 
 	# Можем стирать только каталог дистрибутива, а не весь
 	test -e $FTPDIR && rm -rf $FTPDIR
@@ -102,16 +115,7 @@ prepare_wine_etersoft()
 		cp -fl $i $FTPDIR/extra/ || cp -f $i $FTPDIR/extra/ || fatal "Can't copy $i"
 	done
 
-	DSAKEY=wine-etersoft-2.0.dsa
-
-	# Тут же может быть testing в PROJECTVERSION, поэтому только его проверять нельзя
-	# Обязательно нужно проверять на версию, потому что для WINE@Etersoft 2.0 мы отгружаем 1.0.12
-	if echo "$PRODUCT" | grep -q "WINE@Etersoft 1\.0" || [ "$PROJECTVERSION" = "1.0.12" ] ; then
-		DSAKEY=wine-etersoft.dsa
-	fi
-	
-	
-	create_license $FTPDIR/$LICENSEFILE $AROBOTDIR/dsa/$DSAKEY
+	prepare_wine_etersoft_license $FTPDIR/$LICENSEFILE
 
 	# Ещё раз проверяем наличие обязательных пакетов
 	# Check package files
@@ -279,16 +283,85 @@ Etersoft, 2012
 EOF
 }
 
+
+prepare_wine_etersoft_license_mail()
+{
+	local FILETO BETA NAME
+	FILETO=$1
+	>$FILETO
+	NAME="$(get_dear_from_fio "$FULLNAME" "покупатель")"
+	BETA=""
+
+if [ "$TYPE_LICENSE" = "Demo" ] || [ "$TYPE_LICENSE" = "DemoTerminal" ] ; then
+	THANKTEXT="Благодарим Вас за внимание к нашему продукту."
+else
+	THANKTEXT="Благодарим Вас за покупку!"
+fi
+
+	cat >>$FILETO <<EOF
+${DEAR} ${NAME}!
+
+Файл лицензии Продукта
+${PRODUCT}
+(релиз $PROJECTVERSION) приложен к настоящему письму.
+
+Регистрационный номер Продукта: ${ETERREGNUM}.
+
+Файл лицензии $LICENSEFILE необходимо расположить в одном из следующих каталов:
+/etc/wine, ~/.wine или C:\WINDOWS\INF и проверить права на его чтение пользователями.
+
+Всегда можно заказать сборку или файл лицензии ещё раз по адресу http://sales.etersoft.ru/product/${ETERREGNUM}/email=${MAILTO}
+
+Пожалуйста, отвечайте на это письмо только
+при возникновении затруднений с файлом лицензии.
+
+$THANKTEXT
+EOF
+
+	cat >>$FILETO <<EOF
+
+-- 
+Команда разработчиков
+Etersoft, 2013
+EOF
+}
+
+
+
+mail_wine_etersoft_license()
+{
+	# FIXME: use tmp dir
+	TMPFTPDIR=$TARGETDIR/$TYPE-$PROJECTVERSION
+
+	prepare_wine_etersoft_license $TMPFTPDIR/$LICENSEFILE
+
+	TMPMAIL=$(make_temp_file)
+	prepare_wine_etersoft_license_mail $TMPMAIL || fatal "Can't prepare letter"
+
+	# Для отправки писем обязательно нужна локаль!
+	export LC_ALL=ru_RU.UTF-8
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Лицензия для продукта $COMPONENTNAME" -a $TMPFTPDIR/$LICENSEFILE || fatal "Can't send"
+	rm -f $TMPMAIL
+	$TMPFTPDIR/$LICENSEFILE
+}
+
+
 build_wine_etersoft()
 {
 	PROJECTNAME="WINE@Etersoft"
 	LICENSEFILE="wine-etersoft.lic"
 	VERNAME=$PROJECTNAME/$PROJECTVERSION
+	TYPE="$(get_product_type "$COMPONENTNAME")"
 
 	TARGETDIR="/var/ftp/pub/download/WINE@Etersoft/$TARGETDIRNAME"
 	DOWNLOADDIR="ftp://$DOWNLOADDOMAIN/W@E/$TARGETDIRNAME"
 
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME"
+
+	if [ -n "$LICENSEONLY" ] ; then
+		mail_wine_etersoft_license
+		return
+	fi
 
 	# Use real path if possible
 	if [ -L "$PUBLOCAL" ] ; then
@@ -317,14 +390,14 @@ build_wine_etersoft()
 	PUBDOWNLOAD1FONTS="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/fonts/$DIST"
 	#[ -d "$PUBLOCAL/fonts/$DIST/" ] || fatal "Can't locate fonts dir fonts/$DIST"
 
-	TYPE="$(get_product_type "$COMPONENTNAME")"
+	export FTPDIR=$TARGETDIR/$TYPE-$PROJECTVERSION/$DIST
 
 	prepare_wine_etersoft
 
-	# Для отправки писем обязательно нужна локаль!
-	TMPMAIL=`mktemp`
+	TMPMAIL=$(make_temp_file)
 	prepare_wine_etersoft_mail $TMPMAIL || fatal "Can't prepare letter"
 
+	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8
 	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Сборка $COMPONENTNAME для ${TEXTDIST}" || fatal "Can't send"
 	rm -f $TMPMAIL
