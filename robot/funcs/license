@@ -30,6 +30,7 @@ create_license()
 	local LICENSE_FILE="$1"
 	local DSAKEY="$2"
 	test -r "$DSAKEY" || fatal "Private DSA key $DSAKEY is missed"
+	mkdir -p $(dirname $LICENSE_FILE)
 
 	# Check all license fields
 	[ -n "$PROJECTVERSION" ] || fatal "PROJECTVERSION is empty"

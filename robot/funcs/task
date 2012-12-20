@@ -53,12 +53,18 @@ load_task()
 	COMPONENTNAME=
 	DIST=
 	PROJECTVERSION=
+	LICENSEONLY=
 	. $TASK
 
 	# Check for product version
 	[ -z "$PROJECTVERSION" ] && { do_broken "Empty PROJECTVERSION" ; }
 
-	echo "Loaded $TASK for $DIST (project version $PROJECTVERSION)"
-
-	[ -z "$DIST" ] && [ -e "$TASK" ] && do_broken "Unexisted DIST $DIST"
+	if [ -n "$DIST" ] ; then
+		echo "Loaded $TASK for $DIST (project version $PROJECTVERSION)"
+	else
+		echo "Loaded license only $TASK (project version $PROJECTVERSION)"
+		LICENSEONLY=1
+		DIST=ANY # for use in path
+		#do_broken "Unexisted DIST $DIST"
+	fi
 }
