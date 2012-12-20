@@ -48,7 +48,7 @@ ${DEAR} ${NAME}!
 
 -- 
 КОМАНДА РАЗРАБОТЧИКОВ
-Etersoft, 2012
+Etersoft, 2013
 " ;
 ) | mutt -s "Сборка ${PRODUCT} задерживается" "${FULLMAILTO}" -b "support@etersoft.ru"
 
@@ -98,7 +98,7 @@ ${DEAR} ${NAME}!
 
 -- 
 Команда разработчиков
-Etersoft, 2012
+Etersoft, 2013
 " ;
 ) | mutt -s "Ошибка при сборке ${ETERREGNUM} на ${DIST}" "${FULLMAILTO}" -b "support@etersoft.ru"
 fi
