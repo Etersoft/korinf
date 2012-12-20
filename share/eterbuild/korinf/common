@@ -22,7 +22,7 @@
 ##
 
 # needed version etersoft-build-utils package
-NEEDETERBUILD=2014
+NEEDETERBUILD=2018
 
 realpath()
 {
@@ -225,16 +225,6 @@ is_remote_build()
 	assert_var DISTRNAME DISTRVERSION
 	rhost=$(get_remote_host $DISTRNAME/$DISTRVERSION)
 	test -n "$rhost"
-}
-
-# FIXME: move to etersoft-build-utils
-assert_var()
-{
-	local i re
-	for i in $@ ; do
-		re=$(eval echo \$$i)
-		[ -n "$re" ] || fatal "assert: $i nonexist"
-	done
 }
 
 kormod config log list
