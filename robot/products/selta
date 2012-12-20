@@ -90,11 +90,68 @@ Etersoft, 2013
 EOF
 }
 
+# Ошибка: не ловятся ошибки отсюда
+prepareSeltaLicenseMail()
+{
+	local FILETO BETA
+	FILETO=$1
+	>$FILETO
+	NAME="$(get_dear_from_fio "$FULLNAME" "покупатель")"
+
+	if [ "$TYPE_LICENSE" = "Demo" ] ; then
+		THANKTEXT="Благодарим Вас за внимание к нашему продукту."
+	else
+		THANKTEXT="Благодарим Вас за покупку!"
+	fi
+
+	cat >>$FILETO <<EOF
+${DEAR} ${NAME}!
+
+Файл лицензии Продукта ${PRODUCT} (релиз $PROJECTVERSION)
+приложен к настоящему письму.
+
+Регистрационный номер Продукта: ${ETERREGNUM}.
+
+По вопросам использования продукта пишите на selta@etersoft.ru, указав
+в ТЕМЕ (Subject) письма регистрационный номер.
+
+Пожалуйста, отвечайте на это письмо только
+при возникновении затруднений со скачиванием файлов.
+
+$THANKTEXT
+
+-- 
+Команда разработчиков
+Etersoft, 2013
+EOF
+}
+
+build_selta_license()
+{
+	PROJECTNAME="SELTA@Etersoft"
+	VERNAME=$PROJECTNAME/$PROJECTVERSION
+
+	create_license $TMPDIR/selta.lic $AROBOTDIR/dsa/selta.dsa
+
+	# Для отправки писем обязательно нужна локаль!
+	export LC_ALL=ru_RU.UTF-8
+	TMPMAIL=$(make_temp_file)
+	prepareSeltaLicenseMail $TMPMAIL || fatal "Can't prepare letter"
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Лицензия для продукта $COMPONENTNAME" -a $TMPDIR/selta.lic || fatal "Can't send"
+	rm -f $TMPMAIL
+	rm -f $TMPDIR/selta.lic
+}
+
 build_selta()
 {
 	PROJECTNAME="SELTA@Etersoft"
 	VERNAME=$PROJECTNAME/$PROJECTVERSION
-	
+
+	if [ -n "$LICENSEONLY" ] ; then
+		build_selta_license
+		return
+	fi
+
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Windows"
 	PUBDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/Windows"
 

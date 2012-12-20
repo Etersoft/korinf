@@ -82,6 +82,7 @@ EOF
 
 build_anycomponent()
 {
+	test -z "$LICENSEONLY" || fatal "Do not support license only mode for anycomponent"
 	#local PROJ="$COMPONENTNAME/$PROJECTVERSION"
 	local PROJ=$DOWNLOADDIR
 	LOCALDIR=/var/ftp/pub/Etersoft/$PROJ
