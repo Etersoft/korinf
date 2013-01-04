@@ -2,3 +2,7 @@
 Robot needs follow packages:
  - mutt
  - pwgen
+
+Add to ~/.mutt/muttrc
+set send_charset="us-ascii:iso-8859-1:utf-8"
+for correct attachments encoding
