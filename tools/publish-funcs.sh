@@ -5,6 +5,7 @@
 print()
 {
 	#echo "$@"
+	true
 }
 
 add_and_remove()

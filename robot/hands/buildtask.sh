@@ -113,6 +113,7 @@ DONEDIR=$TARGETDIR/../done/
 [ -d "$DONEDIR" ] || DONEDIR=~/done
 mkdir -p "$DONEDIR"
 DATE=`date`
+echo >>$TASK
 echo "# task done at $DATE" >>$TASK
 TASKDONE="$DONEDIR/$(basename $TASK .task).done"
 mv -f "$TASK" "$TASKDONE" || fatal "Can't remove task"
