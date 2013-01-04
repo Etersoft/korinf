@@ -122,7 +122,7 @@ convert_rpm_to_deb()
 			if get_target_deplist $depf | tee $DESTLOGDIR/$depf.deb.depends ; then
 				if check_alien ; then
 					DEPPARAM="--depends $DESTLOGDIR/${depf}.deb.depends"
-					# HACK
+					# HACK due requires on x86_64?? FIXME
 					if [ $DISTRNAME/$DISTRVERSION = "Ubuntu/12.04" ]; then
 						mv $DESTLOGDIR/${depf}.deb.depends $DESTLOGDIR/${depf}.deb.depends.orig
 						grep "^lib" $DESTLOGDIR/${depf}.deb.depends.orig > $DESTLOGDIR/${depf}.deb.depends
@@ -173,6 +173,61 @@ convert_by_target()
 	return $RES
 }
 
+convert_freebsd()
+{
+	local TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$PKGVENDOR.$PKGFORMAT
+	cat <<EOF | run_in_chroot --user "bash -x -" || return
+
+	umask 002
+	mkdir -p ~/RPM/log
+
+	RPMSDIR=/home/$INTUSER/RPM/RPMS
+
+	#get package fields
+	PKGDESCR="$(querypackage $TARGETSRPM DESCRIPTION)"
+	PKGCOMMENT="$(querypackage $TARGETSRPM SUMMARY)"
+	PKGGROUP="$(querypackage $TARGETSRPM GROUP)"
+
+	WRKDIR=/var/tmp/korinfer/work-$(basename $TARGETSRPM)
+	rm -rf \$WRKDIR/
+	mkdir -p \$WRKDIR/ && cd \$WRKDIR || exit
+
+	#for i in $EXPRPMMAINFILES $EXPRPMEXTRAFILES ; do
+	for i in $BUILTBINPKGLIST ; do
+		pkg=\$RPMSDIR/\$(basename \$i)
+		test -r \$pkg || exit
+		rpm2cpio \$pkg | cpio -dimv || exit
+		rm -f \$pkg
+	done
+
+	# FIXME: it is broken way to save +FILES in $WRKDIR
+	# make +CONTENTS file
+	find ./ \! -type d | sed -e "s|^\./||g" | sort > \$WRKDIR/+CONTENTS
+
+	#add dirrm in +CONTENTS
+	cat \$WRKDIR/+CONTENTS | xargs -n 1 dirname | sort -u | \
+		grep -v "^bin/$" | grep -v "^include/$" | \
+		grep -v "^/etc/rpm$" | grep -v "^/usr/local/bin$" \
+			| sed "s|\(.*\)|@dirrm \1|g" >> \$WRKDIR/+CONTENTS
+
+	#make +COMMENT and +DESC files
+	echo \$PKGCOMMENT > \$WRKDIR/+COMMENT
+	echo \$PKGDESCR > \$WRKDIR/+DESC
+
+	# create package with the PACKAGE name (not src.rpm name)
+	rm -f \$WRKDIR/../$TARGETPKG.$PKGFORMAT
+	ls -l
+	# Note: it is value have the full path for -s args
+	pkg_create -v -s \$WRKDIR -p/ -c \$WRKDIR/+COMMENT -d \$WRKDIR/+DESC -f \$WRKDIR/+CONTENTS \$RPMSDIR/$TARGETPKG || exit
+	#rm -rf \$WRKDIR
+	cd -
+EOF
+
+	run_in_chroot --user "cat $INTBUILT/$TARGETPKG" >$BUILTRPM/$TARGETPKG || return
+
+
+}
+
 # Only with $TARGET
 convert_rpm()
 {
@@ -195,6 +250,10 @@ convert_rpm()
 		"archlinux")
 			# ArchLinux
 			convert_archlinux
+			RES=$?
+			;;
+		"freebsd")
+			convert_freebsd
 			RES=$?
 			;;
 		*)
