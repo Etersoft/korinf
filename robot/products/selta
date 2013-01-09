@@ -107,10 +107,15 @@ prepareSeltaLicenseMail()
 	cat >>$FILETO <<EOF
 ${DEAR} ${NAME}!
 
-Файл лицензии Продукта ${PRODUCT} (релиз $PROJECTVERSION)
-приложен к настоящему письму.
+Вы заказывали лицензию для Продукта
+${PRODUCT} (релиз $PROJECTVERSION)
+с регистрационным номером ${ETERREGNUM}.
 
-Регистрационный номер Продукта: ${ETERREGNUM}.
+Файл лицензии можно скачать по следующей ссылке:
+EOF
+	printURL $FTPDIR $DOWNLOADDIR/$PROJECTVERSION `find -L $FTPDIR -maxdepth 1 -type f ` >>$FILETO || fatal "Error with license (files are missed) "
+
+cat >>$FILETO <<EOF
 
 По вопросам использования продукта пишите на selta@etersoft.ru, указав
 в ТЕМЕ (Subject) письма регистрационный номер.
@@ -130,14 +135,21 @@ build_selta_license()
 {
 	PROJECTNAME="SELTA@Etersoft"
 	VERNAME=$PROJECTNAME/$PROJECTVERSION
+	TARGETDIR=/var/ftp/pub/download/SELTA@Etersoft/$TARGETDIRNAME
+	DOWNLOADDIR="http://$DOWNLOADDOMAIN/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
 
-	create_license $TMPDIR/selta.lic $AROBOTDIR/dsa/selta.dsa
+	export FTPDIR=$TARGETDIR/$PROJECTVERSION
+	# Можем стирать только каталог дистрибутива, а не весь
+	test -d $FTPDIR && rm -rf $FTPDIR
+	mkdir -p $FTPDIR || fatal "error with $FTPDIR creating"
+
+	create_license $FTPDIR/selta.lic $AROBOTDIR/dsa/selta.dsa
 
 	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8
 	TMPMAIL=$(make_temp_file)
 	prepareSeltaLicenseMail $TMPMAIL || fatal "Can't prepare letter"
-	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Лицензия для продукта $COMPONENTNAME" -a $TMPDIR/selta.lic || fatal "Can't send"
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Лицензия для продукта $COMPONENTNAME" || fatal "Can't send"
 	rm -f $TMPMAIL
 	rm -f $TMPDIR/selta.lic
 }

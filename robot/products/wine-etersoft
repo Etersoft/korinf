@@ -301,11 +301,16 @@ fi
 	cat >>$FILETO <<EOF
 ${DEAR} ${NAME}!
 
-Файл лицензии Продукта
-${PRODUCT}
-(релиз $PROJECTVERSION) приложен к настоящему письму.
+Вы заказывали лицензию для Продукта
+${PRODUCT} (релиз $PROJECTVERSION)
+с регистрационным номером ${ETERREGNUM}.
 
-Регистрационный номер Продукта: ${ETERREGNUM}.
+Файл лицензии можно скачать по следующей ссылке:
+EOF
+
+	printURL $FTPDIR $DOWNLOADDIR/$TYPE-$PROJECTVERSION $FTPDIR/$LICENSEFILE >>$FILETO || fatal "Error with license (files are missed) "
+
+cat >>$FILETO <<EOF
 
 Файл лицензии $LICENSEFILE необходимо расположить в одном из следующих каталов:
 /etc/wine, ~/.wine или C:\WINDOWS\INF и проверить права на его чтение пользователями.
@@ -330,17 +335,19 @@ EOF
 
 mail_wine_etersoft_license()
 {
-	# FIXME: use tmp dir
-	TMPFTPDIR=$TARGETDIR/$TYPE-$PROJECTVERSION
+	FTPDIR=$TARGETDIR/$TYPE-$PROJECTVERSION
 
-	prepare_wine_etersoft_license $TMPFTPDIR/$LICENSEFILE
+	TARGETDIR="/var/ftp/pub/download/WINE@Etersoft/$TARGETDIRNAME"
+	DOWNLOADDIR="http://$DOWNLOADDOMAIN/W@E/$TARGETDIRNAME"
+
+	prepare_wine_etersoft_license $FTPDIR/$LICENSEFILE
 
 	TMPMAIL=$(make_temp_file)
 	prepare_wine_etersoft_license_mail $TMPMAIL || fatal "Can't prepare letter"
 
 	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8
-	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Лицензия для продукта $COMPONENTNAME" -a $TMPFTPDIR/$LICENSEFILE || fatal "Can't send"
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Лицензия для продукта $COMPONENTNAME" || fatal "Can't send"
 	rm -f $TMPMAIL
 	$TMPFTPDIR/$LICENSEFILE
 }
