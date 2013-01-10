@@ -21,9 +21,10 @@ jump_to_repo()
 		git clone $REPO $WORKBRANCH || fatal "can't clone $REPO"
 		cd $WORKBRANCH
 		git checkout -b $WORKBRANCH $REPOALIAS/$WORKBRANCH || fatal "can't checkout"
-		exit
+	else
+		cd $WORKBRANCH || fatal
+		git checkout $WORKBRANCH
 	fi
-	cd $WORKBRANCH
 	reset_to_good_state
 }
 
