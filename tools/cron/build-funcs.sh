@@ -23,7 +23,7 @@ jump_to_repo()
 		git checkout -b $WORKBRANCH $REPOALIAS/$WORKBRANCH || fatal "can't checkout"
 	else
 		cd $WORKBRANCH || fatal
-		git checkout $WORKBRANCH
+		git checkout $WORKBRANCH || fatal
 	fi
 	reset_to_good_state
 }
