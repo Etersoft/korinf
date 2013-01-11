@@ -11,7 +11,7 @@
 TEMPREPODIR=/srv/$USER/Projects/autobuild/wine-priv
 REPO=git.office:/projects/wine/wine-etersoft.git
 REPOALIAS=origin
-WORKBRANCH=eter-2.1
+WORKBRANCH=master
 WORKTARGET=2.1-testing
 SUBSPEC="local sql network"
 
