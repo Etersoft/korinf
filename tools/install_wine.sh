@@ -64,14 +64,16 @@ fi
 pkg_is_installed()
 {
 	test -n "$INITIAL" && return
-	epm -q "$1" &>/dev/null
+	epm installed "$1" &>/dev/null
 }
 
 install_pkg()
 {
 	echo $LIST
 	test -n "$LIST" || return
-	epm install --auto $LIST
+	NODEPS=--nodeps
+	[ -n "$INITIAL" ] && NODEPS=
+	epm install --auto $NODEPS $FORCE $LIST
 }
 
 #############
