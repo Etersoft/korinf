@@ -4,8 +4,8 @@
 #
 #  Publish product functions
 #
-#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009
+#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009, 2013
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009, 2013
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -56,9 +56,11 @@ check_and_refresh_package_wine()
 		test "$BINPKG" -nt "$SRCRPM" && return 0
 	fi
 
-	is_autobuild_failed && fatal "Package $BUILDNAME need rebuild from $SRCRPM, but already was failed"
+	if [ -z "$FORCEBUILD" ] ; then
+		is_autobuild_failed && fatal "Package $BUILDNAME need rebuild from $SRCRPM, but already was failed"
+	fi
 
-	$AROBOTDIR/../bin-wine/$BUILDNAME.sh $DIST $PROJECTVERSION && return 0
+	$AROBOTDIR/../bin-wine/$BUILDNAME.sh -f $DIST $PROJECTVERSION && return 0
 
 	set_autobuild_failed
 	fatal "Package $BUILDNAME cannot rebuild from $SRCRPM"
@@ -101,9 +103,11 @@ check_and_refresh_component()
 		fi
 	fi
 
-	is_autobuild_failed && fatal "Package $BUILDNAME need rebuild from $SRCRPM, but already was failed"
+	if [ -z "$FORCEBUILD" ] ; then
+		is_autobuild_failed && fatal "Package $BUILDNAME need rebuild from $SRCRPM, but already was failed"
+	fi
 
-	$AROBOTDIR/../$BUILDSCRIPT/$BUILDNAME.sh $DIST $PRVERSION && return 0
+	$AROBOTDIR/../$BUILDSCRIPT/$BUILDNAME.sh -f $DIST $PRVERSION && return 0
 
 	set_autobuild_failed
 	fatal "Package $BUILDNAME cannot rebuild from $SRCRPM"

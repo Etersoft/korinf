@@ -67,4 +67,7 @@ load_task()
 		DIST=ANY # for use in path
 		#do_broken "Unexisted DIST $DIST"
 	fi
+
+	grep -q "# buil. FAILED" "$TASK" && export FORCEBUILD=1
+
 }

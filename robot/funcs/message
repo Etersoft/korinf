@@ -40,7 +40,7 @@ fatal()
 
 	DATE=`date`
 	echo >>$TASK
-	echo "# built FAILED at $DATE (Error: ${@})" >>$TASK
+	echo "# build FAILED at $DATE (Error: ${@})" >>$TASK
 	[ -e "$TASK" ] && flock $TASK mv -f $TASK ${TASK}.failed
 	exit_now 1
 }
