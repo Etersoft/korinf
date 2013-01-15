@@ -4,8 +4,8 @@
 #
 #  Publish any component for client by task file
 #
-#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009
+#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009, 2013
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009, 2013
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -118,21 +118,31 @@ build_anycomponent()
 	case "$COMPONENTNAME" in
 	"RX@Etersoft")
 		COMPONENTSCRIPT="bin-nx"
-                if [ "$PROJECTVERSION" = "1.0.0" ] || [ "$PROJECTVERSION" = "1.1.0" ] ; then
-			CHECKCOMP="freenx-server"
+
+		CHECKCOMP="rx-etersoft nx"
+
+		if [ "$PROJECTVERSION" = "1.1.1" ] || [ "$PROJECTVERSION" = "1.1.2" ] ; then
+			if [ "$BUILDARCH" = "x86_64" ] ; then
+				CHECKCOMP="nxclient $CHECKCOMP"
+			fi
+
+			if [ "$DIST" = "Windows/ALL" ] ; then
+				CHECKCOMP="nxclient"
+			fi
 		else
-			CHECKCOMP="rx-etersoft"
+			CHECKCOMP="opennx $CHECKCOMP"
+
+			if [ "$DIST" = "Windows/ALL" ] ; then
+				CHECKCOMP="opennx"
+			fi
 		fi
 
-		if [ "$BUILDARCH" = "x86_64" ] ; then
-			CHECKCOMP="nx $CHECKCOMP"
-		else
-			CHECKCOMP="nx nxclient $CHECKCOMP"
-		fi
 		if [ "$DIST" = "Windows/ALL" ] ; then
 			CHECKCOMP="nxclient"
 		fi
+
 		# TODO: nxsadmin
+
 		# FIXME: Мы отгружаем напрямую с ftp. Для лицензии нужно готовить в отдельном каталоге
 		# create_license $FTPDIR/rx-etersoft.lic $AROBOTDIR/dsa/rx-etersoft.dsa
 		;;
