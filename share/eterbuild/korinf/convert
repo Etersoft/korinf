@@ -123,7 +123,7 @@ convert_rpm_to_deb()
 				if check_alien ; then
 					DEPPARAM="--depends $DESTLOGDIR/${depf}.deb.depends"
 					# HACK due requires on x86_64?? FIXME
-					if [ $DISTRNAME/$DISTRVERSION = "Ubuntu/12.04" ]; then
+					if [ $DISTRNAME/$DISTRVERSION = "Ubuntu/12.04" ] || [ $DISTRNAME/$DISTRVERSION = "Ubuntu/12.10" ]; then
 						mv $DESTLOGDIR/${depf}.deb.depends $DESTLOGDIR/${depf}.deb.depends.orig
 						grep "^lib" $DESTLOGDIR/${depf}.deb.depends.orig > $DESTLOGDIR/${depf}.deb.depends
 						rm -f $DESTLOGDIR/${depf}.deb.depends.orig
