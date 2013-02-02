@@ -32,8 +32,8 @@ install_built()
 	run_in_chroot "cd $INTBUILT && epm --verbose --auto install ${EXPMAINFILES} ${EXPEXTRAFILES}" && return
 
 	# if status is skipped
-	if [ "$?" = "2" ] ; then
-		return 2
+	if [ "$?" = "22" ] ; then
+		return 22
 	fi
 
 	# it is failed for all packages except eepm
