@@ -122,11 +122,14 @@ convert_rpm_to_deb()
 			if get_target_deplist $depf | tee $DESTLOGDIR/$depf.deb.depends ; then
 				if check_alien ; then
 					DEPPARAM="--depends $DESTLOGDIR/${depf}.deb.depends"
+					# only for wine packages
+					if echo $i | grep -q wine ; then
 					# HACK due requires on x86_64?? FIXME
 					if [ $DISTRNAME/$DISTRVERSION = "Ubuntu/12.04" ] || [ $DISTRNAME/$DISTRVERSION = "Ubuntu/12.10" ]; then
 						mv $DESTLOGDIR/${depf}.deb.depends $DESTLOGDIR/${depf}.deb.depends.orig
 						grep "^lib" $DESTLOGDIR/${depf}.deb.depends.orig > $DESTLOGDIR/${depf}.deb.depends
 						rm -f $DESTLOGDIR/${depf}.deb.depends.orig
+					fi
 					fi
 					alert "Call alien with ${DEPPARAM}"
 				fi
