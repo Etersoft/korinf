@@ -133,10 +133,14 @@ run_in_chroot()
 	rhost=$(get_remote_host $DISTRNAME/$DISTRVERSION)
 	if [ -n "$rhost" ] ; then
 		rcommands=`eval echo $(get_remote_commands $DISTRNAME/$DISTRVERSION)`
+		echo "Run command in remote ($rhost) build system:"
+		echo "# $@"
 		ssh -i $PRIVATESSHKEY $INTUSER@$rhost $rcommands "\"export LANG=C ; export LC_ALL=C ; $@\""
 		return
 	fi
 
+	echo "Run command in chrooted build system:"
+	echo "# $@"
 	assert_var BUILDARCH BUILDROOT
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
 		su - $LOUSER -c "export LANG=C ; export LC_ALL=C ; $@"
