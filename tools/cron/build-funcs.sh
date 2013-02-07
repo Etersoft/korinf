@@ -14,18 +14,21 @@ fatal()
 
 jump_to_repo()
 {
-	mkdir -p $TEMPREPODIR/ || fatal
-	cd $TEMPREPODIR/ || fatal
+	docmd mkdir -p $TEMPREPODIR/ || fatal
+	docmd cd $TEMPREPODIR/ || fatal
 	
 	if ! test -d $WORKBRANCH ; then
-		git clone $REPO $WORKBRANCH || fatal "can't clone $REPO"
+		docmd git clone $REPO $WORKBRANCH || fatal "can't clone $REPO"
 		cd $WORKBRANCH
-		git checkout -b $WORKBRANCH $REPOALIAS/$WORKBRANCH || fatal "can't checkout"
+		docmd git checkout -b $WORKBRANCH $REPOALIAS/$WORKBRANCH || fatal "can't checkout"
+		#git reset --hard HEAD^
 	else
 		cd $WORKBRANCH || fatal
-		git checkout $WORKBRANCH || fatal
+		docmd git checkout $WORKBRANCH # Will try again later || fatal "Can't checkout to $WORKBRANCH"
 	fi
 	reset_to_good_state
+	# repeat after reset
+	docmd git checkout $WORKBRANCH || fatal "Can't checkout again to $WORKBRANCH"
 }
 
 
@@ -35,7 +38,10 @@ update_wine_version()
 
 	git reset --soft HEAD^
 
-	echo "WINE@Etersoft version $(get_version $SPECNAME)-eter$(get_numrelease $SPECNAME)" >VERSION
+	local VERSION=$(get_version $SPECNAME)
+	local RELEASE=$(get_numrelease $SPECNAME)
+	[ -z "$VERSION" ] || [ -z "$RELEASE" ] && fatal "Can't get version or release from spec"
+	echo "WINE@Etersoft version $VERSION-eter$RELEASE" >VERSION
 	# rebuild needed files
 	autoreconf -f || fatal "autoreconf failed"
 
@@ -76,7 +82,7 @@ pull_changes()
 step_version()
 {
 	# сформировать лог, обновить spec с пред. момента до обновления
-	rpmlog $1 -l $CURTAG
+	docmd rpmlog $1 -l || docmd rpmlog $1 -l $CURTAG || fatal "Can't rpmlog"
 
 	# обновляем VERSION и объединяем с предыдущим коммитом
 	update_wine_version
@@ -92,10 +98,10 @@ pull_and_log()
 pub_and_push()
 {
 	# публикуем на сборку
-	rpmpub -r $WORKTARGET
+	docmd rpmpub -r $WORKTARGET
 
 	# will works only if REPOALIAS is origin :)
-	gpush $REPOALIAS $WORKBRANCH
+	docmd gpush -t $REPOALIAS $WORKBRANCH || fatal "Can't push"
 
 	save_good_state
 }
