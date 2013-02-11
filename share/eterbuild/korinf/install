@@ -62,10 +62,10 @@ install_req()
 	# create needed files in home directory
 	init_home
 
-	buildsystempkgs="libtool automake autoconf rpm-build"
+	buildsystempkgs="libtool automake autoconf rpm-build glibc-devel"
 
 	reqs=$(get_rpmpkg_requires -p "$BUILDSRPM" | clean_pkgreq)
 	reqs=$(convert_pkgreqs_to_target $reqs $buildsystempkgs | xargs -n 1000 echo)
 
-	run_in_chroot "epm --auto --verbose --skip-installed install $reqs"
+	run_in_chroot "epm --auto --verbose --skip-installed install \"$reqs\""
 }

@@ -59,14 +59,15 @@ print_check_reqs_item()
 		printf "* %s: %s" "$fname" "$(echo $reqs)"
 		[ -z "$reqs" ] && skipped && echo && continue
 		echo
-		run_in_chroot "epm --verbose --skip-installed simulate $reqs"
+		run_in_chroot "epm --verbose --skip-installed simulate \"$reqs\""
 	else
 		printf "  * %60s: " "$fname"
 		[ -z "$reqs" ] && skipped && echo && continue
-		run_in_chroot "epm --verbose --skip-installed simulate $reqs" >/dev/null 2>&1
+		run_in_chroot "epm --verbose --skip-installed simulate \"$reqs\"" >/dev/null 2>&1
 	fi
 	print_status $?
 }
+
 
 # check package existing by REBUILDLIST
 # used: TARGETPATH REBUILDLIST
@@ -128,6 +129,6 @@ test_package_requirements()
 		reqs=$(do_exclude_list "$pkgnames" "$reqs")
 		echo "Try install '$reqs' for $pkgname"
 		[ -z "$reqs" ] && echo " empty list, skipped" && continue
-		run_in_chroot "epm --skip-installed simulate $reqs" || return
+		run_in_chroot "epm --skip-installed simulate \"$reqs\"" || return
 	done
 }
