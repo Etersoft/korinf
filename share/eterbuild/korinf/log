@@ -146,7 +146,7 @@ print_status()
 	case "$1" in
 		0) success ;;
 		1) failure ;;
-		2) skipped ;;
+		22) skipped ;;
 		*) failure ;;
 	esac
 	echo
@@ -162,7 +162,7 @@ logit()
 
 	if [ "$1" = "SKIPPED" ] ; then
 		echo -n "$STRMSG"
-		print_status 2
+		print_status 22
 		return 0
 	fi
 
