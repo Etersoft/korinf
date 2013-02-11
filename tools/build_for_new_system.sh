@@ -77,7 +77,7 @@ build_rx()
 
 build nx nx stable -b || return
 build nx rx-etersoft stable
-build nx nxclient stable
+#build nx nxclient stable
 build nx nxsadmin stable
 build nx opennx stable
 }
