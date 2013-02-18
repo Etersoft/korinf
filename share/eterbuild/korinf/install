@@ -29,7 +29,7 @@ install_built()
 	assert_var DISTRNAME INTBUILT EPMCMD
 
 	# try use preinstalled epm
-	run_in_chroot "cd $INTBUILT && epm --verbose --auto install ${EXPMAINFILES} ${EXPEXTRAFILES}" && return
+	run_in_chroot "cd $INTBUILT && epm --verbose --auto --force install ${EXPMAINFILES} ${EXPEXTRAFILES}" && return
 
 	# if status is skipped
 	if [ "$?" = "22" ] ; then
