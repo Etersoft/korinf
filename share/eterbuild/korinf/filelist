@@ -39,6 +39,12 @@ prepare_filelist()
 		MAINFILESLIST="${BUILDNAME}"
 	fi
 
+	# for these systems will pack all built packages in one big package
+	if [ "$PKGVENDOR" = "freebsd" ] || [ "$PKGVENDOR" = "archlinux" ] || [ "$PKGVENDOR" = "gentoo" ] || [ "$PKGVENDOR" = "solaris" ] || [ "$PKGVENDOR" = "windows" ] ; then
+		MAINFILESLIST="${BUILDNAME}"
+		EXTRAFILESLIST=
+	fi
+
 	# expand file masks by PKGFORMAT
 	EXPMAINFILES=$(expand_filelist $MAINFILESLIST)
 	EXPEXTRAFILES=$(expand_filelist $EXTRAFILESLIST)
@@ -76,7 +82,7 @@ fill_filelist()
 
 	# HACK: the follow code copied from build/hasher
 	# search for binary packages
-	BUILTBINPKGLIST=`get_binpkg_list $BUILTRPM $(basename $TARGETSRPM)`
+	BUILTBINPKGLIST=$(get_binpkg_list $BUILTRPM $(basename $TARGETSRPM))
 	echo "For $TARGETSRPM follow packages is found:"
 	echo "$BUILTBINPKGLIST"
 
