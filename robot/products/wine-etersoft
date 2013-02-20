@@ -125,7 +125,9 @@ prepare_wine_etersoft()
 	# skip on FreeBSD
 	if ! echo "$DIST" | grep -q "FreeBSD" ; then
 		assert_present_package $FTPDIR haspd
-		assert_present_package $FTPDIR haspd-modules
+		if ! echo "$DIST" | grep -q "ArchLinux" ; then
+			assert_present_package $FTPDIR haspd-modules
+		fi
 		if [ "$TYPE" != "Local" ] ; then
 			assert_present_package $FTPDIR etercifs
 		fi
