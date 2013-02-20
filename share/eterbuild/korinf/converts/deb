@@ -1,0 +1,100 @@
+#!/bin/sh
+##
+#  Korinf project
+#
+#  convert built packages in chrooted Linux system
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+check_alien()
+{
+    if (alien -h 2>&1 | grep -qws "depends" ); then
+	return 0
+    else
+	warning "Error: `alien -V` not support \"--depends\" option..."
+	return 1
+    fi
+}
+
+run_alien()
+{
+	local VERBCOMMAND=
+	[ -n $ADEBUG ] && VERBCOMMAND="--veryverbose"
+	BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version $VERBCOMMAND $@ || return
+	# don't remove original due using rpm after converting (f.i. for Gentoo)
+}
+
+# FIXME HACK: do the same name conversion as alien
+internal_get_deb_pkgname_from_rpm()
+{
+	echo $1 | tr [A-Z] [a-z] | sed -e "s|\.i586.rpm|_i386.deb|g" | sed -e "s|\.x86_64.rpm|_amd64.deb|g" |
+		sed -e "s|-\([0-9a-z\.]*\)-alt\(.*\)_|_\1-eter\2${PKGVENDOR}_|g"
+}
+
+# full package name tranlation rpm->deb
+get_deb_pkgname_from_rpm()
+{
+	internal_get_deb_pkgname_from_rpm $1 | filter_deb_pkgnames
+}
+
+convert_rpm_to_deb()
+{
+	assert_var PACKAGE PACKAGEVERSION PACKAGERELEASE PKGVENDOR PKGFORMAT
+	assert_var DISTRNAME DISTRVERSION
+
+	local RELPKG=$PACKAGERELEASE$PKGVENDOR
+	local DEPPARAM=""
+
+	set_destlogdir
+	local PACKAGESLIST="$EXPRPMMAINFILES $EXPRPMEXTRAFILES"
+	echo "Packages to convert: $PACKAGESLIST"
+	for i in $PACKAGESLIST ; do
+		if [ -e $i ] ; then
+			local depf=$(get_pkgname_from_filename $i)
+			if get_target_deplist $depf | tee $DESTLOGDIR/$depf.deb.depends ; then
+				if check_alien ; then
+					DEPPARAM="--depends $DESTLOGDIR/${depf}.deb.depends"
+					# only for wine packages
+					if echo $i | grep -q wine ; then
+					# HACK due requires on x86_64?? FIXME
+					if [ $DISTRNAME/$DISTRVERSION = "Ubuntu/12.04" ] || [ $DISTRNAME/$DISTRVERSION = "Ubuntu/12.10" ]; then
+						mv $DESTLOGDIR/${depf}.deb.depends $DESTLOGDIR/${depf}.deb.depends.orig
+						grep "^lib" $DESTLOGDIR/${depf}.deb.depends.orig > $DESTLOGDIR/${depf}.deb.depends
+						rm -f $DESTLOGDIR/${depf}.deb.depends.orig
+					fi
+					fi
+					alert "Call alien with ${DEPPARAM}"
+				fi
+			else
+				rm -f $DESTLOGDIR/$depf.deb.depends
+			fi
+			run_alien --scripts --to-$PKGFORMAT ${DEPPARAM} $i || { warning "alien problem with $PKGFORMAT"; return 1; }
+			# rename result package to filtered name
+			local debname=$(internal_get_deb_pkgname_from_rpm $i)
+			local newdebname=$(get_deb_pkgname_from_rpm $i)
+			[ "$newdebname" != "$debname" ] && mv -v $debname $newdebname
+		else
+			warning "Fatal: Package $i is missed in $(pwd)"
+			# FIXME: some projects has variable package list
+			return 1
+		fi
+	done
+
+	return 0
+}
+

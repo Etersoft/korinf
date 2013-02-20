@@ -1,0 +1,81 @@
+#!/bin/sh
+##
+#  Korinf project
+#
+#  convert built packages in chrooted FreeBSD system
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2012
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2012
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+
+convert_freebsd()
+{
+	assert_var PACKAGE PACKAGEVERSION PACKAGERELEASE PKGVENDOR BUILDARCH PKGFORMAT
+
+	local TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$PKGVENDOR.$PKGFORMAT
+
+	cat <<EOF | run_in_chroot --user "bash -x -" || return
+	umask 002
+	mkdir -p ~/RPM/log
+
+	# FIXME: replace with INTBUILT
+	RPMSDIR=/home/$INTUSER/RPM/RPMS
+
+	# TODO: add requires
+
+	#get package fields
+	PKGDESCR="$(querypackage $TARGETSRPM DESCRIPTION)"
+	PKGCOMMENT="$(querypackage $TARGETSRPM SUMMARY)"
+	PKGGROUP="$(querypackage $TARGETSRPM GROUP)"
+
+	WRKDIR=/var/tmp/korinfer/work-$(basename $TARGETSRPM)
+	rm -rf \$WRKDIR/
+	mkdir -p \$WRKDIR/ && cd \$WRKDIR || exit
+
+	#for i in $EXPRPMMAINFILES $EXPRPMEXTRAFILES ; do
+	for i in $BUILTBINPKGLIST ; do
+		pkg=\$RPMSDIR/\$(basename \$i)
+		test -r \$pkg || exit
+		rpm2cpio \$pkg | cpio -dimv || exit
+		rm -f \$pkg
+	done
+
+	# FIXME: it is broken way to save +FILES in $WRKDIR
+	# make +CONTENTS file
+	find ./ \! -type d | sed -e "s|^\./||g" | sort > \$WRKDIR/+CONTENTS
+
+	#add dirrm in +CONTENTS
+	cat \$WRKDIR/+CONTENTS | xargs -n 1 dirname | sort -u | \
+		grep -v "^bin/$" | grep -v "^include/$" | \
+		grep -v "^/etc/rpm$" | grep -v "^/usr/local/bin$" \
+			| sed "s|\(.*\)|@dirrm \1|g" >> \$WRKDIR/+CONTENTS
+
+	#make +COMMENT and +DESC files
+	echo \$PKGCOMMENT > \$WRKDIR/+COMMENT
+	echo \$PKGDESCR > \$WRKDIR/+DESC
+
+	# create package with the PACKAGE name (not src.rpm name)
+	rm -f \$WRKDIR/../$TARGETPKG.$PKGFORMAT
+	ls -l
+	# Note: it is value have the full path for -s args
+	pkg_create -v -s \$WRKDIR -p/ -c \$WRKDIR/+COMMENT -d \$WRKDIR/+DESC -f \$WRKDIR/+CONTENTS \$RPMSDIR/$TARGETPKG || exit
+	#rm -rf \$WRKDIR
+	cd -
+EOF
+
+	run_in_chroot --user "cat $INTBUILT/$TARGETPKG" >$BUILTRPM/$TARGETPKG || return
+}

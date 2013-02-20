@@ -1,0 +1,53 @@
+#!/bin/sh
+##
+#  Korinf project
+#
+#  convert built packages in chrooted Linux system
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+
+convert_by_target()
+{
+	assert_var PACKAGE PACKAGEVERSION PACKAGERELEASE PKGVENDOR PKGFORMAT
+	assert_var BUILDNAME BUILDARCH
+
+	local RELPKG=$PACKAGERELEASE$PKGVENDOR
+	local RES=0
+	local DEPPARAM=""
+
+	local PACKAGESLIST="$EXPRPMMAINFILES $EXPRPMEXTRAFILES"
+
+	echo "Packages to convert: $PACKAGESLIST"
+	for i in $PACKAGESLIST ; do
+		if [ -e $i ] ; then
+			run_alien --scripts --to-$PKGFORMAT ${DEPPARAM} $i || { warning "alien problem with $PKGFORMAT"; RES=1 ; return $RES ; }
+		else
+			warning "Package $i is missed in $(pwd)"
+		fi
+	done
+
+	# Hack for tgz packages
+	# FIXME: will broken with package without BUILDNAME inside
+	if [ $PKGFORMAT == "tgz" ] ; then
+	    for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.$PKGFORMAT ; done
+	fi
+
+	return $RES
+}
+
