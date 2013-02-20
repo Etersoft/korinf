@@ -195,6 +195,8 @@ convert_freebsd()
 	# FIXME: replace with INTBUILT
 	RPMSDIR=/home/$INTUSER/RPM/RPMS
 
+	# TODO: add requires
+
 	#get package fields
 	PKGDESCR="$(querypackage $TARGETSRPM DESCRIPTION)"
 	PKGCOMMENT="$(querypackage $TARGETSRPM SUMMARY)"
@@ -244,6 +246,7 @@ convert_archlinux()
 {
 	assert_var PACKAGE PACKAGEVERSION PACKAGERELEASE PKGVENDOR BUILDARCH PKGFORMAT
 
+	# TODO: can be noarch (check the result package)
 	local ARCH=${BUILDARCH/i586/i686}
 	local TARGETPKG=$PACKAGE-$PACKAGEVERSION-$PACKAGERELEASE$PKGVENDOR-$ARCH.$PKGFORMAT
 
@@ -262,6 +265,7 @@ convert_archlinux()
 		#[ -z "$prepreqs" ] || prepreqs="$prepreqs, "
 		prepreqs="$prepreqs'$i' "
 	done
+	prepreqs=$(estrlist uniq $prepreqs)
 
 	cat <<EOF | run_in_chroot --user "bash -x -" || return
 	umask 002
@@ -311,19 +315,20 @@ cat PKGBUILD
 	rm -rf \$WRKDIR/
 	mkdir -p \$WRKDIR/src/ && cd \$WRKDIR/src/ || exit
 
-	#for i in $EXPRPMMAINFILES $EXPRPMEXTRAFILES ; do
 	for i in $BUILTBINPKGLIST ; do
 		pkg=\$RPMSDIR/\$(basename \$i)
 		test -r \$pkg || exit
-		#rpm2cpio \$pkg | cpio -dimv || exit
+		# needs cpio package
+		rpm2cpio \$pkg | cpio -dimv || exit
 		# from rpmextract package
-		rpmextract.sh \$pkg || exit
+		#rpmextract.sh \$pkg || exit
 		rm -f \$pkg
 	done
 
 	cd \$WRKDIR/
 	make_PKGBUILD
-	makepkg
+	# makepkg checks depends by default
+	makepkg --nodeps || exit
 
 	mv -v *.$PKGFORMAT $INTBUILT/
 	rm -rf \$WRKDIR/
