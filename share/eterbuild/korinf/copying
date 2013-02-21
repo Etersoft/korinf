@@ -161,7 +161,7 @@ copying_packages()
 				rm -vf $DESTDIR/extra/*${BUILDNAME}-*debuginfo*
 				rm -vf $DESTDIR/extra/*${BUILDNAME}-*debug-*
 				mv -f $i $DESTDIR/extra/ || warning "Cannot move debug package $i to extra"
-				EXPMAINFILES=$(regexp_exclude_list ".*debuginfo.* .*debug.*" "$EXPMAINFILES")
+				EXPMAINFILES=$(estrlist reg_exclude ".*debuginfo.* .*debug.*" "$EXPMAINFILES")
 			fi
 		done
 	else
