@@ -1,0 +1,64 @@
+#!/bin/sh
+##
+#  Korinf project
+#
+#  Copying functions
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005-2009, 2013
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2013
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+load_mod repl
+kormod build/rpm log
+
+
+# Create dependence file for ALT Linux Sisyphus package
+make_alt_depends_list()
+{
+    local pkg="$1"
+    [ -n "$pkg" ] || return
+    echo "Dependencies list for $pkg:"
+    local TFILE=$(make_temp_file)
+    $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || fatal "error with rpmreqs"
+    set_destlogdir
+    cat $TFILE | tee $DESTLOGDIR/$(get_pkgname_from_filename $pkg | filter_deb_pkgnames).rpm.depends
+    rm -f $TFILE
+}
+
+# used $dist
+write_altdeps_by_list()
+{
+	local i
+	local destdir="$1"
+	local expfiles="$2"
+	[ -n "$expfiles" ] || return 0
+
+	pushd $destdir >/dev/null || return 0
+	for i in $expfiles ; do
+		[ -e "$i" ] || continue
+		make_alt_depends_list "$i" || fatal "Some depends error with $i"
+	done
+
+	popd
+}
+
+write_altdeps()
+{
+	assert_var DESTDIR
+
+	write_altdeps_by_list "$DESTDIR" "$EXPMAINFILES" || return
+	write_altdeps_by_list "$DESTDIR/extra" "$EXPEXTRAFILES" || return
+}

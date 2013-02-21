@@ -51,19 +51,6 @@ clean_copying_destination()
 
 }
 
-# Create dependence file for ALT Linux Sisyphus package
-make_alt_depends_list()
-{
-    local pkg="$1"
-    [ -n "$pkg" ] || return
-    echo "Dependencies list for $pkg:"
-    local TFILE=$(make_temp_file)
-    $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || fatal "error with rpmreqs"
-    set_destlogdir
-    cat $TFILE | tee $DESTLOGDIR/$(get_pkgname_from_filename $pkg).rpm.depends
-    rm -f $TFILE
-}
-
 # Obsoleted due rpm-dir (since p5?) - but rpm-dir only work locally
 gen_base_apt_rpm()
 {
@@ -105,12 +92,6 @@ copying_packages_by_list()
 			error "Cannot find package $i, skip copy"
 			return 1
 		fi
-
-		# FIXME: need move to build/hasher
-		if [ "$dist" = "ALTLinux/Sisyphus" ]; then
-		    make_alt_depends_list "$i" || warning "Some depends error with $i"
-		fi
-
 		cp -v $i $destdir/ || { error "Cannot copy new packages $expfiles" ; return 1; }
 	done
 	make_md5sum $destdir/
