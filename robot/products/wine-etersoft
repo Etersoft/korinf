@@ -386,12 +386,17 @@ build_wine_etersoft()
 	#	warning "System $DIST not supported for build ($PUBLOCAL/WINE/$DIST does not exist)"
 	#	do_broken
 	#fi
-	
+
 	TEXTDIST=$DIST
-	# Check for linked system (собираем для основной системы)
-	if [ -L "$PUBLOCAL/WINE/$DIST" ] ; then
-		DIST=`readlink $PUBLOCAL/WINE/$DIST | sed -e "s|\.\./||g"`
-		TEXTDIST="$TEXTDIST (фактически сборка выполнена для $DIST)"
+	# Check for linked system (собираем для основной системы),
+	if [ -L "$PUBLOCAL/WINE/$DIST" ]; then
+		local NEWDIST
+		NEWDIST=`readlink $PUBLOCAL/WINE/$DIST | sed -e "s|\.\./||g"`
+		# Если из ссылки не пропала архитектура
+		if [ "${DIST/x86_64/}" = "${NEWDIST/x86_64/}" ] ; then
+			DIST=$NEWDIST
+			TEXTDIST="$TEXTDIST (фактически сборка выполнена для $DIST)"
+		fi
 	fi
 	check_dist $DIST
 	mkdir -p "$PVTLOCAL/$DIST"
