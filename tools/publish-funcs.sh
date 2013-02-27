@@ -18,7 +18,9 @@ add_and_remove()
 	for file in $LIST ; do
 		[ -r "$file" ] || { print "Skip $file (missed now)" ; continue ; }
 		# FIXME: just compare dates?
-		test -r $TP/$(basename $file) && cmp "$file" $TP/$(basename $file) && { print "Skip $file (not changed)" ; continue ; }
+		#test -r $TP/$(basename $file) && cmp "$file" $TP/$(basename $file) && { print "Skip $file (not changed)" ; continue ; }
+		# Don't check contains.
+		test -r $TP/$(basename $file) && { print "Skip $file (the same name is exists)" ; continue ; }
 		# remove previous packages
 		rm -fv $TP/$(get_pkgname_from_filename $file)*.rpm
 		# copying new package
