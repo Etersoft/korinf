@@ -62,7 +62,8 @@ install_req()
 	# create needed files in home directory
 	init_home
 
-	buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio"
+	# Note: some additional requires we add in rpmbph
+	buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch"
 
 	reqs=$(get_rpmpkg_requires -p "$BUILDSRPM" | clean_pkgreq)
 	reqs=$(convert_pkgreqs_to_target $reqs $buildsystempkgs | xargs -n 1000 echo)

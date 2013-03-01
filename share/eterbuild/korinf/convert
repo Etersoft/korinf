@@ -133,6 +133,7 @@ convert_rpm()
 				RES=$?
 				;;
 			    "tgz")
+				kormod converts/alien
 				convert_by_target
 				RES=$?
 				;;
