@@ -15,4 +15,8 @@
 
 . x86_64/ALTLinux
 
+. x86_64/ArchLinux
+
+. x86_64/Slackware
+
 . x86_64/gen
