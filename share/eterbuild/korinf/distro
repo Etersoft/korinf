@@ -107,7 +107,7 @@ case $DISTRNAME in
 	logit "mount root dir" mount_linux $dist || return 1
 
 	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
-		logit "install requires" install_req $dist || return 1
+		logit "install requires" install_build_requires $dist || return 1
 		logit "umount" end_umount || return 1
 		return 0
 	fi
@@ -115,7 +115,7 @@ case $DISTRNAME in
 	logit "convert src.rpm to target $PKGVENDOR" convert_rpm_to_target $dist || return 1
 
 	#if [ "$PKGFORMAT" != "rpm" ] && [ -z "$MAKESPKG" ] ; then
-	logit "assure build requires" assure_build_requires || return 1
+	logit "assure build requires" install_build_requires || return 1
 	#fi
 
 	logit "build RPM package" build_rpms $dist || return 1
@@ -127,7 +127,6 @@ case $DISTRNAME in
 	if [ -z "$MAKESPKG" ] ; then
 		logit "test built packages requirements" test_package_requirements || return 1
 	fi
-
 	if [ -n "$BOOTSTRAP" ] && [ -z "$MAKESPKG" ]; then
 		logit "install built packages" install_built || return 1
 	fi

@@ -22,7 +22,7 @@
 ##
 
 # needed version etersoft-build-utils package
-NEEDETERBUILD=2023
+NEEDETERBUILD=2025
 
 realpath()
 {
@@ -179,6 +179,16 @@ get_rpm_sources()
 	[ -d "$SOURCEPATH" ] || SOURCEPATH="$(readlink -f "$TARGETPATH/../sources")"
 	echo "$SOURCEPATH"
 	return 0
+}
+
+# get package names extracted from package mask
+# internal
+get_target_package_names()
+{
+	local j
+	for j in $EXPMAINFILES $EXPEXTRAFILES ; do
+		get_pkgname_from_filename $j
+	done
 }
 
 # set target vars before package build

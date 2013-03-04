@@ -47,8 +47,9 @@ install_built()
 	run_in_chroot "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
 }
 
-# install required packages for build under the system (f.i., Debian/6.0)
-install_req()
+# Install required packages for build under the system (f.i., Debian/6.0)
+# Assure we have needed build requirements
+install_build_requires()
 {
 	local reqs dist=$1
 	load_mod repl rpm
@@ -57,13 +58,13 @@ install_req()
 	assert_var BUILDERHOME
 
 	# NOTE: possible side effect with redefined DISTRNAME, BUILDARCH, DISTRVERSION
-	parse_dist_name $dist
+	#parse_dist_name $dist
 
 	# create needed files in home directory
-	init_home
+	#init_home
 
 	# Note: some additional requires we add in rpmbph
-	buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch"
+	local buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch"
 
 	reqs=$(get_rpmpkg_requires -p "$BUILDSRPM" | clean_pkgreq)
 	reqs=$(convert_pkgreqs_to_target $reqs $buildsystempkgs | xargs -n 1000 echo)
