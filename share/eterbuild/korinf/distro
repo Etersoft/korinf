@@ -118,15 +118,16 @@ case $DISTRNAME in
 	logit "assure build requires" install_build_requires || return 1
 	#fi
 
+	if [ -z "$MAKESPKG" ] ; then
+		logit "test built packages requirements" test_package_requirements || return 1
+	fi
+
 	logit "build RPM package" build_rpms $dist || return 1
 
 	if [ "$PKGFORMAT" != "rpm" ] && [ -z "$MAKESPKG" ] ; then
 		logit "convert RPM to $PKGFORMAT ($PACKAGERELEASE$PKGVENDOR)" convert_rpm || return 1
 	fi
 
-	if [ -z "$MAKESPKG" ] ; then
-		logit "test built packages requirements" test_package_requirements || return 1
-	fi
 	if [ -n "$BOOTSTRAP" ] && [ -z "$MAKESPKG" ]; then
 		logit "install built packages" install_built || return 1
 	fi
