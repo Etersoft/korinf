@@ -51,7 +51,7 @@ mount_linux()
 	[ -d $LOCALLINUXFARM ] && MOUNTPARAM="--bind" || MOUNTPARAM="-o soft"
 	$SUDO mount $LOCALLINUXFARM/$dist $BUILDROOT $MOUNTPARAM || { warning "Cannot mount..." ; return 1 ; }
 	$SUDO chmod o+rx $BUILDROOT
-	ls -l $BUILDROOT
+	#ls -l $BUILDROOT
 	test -d $BUILDROOT/etc/ || fatal "Linux system is missed in $BUILDROOT"
 
 	$SUDO su $LOCUSER -c "mkdir -p $BUILDROOT/proc $BUILDROOT/sys $BUILDROOT/home/$INTUSER $BUILDROOT/srv/wine"

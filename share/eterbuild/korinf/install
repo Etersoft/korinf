@@ -42,7 +42,7 @@ install_built()
 		return
 	fi
 
-	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || fatal "Can't get install command"
+	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || { warning "Can't get install command" ; return 1 ; }
 	echo "Install built packages with $INSTALLCOMMAND command"
 	run_in_chroot "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
 }

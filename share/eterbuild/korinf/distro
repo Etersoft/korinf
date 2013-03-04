@@ -101,7 +101,6 @@ case $DISTRNAME in
 
 # Generic way
 *)
-	#kormod build/archlinux
 	kormod build/rpm
 	kormod check_reqs
 

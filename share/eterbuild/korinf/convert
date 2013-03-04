@@ -65,16 +65,16 @@ convert_rpm_to_target()
 }
 
 
-# Only with $TARGET
+# converts built rpm packages to target format
 convert_rpm()
 {
-	local RELPKG=$PACKAGERELEASE$PKGVENDOR.$BUILDARCH
+	assert_var BUILTRPM PKGFORMAT PKGVENDOR
 	local RES=0
+
 	pushd $BUILTRPM
 	ls -l
+
 	echo "Make target packages for $PKGFORMAT ($PKGVENDOR)"
-#	echo "Packages to convert: $PACKAGESLIST"
-#	[ -n "$PACKAGESLIST" ] || fatal "Empty packages list in convert_rpm"
 
 	case $PKGVENDOR in
 		"gentoo")
@@ -83,7 +83,6 @@ convert_rpm()
 			RES=$?
 			;;
 		"archlinux")
-			# ArchLinux
 			kormod converts/archlinux
 			convert_archlinux
 			RES=$?

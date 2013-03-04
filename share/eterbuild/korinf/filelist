@@ -70,10 +70,10 @@ prepare_filelist()
 	true
 }
 
-# use: BUILDNAME, BUILTRPM, TARGETSRPM
 # fill MAILFILELIST and run prepare_filelist
 fill_filelist()
 {
+	assert_var BUILDNAME BUILTRPM TARGETSRPM
 	# TODO: use real package name list
 	# HACK: remove unneeded debug packages
 	if [ "$ALLOWPUBLICDEBUG" != "1" ] ; then
