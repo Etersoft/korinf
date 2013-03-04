@@ -22,6 +22,25 @@
 ##
 
 
+check_alien()
+{
+    if (alien -h 2>&1 | grep -qws "depends" ); then
+	return 0
+    else
+	warning "Error: `alien -V` not support \"--depends\" option..."
+	return 1
+    fi
+}
+
+run_alien()
+{
+	local VERBCOMMAND=
+	[ -n $ADEBUG ] && VERBCOMMAND="--veryverbose"
+	BUILDARCH=$BUILDARCH CC=$KORINFDIR/korinf/helpers/gcc-stub-dumpmachine fakeroot setarch $BUILDARCH alien --keep-version $VERBCOMMAND $@ || return
+	# don't remove original due using rpm after converting (f.i. for Gentoo)
+}
+
+
 convert_by_target()
 {
 	assert_var PACKAGE PACKAGEVERSION PACKAGERELEASE PKGVENDOR PKGFORMAT
