@@ -78,10 +78,8 @@ convert_rpm()
 
 	case $PKGVENDOR in
 		"gentoo")
-			# Gentoo
+			kormod converts/gentoo
 			convert_gentoo || fatal "Cannot convert for Gentoo"
-			echo "Generate ebuild"
-			gen_ebuild
 			RES=$?
 			;;
 		"archlinux")

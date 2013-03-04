@@ -190,14 +190,8 @@ set_target_var()
 
 	[ -z "$PKGFORMAT" ] && { warning "PKGFORMAT is empty" ; return 1 ; }
 
-	[ "$PKGVENDOR" = "gentoo" ] || return 0
-
-	# HACK for Gentoo
-	if [ -n "$BOOTSTRAP" ] ; then
-		[ "$PKGFORMAT" = "tbz2" ] && PKGFORMAT=rpm
-	else
-		[ "$PKGFORMAT" = "tbz2" ] && PKGFORMAT=tar.bz2
-	fi
+	# FIXME: why we need this?
+	[ "$PKGVENDOR" = "gentoo" ] && [ "$PKGFORMAT" = "tbz2" ] && PKGFORMAT=tar.bz2
 	return 0
 }
 
