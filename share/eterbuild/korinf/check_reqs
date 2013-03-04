@@ -97,13 +97,15 @@ check_package_requires()
 
 		mount_linux $dist >/dev/null || continue
 
+		# Test for build requirements
 		local pkgnames="$(get_target_package_names)"
 		# first print about source package
 		reqs=$($ETERBUILDBIN/rpmreqs -p $BUILDSRPM)
 		reqs=$(convert_pkgreqs_to_target $reqs)
 		reqs=$(do_exclude_list "$pkgnames" "$reqs")
 		print_check_reqs_item $dist $BUILDSRPM $reqs
-		
+
+		# Test for install requirements
 		for pkgname in $pkgnames ; do
 		# FIXME: use pkgnames instead expand_mask_in_dir?
 		#for j in $(expand_mask_in_dir $DESTDIR $EXPMAINFILES) $(expand_mask_in_dir $DESTDIR/extra $EXPEXTRAFILES) ; do
@@ -118,6 +120,18 @@ check_package_requires()
 	done
 }
 
+# Assure we have needed build requirements
+assure_build_requires()
+{
+	local pkgnames="$(get_target_package_names)"
+	# first print about source package
+	reqs=$($ETERBUILDBIN/rpmreqs -p $BUILDSRPM)
+	reqs=$(convert_pkgreqs_to_target $reqs)
+	reqs=$(do_exclude_list "$pkgnames" "$reqs")
+	run_in_chroot "epm --skip-installed --auto install \"$reqs\""
+}
+
+# Test for install requirements
 # run before packages are copied, so can't use real files
 # used DESTDIR, dist, EXPMAINFILES, EXPEXTRAFILES
 test_package_requirements()

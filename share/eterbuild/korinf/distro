@@ -116,13 +116,17 @@ case $DISTRNAME in
 
 	logit "convert src.rpm to target $PKGVENDOR" convert_rpm_to_target $dist || return 1
 
+	#if [ "$PKGFORMAT" != "rpm" ] && [ -z "$MAKESPKG" ] ; then
+	logit "assure build requires" assure_build_requires || return 1
+	#fi
+
 	logit "build RPM package" build_rpms $dist || return 1
 
 	if [ "$PKGFORMAT" != "rpm" ] && [ -z "$MAKESPKG" ] ; then
 		logit "convert RPM to $PKGFORMAT ($PACKAGERELEASE$PKGVENDOR)" convert_rpm || return 1
 	fi
 
-	if [ -z "$MAKESPKG" ] && [ -z "$BOOTSTRAP" ] ; then
+	if [ -z "$MAKESPKG" ] ; then
 		logit "test built packages requirements" test_package_requirements || return 1
 	fi
 
