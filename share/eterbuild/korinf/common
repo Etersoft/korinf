@@ -127,6 +127,13 @@ get_bin_package()
 	local TARGETPATH="$1"
 	local BUILDNAME="$2"
 
+	# TODO: need to check target package
+	if [ "$PKGFORMAT" = "deb" ] ; then
+		# hack with convert from repl
+		# see also converts/deb internal_get_deb_pkgname_from_rpm
+		BUILDNAME=`echo $BUILDNAME | filter_deb_pkgnames`
+	fi
+
 	# check for package started with NAME
 	BUILDPKG="$(ls -1 $TARGETPATH/$BUILDNAME[-_][0-9]* 2>/dev/null | tail -n1)"
 

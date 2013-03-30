@@ -37,7 +37,7 @@ get_target_deplist()
 	convert_pkgreqs_to_target $(cat $depfile)
 }
 
-
+# General local prepare for varios systems
 prepare_convert()
 {
 	assert_var BUILTBINPKGLIST TARGETSRPM INTUSER

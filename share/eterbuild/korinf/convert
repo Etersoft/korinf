@@ -64,7 +64,7 @@ convert_rpm_to_target()
 	return 0
 }
 
-
+# Note: all converts/ functions run in the package with rpm packages
 # converts built rpm packages to target format
 convert_rpm()
 {
@@ -72,9 +72,8 @@ convert_rpm()
 	local RES=0
 
 	pushd $BUILTRPM
+	echo "Make target packages for $PKGFORMAT ($PKGVENDOR) from follow list:"
 	ls -l
-
-	echo "Make target packages for $PKGFORMAT ($PKGVENDOR)"
 
 	case $PKGVENDOR in
 		"gentoo")

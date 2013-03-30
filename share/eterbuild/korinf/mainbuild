@@ -144,12 +144,12 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 		fi
 		RES=1
 	fi
-print_status()
+print_status_code()
 {
 	[ "$1" = "0" ] && echo "TRUE" && return
 	echo "FALSE ($1)"
 }
-	echo `date` "$BUILDSRPM on $dist DONE with status '$(print_status $RES)'" | tee -a $LOGFILE | write_report
+	echo `date` "$BUILDSRPM on $dist DONE with status '$(print_status_code $RES)'" | tee -a $LOGFILE | write_report
 done
 
 return $RES
