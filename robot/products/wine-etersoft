@@ -286,6 +286,7 @@ EOF
 }
 
 
+# TODO: compare with prepare_license_mail
 prepare_wine_etersoft_license_mail()
 {
 	local FILETO BETA NAME

@@ -29,7 +29,6 @@
 # FIXME: если в имени запятая, разделяет на два адреса
 #
 
-
 # Ошибка: не ловятся ошибки отсюда
 prepare_component_mail()
 {
@@ -57,14 +56,26 @@ ${BETA}
 
 EOF
 	LOCALFILES=`find -L $LOCALDIR/$DIST -maxdepth 1 -type f`
-	printURL $LOCALDIR/$DIST $FTPDIR/$DIST $LOCALFILES >>$FILETO || fatal "Error with ftp ($LOCALDIR with '$LOCALFILES') (possible files are missed!)"
+	printURL $LOCALDIR/$DIST $PUBDOWNLOAD/$DIST $LOCALFILES >>$FILETO || fatal "Error with ftp ($LOCALDIR with '$LOCALFILES') (possible files are missed!)"
 
+if [ -r "$FTPDIR" ] ; then
+cat >>$FILETO <<EOF
+
+Файл лицензии можно скачать по следующей ссылке:
+EOF
+	printURL $FTPDIR $DOWNLOADDIR/$PROJECTVERSION $LICENSEFILE >>$FILETO || fatal "Error with license (files are missed) "
+	cat >>$FILETO <<EOF
+
+Файл лицензии $LICENSEFILE необходимо расположить в каталоге $LICENSEDIR
+и проверить права на его чтение пользователями.
+EOF
+fi
 
 	cat >>$FILETO <<EOF
 
 При необходимости эти же файлы могут быть получены по протоколу http: замените ftp:// на http:// в пути.
 Также Вы можете напрямую зайти в каталог, чтобы загрузить файлы:
-	$FTPDIR/$DIST
+	$PUBDOWNLOAD/$DIST
 
 По вопросам использования продукта пишите на support@etersoft.ru, указав
 в ТЕМЕ (Subject) письма регистрационный номер.
@@ -82,7 +93,6 @@ EOF
 
 build_anycomponent()
 {
-	test -z "$LICENSEONLY" || fatal "Do not support license only mode for anycomponent"
 	#local PROJ="$COMPONENTNAME/$PROJECTVERSION"
 	local PROJ=$DOWNLOADDIR
 	LOCALDIR=/var/ftp/pub/Etersoft/$PROJ
@@ -100,8 +110,7 @@ build_anycomponent()
 		PROJECTVERSION=`basename $LOCALDIR`
 		PROJ=`dirname $PROJ`/$PROJECTVERSION
 	fi
-	FTPDIR="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$PROJ"
-
+	PUBDOWNLOAD="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$PROJ"
 
 	TEXTDIST=$DIST
 	# Check for linked system (собираем для основной системы)
@@ -112,8 +121,9 @@ build_anycomponent()
 	
 	check_dist $DIST
 
-	echo >> $ALOGDIR/autobuild.report.log
-	echo "$(date) Build $TYPE for $ETERREGNUM in $FTPDIR" >> $ALOGDIR/autobuild.report.log
+	# need for license file creating
+	TARGETDIR="/var/ftp/pub/download/$COMPONENTNAME/$TARGETDIRNAME"
+	DOWNLOADDIR="http://$DOWNLOADDOMAIN/pub/download/$COMPONENTNAME/$TARGETDIRNAME"
 
 	case "$COMPONENTNAME" in
 	"RX@Etersoft")
@@ -137,14 +147,17 @@ build_anycomponent()
 			fi
 		fi
 
-		if [ "$DIST" = "Windows/ALL" ] ; then
-			CHECKCOMP="nxclient"
-		fi
+		#if [ "$DIST" = "Windows/ALL" ] ; then
+		#	CHECKCOMP="nxclient"
+		#fi
 
 		# TODO: nxsadmin
 
-		# FIXME: Мы отгружаем напрямую с ftp. Для лицензии нужно готовить в отдельном каталоге
-		# create_license $FTPDIR/rx-etersoft.lic $AROBOTDIR/dsa/rx-etersoft.dsa
+		# exports FTPDIR
+		LICENSEFILE=rx-etersoft.lic
+		LICENSEDIR="/etc/nxserver"
+		create_license_dir
+
 		;;
 	"Postgres@Etersoft")
 		COMPONENTSCRIPT="bin-postgres"
@@ -176,7 +189,11 @@ build_anycomponent()
 	export LC_ALL=ru_RU.UTF-8
 	TMPMAIL=`mktemp`
 
-	prepare_component_mail $TMPMAIL || fatal "Can't prepare letter"
+	if [ -n "$LICENSEONLY" ] ; then
+		prepare_license_mail $TMPMAIL support@etersoft.ru || fatal "Can't prepare letter"
+	else
+		prepare_component_mail $TMPMAIL || fatal "Can't prepare letter"
+	fi
 
 	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Сборка $COMPONENTNAME $PROJECTVERSION" || fatal "Can't send"
 	rm -f $TMPMAIL

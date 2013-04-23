@@ -88,11 +88,14 @@ export EMAIL="Система отгрузки Etersoft <support@etersoft.ru>"
 
 export NIGHTBUILD=1
 
+. $AROBOTDIR/products/common
+
 # Run product specific function
 # It can used:
 # * variables from the task
 # * TARGETDIRNAME - dir to place files
 # split to subscript
+
 case $COMPONENTNAME in
 	*WINE@Etersoft*)
 		. $AROBOTDIR/products/wine-etersoft

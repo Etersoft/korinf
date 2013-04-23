@@ -29,7 +29,6 @@
 # FIXME: если в имени запятая, разделяет на два адреса
 #
 
-
 # Ошибка: не ловятся ошибки отсюда
 prepareSeltaMail()
 {
@@ -90,47 +89,6 @@ Etersoft, 2013
 EOF
 }
 
-# Ошибка: не ловятся ошибки отсюда
-prepareSeltaLicenseMail()
-{
-	local FILETO BETA
-	FILETO=$1
-	>$FILETO
-	NAME="$(get_dear_from_fio "$FULLNAME" "покупатель")"
-
-	if [ "$TYPE_LICENSE" = "Demo" ] ; then
-		THANKTEXT="Благодарим Вас за внимание к нашему продукту."
-	else
-		THANKTEXT="Благодарим Вас за покупку!"
-	fi
-
-	cat >>$FILETO <<EOF
-${DEAR} ${NAME}!
-
-Вы заказывали лицензию для Продукта
-${PRODUCT} (релиз $PROJECTVERSION)
-с регистрационным номером ${ETERREGNUM}.
-
-Файл лицензии можно скачать по следующей ссылке:
-EOF
-	printURL $FTPDIR $DOWNLOADDIR/$PROJECTVERSION `find -L $FTPDIR -maxdepth 1 -type f ` >>$FILETO || fatal "Error with license (files are missed) "
-
-cat >>$FILETO <<EOF
-
-По вопросам использования продукта пишите на selta@etersoft.ru, указав
-в ТЕМЕ (Subject) письма регистрационный номер.
-
-Пожалуйста, отвечайте на это письмо только
-при возникновении затруднений со скачиванием файлов.
-
-$THANKTEXT
-
--- 
-Команда разработчиков
-Etersoft, 2013
-EOF
-}
-
 build_selta_license()
 {
 	PROJECTNAME="SELTA@Etersoft"
@@ -138,17 +96,15 @@ build_selta_license()
 	TARGETDIR=/var/ftp/pub/download/SELTA@Etersoft/$TARGETDIRNAME
 	DOWNLOADDIR="http://$DOWNLOADDOMAIN/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
 
-	export FTPDIR=$TARGETDIR/$PROJECTVERSION
-	# Можем стирать только каталог дистрибутива, а не весь
-	test -d $FTPDIR && rm -rf $FTPDIR
-	mkdir -p $FTPDIR || fatal "error with $FTPDIR creating"
-
-	create_license $FTPDIR/selta.lic $AROBOTDIR/dsa/selta.dsa
+	# exports FTPDIR
+	LICENSEFILE=selta.lic
+	LICENSEDIR="C:\\Program Files\\Selta"
+	create_license_dir
 
 	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8
 	TMPMAIL=$(make_temp_file)
-	prepareSeltaLicenseMail $TMPMAIL || fatal "Can't prepare letter"
+	prepare_license_mail $TMPMAIL selta@etersoft.ru || fatal "Can't prepare letter"
 	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Лицензия для продукта $COMPONENTNAME" || fatal "Can't send"
 	rm -f $TMPMAIL
 	rm -f $TMPDIR/selta.lic
@@ -195,19 +151,10 @@ build_selta()
 	REBUILDLIST=$DIST
 	echo "Work with $TASK for $REBUILDLIST"
 
-	export FTPDIR=$TARGETDIR/$PROJECTVERSION
-	# Можем стирать только каталог дистрибутива, а не весь
-	test -d $FTPDIR && rm -rf $FTPDIR
-	mkdir -p $FTPDIR || fatal "error with $FTPDIR creating"
-
-	export ETERREGNUM
-	echo >> $ALOGDIR/autobuild.report.log
-	echo "$(date): Build $TYPE for $ETERREGNUM in $FTPDIR" >> $ALOGDIR/autobuild.report.log
-
-	# Вывод скрипта не записывается в лог
-	export BUILDSTRAP=
-
-	create_license $FTPDIR/selta.lic $AROBOTDIR/dsa/selta.dsa
+	# exports FTPDIR
+	LICENSEFILE=selta.lic
+	LICENSEDIR="C:\\Program Files\\Selta"
+	create_license_dir
 
 	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8
