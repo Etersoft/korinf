@@ -122,8 +122,9 @@ build_anycomponent()
 	check_dist $DIST
 
 	# need for license file creating
-	TARGETDIR="/var/ftp/pub/download/$COMPONENTNAME/$TARGETDIRNAME"
-	DOWNLOADDIR="http://$DOWNLOADDOMAIN/pub/download/$COMPONENTNAME/$TARGETDIRNAME"
+	local CNAME=$(echo $COMPONENTNAME | sed -e "s| ||g")
+	TARGETDIR="/var/ftp/pub/download/$CNAME/$TARGETDIRNAME"
+	DOWNLOADDIR="http://$DOWNLOADDOMAIN/pub/download/$CNAME/$TARGETDIRNAME"
 
 	case "$COMPONENTNAME" in
 	"RX@Etersoft")
