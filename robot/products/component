@@ -58,7 +58,7 @@ EOF
 	LOCALFILES=`find -L $LOCALDIR/$DIST -maxdepth 1 -type f`
 	printURL $LOCALDIR/$DIST $PUBDOWNLOAD/$DIST $LOCALFILES >>$FILETO || fatal "Error with ftp ($LOCALDIR with '$LOCALFILES') (possible files are missed!)"
 
-if [ -r "$FTPDIR" ] ; then
+if [ -r "$FTPDIR/$LICENSEFILE" ] ; then
 cat >>$FILETO <<EOF
 
 Файл лицензии можно скачать по следующей ссылке:
@@ -122,7 +122,7 @@ build_anycomponent()
 	check_dist $DIST
 
 	# need for license file creating
-	local CNAME=$(echo $COMPONENTNAME | sed -e "s| ||g")
+	local CNAME=$(strip_spaces $COMPONENTNAME)
 	TARGETDIR="/var/ftp/pub/download/$CNAME/$TARGETDIRNAME"
 	DOWNLOADDIR="http://$DOWNLOADDOMAIN/pub/download/$CNAME/$TARGETDIRNAME"
 
@@ -181,11 +181,6 @@ build_anycomponent()
 		;;
 	esac
 
-	for i in $CHECKCOMP ; do
-		check_and_refresh_component $COMPONENTSCRIPT $LOCALDIR/$DIST $i
-		assert_present_package $LOCALDIR/$DIST $i
-	done
-
 	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8
 	TMPMAIL=`mktemp`
@@ -193,6 +188,11 @@ build_anycomponent()
 	if [ -n "$LICENSEONLY" ] ; then
 		prepare_license_mail $TMPMAIL support@etersoft.ru || fatal "Can't prepare letter"
 	else
+		for i in $CHECKCOMP ; do
+			check_and_refresh_component $COMPONENTSCRIPT $LOCALDIR/$DIST $i
+			assert_present_package $LOCALDIR/$DIST $i
+		done
+
 		prepare_component_mail $TMPMAIL || fatal "Can't prepare letter"
 	fi
 
