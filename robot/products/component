@@ -56,14 +56,15 @@ ${BETA}
 
 EOF
 	LOCALFILES=`find -L $LOCALDIR/$DIST -maxdepth 1 -type f`
-	printURL $LOCALDIR/$DIST $PUBDOWNLOAD/$DIST $LOCALFILES >>$FILETO || fatal "Error with ftp ($LOCALDIR with '$LOCALFILES') (possible files are missed!)"
+	printURL "$LOCALDIR/$DIST" "$PUBDOWNLOAD/$DIST" $LOCALFILES >>$FILETO || fatal "Error with ftp ($LOCALDIR with '$LOCALFILES') (possible files are missed!)"
 
-if [ -r "$FTPDIR/$LICENSEFILE" ] ; then
+# only if have license file
+if [ -f "$FTPDIR/$LICENSEFILE" ] ; then
 cat >>$FILETO <<EOF
 
 Файл лицензии можно скачать по следующей ссылке:
 EOF
-	printURL $FTPDIR $DOWNLOADDIR/$PROJECTVERSION $LICENSEFILE >>$FILETO || fatal "Error with license (files are missed) "
+	printURL "$FTPDIR" "$DOWNLOADDIR/$PROJECTVERSION" $LICENSEFILE >>$FILETO || fatal "Error with license (files are missed) "
 	cat >>$FILETO <<EOF
 
 Файл лицензии $LICENSEFILE необходимо расположить в каталоге $LICENSEDIR

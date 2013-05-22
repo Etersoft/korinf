@@ -67,7 +67,7 @@ ${PRODUCT} (релиз $PROJECTVERSION)
 
 Файл лицензии можно скачать по следующей ссылке:
 EOF
-	printURL $FTPDIR $DOWNLOADDIR/$PROJECTVERSION $LICENSEFILE >>$FILETO || fatal "Error with license (files are missed) "
+	printURL "$FTPDIR" "$DOWNLOADDIR/$PROJECTVERSION" $LICENSEFILE >>$FILETO || fatal "Error with license (files are missed) "
 
 	cat >>$FILETO <<EOF
 
