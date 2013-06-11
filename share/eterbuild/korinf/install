@@ -69,5 +69,6 @@ install_build_requires()
 	reqs=$(get_rpmpkg_requires -p "$BUILDSRPM" | clean_pkgreq)
 	reqs=$(convert_pkgreqs_to_target $reqs $buildsystempkgs | xargs -n 1000 echo)
 
-	run_in_chroot "epm --auto --verbose --skip-installed Install \"$reqs\""
+	# FIXME: remove makeinstall from eepm spec
+	run_in_chroot "epm --auto --verbose --skip-installed Install \"$reqs\"" || run_in_chroot "epm --auto --verbose --skip-installed install \"$reqs\""
 }

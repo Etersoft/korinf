@@ -40,8 +40,8 @@ exit_now()
 printURL()
 {
 	local FILE
-	local LDIR=$1
-	local DDIR=$2
+	local LDIR="$1"
+	local DDIR="$2"
 	shift
 	shift
 	[ -n "$1" ] || return 1
@@ -63,8 +63,8 @@ printURL()
 printHTMLURL()
 {
 	local FILE
-	local LDIR=$1
-	local DDIR=$2
+	local LDIR="$1"
+	local DDIR="$2"
 	shift
 	shift
 	[ -n "$1" ] || return 1
