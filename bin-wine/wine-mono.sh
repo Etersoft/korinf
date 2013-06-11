@@ -13,4 +13,4 @@ NAME=wine-mono
 MAINFILES="$NAME[-_][0-9]"
 
 build_project $WINEPUB_PATH/../Wine-public $NAME "" $@
-build_project $WINEPUB_PATH/../Wine-vanilla $NAME "" $@
+#build_project $WINEPUB_PATH/../Wine-vanilla $NAME "" $@

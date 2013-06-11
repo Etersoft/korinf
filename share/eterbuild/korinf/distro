@@ -41,7 +41,7 @@ case $DISTRNAME in
 	logit "cleaning" clean_windows || return 1
 	;;
 
-"FreeBSD")
+"FreeBSD1")
 	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
 		logit "install requires" SKIPPED
 		return 0
@@ -56,6 +56,14 @@ case $DISTRNAME in
 
 
 	logit "convert src.rpm to target $PKGVENDOR" convert_rpm_to_target $dist || return 1
+	logit "build RPM package" build_rpms $dist || return 1
+
+	if [ "$PKGFORMAT" != "rpm" ] && [ -z "$MAKESPKG" ] ; then
+		logit "convert RPM to $PKGFORMAT ($PACKAGERELEASE$PKGVENDOR)" convert_rpm || return 1
+	fi
+
+	return 1
+
 	logit "build $dist" build_bsd $dist || return 1
 	logit "convert RPM to $PKGFORMAT" convert_bsd || return 1
 
