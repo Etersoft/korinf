@@ -67,7 +67,9 @@ convert_archlinux()
 
 pkgname=$PACKAGE
 pkgver=$PACKAGEVERSION
-pkgrel=$PACKAGERELEASE$PKGVENDOR
+# ERROR: pkgrel must be a decimal.
+#pkgrel=$PACKAGERELEASE$PKGVENDOR
+pkgrel=$(get_numpartrelease ${PACKAGERELEASE})
 pkgdesc="$PKGCOMMENT"
 depends=($prepreqs)
 url=($PKGURL)
