@@ -38,16 +38,23 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 	# Set target dir for built packages
 	DESTDIR=$TARGETPATH/$dist
 
-	# FIXME: will do LINKED local var?
-	LINKED=$(get_linked_system $dist)
+	local LINKED=$(get_linked_system $dist)
+
+	# FIXME: Hack for pseudo build 32 bit wine on x86_64 systems
+	if echo $BUILDNAME | grep wine ; then
+		local WINELINKED=$(get_linked_x86_64_wine_system $dist)
+		[ -n "$WINELINKED" ] && LINKED=$WINELINKED
+	fi
+
 	if [ -n "$LINKED" ] ; then
 		if [ ! -L "$DESTDIR" ] && [ -d "$DESTDIR" ] ; then
 			warning "Removing target dir for replace to link"
 			rm -rfv "$DESTDIR" && success
 		fi
 
+		# Note: Small hack
 		local LFROM=../$LINKED
-		echo $LINKED | grep -q x86_64 && LFROM=../../$LINKED
+		echo $dist | grep -q x86_64 && LFROM=../../$LINKED
 
 		if [ -L "$DESTDIR" ] ; then
 			# TODO: check linking

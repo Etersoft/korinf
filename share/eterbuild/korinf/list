@@ -28,6 +28,11 @@ get_linked_system()
 	grep "^$1 " $KORINFETC/linked | cut -d" " -f2
 }
 
+get_linked_x86_64_wine_system()
+{
+	grep "^$1 " $KORINFETC/linked-x86_64-wine | cut -d" " -f2
+}
+
 
 # get list from TARGETPATH/distro.list or use lists/$ALL
 # arg: ALL or other full list
