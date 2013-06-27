@@ -56,7 +56,7 @@ convert_rpm_to_deb()
 					# only for wine packages
 					if echo $i | grep -q wine ; then
 					# HACK due requires on x86_64?? FIXME
-					if [ $DISTRNAME = "Ubuntu" ] && version_more_version $DISTRVERSION 12.04 ; then
+					if [ $DISTRNAME = "Ubuntu" ] && version_more_version $DISTRVERSION 12.04 || [ $DISTRNAME = "Debian" ] && version_more_version $DISTRVERSION 7.0 ; then
 						mv $DESTLOGDIR/${depf}.deb.depends $DESTLOGDIR/${depf}.deb.depends.orig
 						grep "^lib" $DESTLOGDIR/${depf}.deb.depends.orig > $DESTLOGDIR/${depf}.deb.depends
 						rm -f $DESTLOGDIR/${depf}.deb.depends.orig
