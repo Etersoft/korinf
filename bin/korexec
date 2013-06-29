@@ -41,14 +41,14 @@ shift
 [ -n "$1" ] || fatal "Command line is empty"
 
 for dist in $(get_distro_list $REBUILDLIST) ; do
-    [ -d "$LOCALLINUXFARM/$dist" ] || continue
-    [ -L "$LOCALLINUXFARM/$dist" ] && continue
-    #echo "Run in $dist"
+    dist=$(get_real_target_dist $dist)
+
+    echo
+    echo "############"
+    mount_linux $dist || continue
+
     # fills $BUILDARCH, $DISTRNAME, $DISTRVERSION
     parse_dist_name $dist
-    [ -z "$DISTRNAME" ] && fatal "Empty DISTRNAME for $dist"
-
-    mount_linux $dist || continue
 
     run_in_chroot "$*"
 
