@@ -59,8 +59,21 @@ get_target_list()
 check_target_dist()
 {
 	local DIST="$1"
+	[ -n "$DIST" ] || fatal "missed arg for check_target_dist"
 	get_distro_list $(get_target_list "") | grep -q "$DIST" || get_distro_list $(get_target_list "ALL") | grep -q "$DIST"
 }
+
+get_real_target_dist()
+{
+	assert_var LOCALLINUXFARM
+	local DIST="$1"
+	check_target_dist $DIST || fatal "Unknown distro $DIST"
+	local LINKED=$(get_linked_system $DIST)
+	[ -n "$LINKED" ] && DIST=$LINKED
+	test -d "$LOCALLINUXFARM/$DIST/dev" || fatal "$LOCALLINUXFARM/$DIST is not correct system chroot"
+	echo "$DIST"
+}
+
 
 # Set REBUILDLIST according TARGETPATH, existing REBUILDLIST and some heruistic
 set_rebuildlist()
@@ -69,21 +82,21 @@ set_rebuildlist()
 	if [ -n "$REBUILDLIST" ] && [ ! "$REBUILDLIST" = "all" ] ; then
 		# Test for absolute path
 		if [ -r "/$REBUILDLIST" ] ; then
-			RESULT="Build for distros from full path $REBUILDLIST"
+			RESULT="Use distros from full path $REBUILDLIST"
 		elif [ -r "$KORINFETC/lists/$REBUILDLIST" ] ; then
 			# for compatibility
 			[ "$REBUILDLIST" = "x86_64" ] && REBUILDLIST="x86_64/ALL"
 			REBUILDLIST=$KORINFETC/lists/$REBUILDLIST
-			RESULT="Build for distros from $REBUILDLIST"
+			RESULT="Use distros from $REBUILDLIST"
 		else
 			# Build for concrete target if it is exists
 			check_target_dist $REBUILDLIST || fatal "Run with unknown target '$REBUILDLIST'"
-			RESULT="Build for $REBUILDLIST"
+			RESULT="Use $REBUILDLIST target"
 		fi
 	else
 		# if rebuild list is empty or all - use distro.list if possible, ALL in other cases
 		REBUILDLIST=$(get_target_list "")
-		RESULT="Build for distros from $REBUILDLIST"
+		RESULT="Use distros from $REBUILDLIST"
 	fi
 	[ -n "$QUIET" ] || echo $RESULT
 }

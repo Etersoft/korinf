@@ -26,23 +26,31 @@ MOUNT_MODULE_INCLUDED=1
 
 mount_linux()
 {
-	is_remote_build && return
-	local distr=$1
+	local dist=$1
+	is_remote_build $dist && return
+	local BUILDERHOME=$2
 	local MOUNTPARAM
 
 	assert_var CHROOTDIR LOCUSER
 
 	# x86_64/Debian/6.0 -> x86_64-Debian-6.0
-	BUILDROOT=`mktemp -d $CHROOTDIR/${distr//\//-}-XXXXXX`
+	BUILDROOT=`mktemp -d $CHROOTDIR/${dist//\//-}-XXXXXX`
 	# Создаём необходимые каталоги
 	mkdir -p $CHROOTDIR
 	$SUDO chown $LOCUSER $CHROOTDIR
 
-	BUILDERHOME=$BUILDROOT-home
-	mkdir -p $BUILDERHOME/{,tmp,RPM,RPM/BUILD,RPM/RPMS} || fatal "Can't create $BUILDERHOME"
-	chmod g+rwx $BUILDROOT $BUILDERHOME
+	if [ -z "$BUILDERHOME" ] ; then
+		# create temp home
+		BUILDERHOME=$BUILDROOT-home
+		# for remove later
+		TMPBUILDERHOME=$BUILDROOT-home
+		mkdir -p $BUILDERHOME/{,tmp,RPM,RPM/BUILD,RPM/RPMS} || fatal "Can't create $BUILDERHOME"
+		chmod g+rwx $BUILDROOT $BUILDERHOME
+		$SUDO chown $LOCUSER $BUILDERHOME -R
+	fi
+
 	# FIXME: why LOCUSER??
-	$SUDO chown $LOCUSER $BUILDROOT $BUILDERHOME -R
+	$SUDO chown $LOCUSER $BUILDROOT -R
 
 	[ -z "$BUILDROOT" ] && echo "Skip mount due empty BUILDROOT" && return 1
 	echo "Mount $LOCALLINUXFARM/$dist to $BUILDROOT (user $INTUSER)..."
@@ -83,6 +91,9 @@ terminate_using()
 
 end_umount()
 {
+	# if early error
+	[ -z "$DISTRNAME" ] && return
+
 	is_remote_build && return
 	local i u ERR
 	ERR=0
@@ -106,8 +117,12 @@ end_umount()
 	done
 	[ $ERR = 0 ] && echo "DONE" || echo "Umount FAILED"
 	if [ -z "$ADEBUG" ] ; then
-		echo "Removing $BUILDROOT $BUILDERHOME ..."
-		$SUDO su $LOCUSER -c "rm -rf $BUILDERHOME" || ERR=1
+		if [ -n "$TMPBUILDERHOME" ] ; then
+			echo "Removing $TMPBUILDERHOME ..."
+			$SUDO su $LOCUSER -c "rm -rf $TMPBUILDERHOME" || ERR=1
+			TMPBUILDERHOME=
+		fi
+		echo "Removing $BUILDROOT ..."
 		$SUDO su $LOCUSER -c "rmdir -v $BUILDROOT" || ERR=1
 		[ $ERR = 0 ] && echo "DONE" || echo "Removing FAILED"
 	else

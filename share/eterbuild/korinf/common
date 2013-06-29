@@ -233,8 +233,12 @@ get_remote_commands()
 is_remote_build()
 {
 	local rhost
-	assert_var DISTRNAME DISTRVERSION
-	rhost=$(get_remote_host $DISTRNAME/$DISTRVERSION)
+	local dist="$1"
+	if [ -z "$dist" ] ; then
+		assert_var DISTRNAME DISTRVERSION
+		dist=$DISTRNAME/$DISTRVERSION
+	fi
+	rhost=$(get_remote_host $dist)
 	test -n "$rhost"
 }
 
