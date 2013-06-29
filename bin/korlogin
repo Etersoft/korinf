@@ -4,8 +4,8 @@
 #
 #  Login in chroot script
 #
-#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009, 2011
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2011
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009, 2011, 2013
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2011, 2013
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -24,18 +24,16 @@
 # load common functions, compatible with local and installed script
 . `dirname $0`/../share/eterbuild/korinf/common
 
+kormod mount list
+
 SUDO="sudo"
 if [ $UID = "0" ]; then
 	SUDO=""
 fi
 
 if [ -z "$1" ] ; then
-	echo "Available system list:"
-	if echo $SYSARCH | grep x86_64 >/dev/null ; then
-		find $LOCALLINUXFARM/x86_64 -maxdepth 2 -type d | sed -e "s|$LOCALLINUXFARM/||g" | sort
-	else
-		find $LOCALLINUXFARM -maxdepth 2 -type d | sed -e "s|$LOCALLINUXFARM/||g" | grep -v "x86_64" | sort | grep "/"
-	fi
+	echo "Available systems list:"
+	get_distro_list $(get_target_list)
 	exit 0
 fi
 
@@ -56,74 +54,28 @@ fi
 
 [ "$1" = "-n" ] && { shift ; NETBUILD=1 ; } || NETBUILD=
 
-
-# TODO: check by system list
-SYS="$1"
+SYS=$(get_real_target_dist $1)
 shift
 
-USERCO="su -"
-[ "$1" = "-r" ] && shift || USERCO="su - $INTUSER"
-COMMANDTO="-c '/bin/bash'"
+USERCO=""
+[ "$1" = "-r" ] && shift || USERCO="--user"
+COMMANDTO="/bin/bash"
 test -r $LOCALLINUXFARM/$SYS/bin/bash || COMMANDTO=""
 
-[ -n "$1" ] && COMMANDTO="-c '$@'"
+[ -n "$1" ] && COMMANDTO="$@"
 
-export TMPDIR=/tmp
-TESTDIR=`mktemp -d /tmp/autobuild/${SYS/\/*/}-$USER-XXXXXX`
 
-if [ -n "$NETBUILD" ] ; then
-	fatal "Does not realized"
-	echo Mount $SYS by network ...
-	$SUDO mount borroman:/mnt/$SYS $TESTDIR -o soft || exit 1
-else
-	test -d "$LOCALLINUXFARM/$SYS/dev" || fatal "$LOCALLINUXFARM/$SYS is not correct system chroot"
-	echo Mount $SYS from local disk storage...
-	$SUDO mount $LOCALLINUXFARM/$SYS $TESTDIR --bind || exit 1
-fi
-$SUDO mkdir -p $TESTDIR/{srv/wine,proc,sys,home/$INTUSER,dev/pts}
-
-# Create temp KORLOGINHOME if not exists
-if [ ! -d "$KORLOGINHOME" ] ; then
-	echo "TODO with KORLOGINHOME"
-	exit 1
-fi
-
-echo Mount local home...
-BUILDERHOME=$TESTDIR/home/$INTUSER
-$SUDO mount $KORLOGINHOME $BUILDERHOME --bind #|| exit 1
-init_home
-# TODO: move to config
-#echo Mount swine...
-#$SUDO mount /usr/local/ $TESTDIR/usr/local --bind
-#$SUDO mount /net/wine/ $TESTDIR/srv/wine --bind
-
-BUILDARCH=$DEFAULTARCH
-if echo $SYS | grep x86_64 >/dev/null ; then
-    BUILDARCH="x86_64"
-else
-    BUILDARCH="i586"
-fi
-echo "Chrooting in $SYS system with $BUILDARCH arch"
-if [ "$SYSARCH" != "$BUILDARCH" ] ; then
-    # possibly bug in setarch using! chrooted system's pkg manager sometime cannot detect arch correctly
-    echo "Warning: It is better login to $BUILDARCH arch from a machine with the same arch (you TRY from $SYSARCH)"
-    #exit 1
-fi
+echo
+echo "############"
+mount_linux $SYS $KORLOGINHOME || continue
 
 export HOSTNAME=$SYS
 export PS1="[\u@$SYS \W]\$"
-#[\u@\h \W]\$
-$SUDO chroot $TESTDIR su -c "mount -t proc none /proc"
-$SUDO chroot $TESTDIR su -c "mount -t sysfs none /sys"
-$SUDO chroot $TESTDIR su -c "mount -t devpts none /dev/pts"
-# run
-setarch $BUILDARCH $SUDO chroot $TESTDIR $USERCO $COMMANDTO #| tee $0.log
 
-$SUDO umount $TESTDIR/home/$INTUSER && echo "Unmount home"
-#$SUDO umount $TESTDIR/usr/local $TESTDIR/srv/wine  && echo "Unmount swine"
-$SUDO chroot $TESTDIR su -c "umount /dev/pts"
-$SUDO chroot $TESTDIR su -c "umount /proc"
-$SUDO chroot $TESTDIR su -c "umount /sys"
-$SUDO umount $TESTDIR && echo "Unmount $SYS"
-# -f not supported
-rmdir $TESTDIR
+# fills $BUILDARCH, $DISTRNAME, $DISTRVERSION
+parse_dist_name $SYS
+
+run_in_chroot $USERCO "$COMMANDTO"
+
+end_umount
+
