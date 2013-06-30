@@ -28,8 +28,10 @@ mount_linux()
 {
 	local dist=$1
 	is_remote_build $dist && return
-	local BUILDERHOME=$2
 	local MOUNTPARAM
+
+	# Note!
+	BUILDERHOME=$2
 
 	assert_var CHROOTDIR LOCUSER
 
@@ -39,17 +41,17 @@ mount_linux()
 	mkdir -p $CHROOTDIR
 	$SUDO chown $LOCUSER $CHROOTDIR
 
+	# Note! Define and create BUILDHOME here
 	if [ -z "$BUILDERHOME" ] ; then
 		# create temp home
 		BUILDERHOME=$BUILDROOT-home
-		# for remove later
-		TMPBUILDERHOME=$BUILDROOT-home
 		mkdir -p $BUILDERHOME/{,tmp,RPM,RPM/BUILD,RPM/RPMS} || fatal "Can't create $BUILDERHOME"
-		chmod g+rwx $BUILDROOT $BUILDERHOME
+		chmod g+rwx $BUILDERHOME
 		$SUDO chown $LOCUSER $BUILDERHOME -R
 	fi
 
 	# FIXME: why LOCUSER??
+	chmod g+rwx $BUILDROOT
 	$SUDO chown $LOCUSER $BUILDROOT -R
 
 	[ -z "$BUILDROOT" ] && echo "Skip mount due empty BUILDROOT" && return 1
@@ -63,15 +65,15 @@ mount_linux()
 	test -d $BUILDROOT/etc/ || fatal "Linux system is missed in $BUILDROOT"
 
 	$SUDO su $LOCUSER -c "mkdir -p $BUILDROOT/proc $BUILDROOT/sys $BUILDROOT/home/$INTUSER $BUILDROOT/srv/wine"
-	echo "Mount proc..."
 	$SUDO mount -t proc proc $BUILDROOT/proc || { warning "Cannot mount proc" ; return 1 ; }
+	$SUDO mount -t sysfs none $BUILDROOT/sys || { warning "Cannot mount /sys" ; return 1 ; }
+	$SUDO mount -t devpts none $BUILDROOT/dev/pts || { warning "Cannot mount /sys" ; return 1 ; }
 
 	if [ -d "$BUILDROOT/dev/shm" ] ; then
-		echo "Mount shm..."
 		$SUDO mount -t tmpfs shmfs $BUILDROOT/dev/shm || { warning "Cannot mount /dev/shm" ; return 1 ; }
 	fi
 
-	echo Mount local home $BUILDERHOME ...
+	echo "Mount home $BUILDERHOME ..."
 	$SUDO mount $BUILDERHOME $BUILDROOT/home/$INTUSER --bind || { warning "Cannot mount home" ; return 1 ; }
 
 	#echo Mount srv/wine...
@@ -103,10 +105,10 @@ end_umount()
 	fi
 
 	echo "Unmounting and cleaning $BUILDROOT..."
-	for i in /proc/bus/usb /proc/sys/fs/binfmt_misc /proc /home/$INTUSER /dev/shm / ; do
+	for i in /proc/bus/usb /proc/sys/fs/binfmt_misc /proc /sys /home/$INTUSER /dev/shm /dev/pts / ; do
 		u=$BUILDROOT$i
 		if [ -d $u ] && mount | grep $i >/dev/null ; then
-			if ! $SUDO umount -v $u ; then
+			if ! $SUDO umount $u ; then
 				terminate_using $u
 				sleep 1
 				$SUDO umount -v $u || terminate_using $u
@@ -117,9 +119,9 @@ end_umount()
 	done
 	[ $ERR = 0 ] && echo "DONE" || echo "Umount FAILED"
 	if [ -z "$ADEBUG" ] ; then
-		if [ -n "$TMPBUILDERHOME" ] ; then
-			echo "Removing $TMPBUILDERHOME ..."
-			$SUDO su $LOCUSER -c "rm -rf $TMPBUILDERHOME" || ERR=1
+		if echo $BUILDERHOME | grep -q $BUILDROOT ; then
+			echo "Removing $BUILDERHOME ..."
+			$SUDO su $LOCUSER -c "rm -rf $BUILDERHOME" || ERR=1
 			TMPBUILDERHOME=
 		fi
 		echo "Removing $BUILDROOT ..."

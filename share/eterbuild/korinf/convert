@@ -33,7 +33,7 @@ convert_rpm_to_target()
 	local dist=$1
 
 	# FIXME: hack
-	[ -n "$BUILDERHOME" ] || BUILDERHOME=~/tmp/korinfer
+	[ -n "$BUILDERHOME" ] || BUILDERHOME=/tmp/korinfer-$USER
 	mkdir -p $BUILDERHOME
 
 	# rpmbph will use DISTRNAME/DISTRVERSION and so on
