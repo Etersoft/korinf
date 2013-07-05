@@ -1,0 +1,11 @@
+check process queuewatcher.sh with pidfile /var/run/eterbuild/queuewatcher.pid
+	group builder
+	start program = "/srv/builder/Projects/korinf/robot/service/queuewatcher.sh"
+	stop  program = "/srv/builder/Projects/korinf/robot/service/queuewatcher.sh stop"
+	if 5 restarts with 5 cycles then timeout
+
+check process watchbuilder.sh with pidfile /var/run/eterbuild/watchbuilder.pid
+        group builder
+        start program = "/srv/builder/Projects/korinf/robot/service/watchbuilder.sh"
+        stop  program = "/srv/builder/Projects/korinf/robot/service/watchbuilder.sh stop"
+        if 5 restarts with 5 cycles then timeout
