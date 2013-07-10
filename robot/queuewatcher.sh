@@ -74,13 +74,14 @@ while true ; do
 		sleep 60
 		continue
 	fi
+        # Note: do not check NFS root due NFS stale handle
 	# FIXME: local hack
-	if [ ! -r /var/ftp/pub ] ; then
+	if [ ! -r /var/ftp/pub/Etersoft ] ; then
 		echo "Paused due unreached /var/ftp/pub dir"
 		sleep 60
 		continue
 	fi
-	if [ ! -r /var/ftp/pvt ] ; then
+	if [ ! -r /var/ftp/pvt/Etersoft ] ; then
 		echo "Paused due unreached /var/ftp/pvt dir"
 		sleep 60
 		continue
