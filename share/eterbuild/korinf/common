@@ -188,6 +188,7 @@ get_rpm_sources()
 	return 0
 }
 
+# Почему эти EXPMAINFILES вовсе не раскрыты???
 # get package names extracted from package mask
 # internal
 get_target_package_names()

@@ -138,6 +138,9 @@ case $DISTRNAME in
 		# TODO: move to before build, but have no built packages list there (like correct EXPMAINFILES)
 		if [ -z "$MAKESPKG" ] ; then
 			logit "test built packages requirements" test_package_requirements || return 1
+			if [ "$PKGFORMAT" = "rpm" ] ; then
+				logit "test real built packages requirements" test_package_files_requirements || return 1
+			fi
 		fi
 	fi
 

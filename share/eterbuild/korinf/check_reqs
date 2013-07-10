@@ -98,10 +98,6 @@ check_package_requires()
 
 		# Test for install requirements
 		for pkgname in $pkgnames ; do
-		# FIXME: use pkgnames instead expand_mask_in_dir?
-		#for j in $(expand_mask_in_dir $DESTDIR $EXPMAINFILES) $(expand_mask_in_dir $DESTDIR/extra $EXPEXTRAFILES) ; do
-		#	[ -r "$j" ] || continue
-		#	pkgname=$(get_pkgname_from_filename $j)
 			reqs=$(get_target_deplist $pkgname)
 			reqs=$(do_exclude_list "$pkgnames" "$reqs")
 			print_check_reqs_item $dist $pkgname $reqs
@@ -111,13 +107,13 @@ check_package_requires()
 	done
 }
 
-# Test for install requirements
-# run before packages are copied, so can't use real files
-# used DESTDIR, dist, EXPMAINFILES, EXPEXTRAFILES
+# Test for install requirements (virtually, check only converted requirements)
 test_package_requirements()
 {
 	local pkgname reqs pkgnames
+	# use real built files for get pkgnames
 	pkgnames="$(get_target_package_names)"
+
 	for pkgname in $pkgnames ; do
 		reqs=$(get_target_deplist $pkgname)
 		reqs=$(do_exclude_list "$pkgnames" "$reqs")
@@ -126,4 +122,35 @@ test_package_requirements()
 		[ "$res" != "0" ] && [ "$res" != "22" ] && return $res
 	done
 	return 0
+}
+
+# run before packages are copied, so can't use files from DESTDIR
+# EXPMAINFILES, EXPEXTRAFILES contains paths to the built files
+test_package_files_requirements()
+{
+	return 22
+	[ "$BUILDNAME" = "eepm" ] && return
+
+	# FIXME: epm requires can't return correct requires list
+	run_in_chroot "cd $INTBUILT && epm --skip-installed simulate \$(epm requires ${EXPMAINFILES} ${EXPEXTRAFILES})"
+	return
+
+	# unworked way:
+	local reqs pkgfile pkgname
+	#pkgnames=$(get_pkgname_from_filename $EXPMAINFILES $EXPEXTRAFILES)
+	# use real built files for get pkgnames?
+	# didn't expanded!
+	pkgnames=$(get_target_package_names)
+
+	for pkgfile in $EXPMAINFILES $EXPEXTRAFILES; do
+		reqs=$(epm requires $pkgfile)
+		reqs=$(do_exclude_list "$pkgnames" "$reqs")
+		run_in_chroot "epm --skip-installed simulate \"$reqs\""
+		local res="$?"
+		[ "$res" != "0" ] && [ "$res" != "22" ] && return $res
+	done
+	return 0
+
+	assert_var BUILDNAME INTBUILT EXPMAINFILES EXPEXTRAFILES
+
 }
