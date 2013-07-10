@@ -74,9 +74,9 @@ build_package()
 	# HACK: Url for remote building
 	SOURCEURL=$(echo $SOURCEPATH | sed -e "s|/var/ftp/|ftp://server/|g")
 
-	# On systems with portage change wine package name
-	# FIXME: set PACKAGE individually
-	[ "$BUILDNAME" = "wine" ] && PACKAGE="wine-etersoft-public" || PACKAGE=$BUILDNAME
+	TARGETBUILDNAME=$BUILDNAME
+	# HACK: For systems with portage change wine package name
+	[ "$BUILDNAME" = "wine" ] && TARGETBUILDNAME="wine-etersoft-public"
 
 	# IMPROVE: get src.rpm from some private dir
 	BUILDSRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME || fatal "Can't find package for $BUILDNAME")
@@ -141,10 +141,11 @@ print_build_project_options()
 }
 
 # args: 1) path to project dir (where versions) 2) package name [3) target subdir ] [ 4) other project version ]
+# will set many external vars: CHECKPACKAGE, REBUILDPACKAGE, BOOTSTRAP, FORCEREBUILDPACKAGE, REBUILDPACKAGE, INSTALLREQUIREDPACKAGE, CHECKREQUIRES
 build_project()
 {
 	local SP=$1
-	local PACKAGE=$2
+	local BUILDNAME=$2
 	local TP=$3
 	shift 3
 
@@ -258,5 +259,5 @@ build_project()
 
 	[ -z "$TP" ] || TARGETPATH=$TARGETPATH/$TP
 
-	build_package $PACKAGE
+	build_package $BUILDNAME
 }
