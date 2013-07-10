@@ -51,23 +51,6 @@ clean_copying_destination()
 
 }
 
-# Obsoleted due rpm-dir (since p5?) - but rpm-dir only work locally
-gen_base_apt_rpm()
-{
-	local SUBDIR=$1
-	[ -d "$DESTDIR$SUBDIR" ] || return 1
-	if [ ! -d "$DESTDIR$SUBDIR/RPMS.main" ] ; then
-		ln -s ./ $DESTDIR$SUBDIR/RPMS.main
-	fi
-	genbasedir --create --progress --topdir=$TARGETPATH $dist$SUBDIR main
-	#chmod o+r $DIR/* -R
-# FIXME: need to set ftp/http URL
-	cat <<EOF > $DESTDIR$SUBDIR/base/README.korinf.txt
-You can add this repo to APT sources.list:
-rpm file:$TARGETPATH$SUBDIR $dist main
-EOF
-}
-
 mark_build_done()
 {
 	# FIXME
@@ -100,6 +83,7 @@ copying_packages_by_list()
 
 copying_sources()
 {
+	assert_var dist
 	# We need generated src.rpm in any case (only on the private ftp)
 	if [ -r "$TARGETSRPM" ] && [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
 		echo "Copying converted source package"
@@ -164,6 +148,7 @@ copying_packages()
 	# Prepare binary repository
 	case $PKGVENDOR in
 		"alt")
+			kormod repos/apt-rpm
 			gen_base_apt_rpm
 			gen_base_apt_rpm /extra
 			;;
