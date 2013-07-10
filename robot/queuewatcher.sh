@@ -74,14 +74,14 @@ while true ; do
 		sleep 60
 		continue
 	fi
-        # Note: do not check NFS root due NFS stale handle
+        # Note: do not check NFS root due NFS stale handle? (readlink explore every part of the path (/var, /var/ftp, /var/ftp/pub)
 	# FIXME: local hack
-	if [ ! -r /var/ftp/pub/Etersoft ] ; then
+	if [ ! -r /var/ftp/pub ] ; then
 		echo "Paused due unreached /var/ftp/pub dir"
 		sleep 60
 		continue
 	fi
-	if [ ! -r /var/ftp/pvt/Etersoft ] ; then
+	if [ ! -r /var/ftp/pvt ] ; then
 		echo "Paused due unreached /var/ftp/pvt dir"
 		sleep 60
 		continue
