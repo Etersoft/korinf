@@ -8,7 +8,7 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
-export ALLOWPUBLICDEBUG=1
+export ALLOWPUBLICDEBUG=0
 
 build_project $WINEETER_PATH wine-etersoft-network WINE-Network $@
 
