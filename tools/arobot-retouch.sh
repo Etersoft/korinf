@@ -29,7 +29,12 @@ DIST="$1"
 
 if [ -z "$DIST" ] ; then
 	echo "Run with target system name or 'all' for all tasks"
-	exit 1
+	echo "List of current failed tasks sorted by distros"
+	for i in $(grep -h "^DIST" *.task.*) ; do
+		eval $i
+		echo $DIST
+	done | sort | uniq -c | sort -n -r
+	exit 0
 fi
 
 if [ "$DIST" = "-c" ] ; then
