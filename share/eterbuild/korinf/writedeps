@@ -34,7 +34,9 @@ make_alt_depends_list()
     local TFILE=$(make_temp_file)
     $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || fatal "error with rpmreqs"
     set_destlogdir
-    cat $TFILE | tee $DESTLOGDIR/$(get_pkgname_from_filename $pkg | filter_deb_pkgnames).rpm.depends
+    local DEPFILE=$DESTLOGDIR/$(get_pkgname_from_filename $pkg | filter_deb_pkgnames).rpm.depends
+    rm -f $DEPFILE # for keep correct owner
+    cat $TFILE | tee $DEPFILE
     rm -f $TFILE
 }
 
