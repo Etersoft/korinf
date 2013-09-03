@@ -172,9 +172,13 @@ build_anycomponent()
 		# TODO: has not source pkg: postgresql-8.3eter-contrib postgresql-8.3eter-server"
 		;;
 	"Postgre@Etersoft 9")
-		COMPONENTSCRIPTDIR="bin-postgres"
-		CHECKCOMP="postgre-etersoft9.1"
-		# TODO: has not source pkg: postgresql-8.3eter-contrib postgresql-8.3eter-server"
+		if echo "$PROJECTVERSION" | grep -q "9.0" ; then
+			CHECKCOMP="postgre-etersoft9.0"
+		elif echo "$PROJECTVERSION" | grep -q "9.1" ; then
+			CHECKCOMP="postgre-etersoft9.1"
+		else
+			CHECKCOMP="postgre-etersoft9.2"
+		fi
 		;;
 	*)
 		COMPONENTSCRIPTDIR="NO"
