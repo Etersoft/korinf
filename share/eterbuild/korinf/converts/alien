@@ -63,6 +63,7 @@ convert_by_target()
 
 	# Hack for tgz packages
 	# FIXME: will broken with package without BUILDNAME inside
+	# fixme: add -arch-release for Slackware
 	if [ $PKGFORMAT == "tgz" ] ; then
 	    for i in *${BUILDNAME}*.tgz ; do test -r "$i" && mv $i `basename $i .tgz`-$RELPKG.$PKGFORMAT ; done
 	fi

@@ -70,7 +70,8 @@ get_real_target_dist()
 	check_target_dist $DIST || fatal "Unknown distro $DIST"
 	local LINKED=$(get_linked_system $DIST)
 	[ -n "$LINKED" ] && DIST=$LINKED
-	test -d "$LOCALLINUXFARM/$DIST/dev" || fatal "$LOCALLINUXFARM/$DIST is not correct system chroot"
+	# TODO: check this test with ALT Linux and FreeBSD
+	# test -d "$LOCALLINUXFARM/$DIST/dev" || fatal "$LOCALLINUXFARM/$DIST is not correct system chroot"
 	echo "$DIST"
 }
 
