@@ -1,0 +1,13 @@
+PRODUCT="SELTA@Etersoft 1.0 (электронная версия, базовая лицензия)"
+COMPONENTNAME="Postgres@Etersoft"
+DOWNLOADDIR="Postgres@Etersoft/8.3"
+ETERREGNUM="0D23-A26B"
+DIST="Mandriva/2009.0"
+MAILTO="gomonov_max@mail.ru"
+FULLNAME="Гомонов Максим Викторович"
+PROJECTVERSION="8.3"
+RELEASECANDIDAT=0
+TYPE_LICENSE=Base
+OWNER='ЗАО «С.Е.Д.-СПб»'
+DATE_START='30/07/2008'
+DATE_END='30/09/2008'
