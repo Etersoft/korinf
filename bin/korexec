@@ -43,12 +43,17 @@ shift
 for dist in $(get_distro_list $REBUILDLIST) ; do
     dist=$(get_real_target_dist $dist)
 
+    # fills $BUILDARCH, $DISTRNAME, $DISTRVERSION
+    parse_dist_name $dist
+
+    if [ "$DISTRNAME" = "ALTLinux" ] ; then
+        echo "There is no chroot for ALT Linux (hasher used), skipped $dist"
+        continue
+    fi
+
     echo
     echo "############"
     mount_linux $dist || continue
-
-    # fills $BUILDARCH, $DISTRNAME, $DISTRVERSION
-    parse_dist_name $dist
 
     run_in_chroot "$*"
 

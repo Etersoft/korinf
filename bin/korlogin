@@ -64,6 +64,14 @@ test -r $LOCALLINUXFARM/$SYS/bin/bash || COMMANDTO=""
 
 [ -n "$1" ] && COMMANDTO="$@"
 
+# fills $BUILDARCH, $DISTRNAME, $DISTRVERSION
+parse_dist_name $SYS
+
+if [ "$DISTRNAME" = "ALTLinux" ] ; then
+	echo "ALT Linux uses build process with hasher..."
+	docmd loginhsh -b $DISTRVERSION
+	exit
+fi
 
 echo
 echo "############"
@@ -71,9 +79,6 @@ mount_linux $SYS $KORLOGINHOME || continue
 
 export HOSTNAME=$SYS
 export PS1="[\u@$SYS \W]\$"
-
-# fills $BUILDARCH, $DISTRNAME, $DISTRVERSION
-parse_dist_name $SYS
 
 run_in_chroot $USERCO "$COMMANDTO"
 
