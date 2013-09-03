@@ -35,6 +35,7 @@ This package contains Korinf multidistro build system.
 %files
 %doc README TODO NEWS AUTHORS COPYING
 %_bindir/korinf
+%_bindir/korexec
 %_bindir/korlogin
 %dir %_sysconfdir/eterbuild/lists/
 %config(noreplace) %_sysconfdir/eterbuild/lists/*

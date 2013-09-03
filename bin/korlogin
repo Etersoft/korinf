@@ -69,7 +69,7 @@ parse_dist_name $SYS
 
 if [ "$DISTRNAME" = "ALTLinux" ] ; then
 	echo "ALT Linux uses build process with hasher..."
-	docmd loginhsh -b $DISTRVERSION
+	docmd loginhsh -b $DISTRVERSION -i
 	exit
 fi
 
