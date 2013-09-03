@@ -99,7 +99,7 @@ assert_present_package()
 	local BUILDNAME=$2
 	local FILENAME
 
-	DESTDIR=$1
+	local DESTDIR=$1
 
 	FILENAME=$(get_bin_package "$DESTDIR" $BUILDNAME)
 

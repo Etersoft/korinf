@@ -65,19 +65,19 @@ prepare_wine_etersoft()
 	echo >> $ALOGDIR/autobuild.report.log
 	echo "$(date): Build $TYPE for $ETERREGNUM in $DIST" >> $ALOGDIR/autobuild.report.log
 
-	check_and_refresh_package_wine $PVTLOCAL/$DIST wine-etersoft-${PRODUCT_name}
-	check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST wine-etersoft
+	check_and_refresh_component bin-wine $PVTLOCAL wine-etersoft-${PRODUCT_name}
+	check_and_refresh_component bin-wine $PUBLOCAL/WINE wine-etersoft
 
-	[ "$TYPE" = "School" ] || check_and_refresh_component bin-wine $PUBLOCAL/fonts/$DIST fonts-ttf-ms
+	[ "$TYPE" = "School" ] || check_and_refresh_component bin-wine $PUBLOCAL/fonts fonts-ttf-ms
 
 	# skip on FreeBSD
 	if ! echo "$DIST" | grep -q "FreeBSD" ; then
 		if [ "$PROJECTVERSION" != "1.0.11" ] ; then
-			check_and_refresh_component bin-hasp $PUBLOCAL/HASP/$DIST haspd
+			check_and_refresh_component bin-hasp $PUBLOCAL/HASP haspd
 		fi
 
-		[ "$TYPE" = "Local" ] || check_and_refresh_component bin-cifs $PUBLOCAL/CIFS/$DIST etercifs
-		[ "$TYPE" = "SchoolDIS" ] || check_and_refresh_package_wine $PUBLOCAL/WINE/$DIST fonts-ttf-liberation
+		[ "$TYPE" = "Local" ] || check_and_refresh_component bin-cifs $PUBLOCAL/CIFS etercifs
+		[ "$TYPE" = "SchoolDIS" ] || check_and_refresh_component bin-wine $PUBLOCAL/WINE fonts-ttf-liberation
 	fi
 
 	# Get file list

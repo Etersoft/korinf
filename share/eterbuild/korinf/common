@@ -171,21 +171,17 @@ parse_dist_name()
 	export DISTRNAME DISTRVERSION BUILDARCH
 }
 
-# return full path to sources, detected by TARGET dir
-get_rpm_sources()
+# return full path to sources
+# work for WINE@Etersoft/WINE and WINE@Etersoft/CIFS (linked)
+get_sources_dir()
 {
-	local TARGETPATH="$1"
+	local PRODPATH="$1"
 	local SOURCEPATH=
-	# WINE/Distro/Version or x86_64/Distro/Version
-	SOURCEPATH="$(readlink -f "$TARGETPATH/../../../sources")"
-	# Distro/Version or x86_64/Distro
-	[ -d "$SOURCEPATH" ] || SOURCEPATH="$(readlink -f "$TARGETPATH/../../sources")"
-	# WINE/x86_64/Distro/Version
-	[ -d "$SOURCEPATH" ] || SOURCEPATH="$(readlink -f "$TARGETPATH/../../../../sources")"
-	# Distro (Windows)
-	[ -d "$SOURCEPATH" ] || SOURCEPATH="$(readlink -f "$TARGETPATH/../sources")"
-	echo "$SOURCEPATH"
-	return 0
+	test -d "$PRODPATH" || fatal "$PRODPATH does not exists."
+	# use real realpath command, not our replacement
+	/usr/bin/realpath -e "$PRODPATH/sources" 2>/dev/null && return
+	/usr/bin/realpath -e "$PRODPATH/../sources" 2>/dev/null && return
+	fatal "Can't get source path from target path $PRODPATH. It is possible, sources dir missed there."
 }
 
 # Почему эти EXPMAINFILES вовсе не раскрыты???

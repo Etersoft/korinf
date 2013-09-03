@@ -30,68 +30,30 @@
 kormod check_integrity status
 
 
-# Specially WINE@Etersoft case (use external DIST and PROJECTVERSION)
-check_and_refresh_package_wine()
-{
-	# Etersoft/WINE@Etersoft/last/WINE/SUSE/12
-	DESTDIR="$1"
-	# get_rpm_sources will fails if target is not exists
-	mkdir -p "$DESTDIR"
-	# Etersoft/WINE@Etersoft/last/sources
-	local SOURCEPATH="$(get_rpm_sources "$DESTDIR")"
-	# haspd
-	local BUILDNAME=$2
-
-	test -d "$SOURCEPATH" || fatal "WINE: Source path '$SOURCEPATH' doesn't exist (possibly run with incorrect target path $DESTDIR)"
-	test -d "$DESTDIR" || fatal "WINE: Target path '$DESTDIR' doesn't exist"
-
-	# FIXMEP get_..._package always returns true
-	local SRCRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME)
-	test -r "$SRCRPM" || fatal "Source package for $BUILDNAME is not found"
-	local BINPKG=$(get_bin_package "$DESTDIR" $BUILDNAME)
-
-	# if binary is exists
-	if [ -r "$BINPKG" ] ; then
-		# if binary is newer than src.rpm, return OK
-		test "$BINPKG" -nt "$SRCRPM" && return 0
-	fi
-
-	if [ -z "$FORCEBUILD" ] ; then
-		is_autobuild_failed && fatal "Package $BUILDNAME need rebuild from $SRCRPM, but already was failed"
-	fi
-
-	$AROBOTDIR/../bin-wine/$BUILDNAME.sh -f $DIST $PROJECTVERSION && return 0
-
-	set_autobuild_failed
-	fatal "Package $BUILDNAME cannot rebuild from $SRCRPM"
-	return 1
-}
-
+# Args: BUILDSCRIPTDIR   PRODPATH                     BUILDNAME  [PRVERSION]
+# Example: bin-etercifs  /var/.../WINE@Etersoft/CIFS  etercifs   5.4.7
 check_and_refresh_component()
 {
-	local BUILDSCRIPT="$1"
-	# Etersoft/RX@Etersoft/last/SUSE/12
-	DESTDIR="$2"
-	# get_rpm_sources will fails if target is not exists
-	mkdir -p "$DESTDIR"
+	assert_var DIST
+	local BUILDSCRIPTDIR="$1"
+	# Etersoft/RX@Etersoft/last
+	local PRODPATH="$2"
 	# Etersoft/RX@Etersoft/last/sources
-	local SOURCEPATH="$(get_rpm_sources "$DESTDIR")"
+	local SOURCEPATH="$(get_sources_dir "$PRODPATH")"
 	# haspd
 	local BUILDNAME=$3
 	local PRVERSION=$4
 
+	# hack
 	if [ -z "$PRVERSION" ] ; then
 		# get PROJECT version from SOURCEPATH
 		PRVERSION=$(basename $(dirname $SOURCEPATH) )
 	fi
 
-	test -d "$SOURCEPATH" || fatal "Source path $SOURCEPATH is not exists (run with incorrect target path $DESTDIR)"
-	test -d "$DESTDIR" || fatal "Target path $DESTDIR is not exists"
-
 	# FIXMEP get_..._package always returns true
 	local SRCRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME)
 	test -r "$SRCRPM" || fatal "Source package for $BUILDNAME is not found"
-	local BINPKG=$(get_bin_package "$DESTDIR" $BUILDNAME)
+	local BINPKG=$(get_bin_package "$PRODPATH/$DIST" $BUILDNAME)
 
 	# if binary is exists
 	if [ -r "$BINPKG" ] ; then
@@ -103,11 +65,13 @@ check_and_refresh_component()
 		fi
 	fi
 
+	# needed for autobuild_failed
+	DESTDIR=$PRODPATH/$DIST
 	if [ -z "$FORCEBUILD" ] ; then
 		is_autobuild_failed && fatal "Package $BUILDNAME need rebuild from $SRCRPM, but already was failed"
 	fi
 
-	$AROBOTDIR/../$BUILDSCRIPT/$BUILDNAME.sh -f $DIST $PRVERSION && return 0
+	$AROBOTDIR/../$BUILDSCRIPTDIR/$BUILDNAME.sh -f $DIST $PRVERSION && return 0
 
 	set_autobuild_failed
 	fatal "Package $BUILDNAME cannot rebuild from $SRCRPM"
