@@ -53,6 +53,7 @@ other_copy_to "$arch" ALTLinux/p5 $distro_path/p5/branch
 other_copy_to "$arch" ALTLinux/Sisyphus $distro_path/Sisyphus
 other_copy_to "$arch" ALTLinux/p6 $distro_path/p6/branch
 other_copy_to "$arch" ALTLinux/p6 $distro_path/t6/branch
+other_copy_to "$arch" ALTLinux/p7 $distro_path/p7/branch
 
 arch=x86_64
 #copy_to "$arch" ALTLinux/4.1 $distro_path/4.1/branch
@@ -60,3 +61,4 @@ other_copy_to "$arch" ALTLinux/p5 $distro_path/p5/branch
 other_copy_to "$arch" ALTLinux/Sisyphus $distro_path/Sisyphus
 other_copy_to "$arch" ALTLinux/p6 $distro_path/p6/branch
 other_copy_to "$arch" ALTLinux/p6 $distro_path/t6/branch
+other_copy_to "$arch" ALTLinux/p7 $distro_path/p7/branch
