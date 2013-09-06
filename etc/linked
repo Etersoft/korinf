@@ -15,6 +15,7 @@ CentOS/6 Scientific/6
 x86_64/CentOS/6 x86_64/Scientific/6
 SLES/10 SLED/10
 SLES/11 SLED/11
+x86_64/SLES/11 x86_64/SLED/11
 SUSE/10.2 SUSE/10.1
 StartCom/5 CentOS/5
 Runtu/1.1 Ubuntu/6.06
