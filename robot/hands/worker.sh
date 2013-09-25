@@ -21,6 +21,8 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+
+
 fatal()
 {
 	echo $@
@@ -72,11 +74,26 @@ for TASKTORUN in $(list_tasks task.run) ; do
 	rm -f $TASKTORUN
 done
 
+COPYTASKDIR="${TASKDIR}/copytsks"
+if [ ! -d "${COPYTASKDIR}" ]
+then
+	mkdir -p "${COPYTASKDIR}"
+fi
+
 for TASKTORUN in $(list_tasks task) ; do
 	[ -e "$TASKTORUN" ] || continue
+	
+	NAMETASKTOCP=$(basename ${TASKTORUN})
+	FULLNAMECOPYTASK="${COPYTASKDIR}/${NAMETASKTOCP}.tsk"
+	
+	if [ ! -e "${FULLNAMECOPYTASK}" ]
+	then
+	    cp "${TASKTORUN}" "${FULLNAMECOPYTASK}"
+	fi
+	
 	flock $TASKTORUN test -e "$TASKTORUN.run" && continue
 	echo $$ >$TASKTORUN.run
 	$AROBOT/hands/buildtask.sh $TASKCOMMAND $TASKTORUN 2>&1
 	rm -f "$TASKTORUN.run"
+	
 done
-
