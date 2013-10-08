@@ -1,5 +1,5 @@
-PRODUCT="WINE@Etersoft 1.0 Local (коробочная версия, локальная лицензия)"
-COMPONENTNAME="WINE@Etersoft 1.0 Local"
+PRODUCT="WINE@Etersoft 2.0 Local (коробочная версия, локальная лицензия)"
+COMPONENTNAME="WINE@Etersoft 2.0 Local"
 ETERREGNUM="7ED1-FE1D"
 DIST="ALTLinux/p6"
 MAILTO="teh3@mail.ru"

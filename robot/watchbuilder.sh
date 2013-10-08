@@ -51,7 +51,7 @@ print_tasks()
 	for TASK in `ls -1 $TASKDIR/*.$EXT` ; do
 		. $TASK
 		# Выводим название файла и дату создания
-		stat -c "%n %y"
+		stat -c "%n %y" $TASK
 		echo
 		printf "%s %20s   %s\n %s %s\n" "$ETERREGNUM" "$DIST" "$COMPONENTNAME" "$MAILTO" "$FULLNAME"
 	done

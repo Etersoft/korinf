@@ -1,7 +1,7 @@
 PRODUCT="WINE@Etersoft 2.0 Local (лицензия для домашнего использования)"
 COMPONENTNAME="WINE@Etersoft 2.0 Local"
 ETERREGNUM="D735-BFD7"
-DIST="x86_64/Ubuntu/13.04"
+DIST="Ubuntu/13.04"
 DOWNLOADDIR="WINE@Etersoft/2.0"
 MAILTO="mackuzzz@gmail.com"
 FULLNAME='Кузнецов Максим Юрьевич'
