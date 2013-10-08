@@ -27,6 +27,11 @@ Mint/11 Ubuntu/11.04
 Mint/13 Ubuntu/12.04
 Mint/14 Ubuntu/12.10
 Mint/15 Ubuntu/13.04
+x86_64/Mint/10 x86_64/Ubuntu/10.04
+x86_64/Mint/11 x86_64/Ubuntu/11.04
+x86_64/Mint/13 x86_64/Ubuntu/12.04
+x86_64/Mint/14 x86_64/Ubuntu/12.10
+x86_64/Mint/15 x86_64/Ubuntu/13.04
 LinuxWizard/Server CentOS/5
 LinuxWizard/Desktop Ubuntu/10.04
 NauLinux/5 CentOS/5
