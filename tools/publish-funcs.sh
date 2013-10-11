@@ -34,7 +34,8 @@ add_and_remove()
 gen_baserepo()
 {
 	# run genbase only if change files
-	[ -n "$GENBASE" ] || return
+	[ -z "$GENBASE" ] && return
+
 	set_binaryrepo $(basename $1)
 	ssh git.eter genbases -b $BINARYREPO >/dev/null
 }

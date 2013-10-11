@@ -38,7 +38,7 @@ other_copy_to()
 	add_and_remove "$FPU" rx-etersoft
 
 	FPU="/var/ftp/pub/Etersoft/Postgre@Etersoft/$UNIPVERSION/$NARCH/$1"
-	for i in libpq5.2-9.0eter libpq5.2-9.0eter postgre-etersoft9.0 postgre-etersoft9.0 postgre-etersoft9.0-seltaaddon postgre-etersoft9.0-server; do
+	for i in libpq* postgre-etersoft* postgre-etersoft*-seltaaddon postgre-etersoft*-server; do
 		add_and_remove "$FPU" $i
 	done
 
