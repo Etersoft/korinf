@@ -4,13 +4,11 @@
 
 cd $(dirname $0)/.. || exit
 
-./publish_wine_to_our_distro.sh 2.0
+# wine
+WINEVER=2.1
+./publish_wine_to_our_distro.sh $WINEVER
+./publish_wine_to_our_distro.sh $WINEVER-testing
 
-# 1.0.12 conflicts with 2.0
-#./publish_wine_to_our_distro.sh 1.0.12
-
-./publish_wine_to_our_distro.sh 2.0-testing
-
+# other products
 ./publish_other_to_our_distro.sh stable
-
 ./publish_other_to_our_distro.sh testing
