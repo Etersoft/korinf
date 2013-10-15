@@ -6,11 +6,4 @@
 # install packages after build
 export BOOTSTRAP=1
 
-if [ -n "$1" ] ; then
-	LIST=$1
-	shift
-else
-	LIST=all
-fi
-
-. ../bin/korinf $LIST rpm-build-altlinux-compat /var/ftp/pub/Etersoft/Sisyphus $@
+. ../bin/korinf $@ rpm-build-altlinux-compat /var/ftp/pub/Etersoft/Sisyphus

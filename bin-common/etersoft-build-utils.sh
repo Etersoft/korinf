@@ -3,12 +3,5 @@
 # Author: Vitaly Lipatov <lav@etersoft.ru>
 # GNU Public License version 3
 
-if [ -n "$1" ] ; then
-        LIST=$1
-        shift
-else
-        LIST=all
-fi
-
-../bin/korinf $LIST etersoft-build-utils /var/ftp/pub/Etersoft/Sisyphus $@
+../bin/korinf $@ etersoft-build-utils /var/ftp/pub/Etersoft/Sisyphus
 
