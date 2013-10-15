@@ -117,15 +117,6 @@ build_package()
 }
 
 
-# FIXME: remove this func
-# build source packages according to REBUILDLIST
-# args: package_name
-build_srcrpm()
-{
-	MAKESPKG=1
-	build_package $@
-}
-
 print_build_project_options()
 {
 	echo "	-b - buildstrap (build if needed, install package(s) after build)"
@@ -140,7 +131,95 @@ print_build_project_options()
 	echo "	-R - check install requires with full output"
 }
 
-# args: 1) path to project dir (where versions) 2) package name [3) target subdir ] [ 4) other project version ]
+handle_arg()
+{
+	case "$1" in
+	-q)
+		QUIET=1
+		;;
+	-c)
+		CHECKPACKAGE=1
+		echo "Run checking package status"
+		;;
+	-b)
+		BOOTSTRAP=1
+		REBUILDPACKAGE=1
+		echo "Run with install built package after done"
+		;;
+	-B)
+		BOOTSTRAP=1
+		FORCEREBUILDPACKAGE=1
+		echo "Run with install built package after force build done"
+		;;
+	-f)
+		echo "Run with force to rebuild package"
+		REBUILDPACKAGE=1
+		;;
+	-F)
+		echo "Run with force to rebuild all packages"
+		REBUILDPACKAGE=1
+		FORCEREBUILDPACKAGE=1
+		;;
+	-i)
+		echo "Run install required package procedure"
+		INSTALLREQUIREDPACKAGE=1
+		;;
+	-I)
+		echo "Force install required package procedure"
+		INSTALLREQUIREDPACKAGE=1
+		FORCEREBUILDPACKAGE=1
+		;;
+	-r|-R)
+		CHECKREQUIRES="$1"
+		echo "Run check package requirements status"
+		;;
+	-*)
+		fatal "Unknown option: $1"
+		;;
+	*)
+		return 1
+		;;
+	esac
+}
+
+handle_optional_args()
+{
+	local ARG2="$2"
+	if [ -n "$1" ] ; then
+		#if [ -n "$ARG2" ] ; then
+		REBUILDLIST=$1
+		#else
+		#	ARG2=$1
+		#fi
+	fi
+
+	if [ -n "$ARG2" ] ; then
+		# FIXME: if last part already exists? (ran with /var/ftp/.../Wine-vanilla/1.7.4)
+		SP=$SP/$ARG2
+	else
+		test -d "$SP/last" && SP=$SP/last
+	fi
+}
+
+# FIXME: remove this func
+# build source packages according to REBUILDLIST
+# args: package_name
+build_srcrpm()
+{
+	MAKESPKG=1
+	build_package $@
+}
+
+
+
+# args:
+# 1. SP - path to project dir (where versions)
+# 2. BUILDNAME - package name
+# 3. TP - [target subdir]
+# 4. Distro/Version (build list, target_system)
+# optional:
+# 5. [other project version]
+# 6. and more: options
 # will set many external vars: CHECKPACKAGE, REBUILDPACKAGE, BOOTSTRAP, FORCEREBUILDPACKAGE, REBUILDPACKAGE, INSTALLREQUIREDPACKAGE, CHECKREQUIRES
 build_project()
 {
@@ -149,10 +228,12 @@ build_project()
 	local TP=$3
 	shift 3
 
+	local i
+
 	# 4 arg: possible it is options
 	if [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
 		echo "Korinf build script:"
-		echo "Usage: script [target_system] [project_version]"
+		echo "Usage: script [options] [target_system] [project_version]"
 		echo "	target_system - Mandriva/2009 or test, ALL, deb (lists from etc/lists) or all (by distr.list)"
 		echo "	project_version - 1.0.10 or last, testing, unstable"
 		echo "you can use following options:"
@@ -160,81 +241,12 @@ build_project()
 		fatal "Help message"
 	fi
 
-	if [ "$1" = "-q" ] ; then
-		QUIET=1
-		shift
-	fi
+	local GP=
+	for i in $@ ; do
+		handle_arg $i || GP="$GP $i"
+	done
 
-	if [ "$1" = "-c" ] ; then
-		CHECKPACKAGE=1
-		echo "Run checking package status"
-		shift
-	fi
-
-	if [ "$1" = "-b" ] ; then
-		BOOTSTRAP=1
-		REBUILDPACKAGE=1
-		echo "Run with install built package after done"
-		shift
-	fi
-
-	if [ "$1" = "-B" ] ; then
-		BOOTSTRAP=1
-		FORCEREBUILDPACKAGE=1
-		echo "Run with install built package after force build done"
-		shift
-	fi
-
-	if [ "$1" = "-f" ] ; then
-		echo "Run with force to rebuild package"
-		REBUILDPACKAGE=1
-		shift
-	fi
-
-	if [ "$1" = "-F" ] ; then
-		echo "Run with force to rebuild all packages"
-		REBUILDPACKAGE=1
-		FORCEREBUILDPACKAGE=1
-		shift
-	fi
-
-	if [ "$1" = "-i" ] ; then
-		echo "Run install required package procedure"
-		INSTALLREQUIREDPACKAGE=1
-		shift
-	fi
-
-	if [ "$1" = "-I" ] ; then
-		echo "Force install required package procedure"
-		INSTALLREQUIREDPACKAGE=1
-		FORCEREBUILDPACKAGE=1
-		shift
-	fi
-
-	if [ "$1" = "-r" ] || [ "$1" = "-R" ] ; then
-		CHECKREQUIRES="$1"
-		echo "Run check package requirements status"
-		shift
-	fi
-
-	# if unknown param
-	if [ -n "$1" ] && [ -z "${1/-?/}" ] ; then
-		fatal "Unknown option: $1"
-	fi
-
-	# 4/5 arg:
-	# do not shift args more
-	if [ -n "$1" ] ; then
-		REBUILDLIST=$1
-	fi
-
-	# 5/6 arg:
-	if [ -z "$2" ] ; then
-		test -d "$SP/last" && SP=$SP/last
-	else
-		SP=$SP/$2
-	fi
-
+	handle_optional_args $GP
 	# enable VERBOSE
 	if [ -z "$QUIET" ] ; then
 		export VERBOSE=1
@@ -245,9 +257,12 @@ build_project()
 	# set SOURCEPATH, add sources if not yet
 	if echo $TARGETPATH | grep -q /sources ; then
 		SOURCEPATH=$TARGETPATH
+		# drop sources from TARGETPATH if was set
+		TARGETPATH=$(dirname $TARGETPATH)
 	else
 		SOURCEPATH=$TARGETPATH/sources
 	fi
+
 
 	[ -n "$TARGETPATH" ] || fatal "Cannot find target path $SP, check it"
 
