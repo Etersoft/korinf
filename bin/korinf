@@ -40,80 +40,69 @@ if [ -z "$1" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
 	exit 1
 fi
 
-# publish to unstable by default
-ALPHA=
-if [ "$1" = "-v" ] ; then
-	ALPHA=$2
-	ALPHAARG="$1 $2"
-	shift 2
-fi
-
-PARAM=
-
-# unused
 is_option()
 {
+	# FIXME: bashism
 	[ -n "$1" ] && [ -z "${1/-?/}" ]
 }
 
-# TODO: change to a cycle
-# if some option passed
-if [ -n "$1" ] && [ -z "${1/-?/}" ] ; then
-	PARAM="$PARAM $1"
+OPTIONS=
+ARGS=
+
+# parse options
+while test $# -gt 0
+do
+	if is_option $1 ; then
+		if [ "$1" = "-v" ] ; then
+			ALPHA=$2
+			ALPHAARG="$1 $2"
+			shift 2
+			continue
+		fi
+		OPTIONS="$OPTIONS $1"
+	else
+		ARGS="$ARGS $1"
+	fi
 	shift
-fi
+done
 
-# if some 2nd option
-if [ -n "$1" ] && [ -z "${1/-?/}" ] ; then
-	PARAM="$PARAM $1"
- 	shift
-fi
+set -- $ARGS
 
-# if some 3nd option
-if [ -n "$1" ] && [ -z "${1/-?/}" ] ; then
-	PARAM="$PARAM $1"
-	shift
-fi
-
-non_option()
-{
-	[ -n "$1" ] && [ -n "${1/-?/}" ]
-}
-
-if non_option "$3" && is_dirpath "$3"; then
+# parse other positional params
+if is_dirpath "$3"; then
 	# System/Version|ALL package target/path
 	REBUILDLIST="$1"
 	BUILDNAME="$2"
 	ETERDESTSRPM="$3"
 	shift 3
-elif non_option "$3" && is_dirpath "$2"; then
+elif is_dirpath "$2"; then
 	# package target/path System/Version|ALL
 	REBUILDLIST="$3"
 	BUILDNAME="$1"
 	ETERDESTSRPM="$2"
 	shift 3
-elif non_option "$2" && is_dirpath "$2"; then
+elif is_dirpath "$2"; then
 	# package target/path
 	BUILDNAME="$1"
 	ETERDESTSRPM="$2"
 	shift 2
-elif non_option "$2" ; then
+elif [ -n "$2" ] ; then
 	# System/Version|ALL package
 	REBUILDLIST="$1"
 	BUILDNAME="$2"
 	shift 2
-elif non_option "$1" ; then
+elif [ -n "$1" ] ; then
 	# package
 	BUILDNAME="$1"
 	shift
 else
-	fatal "Cannot recognize '$@' options"
+	fatal "Cannot recognize '$@' params"
 fi
 
 # TODO: for BuildFarm we had packagename by default
 SUBDIR=
 
-[ -n "$PARAM$*" ] && echo "Run with additional options: ' $PARAM $@'"
+[ -n "$OPTIONS" ] && echo "Run with additional options: '$OPTIONS'"
 
 if [ -n "${BUILDNAME/*.spec/}" ] ; then
 	# if package name, not spec
@@ -121,7 +110,7 @@ if [ -n "${BUILDNAME/*.spec/}" ] ; then
 
 	# rearrange REBUILDLIST
 	#QUIET=1 TARGETPATH=$ETERDESTSRPM set_rebuildlist
-	build_project $ETERDESTSRPM "$BUILDNAME" "$SUBDIR" "$REBUILDLIST" $ALPHA $PARAM $@
+	build_project $ETERDESTSRPM "$BUILDNAME" "$SUBDIR" "$REBUILDLIST" $ALPHA $OPTIONS
 	exit $?
 else
 	# if run with spec
@@ -143,4 +132,4 @@ fi
 
 test -d "$ETERDESTSRPM" || fatal "You need run with exists dir to publish src.rpm project (I checked $ETERDESTSRPM, it is non exists)"
 
-build_project $ETERDESTSRPM/.. "$BUILDNAME" "$SUBDIR" "$REBUILDLIST" $ALPHA $PARAM $@
+build_project $ETERDESTSRPM/.. "$BUILDNAME" "$SUBDIR" "$REBUILDLIST" $ALPHA $OPTIONS
