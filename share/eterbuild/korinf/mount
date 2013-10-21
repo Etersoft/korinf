@@ -64,10 +64,13 @@ mount_linux()
 	#ls -l $BUILDROOT
 	test -d $BUILDROOT/etc/ || fatal "Linux system is missed in $BUILDROOT"
 
-	$SUDO su $LOCUSER -c "mkdir -p $BUILDROOT/proc $BUILDROOT/sys $BUILDROOT/home/$INTUSER $BUILDROOT/srv/wine"
-	$SUDO mount -t proc proc $BUILDROOT/proc || { warning "Cannot mount proc" ; return 1 ; }
+	# TODO: need create these dir as root!
+	# $BUILDROOT/run
+	$SUDO su $LOCUSER -c "mkdir -p $BUILDROOT/proc $BUILDROOT/sys $BUILDROOT/tmp $BUILDROOT/home $BUILDROOT/home/$INTUSER $BUILDROOT/srv/wine"
+	$SUDO mount -t proc proc $BUILDROOT/proc || { warning "Cannot mount /proc" ; return 1 ; }
 	$SUDO mount -t sysfs none $BUILDROOT/sys || { warning "Cannot mount /sys" ; return 1 ; }
-	$SUDO mount -t devpts none $BUILDROOT/dev/pts || { warning "Cannot mount /sys" ; return 1 ; }
+	#$SUDO mount $BUILDROOT $BUILDROOT/sys || { warning "Cannot mount /sys" ; return 1 ; }
+	$SUDO mount -t devpts none $BUILDROOT/dev/pts -o nosuid,noexec,gid=tty,mode=620 || { warning "Cannot mount /sys" ; return 1 ; }
 
 	if [ -d "$BUILDROOT/dev/shm" ] ; then
 		$SUDO mount -t tmpfs shmfs $BUILDROOT/dev/shm || { warning "Cannot mount /dev/shm" ; return 1 ; }
@@ -75,6 +78,13 @@ mount_linux()
 
 	echo "Mount home $BUILDERHOME ..."
 	$SUDO mount $BUILDERHOME $BUILDROOT/home/$INTUSER --bind || { warning "Cannot mount home" ; return 1 ; }
+
+	echo "Mount /tmp $BUILDROOT-tmp ..."
+	mkdir -p $BUILDROOT-tmp
+	# TODO: not allowed in sudo
+	#$SUDO chown root:root $BUILDROOT-tmp
+	$SUDO chmod 01777 $BUILDROOT-tmp
+	$SUDO mount $BUILDROOT-tmp $BUILDROOT/tmp --bind || { warning "Cannot mount /tmp" ; return 1 ; }
 
 	#echo Mount srv/wine...
 	#$SUDO mount /net/wine $BUILD/srv/wine --bind || { warning "Cannot mount home" ; return 0 ; }
@@ -105,7 +115,7 @@ end_umount()
 	fi
 
 	echo "Unmounting and cleaning $BUILDROOT..."
-	for i in /proc/bus/usb /proc/sys/fs/binfmt_misc /proc /sys /home/$INTUSER /dev/shm /dev/pts / ; do
+	for i in /proc/bus/usb /proc/sys/fs/binfmt_misc /proc /sys /run /home/$INTUSER /dev/shm /dev/pts /tmp / ; do
 		u=$BUILDROOT$i
 		if [ -d $u ] && mount | grep $i >/dev/null ; then
 			if ! $SUDO umount $u ; then
