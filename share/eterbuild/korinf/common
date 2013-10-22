@@ -212,19 +212,19 @@ set_target_var()
 # $1 - dist like CentOS/5.4
 get_rpm_args()
 {
-        grep "^$2 " $KORINFETC/rpmopt/rpm | cut -f2-100 -d" "
+        grep "^$2 " $KORINFETC/rpmopt/rpm 2>/dev/null | cut -f2-100 -d" "
 }
 
 # $1 - dist like CentOS/5.4
 get_remote_host()
 {
-        grep "^$1 " $KORINFETC/remote | ( read d host commands ; echo $host ; )
+        grep "^$1 " $KORINFETC/remote 2>/dev/null | ( read d host commands ; echo $host ; )
 }
 
 # $1 - dist like CentOS/5.4
 get_remote_commands()
 {
-        grep "^$1 " $KORINFETC/remote | ( read d host commands ; echo $commands ; )
+        grep "^$1 " $KORINFETC/remote 2>/dev/null | ( read d host commands ; echo $commands ; )
 }
 
 is_remote_build()
