@@ -44,8 +44,6 @@ build_package()
 	# FIXME: for compatibility
 	set_log_dir
 
-	#echo
-	#echo "=============================================== "
 	echo | write_report
 
 	local BUILDNAME
@@ -254,6 +252,12 @@ build_project()
 	fi
 
 	TARGETPATH=$(readlink -f $SP)
+	
+	if [ -n "$ADEBUG" ]
+	then
+	    assert_show_debug_info TARGETPATH SP
+	    assert_show_debug_call_stack
+	fi
 
 	# set SOURCEPATH, add sources if not yet
 	if echo $TARGETPATH | grep -q /sources ; then

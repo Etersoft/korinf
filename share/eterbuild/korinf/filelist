@@ -28,6 +28,7 @@ expand_filelist()
         declare -a ar
         ar=( $@ )
         for i in `seq 0 $(( ${#ar[@]} - 1))`; do
+        
                 echo -n "${ar[i]}*.${PKGFORMAT} "
         done
 }
@@ -52,11 +53,6 @@ prepare_filelist()
 	# expand file masks by rpm
 	EXPRPMMAINFILES=$(PKGFORMAT=rpm expand_filelist $MAINFILESLIST)
 	EXPRPMEXTRAFILES=$(PKGFORMAT=rpm expand_filelist $EXTRAFILESLIST)
-
-	# check for ebuild if gentoo
-	if [ "$PKGVENDOR" = "gentoo" ] ; then
-		EXPMAINFILES="$EXPMAINFILES ${BUILDNAME}*.ebuild"
-	fi
 
 	# do lowercase for deb packages only
 	if [ "$PKGFORMAT" = "deb" ] ; then

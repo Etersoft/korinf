@@ -78,7 +78,8 @@ convert_rpm()
 	case $PKGVENDOR in
 		"gentoo")
 			kormod converts/gentoo
-			convert_gentoo || fatal "Cannot convert for Gentoo"
+#			convert_gentoo || fatal "Cannot convert for Gentoo"
+			convert_gentoo
 			RES=$?
 			;;
 		"archlinux")

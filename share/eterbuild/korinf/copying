@@ -76,6 +76,7 @@ copying_packages_by_list()
 			return 1
 		fi
 		cp -v $i $destdir/ || { error "Cannot copy new packages $expfiles" ; return 1; }
+		chmod --verbose 0664 "$destdir/$i"
 	done
 	make_md5sum $destdir/
 	true

@@ -26,10 +26,35 @@ load_mod tarball
 # install built packages
 install_built()
 {
-	assert_var DISTRNAME INTBUILT EPMCMD
-
+	assert_var DISTRNAME INTBUILT EXPMAINFILES EPMCMD
+	
 	# try use preinstalled epm
-	run_in_chroot "cd $INTBUILT && epm --verbose --auto --force install ${EXPMAINFILES} ${EXPEXTRAFILES}" && return
+	####
+	# for gentoo epm not use !
+	####
+	if [ $PKGVENDOR == "gentoo" ]
+	then
+		run_in_chroot "cd $INTBUILT && ls -a && ./${INSTALLBUILTSCRIPTNAME}"
+		
+		local RESULTRET=$?
+		
+		if [ "$ADEBUG" == "1" ]
+		then
+			echo
+			echo "---------------------------------------------"
+			echo "after run_in_chroot result : $RESULTRET"
+			echo "---------------------------------------------"
+			echo
+		fi
+		
+		if [ "$RESULTRET" != "0" ]
+		then
+			set_build_failed
+		fi
+		return
+	else
+		run_in_chroot "cd $INTBUILT && epm --verbose --auto --force install ${EXPMAINFILES} ${EXPEXTRAFILES}" && return
+	fi
 
 	# if status is skipped
 	if [ "$?" = "22" ] ; then
@@ -41,10 +66,34 @@ install_built()
 		set_build_failed
 		return
 	fi
-
+	
 	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || { warning "Can't get install command" ; return 1 ; }
-	echo "Install built packages with $INSTALLCOMMAND command"
-	run_in_chroot "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
+	
+	if [ "$ADEBUG" == "1" ]
+	then
+		echo
+		echo "============================================================"
+		echo "Install built packages with $INSTALLCOMMAND command"
+		echo "============================================================"
+		echo
+	fi
+	
+	if [ $PKGVENDOR == "gentoo" ]
+	then
+		run_in_chroot "cd $INTBUILT && ls -a && ./${INSTALLBUILTSCRIPTNAME}"
+		
+		local RESULTRET=$?
+
+		if [ "$RESULTRET" != "0" ]
+		then
+			set_build_failed
+		fi
+		return
+	else
+		run_in_chroot "cd $INTBUILT && ls -a && $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
+	fi
+	
+#	run_in_chroot "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
 }
 
 # Install required packages for build under the system (f.i., Debian/6.0)

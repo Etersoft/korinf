@@ -9,6 +9,7 @@
 kormod korinf
 
 SKIPBUILDLIST="FreeBSD OpenSolaris SunOS Windows"
+#export ADEBUG=1
 
 build_project $WINEPUB_PATH/../CIFS@Etersoft etercifs "" $@
 #build_project $WINEPUB_PATH/../CIFS@Etersoft dkms-etercifs "" $@

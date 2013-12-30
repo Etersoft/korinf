@@ -71,6 +71,7 @@ case $DISTRNAME in
 	[ -n "$BOOTSTRAP" ] && logit "install built" install_bsd
 	logit "cleaning" cleaning_bsd || return 1
 	;;
+	
 
 "OpenSolaris")
 	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
