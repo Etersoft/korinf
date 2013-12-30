@@ -55,7 +55,17 @@ build_windows()
 
         #mkdir -p $RPMDIR/SPECS $RPMDIR/SRPMS
         #rpm -ivv $BUILDERHOME/tmp/${WINNAME}*.src.rpm
-
+        
+        if [ -n "$ADEBUG" -a "$ADEBUG" == "1" ]
+	then
+		echo
+		echo "============================"
+		echo "RPMTOPDIR = ${RPMTOPDIR}"
+		echo "WINNAME = ${WINNAME}"
+		echo "============================"
+		echo
+	fi
+	
         cd $RPMTOPDIR/SPECS
 		#TODO: test specfile?
 		#TODO: use uni_rpmbuild

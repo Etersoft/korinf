@@ -75,7 +75,13 @@ do_need_build_package()
 
 	FILENAME=$(get_bin_package "$DESTDIR" $BUILDNAME check)
 	# (extra dir already checked in get_bin_package)
-
+	
+	if [ "$ADEBUG" == "1" ]
+	then
+		assert_show_debug_info FILENAME BUILDSRPM
+		assert_show_debug_call_stack
+	fi
+	
 	[ -n "$BUILDSRPM" ] || fatal "BUILDSRPM is empty"
 	if [ -r "$FILENAME" ] ; then
 		[ "$BUILDSRPM" -nt "$FILENAME" ] || return 1
