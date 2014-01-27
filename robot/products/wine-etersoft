@@ -29,6 +29,20 @@
 # FIXME: если в имени запятая, разделяет на два адреса
 #
 
+
+
+# Function instrKRF() search string $2 in string $1.
+# Return value - integer in [0..255]
+# 0 - true
+# NOT 0 - false
+#
+
+instrKRF()
+{
+        echo "$1" | grep -q "$2"
+}
+
+
 prepare_wine_etersoft_license()
 {
 	assert_var PROJECTVERSION TYPE_LICENSE PRODUCT AROBOTDIR
@@ -125,9 +139,12 @@ prepare_wine_etersoft()
 	# skip on FreeBSD
 	if ! echo "$DIST" | grep -q "FreeBSD" ; then
 		assert_present_package $FTPDIR haspd
-		if ! echo "$DIST" | grep -q "ArchLinux" ; then
+		
+		if ! $(instrKRF "$DIST" "ArchLinux") && ! $(instrKRF "$DIST" "Gentoo")
+		then
 			assert_present_package $FTPDIR haspd-modules
 		fi
+
 		if [ "$TYPE" != "Local" ] ; then
 			assert_present_package $FTPDIR etercifs
 		fi
