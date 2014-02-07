@@ -4,8 +4,8 @@
 #
 #  Main korinf script for build packages
 #
-#  Copyright (c) Etersoft <http://etersoft.ru> 2005-2009
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005-2009, 2013
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2013
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -36,7 +36,6 @@ exit_handler()
     end_umount
     exit $rc
 }
-
 
 # build binary packages according to REBUILDLIST
 # arg: package_name
@@ -212,6 +211,8 @@ build_srcrpm()
 
 
 
+# build_project /var/ftp/pub/Etersoft/WINE@Etersoft wine-etersoft WINE -f 2.1
+
 # args:
 # 1. SP - path to project dir (where versions)
 # 2. BUILDNAME - package name
@@ -233,7 +234,7 @@ build_project()
 	# 4 arg: possible it is options
 	if [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
 		echo "Korinf build script:"
-		echo "Usage: script [options] [target_system] [project_version]"
+		echo "Usage: script [options] target_system [project_version]"
 		echo "	target_system - Mandriva/2009 or test, ALL, deb (lists from etc/lists) or all (by distr.list)"
 		echo "	project_version - 1.0.10 or last, testing, unstable"
 		echo "you can use following options:"
