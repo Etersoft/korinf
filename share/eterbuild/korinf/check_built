@@ -25,9 +25,11 @@
 # used TARGETPATH
 check_built_package()
 {
-	local NAME FILEDATE FILESIZE BASENAME FILENAME
+	assert_var TARGETPATH BUILDSRPM
 
-	BUILDNAME=$1
+	local NAME FILEDATE FILESIZE BASENAME FILENAME DESTDIR
+
+	local BUILDNAME=$1
 
 	for i in $(get_distro_list $REBUILDLIST) ; do
 
@@ -70,6 +72,8 @@ check_built_package()
 # use external $BUILDSRPM $DESTDIR $MAINFILESLIST
 do_need_build_package()
 {
+	assert_var DESTDIR
+
 	local BUILDNAME=$1
 	local FILENAME
 

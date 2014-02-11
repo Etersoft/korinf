@@ -87,6 +87,7 @@ copying_sources()
 	assert_var dist
 	# We need generated src.rpm in any case (only on the private ftp)
 	if [ -r "$TARGETSRPM" ] && [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
+		assert_var BUILDNAME SOURCEPATH
 		echo "Copying converted source package"
 		mkdir -p "$SOURCEPATH/$dist/"
 		rm -f "$SOURCEPATH/$dist/$BUILDNAME-[0-9]*.src.rpm" 2>/dev/null

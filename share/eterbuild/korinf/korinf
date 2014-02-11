@@ -70,19 +70,24 @@ build_package()
 
 	# HACK: Url for remote building
 	SOURCEURL=$(echo $SOURCEPATH | sed -e "s|/var/ftp/|ftp://server/|g")
+	readonly SOURCEURL
 
 	TARGETBUILDNAME=$BUILDNAME
-	# HACK: For systems with portage change wine package name
+	# FIXME HACK: For systems with portage change wine package name
 	[ "$BUILDNAME" = "wine" ] && TARGETBUILDNAME="wine-etersoft-public"
+	readonly TARGETBUILDNAME
 
 	# IMPROVE: get src.rpm from some private dir
 	BUILDSRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME || fatal "Can't find package for $BUILDNAME")
+	readonly BUILDSRPM
 
 	PACKAGEVERSION=$(rpm -qp "$BUILDSRPM" --queryformat="%{VERSION}")
 	[ -n "$PACKAGEVERSION" ] || fatal "Can't get version from $BUILDSRPM package"
+	readonly PACKAGEVERSION
 
 	PACKAGERELEASE=$(rpm -qp "$BUILDSRPM" --queryformat="%{RELEASE}" | sed -e "s|^alt|eter|g")
 	[ -n "$PACKAGERELEASE" ] || fatal "Can't get release from $BUILDSRPM package"
+	readonly PACKAGERELEASE
 
 	# always failed if gpg is missed
 	rpm --checksig $BUILDSRPM || fatal "GPG check failed"
@@ -267,17 +272,18 @@ build_project()
 	else
 		SOURCEPATH=$TARGETPATH/sources
 	fi
-
+	readonly SOURCEPATH
 
 	[ -n "$TARGETPATH" ] || fatal "Cannot find target path $SP, check it"
 
-	PROJECTVERSION=$(basename $TARGETPATH)
+	readonly PROJECTVERSION=$(basename $TARGETPATH)
 	[ -n "$ADEBUG" ] && echo "PROJECTVERSION=$PROJECTVERSION"
 
 	# set according to base TARGETPATH, so set before TP
 	set_rebuildlist
 
 	[ -z "$TP" ] || TARGETPATH=$TARGETPATH/$TP
+	readonly TARGETPATH
 
 	build_package $BUILDNAME
 }

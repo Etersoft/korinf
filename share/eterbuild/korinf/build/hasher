@@ -25,6 +25,9 @@ load_mod rpm hasher
 
 function build_in_hasher()
 {
+	assert_var DISTRVERSION BUILDARCH DESTDIR BUILDERHOME RPMDIR
+	assert_var LOGFILE
+
 	set_target_type $(get_altdistr_mod $DISTRVERSION)
 	detect_target_env >>$LOGFILE 2>&1
 	# workaround for detect needed path build for other target arch
