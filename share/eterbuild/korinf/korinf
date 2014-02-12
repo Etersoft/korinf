@@ -255,8 +255,8 @@ build_project()
 	
 	if [ -n "$ADEBUG" ]
 	then
-	    assert_show_debug_info TARGETPATH SP
-	    assert_show_debug_call_stack
+	    debug_print_var TARGETPATH SP
+	    debug_print_backtrace
 	fi
 
 	# set SOURCEPATH, add sources if not yet

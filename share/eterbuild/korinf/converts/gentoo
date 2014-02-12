@@ -34,22 +34,6 @@ export BUILDSCRIPTRUNEBUILD="build_packet_tbz2.sh"
 export INSTALLBUILTSCRIPTNAME="install_built_tbz2.sh"
 
 
-create_if_not_exist_dir()
-{
-	if [ -n "$ADEBUG" ]
-	then
-	    ARG_01=$1
-	    assert_show_debug_info ARG_01
-	fi
-	
-	if [ ! -d "$1" ]
-	then
-		mkdir -p --verbose "$1"
-	fi
-}
-
-
-
 # Function create_build_script_in_chroot()
 # prepare script into chroot for call ebuild with
 # true setting variables for overlay Portage
@@ -60,8 +44,8 @@ create_build_script_in_chroot()
 	then
 	    ARG_01=$1
 	    ARG_02=$2
-	    assert_show_debug_info ARG_01 ARG_02
-	    assert_show_debug_call_stack
+	    debug_print_var ARG_01 ARG_02
+	    debug_print_backtrace
 	fi
 	
 # Names and values variables is names and values inside chroot !
@@ -100,8 +84,8 @@ create_install_script_in_chroot()
 	then
 	    ARG_01=$1
 	    ARG_02=$2
-	    assert_show_debug_info ARG_01 ARG_02
-	    assert_show_debug_call_stack
+	    debug_print_var ARG_01 ARG_02
+	    debug_print_backtrace
 	fi
 	
 ## Names and values variables is names and values inside chroot !
@@ -135,7 +119,7 @@ create_ebuild()
 	if [ -n "$ADEBUG" ]
 	then
 	    ARG_01=$1
-	    assert_show_debug_info ARG_01 PKGREQLIST QQQRDEPEND SRC_URI
+	    debug_print_var ARG_01 PKGREQLIST QQQRDEPEND SRC_URI
 	fi
 
 # Into PKGLICENSE symbols '(' ')' is not valid - replace its
@@ -197,12 +181,12 @@ convert_gentoo()
 	local PTGPKGDIR="${PTGOVERLAY}/${PKGDIROFOVERLAY}"
 	local PTGTMPDIR="${BUILDERHOME}/${TMPDIROFOVERLAY}"
 	
-	assert_show_debug_info BUILTBINPKGLIST BUILDNAME TARGETBUILDNAME
+	debug_print_var BUILTBINPKGLIST BUILDNAME TARGETBUILDNAME
 
-	create_if_not_exist_dir "${PTGOVERLAY}/${PACKETCATHEGORY}/${BUILDNAME}"
-	create_if_not_exist_dir ${PTGDISTDIR}
-	create_if_not_exist_dir ${PTGPKGDIR}
-	create_if_not_exist_dir ${PTGTMPDIR}
+	mkdir -p --verbose "${PTGOVERLAY}/${PACKETCATHEGORY}/${BUILDNAME}"
+	mkdir -p --verbose "${PTGDISTDIR}"
+	mkdir -p --verbose "${PTGPKGDIR}"
+	mkdir -p --verbose "${PTGTMPDIR}"
 	
 	local BUILDPACKNAME="$BUILDNAME-$PACKAGEVERSION-$PACKAGERELEASE$PKGVENDOR.$PKGARCH"
 	local FNAME="$BUILDPACKNAME.$PKGFORMAT"
@@ -241,8 +225,8 @@ convert_gentoo()
 	
 	if [ -n "$ADEBUG" ]
 	then
-	    assert_show_debug_info MAINFILESLIST EXTRAFILESLIST EXPMAINFILES
-	    assert_show_debug_call_stack
+	    debug_print_var MAINFILESLIST EXTRAFILESLIST EXPMAINFILES
+	    debug_print_backtrace
 	fi
 	
 # re-expand file masks by PKGFORMAT
@@ -251,7 +235,7 @@ convert_gentoo()
 
 	if [ -n "$ADEBUG" ]
 	then
-	    assert_show_debug_info MAINFILESLIST EXTRAFILESLIST EXPMAINFILES
+	    debug_print_var MAINFILESLIST EXTRAFILESLIST EXPMAINFILES
 	fi
 
 	create_install_script_in_chroot "${TBZ2NAME}" "${PTGTMPDIR}/${INSTALLBUILTSCRIPTNAME}"

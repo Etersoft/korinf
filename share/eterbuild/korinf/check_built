@@ -78,8 +78,8 @@ do_need_build_package()
 	
 	if [ -n "$ADEBUG" ]
 	then
-	    assert_show_debug_info FILENAME BUILDSRPM
-	    assert_show_debug_call_stack
+	    debug_print_var FILENAME BUILDSRPM
+	    debug_print_backtrace
 	fi
 	
 	[ -n "$BUILDSRPM" ] || fatal "BUILDSRPM is empty"
