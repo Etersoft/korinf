@@ -26,7 +26,7 @@
 load_mod repl
 kormod converts/common
 
-# converts ALT src.rpm to target src.rpm
+# converts ALT src.rpm to target src.rpm and send it to build system
 # used BUILDERHOME to put in src.rpm
 convert_rpm_to_target()
 {

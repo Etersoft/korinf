@@ -22,6 +22,7 @@
 ##
 
 
+# TODO: remove it (after fix https://bugs.etersoft.ru/show_bug.cgi?id=8345)
 check_alien()
 {
     if (alien -h 2>&1 | grep -qws "depends" ); then
