@@ -25,7 +25,7 @@ load_mod rpm hasher
 
 function build_in_hasher()
 {
-	assert_var DISTRVERSION BUILDARCH DESTDIR BUILDERHOME RPMDIR
+	assert_var DISTRVERSION BUILDARCH DESTDIR RPMDIR
 	assert_var LOGFILE
 
 	set_target_type $(get_altdistr_mod $DISTRVERSION)
@@ -52,8 +52,6 @@ function build_in_hasher()
 		echo "Clean only the same names from hasher"
 		rm -rf $BUILTRPM/*${BUILDNAME}*
 	fi
-
-	rm -f $BUILDERHOME/buildenv.txt
 
 	# FIXME: rewrite spec in hasher?
 	# FIXME: install rpm package in temp dir
