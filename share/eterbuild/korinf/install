@@ -66,34 +66,10 @@ install_built()
 		set_build_failed
 		return
 	fi
-	
-	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || { warning "Can't get install command" ; return 1 ; }
-	
-	if [ "$ADEBUG" == "1" ]
-	then
-		echo
-		echo "============================================================"
-		echo "Install built packages with $INSTALLCOMMAND command"
-		echo "============================================================"
-		echo
-	fi
-	
-	if [ $PKGVENDOR == "gentoo" ]
-	then
-		run_in_chroot "cd $INTBUILT && ls -a && ./${INSTALLBUILTSCRIPTNAME}"
-		
-		local RESULTRET=$?
 
-		if [ "$RESULTRET" != "0" ]
-		then
-			set_build_failed
-		fi
-		return
-	else
-		run_in_chroot "cd $INTBUILT && ls -a && $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
-	fi
-	
-#	run_in_chroot "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
+	# Bootstrap install eepm
+	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || { warning "Can't get install command" ; return 1 ; }
+	run_in_chroot "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
 }
 
 # Install required packages for build under the system (f.i., Debian/6.0)
