@@ -85,6 +85,7 @@ if [ -r "/etc/lsb-release" ] && [ ! -r "/etc/altlinux-release" ] ; then
 		SYSTEM="x86_64/$SYSTEM"
 	fi
 	EXT=deb
+
 else
 	EXT=rpm
 fi
@@ -110,6 +111,8 @@ if cd $TARGETPATH ; then
 	done
 
 	install_pkg
+	RESULT=$(echo $?)
+	[ $RESULT -eq 100 ] && echo "There are no proper packages in Sisyphus directory or wrong version" >&2
 fi
 
 #############
