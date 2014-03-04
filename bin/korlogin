@@ -48,7 +48,6 @@ if [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
 	echo "Use: korlogin System/Version [-r] [command]" >&2
 	echo "	run without params for get available systems"
 	echo "	-r - login as root"
-	#echo "	-n - login via network (unsupported now)"
 	exit 0
 fi
 
@@ -69,7 +68,13 @@ parse_dist_name $SYS
 
 if [ "$DISTRNAME" = "ALTLinux" ] ; then
 	echo "ALT Linux uses build process with hasher..."
-	docmd loginhsh -b $DISTRVERSION -i
+	HSETARCH=
+	[ "$BUILDARCH" = "$SYSARCH" ] || HSETARCH="setarch $BUILDARCH"
+	HDIR="$($HSETARCH loginhsh -q -d -b $DISTRVERSION)"
+	HPARAM=
+	[ -d "$HDIR" ] || HPARAM="$HPARAM -i"
+	[ "$USERCO" = "--user" ] || HPARAM="$HPARAM -o"
+	docmd $HSETARCH loginhsh -b $DISTRVERSION $HPARAM
 	exit
 fi
 
