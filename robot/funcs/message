@@ -36,12 +36,16 @@ fatal()
 
 	echo "$@" >&2
 
-	send_fatal "$@" || exit_now 1
+	send_fatal "$@"
 
-	DATE=`date`
-	echo >>$TASK
-	echo "# build FAILED at $DATE (Error: ${@})" >>$TASK
-	[ -e "$TASK" ] && flock $TASK mv -f $TASK ${TASK}.failed
+	if [ -e "$TASK" ] ; then
+		DATE=`date`
+		echo >>$TASK
+		echo "# build FAILED at $DATE (Error: ${@})" >>$TASK
+		flock $TASK mv -f $TASK ${TASK}.failed
+	else
+		echo "Task file $TASK is missed at this moment." >&2
+	fi
 	exit_now 1
 }
 
