@@ -30,6 +30,7 @@ function build_in_hasher()
 
 	set_target_type $(get_altdistr_mod $DISTRVERSION)
 	detect_target_env >>$LOGFILE 2>&1
+	# use loginhsh -q -d here
 	# workaround for detect needed path build for other target arch
 	HASHERDIR=$(set_hasherdir; echo $HASHERDIR )
 	BUILTRPM=$HASHERDIR/repo/$BUILDARCH/RPMS.hasher
