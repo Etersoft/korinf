@@ -1,8 +1,6 @@
-ALTLinux/p6
-Ubuntu/10.04
-Ubuntu/11.10
-Fedora/16
-Mandriva/2010.2
-SUSE/11.4
-#Special/3.0
-#FreeBSD/6.3
+ALTLinux/p7
+Ubuntu/12.04
+Fedora/20
+Mandriva/2012
+SUSE/12.3
+ROSA/2012

@@ -6,6 +6,7 @@ ASPLinuxServer/V CentOS/5
 Slackware/12 MOPSLinux/6.0
 RHEL/4 Scientific/4.1
 RHEL/5 CentOS/5
+MCBC/5 CentOS/5
 RHEL/6 Scientific/6
 x86_64/RHEL/5 CentOS/5
 x86_64/RHEL/6 Scientific/6
