@@ -12,6 +12,7 @@ install:
 	install -m 755 bin/korexec $(bindir)/korexec
 	install -m 644 etc/korinf $(sysconfdir)/eterbuild/
 	install -m 644 etc/linked $(sysconfdir)/eterbuild/
+	install -m 644 etc/remote $(sysconfdir)/eterbuild/
 	cp -a etc/lists/* $(sysconfdir)/eterbuild/lists/
 	install -m 644 etc/rpmopt/* $(sysconfdir)/eterbuild/rpmopt/
 	cp -ap share/eterbuild/korinf/* $(pkgdatadir)/korinf/ || :
