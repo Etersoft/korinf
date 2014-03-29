@@ -18,7 +18,7 @@ SLES/11 SLED/11
 x86_64/SLES/11 x86_64/SLED/11
 SUSE/10.2 SUSE/10.1
 StartCom/5 CentOS/5
-Runtu/1.1 Ubuntu/6.06
+#Runtu/1.1 Ubuntu/6.06
 Runtu/3.0 Ubuntu/8.04
 InfraLinux/8.10 Ubuntu/8.10
 InfraLinux/9.04 Ubuntu/9.04
@@ -27,12 +27,15 @@ Mint/11 Ubuntu/11.04
 Mint/13 Ubuntu/12.04
 Mint/14 Ubuntu/12.10
 Mint/15 Ubuntu/13.04
+Mint/16 Ubuntu/13.10
 x86_64/Mint/10 x86_64/Ubuntu/10.04
 x86_64/Mint/11 x86_64/Ubuntu/11.04
 x86_64/Mint/13 x86_64/Ubuntu/12.04
 x86_64/Mint/14 x86_64/Ubuntu/12.10
 x86_64/Mint/15 x86_64/Ubuntu/13.04
+x86_64/Mint/16 x86_64/Ubuntu/13.10
 LinuxWizard/Server CentOS/5
+LinuxWizard/6 CentOS/6
 LinuxWizard/Desktop Ubuntu/10.04
 NauLinux/5 CentOS/5
 ArchLinux/CUR ArchLinux/2013.06

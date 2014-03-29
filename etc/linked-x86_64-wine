@@ -3,9 +3,11 @@ x86_64/Ubuntu/12.04 Ubuntu/12.04
 x86_64/Ubuntu/12.10 Ubuntu/12.10
 x86_64/Ubuntu/13.04 Ubuntu/13.04
 x86_64/Ubuntu/13.10 Ubuntu/13.10
+x86_64/Ubuntu/14.04 Ubuntu/14.04
 
 x86_64/Mint/10 Ubuntu/10.04
 x86_64/Mint/11 Ubuntu/11.04
 x86_64/Mint/13 Ubuntu/12.04
 x86_64/Mint/14 Ubuntu/12.10
 x86_64/Mint/15 Ubuntu/13.04
+x86_64/Mint/16 Ubuntu/13.10

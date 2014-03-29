@@ -24,7 +24,7 @@ x86_64/Ubuntu/13.04
 x86_64/Ubuntu/13.10
 
 # LTS until 04.2019
-#x86_64/Ubuntu/14.04
+x86_64/Ubuntu/14.04
 
 x86_64/Mint/10
 x86_64/Mint/11
