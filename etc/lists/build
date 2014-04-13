@@ -1,8 +1,6 @@
 # Список для проверки собираемости
-Ubuntu/11.04
-x86_64/Ubuntu/11.04
-Ubuntu/10.04
-x86_64/Ubuntu/10.04
-ALTLinux/p6
+Ubuntu/12.04
+x86_64/Ubuntu/12.04
+ALTLinux/p7
 ALTLinux/Sisyphus
 x86_64/ALTLinux/Sisyphus

@@ -3,7 +3,7 @@
 #Ubuntu/7.10
 
 # LTS until 04.2013
-Ubuntu/8.04
+#Ubuntu/8.04
 #Ubuntu/8.10
 #Ubuntu/9.04
 #Ubuntu/9.10
@@ -24,11 +24,12 @@ Ubuntu/13.10
 # LTS until 04.2019
 Ubuntu/14.04
 
-Mint/10
-Mint/11
+#Mint/10
+#Mint/11
 
 # like 12.04: LTS until 04.2017
 Mint/13
 
 Mint/14
 Mint/15
+Mint/16
