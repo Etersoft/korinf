@@ -1,4 +1,6 @@
 # System/Version  # host      # remote command to switch to root
-FreeBSD/8.2       freebsd     sudo chroot /mnt/chroot/8.2 su - $LOUSER -c
+#FreeBSD/8.2       freebsd     sudo chroot /mnt/chroot/8.2 su - $LOUSER -c
+FreeBSD/8.2       freebsd82   /usr/local/bin/sudo su - $LOUSER -c
+FreeBSD/8.4       freebsd84   sudo su - $LOUSER -c
 OpenSolaris/11    solaris     sudo su - $LOUSER -c
 #Normal/8.2       freebsd     sudo su - $LOUSER -c
