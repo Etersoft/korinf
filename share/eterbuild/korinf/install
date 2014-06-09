@@ -67,9 +67,10 @@ install_built()
 		return
 	fi
 
-	# Bootstrap install eepm
+	# Bootstrap install eepm (get command from local epm)
 	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || { warning "Can't get install command" ; return 1 ; }
-	run_in_chroot "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" || set_build_failed
+	run_in_chroot "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" #|| set_build_failed
+	run_in_chroot "epm -h >/dev/null" || set_build_failed
 }
 
 # Install required packages for build under the system (f.i., Debian/6.0)
@@ -79,7 +80,7 @@ install_build_requires()
 	local reqs dist=$1
 	load_mod repl rpm
 
-	assert_var BUILDNAME BUILDARCH BUILDROOT BUILDSRPM PKGFORMAT
+	assert_var BUILDNAME BUILDARCH BUILDSRPM PKGFORMAT
 	assert_var BUILDERHOME
 
 	# NOTE: possible side effect with redefined DISTRNAME, BUILDARCH, DISTRVERSION
@@ -95,5 +96,5 @@ install_build_requires()
 	reqs=$(convert_pkgreqs_to_target $reqs $buildsystempkgs | xargs -n 1000 echo)
 
 	# FIXME: remove makeinstall from eepm spec
-	run_in_chroot "epm --auto --verbose --skip-installed Install \"$reqs\"" || run_in_chroot "epm --auto --verbose --skip-installed install \"$reqs\""
+	run_in_chroot "epm --auto --verbose --skip-installed Install $reqs" || run_in_chroot "epm --auto --verbose --skip-installed install $reqs"
 }
