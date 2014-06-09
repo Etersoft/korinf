@@ -59,7 +59,11 @@ shift
 USERCO=""
 [ "$1" = "-r" ] && shift || USERCO="--user"
 COMMANDTO="/bin/bash"
-test -r $LOCALLINUXFARM/$SYS/bin/bash || COMMANDTO=""
+
+# FIXME: only for local
+#if [ -n "$LOCALLINUXFARM" ] ; then
+#test -r $LOCALLINUXFARM/$SYS/bin/bash || COMMANDTO=""
+#fi
 
 [ -n "$1" ] && COMMANDTO="$@"
 
