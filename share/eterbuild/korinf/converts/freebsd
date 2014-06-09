@@ -26,6 +26,7 @@ convert_freebsd()
 {
 	assert_var TARGETBUILDNAME PACKAGEVERSION PACKAGERELEASE PKGVENDOR BUILDARCH PKGFORMAT
 
+	# other assert_var see in prepare_convert
 	prepare_convert
 
 	# FIXME: arch?
@@ -37,8 +38,8 @@ convert_freebsd()
 
 	# TODO: add requires
 
-	rm -rf \$WRKDIR/
-	mkdir -p \$WRKDIR/ && cd \$WRKDIR || exit
+	rm -rf $WRKDIR/
+	mkdir -p $WRKDIR/ && cd $WRKDIR || exit
 
 	for i in $BUILTBINPKGLIST ; do
 		pkg=$INTBUILT/\$(basename \$i)
@@ -58,17 +59,18 @@ convert_freebsd()
 			| sed "s|\(.*\)|@dirrm \1|g" >> $WRKDIR/+CONTENTS
 
 	#make +COMMENT and +DESC files
-	echo $PKGCOMMENT > $WRKDIR/+COMMENT
-	echo $PKGDESCR > $WRKDIR/+DESC
+	echo "$PKGCOMMENT" > $WRKDIR/+COMMENT
+	echo "$PKGDESCR" > $WRKDIR/+DESC
 
 	# create package with the PACKAGE name (not src.rpm name)
 	rm -f $WRKDIR/../$TARGETPKG.$PKGFORMAT
 	ls -l
 	# Note: it is value have the full path for -s args
 	pkg_create -v -s $WRKDIR -p/ -c $WRKDIR/+COMMENT -d $WRKDIR/+DESC -f $WRKDIR/+CONTENTS $INTBUILT/$TARGETPKG || exit
-	#rm -rf \$WRKDIR
+	rm -rf $WRKDIR/
 	cd -
 EOF
 
+	# return built package
 	run_in_chroot --user "cat $INTBUILT/$TARGETPKG" >$BUILTRPM/$TARGETPKG || return
 }
