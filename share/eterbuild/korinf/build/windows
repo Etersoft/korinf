@@ -4,8 +4,8 @@
 #
 #  Windows build related functions
 #
-#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009, 2013
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2014
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -21,62 +21,41 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-# FIXME
-# BUILDROOT - root of current system
-# BUILDERHOME - absolute path to user dir in current system
-
 load_mod rpm build
 
-#$PACKAGEVERSION
-#$PACKAGERELEASE
-
-# FIXME
-HOMEDIR=~/
-RPMDIR=$HOMEDIR/RPM
-#BUILDUTILSDIR=$HOMEDIR/Projects/etersoft-build-utils
-#INTBUILT=/home/$INTUSER/$RPMSDIR
-#RPMARGS="$(get_rpm_args $dist $BUILDNAME)"
-
-#dirty hack for postgresql
-if [ `echo $BUILDNAME | grep [0-9]` ] ; then
-	WINNAME=`echo $BUILDNAME | sed -r "s|^([a-z]*)-[0-9]*.*|\1|"`
-else
-	WINNAME=$BUILDNAME
-fi
-echo $WINNAME
+assert_var RPMDIR
+assert_var BUILDNAME PACKAGEVERSION PACKAGERELEASE
+assert_var BUILDSRPM
 
 build_windows()
 {
 	# prevent gear detecting (operate inside our dir)
 	export IGNOREGEAR=1
+
 	# NOTE: we can do cd to some other dir...
 	export RPMTOPDIR=$RPMDIR/BPW
+	rm -rf $RPMTOPDIR/
+	
 	uni_rpminstall $BUILDSRPM
 
-        #mkdir -p $RPMDIR/SPECS $RPMDIR/SRPMS
-        #rpm -ivv $BUILDERHOME/tmp/${WINNAME}*.src.rpm
-        
-        if [ -n "$ADEBUG" -a "$ADEBUG" == "1" ]
-	then
-		echo
-		echo "============================"
-		echo "RPMTOPDIR = ${RPMTOPDIR}"
-		echo "WINNAME = ${WINNAME}"
-		echo "============================"
-		echo
-	fi
-	
-        cd $RPMTOPDIR/SPECS
-		#TODO: test specfile?
-		#TODO: use uni_rpmbuild
-		#unpack sources and apply patches
-		uni_rpmbuild ${WINNAME}*.spec -bp -v --nodeps || return
-        cd -
+	# unpack sources and apply patches
+	uni_rpmbuild $RPMTOPDIR/SPECS/*.spec -bp -v --nodeps || return
 
-	ls -l $RPMTOPDIR/BUILD/$WINNAME*/
-	cd $RPMTOPDIR/BUILD/$WINNAME*/${WINNAME}*win* || return
-		./windows.sh $RPMTOPDIR $PACKAGERELEASE $PACKAGEVERSION || return
+	# FIXME: hack about build dir
+	cd $RPMTOPDIR/BUILD/$BUILDNAME-$PACKAGEVERSION/ || return
+
+	if [ ! -f ./etersoft/mingwbuild.sh ] ; then
+		warning "It is needed to put etersoft/mingwbuild.sh script in the tarball sources"
+		return 1
+	fi
+
+	# Build to. Args: NAME VERSION RELEASE DESTDIR
+	bash -x ./etersoft/mingwbuild.sh $BUILDNAME $PACKAGEVERSION $PACKAGERELEASE $RPMTOPDIR/RPMS
+	local RES=$?
 	cd -
+
+	# return error if have got error
+	[ "$RES" = "0" ] || return $RES
 
 	# Expand MAINFILELIST, EXTRAFILELIST
 	prepare_filelist
@@ -85,16 +64,17 @@ build_windows()
 copying_windows()
 {
 	echo "Copying to ftp"
-	mkdir -p $DESTDIR
 	clean_copying_destination
-        cp -f $RPMTOPDIR/BUILD/$WINNAME*/${WINNAME}*installer*/*.exe $DESTDIR || { warning "Cannot copy packages" ; return 1; }
+	mkdir -p $DESTDIR
+	cp -v $RPMTOPDIR/RPMS/*.exe $DESTDIR || { warning "Cannot copy packages" ; return 1; }
 	echo "Done with copying"
-        chmod g+rw -R $DESTDIR/* || true
+	# FIXME: where we have broken group?
+        chmod g+rw $DESTDIR/* || true
 }
 
 clean_windows()
 {
-	echo "Cleaning $RPMTOPDIR/BUILD/$WINNAME*"
-	rm -rf $RPMTOPDIR/BUILD/$WINNAME*
-        #true
+	uni_rpmrm *.spec
+	echo "Cleaning $RPMTOPDIR/"
+	rm -rf $RPMTOPDIR/
 }
