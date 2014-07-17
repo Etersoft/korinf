@@ -24,6 +24,8 @@ Ubuntu/13.10
 # LTS until 04.2019
 Ubuntu/14.04
 
+Ubuntu/14.10
+
 #Mint/10
 #Mint/11
 
@@ -33,3 +35,6 @@ Mint/13
 Mint/14
 Mint/15
 Mint/16
+
+# like 14.04: LTS until 04.2019
+Mint/17
