@@ -120,17 +120,15 @@ build_selta()
 		return
 	fi
 
+	# SELTA@Etersoft
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Windows"
 	PUBDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/Windows"
 
-	if [ "$PROJECTVERSION" = "1.0.8" ] ; then
-		PGVERSION="8.4"
-	else
-		PGVERSION="9.0"
-	fi
-	PGLOCAL="/var/ftp/pub/Etersoft/Postgres@Etersoft/$PGVERSION"
-	PGDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/Postgres@Etersoft/$PGVERSION"
+	# Posgre@Etersoft
+	PGLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Postgre"
+	PGDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/Postgre"
 
+	# Target dir
 	TARGETDIR=/var/ftp/pub/download/SELTA@Etersoft/$TARGETDIRNAME
 	DOWNLOADDIR="ftp://$DOWNLOADDOMAIN/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
 
