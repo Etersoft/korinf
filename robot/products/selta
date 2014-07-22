@@ -85,7 +85,7 @@ $THANKTEXT
 
 -- 
 Команда разработчиков
-Etersoft, 2013
+Etersoft, 2014
 EOF
 }
 
@@ -138,17 +138,20 @@ build_selta()
 	DOWNLOADDIR="ftp://$DOWNLOADDOMAIN/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
 
 
-	
 	TEXTDIST=$DIST
 	# Check for linked system (собираем для основной системы)
 	if [ -L "$PGLOCAL/$DIST" ] ; then
 		DIST=`readlink $PGLOCAL/$DIST | sed -e "s|\.\./||g"`
 		TEXTDIST="$TEXTDIST (фактически сборка выполнена для $DIST)"
 	fi
-	
+
 	check_dist $DIST
 	REBUILDLIST=$DIST
 	echo "Work with $TASK for $REBUILDLIST"
+
+	CHECKCOMP=postgre-etersoft9.2
+	check_and_refresh_component bin-postgres $PGLOCAL $CHECKCOMP
+	assert_present_package $PGLOCAL/$DIST $CHECKCOMP
 
 	# exports FTPDIR
 	LICENSEFILE=selta.lic
