@@ -1,11 +1,11 @@
 PRODUCT="SELTA@Etersoft 1.0 (электронная версия, базовая лицензия)"
 COMPONENTNAME="SELTA@Etersoft"
-DOWNLOADDIR="SELTA@Etersoft/1.0.3"
+DOWNLOADDIR="SELTA@Etersoft/1.1.0"
 ETERREGNUM="0D23-A26B"
-DIST="Mandriva/2012"
+DIST="Ubuntu/12.04"
 MAILTO="gomonov_max@mail.ru"
 FULLNAME="Гомонов Максим Викторович"
-PROJECTVERSION="1.0.3"
+PROJECTVERSION="1.1.0"
 RELEASECANDIDAT=0
 TYPE_LICENSE=Base
 OWNER='ЗАО «С.Е.Д.-СПб»'

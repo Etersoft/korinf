@@ -126,17 +126,18 @@ build_selta()
 
 	# Posgre@Etersoft
 	PGLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Postgre"
-	PGDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/Postgre"
+
+	# Use real path instead link
+	if [ -L "$PGLOCAL" ] ; then
+		PGLOCAL=`readlink -f "$PGLOCAL"`
+	fi
+	PGDOWNLOAD1="ftp://$DOWNLOADDOMAIN/$(echo $PGLOCAL | sed -e "s|/var/ftp/||g")"
 
 	# Target dir
 	TARGETDIR=/var/ftp/pub/download/SELTA@Etersoft/$TARGETDIRNAME
 	DOWNLOADDIR="ftp://$DOWNLOADDOMAIN/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
 
-	# Lav 28.06.11: skip checking previous built one
-	#if [ ! -d "$PGLOCAL/$DIST" ] ; then
-	#	warning "System $DIST not supported for build ($PGLOCAL/$DIST does not exist)"
-	#	do_broken
-	#fi
+
 	
 	TEXTDIST=$DIST
 	# Check for linked system (собираем для основной системы)
