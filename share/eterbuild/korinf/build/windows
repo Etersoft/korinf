@@ -68,8 +68,7 @@ copying_windows()
 	mkdir -p $DESTDIR
 	cp -v $RPMTOPDIR/RPMS/*.exe $DESTDIR || { warning "Cannot copy packages" ; return 1; }
 	echo "Done with copying"
-	# FIXME: where we have broken group?
-        chmod g+rw $DESTDIR/* || true
+	mark_build_done
 }
 
 clean_windows()
