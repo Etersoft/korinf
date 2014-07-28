@@ -6,4 +6,4 @@
 # install packages after build
 export BOOTSTRAP=1
 
-. ../bin/korinf $@ rpm-build-altlinux-compat /var/ftp/pub/Etersoft/Sisyphus
+$(dirname $0)/bin/korinf $@ rpm-build-altlinux-compat /var/ftp/pub/Etersoft/Sisyphus

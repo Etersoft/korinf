@@ -3,5 +3,4 @@
 # Author: Vitaly Lipatov <lav@etersoft.ru>
 # GNU Public License version 3
 
-../bin/korinf $@ etersoft-build-utils /var/ftp/pub/Etersoft/Sisyphus
-
+$(dirname $0)/bin/korinf $@ etersoft-build-utils /var/ftp/pub/Etersoft/Sisyphus
