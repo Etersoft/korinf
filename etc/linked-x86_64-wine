@@ -1,4 +1,5 @@
 x86_64/Debian/7.0 Debian/7.0
+x86_64/Debian/8 Debian/8
 x86_64/Ubuntu/12.04 Ubuntu/12.04
 x86_64/Ubuntu/12.10 Ubuntu/12.10
 x86_64/Ubuntu/13.04 Ubuntu/13.04
@@ -12,3 +13,4 @@ x86_64/Mint/13 Ubuntu/12.04
 x86_64/Mint/14 Ubuntu/12.10
 x86_64/Mint/15 Ubuntu/13.04
 x86_64/Mint/16 Ubuntu/13.10
+x86_64/Mint/17 Ubuntu/14.04
