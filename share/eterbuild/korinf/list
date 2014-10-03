@@ -38,6 +38,7 @@ get_linked_x86_64_wine_system()
 # arg: ALL or other full list
 get_target_list()
 {
+	assert_var TARGETPATH
 	local TLIST RLIST
 	local FILE=$1
 	TLIST=$TARGETPATH/distro.list
@@ -65,7 +66,7 @@ check_target_dist()
 
 get_real_target_dist()
 {
-	assert_var LOCALLINUXFARM
+	#assert_var LOCALLINUXFARM
 	local DIST="$1"
 	check_target_dist $DIST || fatal "Unknown distro $DIST"
 	local LINKED=$(get_linked_system $DIST)
@@ -79,6 +80,7 @@ get_real_target_dist()
 # Set REBUILDLIST according TARGETPATH, existing REBUILDLIST and some heruistic
 set_rebuildlist()
 {
+	assert_var KORINFETC TARGETPATH
 	local RESULT
 	if [ -n "$REBUILDLIST" ] && [ ! "$REBUILDLIST" = "all" ] ; then
 		# Test for absolute path
