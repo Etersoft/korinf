@@ -38,10 +38,10 @@ get_linked_x86_64_wine_system()
 # arg: ALL or other full list
 get_target_list()
 {
-	assert_var TARGETPATH
 	local TLIST RLIST
 	local FILE=$1
-	TLIST=$TARGETPATH/distro.list
+
+	[ -n "$TARGETPATH" ] && TLIST=$TARGETPATH/distro.list
 	# for compatibility
 	[ "$FILE" = "x86_64" ] && FILE="x86_64/ALL"
 
@@ -52,7 +52,7 @@ get_target_list()
 		# if can't find distro.list, use lists/
 		[ ! -r "$TLIST" ] && [ -f "$RLIST" ] && TLIST=$RLIST
 	fi
-	[ -r "$TLIST" ] && [ -f "$TLIST" ] || TLIST=$KORINFETC/lists/ALL
+	[ -n "$TLIST" ] && [ -r "$TLIST" ] && [ -f "$TLIST" ] || TLIST=$KORINFETC/lists/ALL
 	# || fatal "get_target_list failed to get list of targets from $TLIST"
 	echo $TLIST
 }
