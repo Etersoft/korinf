@@ -2,6 +2,8 @@
 
 # build Etersoft's products for new system
 
+TOPDIR=$(realpath $(dirname "$0")/..)
+
 # Args:
 # group (wine-group dir)
 # package (package name)
@@ -20,9 +22,9 @@ build()
     # install needed packages
     # commented out due bug:
     # second packages. requires previous build packages, try to install one and failed via urpmi
-    ../bin-$GROUP/$PACKAGE.sh -i $SYSTEM $TARGET #|| exit
+    $TOPDIR/bin-$GROUP/$PACKAGE.sh -i $SYSTEM $TARGET #|| exit
     # run build
-    ../bin-$GROUP/$PACKAGE.sh $ARG $SYSTEM $TARGET $@
+    $TOPDIR/bin-$GROUP/$PACKAGE.sh $ARG $SYSTEM $TARGET $@
 }
 
 fatal()
@@ -37,8 +39,8 @@ PART=$2
 export NIGHTBUILD=1
 
 if [ -z "$PART" ] ; then
-    ../bin/korinf $SYSTEM eepm -b || fatal
-    ../bin-common/rpm-build-altlinux-compat.sh $SYSTEM -b || fatal
+    $TOPDIR/bin/korinf $SYSTEM eepm -b || fatal
+    $TOPDIR/bin-common/rpm-build-altlinux-compat.sh $SYSTEM -b || fatal
 fi
 
 
