@@ -69,7 +69,7 @@ build cifs etercifs stable
 #build cifs dkms-etercifs stable
 }
 if [ -z "$PART" ] || [ "$PART" = "wine" ] ; then
-    build_wine 2.0-testing -b
+    build_wine 2.1-testing -b
 fi
 
 
@@ -93,7 +93,7 @@ build_pg()
 ########## Postgre@Etersoft ############
 
 #build postgres icu38 stable -b
-build postgres postgre-etersoft9.0 stable
+build postgres postgre-etersoft9.2 stable
 }
 if [ -z "$PART" ] || [ "$PART" = "pg" ] ; then
     build_pg
