@@ -77,10 +77,10 @@ get_real_target_dist()
 }
 
 
-# Set REBUILDLIST according TARGETPATH, existing REBUILDLIST and some heruistic
+# Set REBUILDLIST according TARGETPATH (if exists), existing REBUILDLIST and some heruistic
 set_rebuildlist()
 {
-	assert_var KORINFETC TARGETPATH
+	assert_var KORINFETC
 	local RESULT
 	if [ -n "$REBUILDLIST" ] && [ ! "$REBUILDLIST" = "all" ] ; then
 		# Test for absolute path
