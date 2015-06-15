@@ -81,11 +81,12 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 	# Set target URL for get tarballs or checking
 	DESTURL=$(echo $DESTDIR | sed -e "s|$FTPDIR/|$PUBLICURL/|g")
 
+	# disabled, never change exists links!
 	# remove linked destination if exists
-	if [ -L "$DESTDIR" ] ; then
-		warning "$dist: Removing link target"
-		rm -vf $DESTDIR
-	fi
+	#if [ -L "$DESTDIR" ] ; then
+	#	warning "$dist: Removing link target"
+	#	rm -vf $DESTDIR
+	#fi
 
 	# FIXME: Hack
 	[ "$TARGETPRIVPATH" ] && DESTDIR=$TARGETPRIVPATH
