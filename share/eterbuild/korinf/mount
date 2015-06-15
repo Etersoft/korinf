@@ -131,11 +131,13 @@ end_umount()
 	if [ -z "$ADEBUG" ] ; then
 		if echo $BUILDERHOME | grep -q $BUILDROOT ; then
 			echo "Removing $BUILDERHOME ..."
-			$SUDO su $LOCUSER -c "rm -rf $BUILDERHOME" || ERR=1
+			#$SUDO su $LOCUSER -c "rm -rf $BUILDERHOME" || ERR=1
+			$SUDO su $LOCUSER -c "rm -rf $BUILDERHOME" || sleep 2 || $SUDO su $LOCUSER -c "rm -rf $BUILDERHOME" || (echo $(fuser $BUILDERHOME) && ERR=1)
 			TMPBUILDERHOME=
 		fi
 		echo "Removing $BUILDROOT ..."
-		$SUDO su $LOCUSER -c "rmdir -v $BUILDROOT" || ERR=1
+		#$SUDO su $LOCUSER -c "rmdir -v $BUILDROOT" || ERR=1
+		$SUDO su $LOCUSER -c "rmdir -v $BUILDROOT" || sleep 2 || $SUDO su $LOCUSER -c "rmdir -v $BUILDROOT" || (echo $(fuser $BUILDERROOT) &&  ERR=1)
 		[ $ERR = 0 ] && echo "DONE" || echo "Removing FAILED"
 	else
 		echo "Skip removing due ADEBUG set"
