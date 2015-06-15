@@ -69,7 +69,8 @@ pkgname=$TARGETBUILDNAME
 pkgver=$PACKAGEVERSION
 # ERROR: pkgrel must be a decimal.
 #pkgrel=$PACKAGERELEASE$PKGVENDOR
-pkgrel=$(get_numpartrelease ${PACKAGERELEASE})
+#Anton's correction (cut addition)
+pkgrel=$(echo $(get_numpartrelease ${PACKAGERELEASE})| cut -f1 -d'.')
 pkgdesc="$PKGCOMMENT"
 depends=($prepreqs)
 url=($PKGURL)
