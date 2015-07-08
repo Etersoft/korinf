@@ -25,10 +25,14 @@ SOURCEPATH=$WINEPUB_PATH/$PROJECTVERSION/sources
 # FROM TARGET
 other_copy_to()
 {
-	ARCH=$1
+	local ARCH=$1
 	shift
 	NARCH=
 	[ "$ARCH" = "i586" ] || NARCH=$ARCH
+
+	local PLATFORM=$1
+	shift
+
 	local TP="$2/$ARCH/RPMS.$COMPONENT"
 
 	GENBASE=
@@ -42,23 +46,17 @@ other_copy_to()
 		add_and_remove "$FPU" $i
 	done
 
-	gen_baserepo $1
+	gen_baserepo $PLATFORM
 }
 
 distro_path=/var/ftp/pub/Etersoft/LINUX@Etersoft
 
-arch=i586
-#copy_to "$arch" ALTLinux/4.1 $distro_path/4.1/branch
-other_copy_to "$arch" ALTLinux/p5 $distro_path/p5/branch
-other_copy_to "$arch" ALTLinux/Sisyphus $distro_path/Sisyphus
-other_copy_to "$arch" ALTLinux/p6 $distro_path/p6/branch
-other_copy_to "$arch" ALTLinux/p6 $distro_path/t6/branch
-other_copy_to "$arch" ALTLinux/p7 $distro_path/p7/branch
-
-arch=x86_64
-#copy_to "$arch" ALTLinux/4.1 $distro_path/4.1/branch
-other_copy_to "$arch" ALTLinux/p5 $distro_path/p5/branch
-other_copy_to "$arch" ALTLinux/Sisyphus $distro_path/Sisyphus
-other_copy_to "$arch" ALTLinux/p6 $distro_path/p6/branch
-other_copy_to "$arch" ALTLinux/p6 $distro_path/t6/branch
-other_copy_to "$arch" ALTLinux/p7 $distro_path/p7/branch
+for arch in i586 x86_64 ; do
+	other_copy_to "$arch" p5 ALTLinux/p5 $distro_path/p5/branch
+	exit
+	other_copy_to "$arch" Sisyphus ALTLinux/Sisyphus $distro_path/Sisyphus
+	other_copy_to "$arch" p6 ALTLinux/p6 $distro_path/p6/branch
+	#other_copy_to "$arch" t6 ALTLinux/p6 $distro_path/t6/branch
+	other_copy_to "$arch" p7 ALTLinux/p7 $distro_path/p7/branch
+	#other_copy_to "$arch" t7 ALTLinux/p7 $distro_path/t7/branch
+done

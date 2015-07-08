@@ -10,11 +10,8 @@ PROJECTVERSION=$1
 [ -z "$PROJECTVERSION" ] && fatal "Run with version (2.0, 2.0-testing and so on)"
 
 if echo "$PROJECTVERSION" | grep -q testing ; then
-	#PROJECTVERSION=last
-	#UNIPVERSION=$PROJECTVERSION
 	COMPONENT=unstable
 else
-	#UNIPVERSION=stable
 	COMPONENT=nonfree
 fi
 
@@ -33,6 +30,10 @@ wine_copy_to()
 	shift
 	NARCH=
 	[ "$ARCH" = "i586" ] || NARCH=$ARCH
+
+	PLATFORM=$1
+	shift
+	
 	local FPU="$WINEPUB_PATH/$PROJECTVERSION/WINE/$NARCH/$1"
 	local HASPFPU="$WINEPUB_PATH/$PROJECTVERSION/HASP/$NARCH/$1"
 	local TP="$2/$ARCH/RPMS.$COMPONENT"
@@ -54,22 +55,16 @@ wine_copy_to()
 	#TP="$2/noarch/RPMS.addon"
 	add_and_remove "$FPU" etercifs
 
-	gen_baserepo $1
+	gen_baserepo $PLATFORM
 }
 
 distro_path=/var/ftp/pub/Etersoft/LINUX@Etersoft
 
-arch=i586
-#copy_to "$arch" ALTLinux/4.1 $distro_path/4.1/branch
-wine_copy_to "$arch" ALTLinux/p5 $distro_path/p5/branch
-wine_copy_to "$arch" ALTLinux/Sisyphus $distro_path/Sisyphus
-wine_copy_to "$arch" ALTLinux/p6 $distro_path/p6/branch
-wine_copy_to "$arch" ALTLinux/p6 $distro_path/t6/branch
-wine_copy_to "$arch" ALTLinux/p7 $distro_path/p7/branch
-
-arch=x86_64
-##copy_to "$arch" ALTLinux/4.1 $distro_path/4.1/branch
-#other_copy_to "$arch" ALTLinux/p5 $distro_path/p5/branch
-#other_copy_to "$arch" ALTLinux/Sisyphus $distro_path/Sisyphus
-#other_copy_to "$arch" ALTLinux/p6 $distro_path/p6/branch
-#other_copy_to "$arch" ALTLinux/p6 $distro_path/t6/branch
+for arch in i586 ; do
+	wine_copy_to "$arch" p5 ALTLinux/p5 $distro_path/p5/branch
+	wine_copy_to "$arch" Sisyphus ALTLinux/Sisyphus $distro_path/Sisyphus
+	wine_copy_to "$arch" p6 ALTLinux/p6 $distro_path/p6/branch
+	#wine_copy_to "$arch" t6 ALTLinux/p6 $distro_path/t6/branch
+	wine_copy_to "$arch" p7 ALTLinux/p7 $distro_path/p7/branch
+	#wine_copy_to "$arch" t7 ALTLinux/p7 $distro_path/t7/branch
+done
