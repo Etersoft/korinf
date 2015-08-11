@@ -38,9 +38,16 @@ fi
 PRIVPART='SQL'
 [ "$PROJECTVERSION" = "cad" ] && PRIVPART='CAD'
 
-SYSTEM=ALTLinux/Sisyphus
+#SYSTEM=ALTLinux/Sisyphus
 # p6 - needs some release rewrite (alt14 -> alt13.M60P.14)
-#SYSTEM=ALTLinux/p6
+SYSTEM=ALTLinux/p7
+
+
+# TODO: move to etersoft-build-utils spec
+get_txtpartrelease()
+{
+	echo "$1" | sed -e "s|\([a-zA-Z]*\)\([0-9\.]\).*|\1|" || get_default_txtrelease
+}
 
 
 get_version_release()
@@ -57,6 +64,16 @@ if [ -z "$VERSION" ] ; then
 	RELEASE=`rpm -qp --queryformat "%{RELEASE}" $BUILDSRPM`
 	if [ "$DISTRIB_ID" = "Ubuntu" ] ; then
 		RELEASE=eter`echo "$RELEASE" | sed -e "s|\([a-zA-Z]*\)\([0-9\.]\)[^0-9\.]*|\2|" `ubuntu
+	fi
+
+	if [ "$SYSTEM" != "ALTLinux/Sisyphus" ] ; then
+		# TODO: fix RELEASE
+		load_mod spec
+		# TODO: $(get_altdistr_mod $BINARYREPO)
+		MDISTR=M70P
+		local BASERELEASE=$(get_numpartrelease $RELEASE)
+		RELEASE=$(get_txtpartrelease $RELEASE)$(decrement_release $BASERELEASE).$MDISTR.$BASERELEASE
+
 	fi
 fi
 }
