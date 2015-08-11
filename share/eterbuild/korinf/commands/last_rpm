@@ -14,7 +14,7 @@ last_rpm ()
   fi
   for i in $(cat); do
 	pkgver=$(rpm -qp $i)
-	LR=$(rpmvercmp "$pkgver" "$lastrpm")
+	LR=$(rpmevrcmp "$pkgver" "$lastrpm")
 	if [ "$LR" -gt 0 ]; then
 		lastrpm="$pkgver"
 	fi
