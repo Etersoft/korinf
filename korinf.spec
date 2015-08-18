@@ -2,7 +2,7 @@ Name: korinf
 Version: 2.0.11
 Release: alt1
 
-Summary: Korinf multidistro build system
+Summary: Korinf multidistro single source build system
 
 License: AGPLv3
 Group: Development/Other
