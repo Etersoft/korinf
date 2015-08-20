@@ -3,7 +3,7 @@ This directory contains build scripts for Wine related packages.
 Create log subdirectory for log write or check logs in $TMPDIR/korinf-log.
 
 Using:
-./wine-etersoft.sh [-c] [-f] [ SYSTEM ] [ PROJECTVERSION ]
+./wine-etersoft.sh [ SYSTEM ] [ PROJECTVERSION ] [options]
 
 
 Using example:
@@ -26,4 +26,4 @@ Build for Ubuntu/8.10 distro for unstable:
 ./wine-etersoft.sh Ubuntu/8.10 unstable
 
 Force build for Ubuntu/8.10 distro
-./wine-etersoft.sh -f Ubuntu/8.10
+./wine-etersoft.sh Ubuntu/8.10 -f
