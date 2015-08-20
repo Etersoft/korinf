@@ -41,7 +41,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 	local LINKED=$(get_linked_system $dist)
 
 	# FIXME: Hack for pseudo build 32 bit wine on x86_64 systems
-	if echo $BUILDNAME | grep wine ; then
+	if rhas "$BUILDNAME" "wine" ; then
 		local WINELINKED=$(get_linked_x86_64_wine_system $dist)
 		[ -n "$WINELINKED" ] && LINKED=$WINELINKED
 	fi
