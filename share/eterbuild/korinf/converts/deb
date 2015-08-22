@@ -36,33 +36,42 @@ get_deb_pkgname_from_rpm()
 	internal_get_deb_pkgname_from_rpm $1 | filter_deb_pkgnames
 }
 
+__wine_dependence_hack()
+{
+	local pkg="$1"
+	local depf="$2"
+	# only for wine packages
+	if rhas "$pkg" "wine" ; then
+		# HACK due requires on x86_64?? FIXME
+		if [ $DISTRNAME = "Ubuntu" ] && version_more_version $DISTRVERSION 12.04 || [ $DISTRNAME = "Debian" ] && version_more_version $DISTRVERSION 7.0 ; then
+			# FIXME: replace with grep inplace or just subst
+			mv $DESTLOGDIR/${depf}.deb.depends $DESTLOGDIR/${depf}.deb.depends.orig
+			grep "^lib" $DESTLOGDIR/${depf}.deb.depends.orig > $DESTLOGDIR/${depf}.deb.depends
+			rm -f $DESTLOGDIR/${depf}.deb.depends.orig
+			fi
+	fi
+}
+
 convert_rpm_to_deb()
 {
 	assert_var PACKAGEVERSION PACKAGERELEASE PKGVENDOR PKGFORMAT
 	assert_var DISTRNAME DISTRVERSION
 
 	local RELPKG=$PACKAGERELEASE$PKGVENDOR
-	local DEPPARAM=""
 
 	set_destlogdir
 	local PACKAGESLIST="$EXPRPMMAINFILES $EXPRPMEXTRAFILES"
 	echo "Packages to convert: $PACKAGESLIST"
 	for i in $PACKAGESLIST ; do
 		if [ -e $i ] ; then
+			# prepare dependencies file
+			# TODO: rewrite this part
+			local DEPPARAM=""
 			local depf=$(get_pkgname_from_filename $i)
-			if get_target_deplist $depf | tee $DESTLOGDIR/$depf.deb.depends ; then
+			if get_target_deplist "$depf" | tee $DESTLOGDIR/$depf.deb.depends ; then
 				if check_alien ; then
 					DEPPARAM="--depends $DESTLOGDIR/${depf}.deb.depends"
-					# only for wine packages
-					if echo $i | grep -q wine ; then
-					# HACK due requires on x86_64?? FIXME
-					if [ $DISTRNAME = "Ubuntu" ] && version_more_version $DISTRVERSION 12.04 || [ $DISTRNAME = "Debian" ] && version_more_version $DISTRVERSION 7.0 ; then
-						mv $DESTLOGDIR/${depf}.deb.depends $DESTLOGDIR/${depf}.deb.depends.orig
-						grep "^lib" $DESTLOGDIR/${depf}.deb.depends.orig > $DESTLOGDIR/${depf}.deb.depends
-						rm -f $DESTLOGDIR/${depf}.deb.depends.orig
-					fi
-					fi
-					alert "Call alien with ${DEPPARAM}"
+					__wine_dependence_hack "$i" "$depf"
 				fi
 			else
 				rm -f $DESTLOGDIR/$depf.deb.depends
