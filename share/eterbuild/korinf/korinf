@@ -122,15 +122,15 @@ build_package()
 print_build_project_options()
 {
 	echo "	-b - buildstrap (build if needed, install package(s) after build)"
-	echo "	-B - force buildstrap (even if it is up-to-date)"
+	echo "	-B - force buildstrap (even if package is up-to-date)"
 	echo "	-q - enable quiet mode"
 	echo "	-c - print build status list"
-	echo "	-f - force rebuild only failed packages"
-	echo "	-F - force rebuild all packages even if it is up-to-date"
-	echo "	-i - install packages required for build package"
-	echo "	-I - force install packages required for build package"
+	echo "	-f - force rebuild only failed package(s)"
+	echo "	-F - force rebuild all packages (even if package is up-to-date)"
+	echo "	-i - install packages required for package build"
+	echo "	-I - force install packages required for package build"
 	echo "	-r - check install requires"
-	echo "	-R - check install requires with full output"
+	echo "	-R - check install requires with print full info"
 }
 
 handle_arg()
@@ -188,18 +188,14 @@ handle_optional_args()
 {
 	local ARG2="$2"
 	if [ -n "$1" ] ; then
-		#if [ -n "$ARG2" ] ; then
-		REBUILDLIST=$1
-		#else
-		#	ARG2=$1
-		#fi
+		REBUILDLIST="$1"
 	fi
 
 	if [ -n "$ARG2" ] ; then
 		# FIXME: if last part already exists? (ran with /var/ftp/.../Wine-vanilla/1.7.4)
-		SP=$SP/$ARG2
+		SP="$SP/$ARG2"
 	else
-		test -d "$SP/last" && SP=$SP/last
+		test -d "$SP/last" && SP="$SP/last"
 	fi
 }
 
@@ -236,27 +232,21 @@ build_project()
 
 	# 4 arg: possible it is options
 	if [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
-		echo "Korinf build script:"
-		echo "Usage: script [options] target_system [project_version]"
-		echo "	target_system - Mandriva/2009 or test, ALL, deb (lists from etc/lists) or all (by distr.list)"
-		echo "	project_version - 1.0.10 or last, testing, unstable"
-		echo "you can use following options:"
-		print_build_project_options
-		fatal "Help message"
+		fatal "We do not handle help here"
 	fi
 
 	local GP=
-	for i in $@ ; do
-		handle_arg $i || GP="$GP $i"
+	for i in "$@" ; do
+		handle_arg "$i" || GP="$GP $i"
 	done
 
 	handle_optional_args $GP
-	# enable VERBOSE
+
 	if [ -z "$QUIET" ] ; then
 		export VERBOSE=1
 	fi
 
-	TARGETPATH=$(readlink -f $SP)
+	TARGETPATH=$(readlink -f "$SP")
 	
 	if [ -n "$ADEBUG" ]
 	then
@@ -264,8 +254,9 @@ build_project()
 	    debug_print_backtrace
 	fi
 
+	# check rpmpub for the same sources check
 	# set SOURCEPATH, add sources if not yet
-	if echo $TARGETPATH | grep -q /sources ; then
+	if rhas "$TARGETPATH" "/sources" ; then
 		SOURCEPATH=$TARGETPATH
 		# drop sources from TARGETPATH if was set
 		TARGETPATH=$(dirname $TARGETPATH)
