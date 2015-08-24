@@ -5,4 +5,4 @@
 
 export SKIPBUILDLIST="FreeBSD OpenSolaris Windows"
 
-$(dirname $0)/../bin/korinf dkms dkms-aksparlnx /var/ftp/pub/Etersoft/HASP $@
+$(dirname $0)/../bin/korinf dkms-aksparlnx dkms /var/ftp/pub/Etersoft/HASP "$@"
