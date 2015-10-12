@@ -168,8 +168,8 @@ run_in_chroot()
 		# do not use command for a user
 		#[ -n "$LOUSER" ] || rcommands=
 		# Note: this output can be write to file with redirect output
-		echo "Run command in remote ($rhost) build system:" >2
-		echo "# $@" >2
+		echo "Run command in remote ($rhost) build system:" >&2
+		echo "# $@" >&2
 		# FIXME: add -t if need interactive
 		if [ -z "$LOUSER" ] || [ "$LOUSER" = "root" ] ; then
 		    #ssh -i $PRIVATESSHKEY $INTUSER@$rhost $rcommands "\"export LANG=C ; export LC_ALL=C ; $@\""
@@ -180,8 +180,8 @@ run_in_chroot()
 		return
 	fi
 
-	echo "Run command in chrooted build system:" >2
-	echo "# $@" >2
+	echo "Run command in chrooted build system:" >&2
+	echo "# $@" >&2
 	assert_var BUILDARCH BUILDROOT
 	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
 		su - $LOUSER -c "export LANG=C ; export LC_ALL=C ; $@"
