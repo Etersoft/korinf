@@ -44,13 +44,17 @@ build_windows()
 	# FIXME: hack about build dir
 	cd $RPMTOPDIR/BUILD/$BUILDNAME-$PACKAGEVERSION/ || return
 
-	if [ ! -f ./etersoft/mingwbuild.sh ] ; then
-		warning "It is needed to put etersoft/mingwbuild.sh script in the tarball sources"
-		return 1
+	local BUILDSCRIPT=./etersoft/mingwbuild.sh
+	if [ ! -f $BUILDSCRIPT ] ; then
+		BUILDSCRIPT=./korinf/mingwbuild.sh
+		if [ ! -f $BUILDSCRIPT ] ; then
+			warning "It is needed to put $BUILDSCRIPT script in the tarball sources"
+			return 1
+		fi
 	fi
 
 	# Build to. Args: NAME VERSION RELEASE DESTDIR
-	bash -x ./etersoft/mingwbuild.sh $BUILDNAME $PACKAGEVERSION $PACKAGERELEASE $RPMTOPDIR/RPMS
+	bash -x $BUILDSCRIPT $BUILDNAME $PACKAGEVERSION $PACKAGERELEASE $RPMTOPDIR/RPMS
 	local RES=$?
 	cd -
 
