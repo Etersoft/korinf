@@ -45,9 +45,11 @@ __wine_dependence_hack()
 		# HACK due requires on x86_64?? FIXME
 		if [ $DISTRNAME = "Ubuntu" ] && version_more_version $DISTRVERSION 12.04 || [ $DISTRNAME = "Debian" ] && version_more_version $DISTRVERSION 7.0 ; then
 			# FIXME: replace with grep inplace or just subst
-			mv $DESTLOGDIR/${depf}.deb.depends $DESTLOGDIR/${depf}.deb.depends.orig
-			grep "^lib" $DESTLOGDIR/${depf}.deb.depends.orig > $DESTLOGDIR/${depf}.deb.depends
-			rm -f $DESTLOGDIR/${depf}.deb.depends.orig
+			local df=$DESTLOGDIR/${depf}.deb.depends
+			# just drop lib dependencies
+			mv $df $df.orig
+			grep "^lib" $df.orig > $df
+			rm -f $df.orig
 			fi
 	fi
 }
