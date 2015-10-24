@@ -27,8 +27,9 @@
 kormod korinf
 load_mod spec rpm etersoft strings
 
+eval lastarg=\${$#}
 
-if [ -z "$1" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
+if [ -z "$1" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$lastarg" = "-h" ] || [ "$lastarg" = "--help" ] ; then
 	echo "Use: korinf [options] <package.spec|PackageName> <System/Version> [TARGETDIR] [TARGETVERSION] [options]"
 	echo "     with package.spec use target as rpmpub"
 	echo "     with PackageName build in Build Farm"
