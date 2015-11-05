@@ -26,7 +26,7 @@ kormod converts/alien
 # FIXME HACK: do the same name conversion as alien
 internal_get_deb_pkgname_from_rpm()
 {
-	echo $1 | tr [A-Z] [a-z] | sed -e "s|\.i586.rpm|_i386.deb|g" | sed -e "s|\.x86_64.rpm|_amd64.deb|g" |
+	echo $1 | tr [A-Z] [a-z] | sed -e "s|\.i586.rpm|_i386.deb|g" | sed -e "s|\.x86_64.rpm|_amd64.deb|g" | sed -e "s|\.noarch.rpm|_all.deb|g" |
 		sed -e "s|-\([0-9a-z\.]*\)-alt\(.*\)_|_\1-eter\2${PKGVENDOR}_|g"
 }
 
@@ -60,7 +60,7 @@ convert_rpm_to_deb()
 	assert_var PACKAGEVERSION PACKAGERELEASE PKGVENDOR PKGFORMAT
 	assert_var DISTRNAME DISTRVERSION
 
-	local RELPKG=$PACKAGERELEASE$PKGVENDOR
+	#local RELPKG=$PACKAGERELEASE$PKGVENDOR
 
 	set_destlogdir
 	local PACKAGESLIST="$EXPRPMMAINFILES $EXPRPMEXTRAFILES"
@@ -94,27 +94,58 @@ convert_rpm_to_deb()
 	return 0
 }
 
+update_deb_dependencies()
+{
+	assert_var PACKAGEVERSION PACKAGERELEASE PKGVENDOR PKGFORMAT
+	assert_var DISTRNAME DISTRVERSION
+
+	set_destlogdir
+	local PACKAGESLIST="$EXPRPMMAINFILES $EXPRPMEXTRAFILES"
+	for i in $PACKAGESLIST ; do
+		if [ -e $i ] ; then
+			# prepare dependencies file
+			# TODO: rewrite this part
+			local depf=$(get_pkgname_from_filename $i)
+			if get_target_deplist "$depf" | tee $DESTLOGDIR/$depf.deb.depends ; then
+				__wine_dependence_hack "$i" "$depf"
+				cp "$DESTLOGDIR/${depf}.deb.depends" ${depf}.deb.depends
+			else
+				rm -f $DESTLOGDIR/$depf.deb.depends
+			fi
+		else
+			warning "Fatal: Package $i is missed in $(pwd)"
+			# FIXME: some projects has variable package list
+			return 1
+		fi
+	done
+
+	return 0
+}
+
 # convert in target system
 convert_debian()
 {
 	assert_var TARGETBUILDNAME PACKAGEVERSION PACKAGERELEASE PKGVENDOR BUILDARCH PKGFORMAT
+	assert_var DISTRNAME DISTRVERSION
 
 	# TODO: can be noarch (check the result package)
 	prepare_convert
 
-	#local PKGARCH=${BUILDARCH/i586/i686}
-	#local TARGETPKG=$TARGETBUILDNAME-$PACKAGEVERSION-$PACKAGERELEASE$PKGVENDOR-$PKGARCH.$PKGFORMAT
-
-	# FIXME: check get_target_deplist
-	# make list in form 'item1', 'item2'
-	# TODO: move to estrlist
-	#local prepreqs
-	#for i in $PKGREQLIST ; do
-		# FIXME: handle first arg separately before the cycle
-		#[ -z "$prepreqs" ] || prepreqs="$prepreqs, "
-	#	prepreqs="$prepreqs'$i' "
-	#done
-	#prepreqs=$(estrlist uniq $prepreqs)
+	set_destlogdir
+	for i in $BUILTBINPKGLIST ; do
+		if [ -e $i ] ; then
+			# prepare dependencies file
+			# TODO: rewrite this part
+			local depf=$(get_pkgname_from_filename $i)
+			local dependencies=""
+			if get_target_deplist "$depf" | tee $DESTLOGDIR/$depf.deb.depends ; then
+				__wine_dependence_hack "$i" "$depf"
+				#cp "$DESTLOGDIR/${depf}.deb.depends" ${depf}.deb.depends
+				dependencies=$(cat "$DESTLOGDIR/${depf}.deb.depends" | xargs -n1000 echo)
+			else
+				rm -f $DESTLOGDIR/$depf.deb.depends
+				#touch $depf.deb.depends
+			fi
 
 	cat <<EOF | run_in_chroot --user "bash -x -" || return
 	umask 002
@@ -123,18 +154,39 @@ convert_debian()
 	rm -rf $WRKDIR/
 	mkdir -p $WRKDIR/src/ && cd $WRKDIR/src/ || exit
 
-	for i in $BUILTBINPKGLIST ; do
-		pkg=$INTBUILT/\$(basename \$i)
-		test -r \$pkg || exit
-		fakeroot setarch $BUILDARCH alien --keep-version --scripts \$pkg || exit
-		rm -f \$pkg
-	done
-	#cd $WRKDIR/
+	pkg=$INTBUILT/$(basename $i)
+	test -r \$pkg || exit
 
+	#fakeroot setarch $BUILDARCH alien --keep-version --scripts \$pkg || exit
+
+	# repack with add dependencies
+	fakeroot setarch $BUILDARCH alien --keep-version --scripts --single \$pkg || exit
+	cd ${depf}* || exit
+	sed -ei "s/Depends: .*/Depends: $dependencies/g" debian/control || exit
+	fakeroot setarch $BUILDARCH debian/rules binary
+	cd -
+
+	#rm -f \$pkg
 	mv -v *.$PKGFORMAT $INTBUILT/
 	rm -rf $WRKDIR/
 	true
 EOF
+
+			# rename result package to filtered name
+			#local debname=$(internal_get_deb_pkgname_from_rpm $i)
+			#pwd
+			#ls -1
+			#debname=$(echo *.deb)
+			#local newdebname=$(get_deb_pkgname_from_rpm $i)
+			#echo "debname=$debname newdebname=$newdebname"
+			#[ "$newdebname" != "$debname" ] && mv -v "$debname" "$newdebname"
+		else
+			warning "Fatal: Package $i is missed in $(pwd)"
+			# FIXME: some projects has variable package list
+			return 1
+		fi
+	done
+
 
 	# Skip, we can get packages locally
 	#echo "$BUILTRPM/$TARGETPKG"
