@@ -135,7 +135,8 @@ convert_debian()
 	# repack with add dependencies
 	fakeroot setarch $BUILDARCH alien --keep-version --scripts --single \$pkg || exit
 	cd ${depf}* || exit
-	sed -ei "s/Depends: .*/Depends: $dependencies/g" debian/control || exit
+	# Note: we need sed -i on target
+	sed -i -e "s/Depends: .*/Depends: $dependencies/g" debian/control || exit
 	fakeroot setarch $BUILDARCH debian/rules binary
 	cd -
 
