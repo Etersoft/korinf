@@ -114,7 +114,14 @@ convert_debian()
 			if get_target_deplist "$depf" | tee $DESTLOGDIR/$depf.deb.depends ; then
 				__wine_dependence_hack "$i" "$depf"
 				#cp "$DESTLOGDIR/${depf}.deb.depends" ${depf}.deb.depends
-				dependencies=$(cat "$DESTLOGDIR/${depf}.deb.depends" | xargs -n1000 echo)
+				local dep
+				for dep in $(cat "$DESTLOGDIR/${depf}.deb.depends") ; do
+					# FIXME: handle first arg separately before the cycle
+					[ -z "$dependencies" ] || dependencies="$dependencies, "
+					dependencies="$dependencies$dep"
+				done
+				#dependencies=$(estrlist uniq $prepreqs)
+				#dependencies=$(cat "$DESTLOGDIR/${depf}.deb.depends" | xargs -n1000 echo)
 			else
 				rm -f $DESTLOGDIR/$depf.deb.depends
 				#touch $depf.deb.depends
