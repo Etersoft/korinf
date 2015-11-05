@@ -92,6 +92,9 @@ install_build_requires()
 	# Note: some additional requires we add in rpmbph
 	local buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch gcc coreutils grep"
 
+	# hack to prepare Debian based system
+	[ "$PKGFORMAT" = "deb" ] && buildsystempkgs="$buildsystempkgs alien"
+
 	reqs=$(get_rpmpkg_requires -p "$BUILDSRPM" | clean_pkgreq)
 	reqs=$(convert_pkgreqs_to_target $reqs $buildsystempkgs | xargs -n 1000 echo)
 
