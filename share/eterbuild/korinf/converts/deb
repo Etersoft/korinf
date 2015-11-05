@@ -54,6 +54,7 @@ __wine_dependence_hack()
 	fi
 }
 
+# convert in the local system (broken, see ALT bug #31441)
 convert_rpm_to_deb()
 {
 	assert_var PACKAGEVERSION PACKAGERELEASE PKGVENDOR PKGFORMAT
@@ -91,5 +92,52 @@ convert_rpm_to_deb()
 	done
 
 	return 0
+}
+
+# convert in target system
+convert_debian()
+{
+	assert_var TARGETBUILDNAME PACKAGEVERSION PACKAGERELEASE PKGVENDOR BUILDARCH PKGFORMAT
+
+	# TODO: can be noarch (check the result package)
+	prepare_convert
+
+	#local PKGARCH=${BUILDARCH/i586/i686}
+	#local TARGETPKG=$TARGETBUILDNAME-$PACKAGEVERSION-$PACKAGERELEASE$PKGVENDOR-$PKGARCH.$PKGFORMAT
+
+	# FIXME: check get_target_deplist
+	# make list in form 'item1', 'item2'
+	# TODO: move to estrlist
+	#local prepreqs
+	#for i in $PKGREQLIST ; do
+		# FIXME: handle first arg separately before the cycle
+		#[ -z "$prepreqs" ] || prepreqs="$prepreqs, "
+	#	prepreqs="$prepreqs'$i' "
+	#done
+	#prepreqs=$(estrlist uniq $prepreqs)
+
+	cat <<EOF | run_in_chroot --user "bash -x -" || return
+	umask 002
+	mkdir -p ~/RPM/log
+
+	rm -rf $WRKDIR/
+	mkdir -p $WRKDIR/src/ && cd $WRKDIR/src/ || exit
+
+	for i in $BUILTBINPKGLIST ; do
+		pkg=$INTBUILT/\$(basename \$i)
+		test -r \$pkg || exit
+		fakeroot setarch $BUILDARCH alien --keep-version --scripts \$pkg || exit
+		rm -f \$pkg
+	done
+	#cd $WRKDIR/
+
+	mv -v *.$PKGFORMAT $INTBUILT/
+	rm -rf $WRKDIR/
+	true
+EOF
+
+	# Skip, we can get packages locally
+	#echo "$BUILTRPM/$TARGETPKG"
+	#run_in_chroot --user "cat $INTBUILT/$TARGETPKG" >$BUILTRPM/$TARGETPKG || return
 }
 
