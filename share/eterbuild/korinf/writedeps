@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 ##
 #  Korinf project
 #
 #  Copying functions
 #
-#  Copyright (c) Etersoft <http://etersoft.ru> 2005-2009, 2013
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2013
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005-2009, 2013, 2015
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2013, 2015
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,8 @@ make_alt_depends_list()
     [ -n "$pkg" ] || return
     echo "Dependencies list for $pkg:"
     local TFILE=$(make_temp_file)
-    $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || fatal "error with rpmreqs"
+    # TODO: in any way, rpmreqs run apt-get install directly!
+    BUILDARCH=i586 $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || fatal "error with rpmreqs"
     set_destlogdir
     local DEPFILE=$DESTLOGDIR/$(get_pkgname_from_filename $pkg | filter_deb_pkgnames).rpm.depends
     rm -f $DEPFILE # for keep correct owner
@@ -40,7 +41,7 @@ make_alt_depends_list()
     rm -f $TFILE
 }
 
-# used $dist
+# used $dist (in set_desklogdir?)
 write_altdeps_by_list()
 {
 	local i
@@ -48,13 +49,15 @@ write_altdeps_by_list()
 	local expfiles="$2"
 	[ -n "$expfiles" ] || return 0
 
-	pushd $destdir >/dev/null || return 0
+	# TODO: need we pushd here?
+	pushd "$destdir" >/dev/null || return 0
+	# trick with expand mask here
 	for i in $expfiles ; do
-		[ -e "$i" ] || continue
+		[ -s "$i" ] || continue
 		make_alt_depends_list "$i" || fatal "Some depends error with $i"
 	done
 
-	popd
+	popd >/dev/null
 }
 
 write_altdeps()
