@@ -40,7 +40,8 @@ PRIVPART='SQL'
 
 #SYSTEM=ALTLinux/Sisyphus
 # p6 - needs some release rewrite (alt14 -> alt13.M60P.14)
-SYSTEM=ALTLinux/p7
+#SYSTEM=ALTLinux/p7
+SYSTEM=$(distr_info)
 
 
 # TODO: move to etersoft-build-utils spec
