@@ -1,5 +1,5 @@
 Name: korinf
-Version: 2.1.0
+Version: 2.1.1
 Release: alt1
 
 Summary: Korinf multidistro single source build system
@@ -46,6 +46,13 @@ This package contains Korinf multidistro build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Sat Nov 07 2015 Vitaly Lipatov <lav@altlinux.ru> 2.1.1-alt1
+- windows: add korinf/mingwbuild.sh
+- fix bug with 2 file created
+- korinf: print help when --help in the last position
+- switch to convert deb packages via target system alien (eterbug #8345)
+- install: add hack to install alien, fakeroot and debhelper requires for deb
+
 * Mon Aug 24 2015 Vitaly Lipatov <lav@altlinux.ru> 2.1.0-alt1
 - korinf: full rewrite, fix args handling
 - fix korinf command using
