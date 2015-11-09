@@ -117,8 +117,8 @@ convert_debian()
 				local dep
 				for dep in $(cat "$DESTLOGDIR/${depf}.deb.depends") ; do
 					# FIXME: handle first arg separately before the cycle
-					[ -z "$dependencies" ] || dependencies="$dependencies, "
-					dependencies="$dependencies$dep"
+					#[ -z "$dependencies" ] || dependencies="$dependencies, "
+					dependencies="$dependencies, $dep"
 				done
 				#dependencies=$(estrlist uniq $prepreqs)
 				#dependencies=$(cat "$DESTLOGDIR/${depf}.deb.depends" | xargs -n1000 echo)
@@ -143,7 +143,7 @@ convert_debian()
 	fakeroot setarch $BUILDARCH alien --keep-version --scripts --single \$pkg || exit
 	cd ${depf}* || exit
 	# Note: we need sed -i on target
-	sed -i -e "s/Depends: .*/Depends: $dependencies/g" debian/control || exit
+	sed -i -e "s/Depends: \(.*\)/Depends: \1$dependencies/g" debian/control || exit
 	fakeroot setarch $BUILDARCH debian/rules binary
 	cd -
 
