@@ -70,7 +70,7 @@ case $DISTRNAME in
 	kormod writedeps
 
 	logit "build in hasher $DISTRVERSION" build_in_hasher || return 1
-	if [ "$DISTRVERSION" = "Sisyphus" ] ; then
+	if [ "$BUILDARCH/$DISTRNAME/$DISTRVERSION" = "i586/ALTLinux/Sisyphus" ] ; then
 		logit "write dependencies" write_altdeps || return 1
 	fi
 	logit "copying to FTP dir" copying_packages || return 1

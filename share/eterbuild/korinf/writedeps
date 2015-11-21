@@ -33,7 +33,7 @@ make_alt_depends_list()
     echo "Dependencies list for $pkg:"
     local TFILE=$(make_temp_file)
     # TODO: in any way, rpmreqs run apt-get install directly!
-    BUILDARCH=i586 $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || fatal "error with rpmreqs"
+    BUILDARCH=i586 $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || return
     set_destlogdir
     local DEPFILE=$DESTLOGDIR/$(get_pkgname_from_filename $pkg | filter_deb_pkgnames).rpm.depends
     rm -f $DEPFILE # for keep correct owner
@@ -54,7 +54,7 @@ write_altdeps_by_list()
 	# trick with expand mask here
 	for i in $expfiles ; do
 		[ -s "$i" ] || continue
-		make_alt_depends_list "$i" || fatal "Some depends error with $i"
+		make_alt_depends_list "$i" || { warning "Some depends error with $i" ; return 1 ; }
 	done
 
 	popd >/dev/null
