@@ -11,15 +11,15 @@
 # LTS until 04.2015
 Ubuntu/10.04
 #Ubuntu/10.10
-Ubuntu/11.04
-Ubuntu/11.10
+#Ubuntu/11.04
+#Ubuntu/11.10
 
 # LTS until 04.2017
 Ubuntu/12.04
 
-Ubuntu/12.10
-Ubuntu/13.04
-Ubuntu/13.10
+#Ubuntu/12.10
+#Ubuntu/13.04
+#Ubuntu/13.10
 
 # LTS until 04.2019
 Ubuntu/14.04
@@ -33,9 +33,10 @@ Ubuntu/15.04
 # like 12.04: LTS until 04.2017
 Mint/13
 
-Mint/14
-Mint/15
-Mint/16
+#Mint/14
+#Mint/15
+#Mint/16
 
 # like 14.04: LTS until 04.2019
 Mint/17
+

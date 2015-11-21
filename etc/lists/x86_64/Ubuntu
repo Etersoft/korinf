@@ -2,7 +2,7 @@
 # Не комментировать! Здесь полный список
 
 # LTS
-x86_64/Ubuntu/8.04
+#x86_64/Ubuntu/8.04
 
 #x86_64/Ubuntu/8.10
 #x86_64/Ubuntu/9.04
@@ -11,17 +11,17 @@ x86_64/Ubuntu/8.04
 # LTS
 x86_64/Ubuntu/10.04
 
-x86_64/Ubuntu/10.10
-x86_64/Ubuntu/11.04
-x86_64/Ubuntu/11.10
+#x86_64/Ubuntu/10.10
+#x86_64/Ubuntu/11.04
+#x86_64/Ubuntu/11.10
 
 # LTS
 x86_64/Ubuntu/12.04
 
 
-x86_64/Ubuntu/12.10
-x86_64/Ubuntu/13.04
-x86_64/Ubuntu/13.10
+#x86_64/Ubuntu/12.10
+#x86_64/Ubuntu/13.04
+#x86_64/Ubuntu/13.10
 
 # LTS until 04.2019
 x86_64/Ubuntu/14.04
@@ -29,15 +29,15 @@ x86_64/Ubuntu/14.04
 x86_64/Ubuntu/14.10
 x86_64/Ubuntu/15.04
 
-x86_64/Mint/10
-x86_64/Mint/11
+#x86_64/Mint/10
+#x86_64/Mint/11
 
 # like 12.04: LTS until 04.2017
 x86_64/Mint/13
 
-x86_64/Mint/14
-x86_64/Mint/15
-x86_64/Mint/16
+#x86_64/Mint/14
+#x86_64/Mint/15
+#x86_64/Mint/16
 
 # like 14.04: LTS until 04.2019
 x86_64/Mint/17
