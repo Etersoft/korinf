@@ -33,22 +33,15 @@ mkdir_dest()
 # Cleanup target dir, used for all systems
 clean_copying_destination()
 {
-	# Remove old packages from main dir
-	if [ -n "$MAINFILESLIST" ] && [ -d "$DESTDIR" ] ; then
-		echo "Removing old '$MAINFILESLIST' by mask '$EXPMAINFILES' from $DESTDIR..."
-		pushd $DESTDIR >/dev/null || return 1
+	local dir
+	for dir in "$DESTDIR" "$DESTDIR/extra" ; do
+		[ -d "$DESTDIR" ] || continue
+		echo "Removing old '$MAINFILESLIST $EXTRAFILESLIST' by mask '$EXPMAINFILES $EXPEXTRAFILES' from $dir..."
+		pushd $dir >/dev/null || return 1
 		rm -fv $EXPMAINFILES
-		popd >/dev/null
-	fi
-
-	# Remove old packages from extra dir
-	if [ -n "$EXTRAFILESLIST" ] && [ -d "$DESTDIR/extra" ] ; then
-		echo "Removing old '$EXTRAFILESLIST' by mask '$EXPEXTRAFILES' from $DESTDIR/extra..."
-		pushd $DESTDIR/extra >/dev/null || return 1
 		rm -fv $EXPEXTRAFILES
 		popd >/dev/null
-	fi
-
+	done
 }
 
 mark_build_done()
