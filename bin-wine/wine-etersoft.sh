@@ -10,7 +10,7 @@ kormod korinf
 
 NAME=wine-etersoft
 
-MAINFILES="$NAME[-_][0-9]"
-EXTRAFILES="$NAME-gl $NAME-twain lib$NAME-devel"
+MAINFILES="$NAME[-_][0-9] $NAME-gl"
+EXTRAFILES="$NAME-twain lib$NAME-devel"
 
 build_project $WINEPUB_PATH $NAME WINE $@
