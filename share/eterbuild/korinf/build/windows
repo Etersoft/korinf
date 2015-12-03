@@ -44,12 +44,17 @@ build_windows()
 	# FIXME: hack about build dir
 	cd $RPMTOPDIR/BUILD/$BUILDNAME-$PACKAGEVERSION/ || return
 
-	local BUILDSCRIPT=./etersoft/mingwbuild.sh
+	# if all repo is packed
+	local BUILDSCRIPT=.gear/mingwbuild.sh
 	if [ ! -f $BUILDSCRIPT ] ; then
-		BUILDSCRIPT=./korinf/mingwbuild.sh
+		# compatibility
+		local BUILDSCRIPT=./etersoft/mingwbuild.sh
 		if [ ! -f $BUILDSCRIPT ] ; then
-			warning "It is needed to put $BUILDSCRIPT script in the tarball sources"
-			return 1
+			BUILDSCRIPT=./korinf/mingwbuild.sh
+			if [ ! -f $BUILDSCRIPT ] ; then
+				warning "It is needed to put $BUILDSCRIPT script in the tarball sources"
+				return 1
+			fi
 		fi
 	fi
 
