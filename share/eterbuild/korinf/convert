@@ -42,11 +42,11 @@ convert_rpm_to_target()
 	echo "Convert '$BUILDSRPM' for $dist distro"
 	rm -f $BUILDERHOME/tmp/$BUILDNAME*
 	if [ -n "$MAKESPKG" ] ; then
-		$RPMBPH -v -n -z $BUILDSRPM
+		$RPMBP -v -z $BUILDSRPM
 		BUILTRPM=~/$RPMSDIR
 		return 0
 	else
-		ETERDESTSRPM=$BUILDERHOME/tmp $RPMBPH -v -n $BUILDSRPM
+		ETERDESTSRPM=$BUILDERHOME/tmp $RPMBP -v $BUILDSRPM
 		BUILTRPM=$BUILDERHOME/$RPMSDIR
 	fi
 

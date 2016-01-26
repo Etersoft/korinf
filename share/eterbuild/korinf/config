@@ -33,6 +33,7 @@ test -f ~/.config/korinf  && . ~/.config/korinf
 [ -n "$EMAILNOTIFY" ] || EMAILNOTIFY=$USER
 
 RPMBPH=$ETERBUILDBIN/rpmbph
+RPMBP=$ETERBUILDBIN/rpmbp
 RPMBSH=$ETERBUILDBIN/rpmbsh
 RPMBS=$ETERBUILDBIN/rpmbs
 

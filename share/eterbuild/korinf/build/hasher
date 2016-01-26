@@ -82,7 +82,7 @@ fi
 		if [ "$MENV" = "SS" ] ; then
 			BUILDCOMMAND="$RPMBS -s"
 		else
-			BUILDCOMMAND="$RPMBPH -n $MENVARG"
+			BUILDCOMMAND="$RPMBP $MENVARG"
 		fi
 		$BUILDCOMMAND $BUILDSRPM || { warning "Cannot build srpm" ; return 1 ; }
 		return
