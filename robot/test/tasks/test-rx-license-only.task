@@ -1,0 +1,14 @@
+PRODUCT="RX@Etersoft"
+COMPONENTNAME="RX@Etersoft"
+ETERREGNUM="08CF-8239"
+DOWNLOADDIR="RX@Etersoft/1.1.3"
+MAILTO="d.yacenko@gmail.test"
+FULLNAME='Яценко Дмитрий Владимирович'
+PROJECTVERSION="1.1.3"
+RELEASECANDIDAT=0
+TYPE_LICENSE=Terminal
+NAME_LICENSE="Лицензия для терминального сервера (подключения не ограничены)"
+COUNT_LICENSE=0
+OWNER='ИП Савченко Андрей Викторович'
+DATE_START='14/09/2010'
+DATE_END='10/09/2025'

@@ -121,7 +121,9 @@ build_anycomponent()
 		TEXTDIST="$TEXTDIST (фактически сборка выполнена для $DIST)"
 	fi
 	
-	check_dist $DIST
+	if [ -z "$LICENSEONLY" ] ; then
+		check_dist $DIST
+	fi
 
 	# need for license file creating
 	local CNAME=$(strip_spaces $COMPONENTNAME)
