@@ -96,7 +96,6 @@ convert_rpm()
 			case $PKGFORMAT in
 			    "deb")
 				kormod converts/deb
-				#convert_rpm_to_deb
 				convert_debian
 				RES=$?
 				;;

@@ -54,46 +54,6 @@ __wine_dependence_hack()
 	fi
 }
 
-# convert in the local system (broken, see ALT bug #31441)
-convert_rpm_to_deb()
-{
-	assert_var PACKAGEVERSION PACKAGERELEASE PKGVENDOR PKGFORMAT
-	assert_var DISTRNAME DISTRVERSION
-
-	#local RELPKG=$PACKAGERELEASE$PKGVENDOR
-
-	set_destlogdir
-	local PACKAGESLIST="$EXPRPMMAINFILES $EXPRPMEXTRAFILES"
-	echo "Packages to convert: $PACKAGESLIST"
-	for i in $PACKAGESLIST ; do
-		if [ -e $i ] ; then
-			# prepare dependencies file
-			# TODO: rewrite this part
-			local DEPPARAM=""
-			local depf=$(get_pkgname_from_filename $i)
-			if get_target_deplist "$depf" | tee $DESTLOGDIR/$depf.deb.depends ; then
-				if check_alien ; then
-					DEPPARAM="--depends $DESTLOGDIR/${depf}.deb.depends"
-					__wine_dependence_hack "$i" "$depf"
-				fi
-			else
-				rm -f $DESTLOGDIR/$depf.deb.depends
-			fi
-			run_alien --scripts --to-$PKGFORMAT ${DEPPARAM} $i || { warning "alien problem with $PKGFORMAT"; return 1; }
-			# rename result package to filtered name
-			local debname=$(internal_get_deb_pkgname_from_rpm $i)
-			local newdebname=$(get_deb_pkgname_from_rpm $i)
-			[ "$newdebname" != "$debname" ] && mv -v $debname $newdebname
-		else
-			warning "Fatal: Package $i is missed in $(pwd)"
-			# FIXME: some projects has variable package list
-			return 1
-		fi
-	done
-
-	return 0
-}
-
 
 # convert in target system
 convert_debian()

@@ -21,18 +21,6 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-
-# TODO: remove it (after fix https://bugs.etersoft.ru/show_bug.cgi?id=8345)
-check_alien()
-{
-    if (alien -h 2>&1 | grep -qws "depends" ); then
-	return 0
-    else
-	warning "Error: `alien -V` not support \"--depends\" option..."
-	return 1
-    fi
-}
-
 run_alien()
 {
 	local VERBCOMMAND=
