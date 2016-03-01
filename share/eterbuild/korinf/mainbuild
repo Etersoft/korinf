@@ -54,12 +54,12 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 
 		# Note: Small hack
 		local LFROM=../$LINKED
-		echo $dist | grep -q x86_64 && LFROM=../../$LINKED
+		rhas "$dist" x86_64 && LFROM=../../$LINKED
 
 		if [ -L "$DESTDIR" ] ; then
 			# TODO: check linking
 			#logit "Link $dist to $(readlink $DESTDIR) already exists" SKIPPED
-			if [ $(readlink "$DESTDIR") != "$LFROM" ] ; then
+			if [ "$(readlink "$DESTDIR")" != "$LFROM" ] ; then
 				warning "Overwrite already existed link $(readlink $DESTDIR) to $LFROM"
 				rm -rfv "$DESTDIR"
 			else
@@ -67,15 +67,15 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 			fi
 		fi
 		if [ ! -L "$DESTDIR" ] ; then
-			mkdir -p $(dirname "$DESTDIR")
-			logit "Create link $dist to $LINKED" ln -s $LFROM $DESTDIR
+			mkdir -p "$(dirname "$DESTDIR")"
+			logit "Create link $dist to $LINKED" ln -s "$LFROM" "$DESTDIR"
 		fi
 		# replace dist with linked
-		dist=$LINKED
+		dist="$LINKED"
 		# Set target dir for built packages
-		DESTDIR=$TARGETPATH/$dist
+		DESTDIR="$TARGETPATH/$dist"
 		# if already built
-		grep -q $dist $BUILTLOGFILE && continue
+		grep -q "$dist" $BUILTLOGFILE && continue
 	fi
 
 	# Set target URL for get tarballs or checking
