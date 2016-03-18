@@ -53,6 +53,7 @@ kormod korinf
 
 mount_taskdir()
 {
+	fusermount -u $TASKDIR
 	sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT
 }
 
