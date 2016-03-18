@@ -8,13 +8,15 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
+libpq=5.5
 major=9.2
+
 pname=postgre-etersoft
 pnamever=${pname}${major}
 POSTGRESDIR=/var/ftp/pub/Etersoft/Postgres@Etersoft/
 
 # Проблема с тем, что пакет с библиотеками не -libs, а не libpq5.2
-export MAINFILES="${pnamever}-seltaaddon[-_][0-9] ${pnamever}[-_][0-9] ${pnamever}-contrib[-_][0-9] ${pnamever}-server[-_][0-9] libpq5.[0-9]-${major}eter"
+export MAINFILES="${pnamever}-seltaaddon[-_][0-9] ${pnamever}[-_][0-9] ${pnamever}-contrib[-_][0-9] ${pnamever}-server[-_][0-9] libpq${libpq}-${major}eter"
 #export EXTRAFILES="${pnamever}-devel[-_][0-9] ${pnamever}-docs[-_][0-9] ${pnamever}-plperl[-_][0-9] ${pnamever}-plpython[-_][0-9] ${pnamever}-test[-_][0-9]"
 export EXTRAFILES="${pnamever}-docs[-_][0-9] ${pnamever}-plperl[-_][0-9] ${pnamever}-plpython[-_][0-9]"
 
