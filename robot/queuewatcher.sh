@@ -57,6 +57,19 @@ mount_taskdir()
 	sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT
 }
 
+check_hangup()
+{
+	local FLAG=$(mktemp -u)
+	rm -f $FLAG
+	# try to detect hangup when accessing to $TASKDIR
+	( stat $TASKDIR >/dev/null ; touch $FLAG) &
+	sleep 5
+	if [ ! -f $FLAG ] ; then
+		killall -9 sshfs
+	fi
+	rm -f $FLAG
+}
+
 if [ "$1" = "now" ] ; then
 	FLAGNOW=1
 	shift
@@ -68,6 +81,7 @@ if [ "$1" = "mount" ] ; then
 fi
 
 while true ; do
+	check_hangup
 	if [ ! -r $TASKDIR/SALESDIR ] ; then
 		sleep 3
 		mount_taskdir
