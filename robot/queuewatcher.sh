@@ -54,6 +54,8 @@ kormod korinf
 mount_taskdir()
 {
 	fusermount -u $TASKDIR
+	# TODO: add some check?
+	fusermount -u -z $TASKDIR
 	sshfs $SSHMOUNTBASE $TASKDIR -o $SSHMOUNTOPT
 }
 
