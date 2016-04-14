@@ -119,12 +119,12 @@ if cd $TARGETPATH ; then
 	pwd
 
 	LIST=
-	for i in $LIBBUILDNAME $BUILDNAME ; do
+	for i in $LIBBUILDNAME $BUILDNAME $BUILDNAME-gl ; do
 		pkg_is_installed $i && LIST="$LIST $i[-_]$VERSION-*$RELEASE[._]*.$EXT"
 	done
 
 	# FIXME: not for wine / wine-vanilla
-	for i in lib$BUILDNAME-devel $BUILDNAME-gl $BUILDNAME-twain ; do
+	for i in lib$BUILDNAME-devel $BUILDNAME-twain ; do
 		pkg_is_installed $i && LIST="$LIST $EXTRADIR$i[-_]$VERSION-*$RELEASE[._]*.$EXT"
 	done
 
