@@ -61,7 +61,7 @@ check_target_dist()
 {
 	local DIST="$1"
 	[ -n "$DIST" ] || fatal "missed arg for check_target_dist"
-	get_distro_list $(get_target_list "") | grep -q "$DIST" || get_distro_list $(get_target_list "ALL") | grep -q "$DIST"
+	get_distro_list $(get_target_list "") | grep -q "^$DIST$" || get_distro_list $(get_target_list "ALL") | grep -q "^$DIST$"
 }
 
 get_real_target_dist()
