@@ -58,8 +58,10 @@ build wine wine-etersoft-all $1
 
 #build wine wine-etersoft-cad
 
-# build hasp without target
-build hasp haspd stable
+# The unique execute way of the project build doesn't accept target args (stable, last or so)
+#build hasp haspd stable
+build hasp haspd
+
 # TODO: only for dkms target
 # build hasp dkms-aksparlnx
 
