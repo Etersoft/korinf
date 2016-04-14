@@ -1,7 +1,8 @@
 
 # Debian based
-# end of support date: Feb 2012 (see http://archive.debian.org)
-#Debian/5.0
-Debian/6.0
-Debian/7.0
-Debian/8.0
+# EOL: 29.02.2016
+Debian/6
+# EOL: 31.05.2018
+Debian/7
+# EOL: ??.04.2020
+Debian/8
