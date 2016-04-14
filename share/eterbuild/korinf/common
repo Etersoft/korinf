@@ -159,6 +159,8 @@ parse_dist_name()
 {
 	local dist=$1
 	local v
+	# CHECKME: miss export
+	[ -z "$1" ] && DISTRNAME="" && DISTRVERSION="" && BUILDARCH="" && return 1
 	# dist format: [arch/]Name/Version
 	DISTRVERSION=`echo $dist | sed -e "s|.*/||g"`
 	v=`echo $dist | sed -e "s|/$DISTRVERSION\$||g"`
@@ -167,7 +169,7 @@ parse_dist_name()
 	# FIXME: i586 by default, some x86_64 detection?
 	test "$BUILDARCH" = "$v" && BUILDARCH=i586
 	# if parse error
-	test "$DISTRNAME" = "$DISTRVERSION" && DISTRNAME="" && DISTRVERSION=""
+	[ "$DISTRNAME" = "$DISTRVERSION" ] && DISTRNAME="" && DISTRVERSION=""
 	export DISTRNAME DISTRVERSION BUILDARCH
 }
 

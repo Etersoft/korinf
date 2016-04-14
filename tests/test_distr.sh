@@ -39,7 +39,7 @@ check "SomeDistro 2010" i586 "" ""
 
 check_source()
 {
-	SOURCES=$(get_rpm_sources "$1")
+	SOURCES=$(get_sources_dir "$1")
 	[ "$SOURCES" != "$2" ] && echo "Error: wait for '$2', but get '$SOURCES' for $1" || echo "OK for $1"
 }
 
