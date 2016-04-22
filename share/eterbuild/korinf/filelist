@@ -28,7 +28,6 @@ expand_filelist()
         declare -a ar
         ar=( $@ )
         for i in `seq 0 $(( ${#ar[@]} - 1))`; do
-        
                 echo -n "${ar[i]}*.${PKGFORMAT} "
         done
 }
@@ -78,7 +77,7 @@ fill_filelist()
 
 	# HACK: the follow code copied from build/hasher
 	# search for binary packages
-	BUILTBINPKGLIST=$(get_binpkg_list $BUILTRPM $(basename $TARGETSRPM))
+	BUILTBINPKGLIST=$($EPMCMD print binpkgfilelist $BUILTRPM $(basename $TARGETSRPM))
 	echo "For $TARGETSRPM follow packages is found:"
 	echo "$BUILTBINPKGLIST"
 
