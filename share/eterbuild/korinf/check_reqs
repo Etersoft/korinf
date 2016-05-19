@@ -67,6 +67,8 @@ check_package_requires()
 	local BUILDNAME=$1
 	local reqs
 
+	# TODO: can we for deb or rpm?
+	# it have no place before done?
 	echo "Note: we do not use info from built packages, only check if file is exists"
 
 	for dist in $(get_distro_list $REBUILDLIST) ; do
