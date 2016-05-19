@@ -99,12 +99,24 @@ convert_debian()
 
 	#fakeroot setarch $BUILDARCH alien --keep-version --scripts \$pkg || exit
 
+	# Note: dpkg-architecture detects Arch via gcc -dumpmachine, see korinf/helpers/gcc-stub-dumpmachine if needs
+
 	# repack with add dependencies
-	fakeroot setarch $BUILDARCH alien --keep-version --scripts --single \$pkg || exit
+	fakeroot alien --keep-version --scripts --single \$pkg || exit
 	cd ${depf}* || exit
+
 	# Note: we need sed -i on target
+	# TODO: ${misc:Depends} and debian/nx.substvars
 	sed -i -e "s/Depends: \(.*\)/Depends: \1$dependencies/g" debian/control || exit
-	fakeroot setarch $BUILDARCH debian/rules binary
+
+	# hack for nx (see eterbug #11025)
+	sed -i -e "s/dh_shlibdeps$/dh_shlibdeps -- -v -xlibx11-private/g" debian/rules
+	fakeroot debian/rules binary
+
+	# hack for nx (see eterbug #11025)
+	#sed -i -e "s/libx11-private,//g" debian/*/DEBIAN/control
+	#fakeroot dh_builddeb
+
 	cd -
 
 	#rm -f \$pkg
