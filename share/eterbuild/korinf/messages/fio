@@ -21,13 +21,17 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+__fio_filter()
+{
+	sed -e "s/[\"\'()]//g"
+}
 
 # ФИО -> Иван
 get_name_from_fio()
 {
 # cut failed with names if field 2 is missed
 #       echo "$@" | cut -d" " -f2
-        echo $1 | awk '{print $2}'
+        echo "$1" | awk '{print $2}' | __fio_filter
 }
 
 # ФИО -> Иван Петров
@@ -36,8 +40,8 @@ get_fio_for_email()
         local FNAME="$(get_name_from_fio "$@")"
         local LNAME="$(echo "$@" | cut -d" " -f1)"
         local SNAME="$(echo "$@" | cut -d" " -f3)"
-        [ -z "$FNAME" ] || echo -n "$FNAME "
-        echo "$LNAME"
+        [ -z "$FNAME" ] || echo -n "$FNAME " | __fio_filter
+        echo "$LNAME" | __fio_filter
 }
 
 # Фамилия должна быть на первом месте: ФИО
@@ -69,9 +73,9 @@ get_dear_from_fio()
         fi
     fi
     if [ -z "$name" ] ; then
-        name=$1
+        name="$1"
     fi
-    echo $name
+    echo "$name" | __fio_filter
     return
 }
 

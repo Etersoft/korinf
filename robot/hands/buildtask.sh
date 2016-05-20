@@ -76,11 +76,13 @@ PWGEN=`pwgen 10 1`
 [ -n "$PWGEN" ] || fatal "Can't get pwgen output"
 TARGETDIRNAME=${ETERREGNUM/-*/}-$PWGEN
 
-FIOMAIL="$(get_fio_for_email "$FULLNAME")"
+FIOMAIL="$(get_fio_for_email "$FULLNAME" "")"
+FULLMAILTO="\"$FIOMAIL\" "
+[ -z "$FIOMAIL" ] && FULLMAILTO=""
 if [ "$REALRUN" = "--real" ] && [ ! -f $0.debug ] ; then
-	FULLMAILTO="\"$FIOMAIL\" <$MAILTO>"
+	FULLMAILTO="$FULLMAILTO<$MAILTO>"
 else
-	FULLMAILTO="\"$FIOMAIL\" <$USER@etersoft.ru>"
+	FULLMAILTO="$FULLMAILTO<$USER@etersoft.ru>"
 fi
 
 export FULLMAILTO
