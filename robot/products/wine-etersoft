@@ -369,7 +369,6 @@ mail_wine_etersoft_license()
 	export LC_ALL=ru_RU.UTF-8
 	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Лицензия для продукта $COMPONENTNAME" || fatal "Can't send"
 	rm -f $TMPMAIL
-	$TMPFTPDIR/$LICENSEFILE
 }
 
 
