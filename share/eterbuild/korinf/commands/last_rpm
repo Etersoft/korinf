@@ -6,7 +6,7 @@ last_rpm ()
   local lastrpm
   local pkgver
   lastrpm="____NOT_FOUND______"
-  if ! which rpmvercmp >/dev/null 2>&1 ; then
+  if ! which rpmevrcmp >/dev/null 2>&1 ; then
 	lastrpm=$(xargs -n1 echo " " | sort | tail -n1)
 	# hack against src.rpm
 	basename $lastrpm .src.rpm
