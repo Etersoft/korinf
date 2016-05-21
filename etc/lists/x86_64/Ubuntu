@@ -1,23 +1,15 @@
 # Автоматическая система сборки пропускает мимо задания на системы, которых нет в списке (без failed)
 # Не комментировать! Здесь полный список
 
-# LTS
-#x86_64/Ubuntu/8.04
-
-#x86_64/Ubuntu/8.10
-#x86_64/Ubuntu/9.04
-#x86_64/Ubuntu/9.10
-
-# LTS
+# LTS until 04.2015
 x86_64/Ubuntu/10.04
 
 #x86_64/Ubuntu/10.10
 #x86_64/Ubuntu/11.04
 #x86_64/Ubuntu/11.10
 
-# LTS
+# LTS  until 04.2017
 x86_64/Ubuntu/12.04
-
 
 #x86_64/Ubuntu/12.10
 #x86_64/Ubuntu/13.04
@@ -30,8 +22,8 @@ x86_64/Ubuntu/14.10
 x86_64/Ubuntu/15.04
 x86_64/Ubuntu/15.10
 
-#x86_64/Mint/10
-#x86_64/Mint/11
+# LTS until 04.2021
+x86_64/Ubuntu/16.04
 
 # like 12.04: LTS until 04.2017
 x86_64/Mint/13
@@ -42,3 +34,6 @@ x86_64/Mint/13
 
 # like 14.04: LTS until 04.2019
 x86_64/Mint/17
+
+# like 16.04: LTS until 04.2021
+x86_64/Mint/18

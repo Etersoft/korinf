@@ -1,13 +1,3 @@
-# LTS until 06.2011
-#Ubuntu/6.06
-#Ubuntu/7.10
-
-# LTS until 04.2013
-#Ubuntu/8.04
-#Ubuntu/8.10
-#Ubuntu/9.04
-#Ubuntu/9.10
-
 # LTS until 04.2015
 Ubuntu/10.04
 #Ubuntu/10.10
@@ -28,8 +18,8 @@ Ubuntu/14.10
 Ubuntu/15.04
 Ubuntu/15.10
 
-#Mint/10
-#Mint/11
+# LTS until 04.2021
+Ubuntu/16.04
 
 # like 12.04: LTS until 04.2017
 Mint/13
@@ -40,4 +30,7 @@ Mint/13
 
 # like 14.04: LTS until 04.2019
 Mint/17
+
+# like 16.04: LTS until 04.2021
+Mint/18
 
