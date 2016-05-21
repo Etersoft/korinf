@@ -199,17 +199,6 @@ handle_optional_args()
 	fi
 }
 
-# FIXME: remove this func
-# build source packages according to REBUILDLIST
-# args: package_name
-build_srcrpm()
-{
-	MAKESPKG=1
-	build_package $@
-}
-
-
-
 # build_project /var/ftp/pub/Etersoft/WINE@Etersoft wine-etersoft WINE -f 2.1
 
 # args:
