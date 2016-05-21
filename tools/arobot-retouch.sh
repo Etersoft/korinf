@@ -27,7 +27,7 @@ cd ~/sales || exit 1
 
 DIST="$1"
 
-if [ -z "$DIST" ] ; then
+if [ -z "$DIST" ] || [ "$DIST" = "-h" ] ; then
 	echo "Run with target system name or 'all' for all tasks"
 	echo "List of current failed tasks sorted by distros"
 	for i in $(grep -h "^DIST" *.task.*) ; do
