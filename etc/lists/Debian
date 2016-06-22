@@ -1,8 +1,10 @@
 
 # Debian based
 # EOL: 29.02.2016
-Debian/6
+#Debian/6
+
 # EOL: 31.05.2018
 Debian/7
+
 # EOL: ??.04.2020
 Debian/8
