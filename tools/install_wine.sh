@@ -89,8 +89,10 @@ install_pkg()
 {
 	echo $LIST
 	test -n "$LIST" || return
-	NODEPS=--nodeps
-	[ -n "$INITIAL" ] && NODEPS=
+	# suggests we have updated system
+	NODEPS=
+	#NODEPS=--nodeps
+	#[ -n "$INITIAL" ] && NODEPS=
 	epm install --auto $NODEPS $FORCE $LIST
 }
 
