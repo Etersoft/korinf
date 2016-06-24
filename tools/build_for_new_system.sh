@@ -39,8 +39,8 @@ PART=$2
 export NIGHTBUILD=1
 
 if [ -z "$PART" ] ; then
-    $TOPDIR/bin/korinf eepm $SYSTEM -b || fatal
     $TOPDIR/bin-common/rpm-build-altlinux-compat.sh $SYSTEM -b || fatal
+    $TOPDIR/bin/korinf eepm $SYSTEM -b || fatal
 fi
 
 

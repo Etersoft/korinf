@@ -61,13 +61,13 @@ install_built()
 		return 22
 	fi
 
-	# it is failed for all packages except eepm
-	if [ "$BUILDNAME" != "eepm" ] ; then
+	# it is failed for all packages except eepm and rpm-build-altlinux-compat
+	if [ -z "$INITIAILBOOTSTRAP" ] ; then
 		set_build_failed
 		return
 	fi
 
-	# Bootstrap install eepm (get command from local epm)
+	# Bootstrap install eepm (get command from host's epm)
 	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || { warning "Can't get install command" ; return 1 ; }
 	run_in_chroot "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" #|| set_build_failed
 	run_in_chroot "epm -h >/dev/null" || set_build_failed
@@ -98,7 +98,8 @@ install_build_requires()
 	reqs=$(get_rpmpkg_requires -p "$BUILDSRPM" | clean_pkgreq)
 	reqs=$(convert_pkgreqs_to_target $reqs $buildsystempkgs | xargs -n 1000 echo)
 
-	# FIXME: remove makeinstall from eepm spec
+	[ -z "$reqs" ] && return
+
 	# Appeared the backsllashed quotes are required if package names contain parentheses
 	run_in_chroot "epm --auto --verbose --skip-installed Install \"$reqs\"" || run_in_chroot "epm --auto --verbose --skip-installed install \"$reqs\""
 }

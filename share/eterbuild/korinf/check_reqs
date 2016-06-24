@@ -131,8 +131,9 @@ test_package_requirements()
 # EXPMAINFILES, EXPEXTRAFILES contains paths to the built files
 test_package_files_requirements()
 {
+	# TODO
 	return 22
-	[ "$BUILDNAME" = "eepm" ] && return
+	[ -n "$INITIAILBOOTSTRAP" ] && return
 
 	# FIXME: epm requires can't return correct requires list
 	run_in_chroot "cd $INTBUILT && epm --skip-installed simulate \$(epm requires ${EXPMAINFILES} ${EXPEXTRAFILES})"

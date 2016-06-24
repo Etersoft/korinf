@@ -98,6 +98,12 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 	# fills $PKGFORMAT, $PKGVENDOR, $RPMVENDOR
 	set_target_var
 
+	INITIALBOOTSTRAP=
+	# detect if we will not epm use possibility
+	if [ "$BUILDNAME" == "eepm" ] || [ "$BUILDNAME" == "rpm-build-altlinux-compat" ] ; then
+		INITIALBOOTSTRAP=1
+	fi
+
 	# Initialize LOGDIR and LOGFILE variables
 	init_dist_log "$dist"
 

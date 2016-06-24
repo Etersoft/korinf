@@ -91,8 +91,7 @@ case $DISTRNAME in
 
 	logit "convert src.rpm to target $PKGVENDOR" convert_rpm_to_target $dist || return 1
 
-	# skip checking for correct eepm buildstrap
-	if ! [ -n "$BOOTSTRAP" -a "$BUILDNAME" = "eepm" ] ; then
+	if [ -z "$BOOTSTRAP$INITIALBOOTSTRAP" ] ; then
 		logit "assure build requires" install_build_requires || return 1
 	fi
 
@@ -103,7 +102,7 @@ case $DISTRNAME in
 	fi
 
 	# skip checking for correct eepm buildstrap
-	if ! [ -n "$BOOTSTRAP" -a "$BUILDNAME" = "eepm" ] ; then
+	if [ -z "$BOOTSTRAP$INITIALBOOTSTRAP" ] ; then
 		# TODO: move to before build, but have no built packages list there (like correct EXPMAINFILES)
 		if [ -z "$MAKESPKG" ] ; then
 			logit "test built packages requirements" test_package_requirements || return 1
