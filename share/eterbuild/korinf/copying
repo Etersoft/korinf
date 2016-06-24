@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ##
 #  Korinf project
 #
@@ -35,7 +35,7 @@ clean_copying_destination()
 {
 	local dir
 	for dir in "$DESTDIR" "$DESTDIR/extra" ; do
-		[ -d "$DESTDIR" ] || continue
+		[ -d "$dir" ] || continue
 		echo "Removing old '$MAINFILESLIST $EXTRAFILESLIST' by mask '$EXPMAINFILES $EXPEXTRAFILES' from $dir..."
 		pushd $dir >/dev/null || return 1
 		rm -fv $EXPMAINFILES
