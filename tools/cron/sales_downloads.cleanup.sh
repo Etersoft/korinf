@@ -6,6 +6,9 @@
 # сгенерированные для скачивания файлов
 #---------------------------------------
 
+# TODO: use eterremove
+# Возможно, скрипт вообще не работает правильно
+
 remove_old()
 {
 # Базовый каталог, где создаются ссылки
@@ -39,5 +42,6 @@ find ${DOWNDIR} -type d -and -cmin +$MPAUSE | grep -v done | xargs rmdir -p 2>/d
 #echo "Disable autoclean: needs rewrite to check directory date"
 #
 remove_old /var/ftp/pub/download/WINE@Etersoft 4
+remove_old /var/ftp/pub/download/RX@Etersoft 2
 remove_old /var/ftp/pub/download/SELTA@Etersoft 2
 #remove_old ./1
