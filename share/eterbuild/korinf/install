@@ -90,7 +90,7 @@ install_build_requires()
 	#init_home
 
 	# Note: some additional requires we add in rpmbph
-	local buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch gcc coreutils grep"
+	local buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch gcc coreutils grep make rpm"
 
 	# hack to prepare Debian based system
 	[ "$PKGFORMAT" = "deb" ] && buildsystempkgs="$buildsystempkgs alien fakeroot debhelper"
@@ -100,6 +100,6 @@ install_build_requires()
 
 	[ -z "$reqs" ] && return
 
-	# Appeared the backsllashed quotes are required if package names contain parentheses
+	# Appeared the backslashed quotes are required if package names contain parentheses
 	run_in_chroot "epm --auto --verbose --skip-installed Install \"$reqs\"" || run_in_chroot "epm --auto --verbose --skip-installed install \"$reqs\""
 }
