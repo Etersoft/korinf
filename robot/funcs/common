@@ -36,6 +36,9 @@ exit_now()
 	[ -n "$1" ] && exit $1 || exit 0
 }
 
+MPROTO="https"
+RPROTO="ftp"
+
 # TODO: add URL checking (touch it via GET?)
 printURL()
 {
