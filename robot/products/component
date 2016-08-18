@@ -74,7 +74,7 @@ fi
 
 	cat >>$FILETO <<EOF
 
-При необходимости эти же файлы могут быть получены по протоколу http: замените ftp:// на http:// в пути.
+При необходимости эти же файлы могут быть получены по протоколу $RPROTO: замените $MPROTO:// на $RPROTO:// в пути.
 Также Вы можете напрямую зайти в каталог, чтобы загрузить файлы:
 	$PUBDOWNLOAD/$DIST
 
@@ -112,7 +112,7 @@ build_anycomponent()
 		PROJECTVERSION=`basename $LOCALDIR`
 		PROJ=`dirname $PROJ`/$PROJECTVERSION
 	fi
-	PUBDOWNLOAD="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$PROJ"
+	PUBDOWNLOAD="$MPROTO://$DOWNLOADDOMAIN/pub/Etersoft/$PROJ"
 
 	TEXTDIST=$DIST
 	# Check for linked system (собираем для основной системы)
@@ -128,7 +128,7 @@ build_anycomponent()
 	# need for license file creating
 	local CNAME=$(strip_spaces $COMPONENTNAME)
 	TARGETDIR="/var/ftp/pub/download/$CNAME/$TARGETDIRNAME"
-	DOWNLOADDIR="http://$DOWNLOADDOMAIN/pub/download/$CNAME/$TARGETDIRNAME"
+	DOWNLOADDIR="$MPROTO://$DOWNLOADDOMAIN/pub/download/$CNAME/$TARGETDIRNAME"
 
 	case "$COMPONENTNAME" in
 	"RX@Etersoft")

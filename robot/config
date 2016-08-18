@@ -1,2 +1,5 @@
 # Path for mount tasks inside builder user
 export TASKDIR=$HOME/sales
+
+export MPROTO="https"
+export RPROTO="ftp"

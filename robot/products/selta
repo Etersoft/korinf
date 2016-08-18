@@ -73,7 +73,7 @@ EOF
 Документация и краткая инструкция по установке доступна по адресу
 http://wiki.etersoft.ru/SELTA
 
-При необходимости эти же файлы могут быть получены по протоколу http: замените ftp:// на http:// в пути.
+При необходимости эти же файлы могут быть получены по протоколу $RPROTO: замените MPROTO:// на $RPROTO:// в пути.
 
 По вопросам использования продукта пишите на selta@etersoft.ru, указав
 в ТЕМЕ (Subject) письма регистрационный номер.
@@ -94,7 +94,7 @@ build_selta_license()
 	PROJECTNAME="SELTA@Etersoft"
 	VERNAME=$PROJECTNAME/$PROJECTVERSION
 	TARGETDIR=/var/ftp/pub/download/SELTA@Etersoft/$TARGETDIRNAME
-	DOWNLOADDIR="http://$DOWNLOADDOMAIN/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
+	DOWNLOADDIR="$MPROTO://$DOWNLOADDOMAIN/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
 
 	# exports FTPDIR
 	LICENSEFILE=selta.lic
@@ -122,7 +122,7 @@ build_selta()
 
 	# SELTA@Etersoft
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Windows"
-	PUBDOWNLOAD1="ftp://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/Windows"
+	PUBDOWNLOAD1="$MPROTO://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/Windows"
 
 	# Posgre@Etersoft
 	PGLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Postgre"
@@ -131,11 +131,11 @@ build_selta()
 	if [ -L "$PGLOCAL" ] ; then
 		PGLOCAL=`readlink -f "$PGLOCAL"`
 	fi
-	PGDOWNLOAD1="ftp://$DOWNLOADDOMAIN/$(echo $PGLOCAL | sed -e "s|/var/ftp/||g")"
+	PGDOWNLOAD1="$MPROTO://$DOWNLOADDOMAIN/$(echo $PGLOCAL | sed -e "s|/var/ftp/||g")"
 
 	# Target dir
 	TARGETDIR=/var/ftp/pub/download/SELTA@Etersoft/$TARGETDIRNAME
-	DOWNLOADDIR="ftp://$DOWNLOADDOMAIN/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
+	DOWNLOADDIR="$MPROTO://$DOWNLOADDOMAIN/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
 
 
 	TEXTDIST=$DIST

@@ -244,12 +244,9 @@ EOF
 	cat >>$FILETO <<EOF
 (действительны в течение 4 суток)
 
-Если адрес $DOWNLOADDOMAIN недоступен, используйте ftp2.etersoft.ru для доступа к файлам (см. ссылку ниже).
-
 Вы можете напрямую зайти в каталог, чтобы загрузить файлы открытой и закрытой части:
-	${DOWNLOADDIR/ftp:/http:}/$TYPE-$PROJECTVERSION/$DIST
+	${DOWNLOADDIR/$MPROTO:/$RPROTO:}/$TYPE-$PROJECTVERSION/$DIST
 	${DOWNLOADDIR}/$TYPE-$PROJECTVERSION/$DIST
-	${DOWNLOADDIR/download/ftp2}/$TYPE-$PROJECTVERSION/$DIST
 EOF
 
 if [ "$TYPE" = "School" ] ; then
@@ -263,7 +260,7 @@ http://kb.etersoft.ru/WINE@Etersoft_School/FAQ
 и
 http://etersoft.ru/wine/faq
 
-Прочитайте документацию http://etersoft.ru/wine/manual
+Прочитайте документацию https://winehq.org.ru/WINE@Etersoft
 
 По вопросам использования продукта пишите новое письмо
 на wine-school@etersoft.ru,
@@ -282,7 +279,7 @@ http://wiki.etersoft.ru/WINE/knownbugs
 
 Ответы на частые вопросы смотрите на http://etersoft.ru/wine/faq
 
-Прочитайте документацию http://etersoft.ru/wine/manual
+Прочитайте документацию https://winehq.org.ru/WINE@Etersoft
 
 По вопросам использования продукта пишите новое письмо
 на support@etersoft.ru,
@@ -358,7 +355,7 @@ mail_wine_etersoft_license()
 	FTPDIR=$TARGETDIR/$TYPE-$PROJECTVERSION
 
 	TARGETDIR="/var/ftp/pub/download/WINE@Etersoft/$TARGETDIRNAME"
-	DOWNLOADDIR="http://$DOWNLOADDOMAIN/W@E/$TARGETDIRNAME"
+	DOWNLOADDIR="$MPROTO://$DOWNLOADDOMAIN/W@E/$TARGETDIRNAME"
 
 	prepare_wine_etersoft_license $FTPDIR/$LICENSEFILE
 
@@ -380,7 +377,7 @@ build_wine_etersoft()
 	TYPE="$(get_product_type "$COMPONENTNAME")"
 
 	TARGETDIR="/var/ftp/pub/download/WINE@Etersoft/$TARGETDIRNAME"
-	DOWNLOADDIR="ftp://$DOWNLOADDOMAIN/W@E/$TARGETDIRNAME"
+	DOWNLOADDIR="$MPROTO://$DOWNLOADDOMAIN/W@E/$TARGETDIRNAME"
 
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME"
 
@@ -418,7 +415,7 @@ build_wine_etersoft()
 	check_dist $DIST
 	mkdir -p "$PVTLOCAL/$DIST"
 	
-	PUBDOWNLOAD1FONTS="http://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/fonts/$DIST"
+	PUBDOWNLOAD1FONTS="$MPROTO://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/fonts/$DIST"
 	#[ -d "$PUBLOCAL/fonts/$DIST/" ] || fatal "Can't locate fonts dir fonts/$DIST"
 
 	export FTPDIR=$TARGETDIR/$TYPE-$PROJECTVERSION/$DIST
