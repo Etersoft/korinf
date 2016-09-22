@@ -44,11 +44,11 @@ create_license_dir()
 prepare_license_mail()
 {
 	local FILETO BETA WRITETO
-	assert PRODUCT PROJECTVERSION TYPE_LICENSE FULLNAME
-	assert FTPDIR DOWNLOADDIR
+	assert_var PRODUCT PROJECTVERSION TYPE_LICENSE FULLNAME
+	assert_var FTPDIR DOWNLOADDIR
 	FILETO=$1
 	WRITETO=$2
-	LICENSEDIR=$3
+	#LICENSEDIR=$3
 	>$FILETO
 	NAME="$(get_dear_from_fio "$FULLNAME" "покупатель")"
 
