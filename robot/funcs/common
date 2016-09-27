@@ -111,10 +111,10 @@ assert_present_package()
 	fi
 
 	if is_autobuild_failed ; then
-		fatal "Note! autobuild.failed for $BUILDNAME is present"
+		fatal "Note! $BUILDNAME.autobuild.failed is present"
 	fi
 
 	if is_build_failed ; then
-		fatal "Note! build.failed for $BUILDNAME is present"
+		fatal "Note! $BUILDNAME.build.failed is present"
 	fi
 }

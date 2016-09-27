@@ -26,7 +26,7 @@ set_build_failed()
 	set_destlogdir
 	# asssure we can touch
 	rm -f "$DESTLOGDIR/$BUILDNAME.build.failed"
-	touch "$DESTLOGDIR/$BUILDNAME.build.failed" || fatal "Can't set build status"
+	touch "$DESTLOGDIR/$BUILDNAME.build.failed" || fatal "Can't set build status for $DESTLOGDIR/$BUILDNAME"
 	return 1
 }
 
@@ -35,7 +35,7 @@ set_autobuild_failed()
 	set_destlogdir
 	# asssure we can touch
 	rm -f "$DESTLOGDIR/$BUILDNAME.autobuild.failed"
-	touch "$DESTLOGDIR/$BUILDNAME.autobuild.failed" || fatal "Can't set autobuild status"
+	touch "$DESTLOGDIR/$BUILDNAME.autobuild.failed" || fatal "Can't set autobuild status for $DESTLOGDIR/$BUILDNAME"
 	return 1
 }
 
