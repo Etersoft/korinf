@@ -393,7 +393,7 @@ build_wine_etersoft()
 	fi
 
 	# Not: use original project version (other path, not pub)
-	PVTLOCAL="/var/ftp/pvt/Etersoft/$PROJECTNAME/$PROJECTVERSION/WINE-$(get_product_type "$COMPONENTNAME")"
+	PVTLOCAL="/var/ftp/pvt/Etersoft/$PROJECTNAME/$PROJECTVERSION/WINE-$TYPE"
 
 	# Lav 28.06.11: skip checking for previous built one
 	#if [ ! -d "$PUBLOCAL/WINE/$DIST" ] ; then
