@@ -47,14 +47,16 @@ get_product_type()
 		*PREMIUM*)
 			TYPE="PREMIUM"
 			;;
-		*Enterprise*)
+		#*Enterprise*)
+		#	TYPE="Network"
+		#	;;
+		*)
+			#fatal "Unknown product $PRODUCT"
+			# use Enterprise by default
 			TYPE="Network"
 			;;
-		*)
-			fatal "Unknown product $PRODUCT"
-			;;
 	esac
-	echo $TYPE
+	echo "$TYPE"
 }
 
 DOWNLOADDOMAIN=download.etersoft.ru

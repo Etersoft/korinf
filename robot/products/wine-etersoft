@@ -51,6 +51,11 @@ prepare_wine_etersoft_license()
 		[ "$TYPE_LICENSE" = "DemoTerminal" ] && TYPE_LICENSE="Demo"
 	fi
 
+	# HACK for WINE@Etersoft Enterprise
+	if echo "$COMPONENTNAME" | grep -q "Enterprise" ; then
+		PRODUCT="$PRODUCT Enterprise"
+	fi
+
 	LICENSE_name=`echo "$TYPE_LICENSE" | sed -e "s| ||g" | tr "[A-Z]" "[a-z]"`
 
 	local DSAKEY=wine-etersoft-2.0.dsa
