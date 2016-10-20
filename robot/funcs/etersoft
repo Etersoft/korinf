@@ -47,13 +47,12 @@ get_product_type()
 		*PREMIUM*)
 			TYPE="PREMIUM"
 			;;
-		#*Enterprise*)
-		#	TYPE="Network"
-		#	;;
-		*)
-			#fatal "Unknown product $PRODUCT"
-			# use Enterprise by default
+		*Enterprise*)
+			# use instead Enterprise
 			TYPE="Network"
+			;;
+		*)
+			fatal "Unknown product $PRODUCT"
 			;;
 	esac
 	echo "$TYPE"

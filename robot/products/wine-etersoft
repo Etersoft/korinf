@@ -53,7 +53,7 @@ prepare_wine_etersoft_license()
 
 	# HACK for WINE@Etersoft Enterprise
 	if echo "$COMPONENTNAME" | grep -q "Enterprise" ; then
-		PRODUCT="$PRODUCT Enterprise"
+		PRODUCT="$PRODUCT Enterprise Network"
 	fi
 
 	LICENSE_name=`echo "$TYPE_LICENSE" | sed -e "s| ||g" | tr "[A-Z]" "[a-z]"`
