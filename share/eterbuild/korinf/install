@@ -62,7 +62,7 @@ install_built()
 	fi
 
 	# it is failed for all packages except eepm and rpm-build-altlinux-compat
-	if [ -z "$INITIAILBOOTSTRAP" ] ; then
+	if [ -z "$INITIALBOOTSTRAP" ] ; then
 		set_build_failed
 		return
 	fi
