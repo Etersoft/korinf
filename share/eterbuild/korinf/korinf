@@ -153,10 +153,6 @@ handle_arg()
 		FORCEREBUILDPACKAGE=1
 		echo "Run with install built package after force build done"
 		;;
-	-s)
-		SOURCEPACKAGE=1
-		echo "Run with build source package only"
-		;;
 	-f)
 		echo "Run with force to rebuild package"
 		REBUILDPACKAGE=1
