@@ -90,7 +90,7 @@ install_build_requires()
 	#init_home
 
 	# Note: some additional requires we add in rpmbph
-	local buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch gcc coreutils grep make rpm"
+	local buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch gcc coreutils grep make rpm gawk"
 
 	# hack to prepare Debian based system
 	[ "$PKGFORMAT" = "deb" ] && buildsystempkgs="$buildsystempkgs alien fakeroot debhelper"
