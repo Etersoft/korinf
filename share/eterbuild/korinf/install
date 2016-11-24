@@ -70,7 +70,9 @@ install_built()
 	# Bootstrap install eepm (get command from host's epm)
 	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || { warning "Can't get install command" ; return 1 ; }
 	run_in_chroot "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" #|| set_build_failed
-	run_in_chroot "epm -h >/dev/null" || set_build_failed
+	if [ "$BUILDNAME" = "eepm" ] ; then
+		run_in_chroot "epm -h >/dev/null" || set_build_failed
+	fi
 }
 
 # Install required packages for build under the system (f.i., Debian/6.0)
