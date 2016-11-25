@@ -3,6 +3,7 @@ LINUX@Etersoft/p6 ALTLinux/p6
 LINUX@Etersoft/p7 ALTLinux/p7
 LINUX@Etersoft/p8 ALTLinux/p8
 x86_64/LINUX@Etersoft/p8 x86_64/ALTLinux/p8
+
 ASPLinuxServer/IV Scientific/4.1
 ASPLinuxServer/V CentOS/5
 RHEL/4 Scientific/4.1
@@ -13,20 +14,19 @@ RHEL/7 x86_64/CentOS/7
 x86_64/RHEL/5 x86_64/CentOS/5
 x86_64/RHEL/6 x86_64/Scientific/6
 x86_64/RHEL/7 x86_64/CentOS/7
-MOPSLinux/6.1 MOPSLinux/6.0
 CentOS/4.0 Scientific/4.1
 CentOS/6 Scientific/6
 CentOS/7 x86_64/CentOS/7
 x86_64/CentOS/6 x86_64/Scientific/6
+StartCom/5 CentOS/5
+
 SLES/10 SLED/10
 SLES/11 SLED/11
 x86_64/SLES/11 x86_64/SLED/11
 SUSE/10.2 SUSE/10.1
-StartCom/5 CentOS/5
-#Runtu/1.1 Ubuntu/6.06
+
+
 Runtu/3.0 Ubuntu/8.04
-InfraLinux/8.10 Ubuntu/8.10
-InfraLinux/9.04 Ubuntu/9.04
 Mint/10 Ubuntu/10.04
 Mint/11 Ubuntu/11.04
 Mint/13 Ubuntu/12.04
@@ -43,6 +43,8 @@ x86_64/Mint/15 x86_64/Ubuntu/13.04
 x86_64/Mint/16 x86_64/Ubuntu/13.10
 x86_64/Mint/17 x86_64/Ubuntu/14.04
 x86_64/Mint/18 x86_64/Ubuntu/16.04
+x86_64/Mint/19 x86_64/Ubuntu/17.04
+
 LinuxWizard/Server CentOS/5
 LinuxWizard/6 CentOS/6
 LinuxWizard/Desktop Ubuntu/10.04
