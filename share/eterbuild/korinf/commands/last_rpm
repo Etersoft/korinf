@@ -6,6 +6,7 @@ last_rpm ()
   local lastrpm
   local pkgver
   lastrpm="____NOT_FOUND______"
+  # for obsoleted systems
   if ! which rpmevrcmp >/dev/null 2>&1 ; then
 	lastrpm=$(xargs -n1 echo " " | sort | tail -n1)
 	# hack against src.rpm
@@ -13,9 +14,7 @@ last_rpm ()
 	exit
   fi
   for i in $(cat); do
-	pkgver=$(rpm -qp "$i")
-	# hack against broken rpm -qp (rpm-4.13.0-alt3) https://bugzilla.altlinux.org/show_bug.cgi?id=32872
-	pkgver=$(echo "$pkgver" | sed -e "s@\.\(noarch\|i[56]86\|x86_64\)\$@@")
+	pkgver=$(rpmquery --package --queryformat "%{name}-%{version}-%{release}" "$i")
 	LR=$(rpmevrcmp "$pkgver" "$lastrpm")
 	if [ "$LR" -gt 0 ]; then
 		lastrpm="$pkgver"
