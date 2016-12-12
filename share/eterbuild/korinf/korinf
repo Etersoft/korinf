@@ -89,8 +89,10 @@ build_package()
 	[ -n "$PACKAGERELEASE" ] || fatal "Can't get release from $BUILDSRPM package"
 	readonly PACKAGERELEASE
 
-	# always failed if gpg is missed
-	rpm --checksig $BUILDSRPM || fatal "GPG check failed"
+	if [ -n "$SRPMGPGCHECKING" ] ; then
+		# always failed if gpg is missed
+		rpmsign --checksig $BUILDSRPM || fatal "GPG check failed"
+	fi
 
 	# Assure we have no too open perms on private key
 	if [ -w "$PRIVATESSHKEY" ] ; then

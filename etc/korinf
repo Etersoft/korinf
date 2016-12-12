@@ -41,6 +41,9 @@ PRIVATESSHKEY=$KORINFETC/id_dsa.korinf
 #KORLOGINHOME=$TMPDIR/korinfer-home
 #KORLOGINHOME=/home/$INTUSER
 
+# check src.rpm with rpm --checksig
+#SRPMGPGCHECKING=1
+
 # for robot notices
 #KORINFERJID=korinfer@localhost
 #KORINFERJIDPASSWD=secret
