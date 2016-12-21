@@ -75,9 +75,14 @@ fi
 	cat >>$FILETO <<EOF
 
 При необходимости эти же файлы могут быть получены по протоколу $RPROTO: замените $MPROTO:// на $RPROTO:// в пути.
+EOF
+if echo "$PUBDOWNLOAD" | grep -q "/pub/Etersoft" ; then
+	cat >>$FILETO <<EOF
 Также Вы можете напрямую зайти в каталог, чтобы загрузить файлы:
 	$PUBDOWNLOAD/$DIST
-
+EOF
+fi
+	cat >>$FILETO <<EOF
 По вопросам использования продукта пишите на support@etersoft.ru, указав
 в теме письма регистрационный номер.
 
@@ -92,6 +97,7 @@ Etersoft, 2016
 EOF
 }
 
+# DOWNLOADDIR - RX@Etersoft/VERSION
 build_anycomponent()
 {
 	local COMPONENTSCRIPTDIR
@@ -112,6 +118,7 @@ build_anycomponent()
 		PROJECTVERSION=`basename $LOCALDIR`
 		PROJ=`dirname $PROJ`/$PROJECTVERSION
 	fi
+	[ -n "$PROJ" ] || exit
 	PUBDOWNLOAD="$MPROTO://$DOWNLOADDOMAIN/pub/Etersoft/$PROJ"
 
 	TEXTDIST=$DIST
@@ -127,34 +134,29 @@ build_anycomponent()
 
 	# need for license file creating
 	local CNAME=$(strip_spaces $COMPONENTNAME)
+	# will do FTPDIR from it in create_license_dir
 	TARGETDIR="/var/ftp/pub/download/$CNAME/$TARGETDIRNAME"
 	DOWNLOADDIR="$MPROTO://$DOWNLOADDOMAIN/pub/download/$CNAME/$TARGETDIRNAME"
 
 	case "$COMPONENTNAME" in
 	"RX@Etersoft")
-		COMPONENTSCRIPTDIR="bin-nx"
-
-		CHECKCOMP="rx-etersoft nx"
-
-		if [ "$PROJECTVERSION" = "1.1.1" ] || [ "$PROJECTVERSION" = "1.1.2" ] ; then
-			if [ "$BUILDARCH" = "x86_64" ] ; then
-				CHECKCOMP="nxclient $CHECKCOMP"
-			fi
+		LOCALDIR=/var/ftp/pvt/Etersoft/$PROJ
+		PUBDOWNLOAD=$DOWNLOADDIR/$PROJECTVERSION
+		if [ "$PROJECTVERSION" = "1.1.3" ] ; then
+			COMPONENTSCRIPTDIR="bin-nx"
+			CHECKCOMP="opennx rx-etersoft nx"
 
 			if [ "$DIST" = "Windows/ALL" ] ; then
-				CHECKCOMP="nxclient"
+				CHECKCOMP="opennx"
 			fi
 		else
-			CHECKCOMP="opennx $CHECKCOMP"
+			COMPONENTSCRIPTDIR="bin-rx"
+			CHECKCOMP="rxclient rx-etersoft nx-libs nxssh"
 
 			if [ "$DIST" = "Windows/ALL" ] ; then
 				CHECKCOMP="opennx"
 			fi
 		fi
-
-		#if [ "$DIST" = "Windows/ALL" ] ; then
-		#	CHECKCOMP="nxclient"
-		#fi
 
 		# TODO: nxsadmin
 
@@ -201,6 +203,16 @@ build_anycomponent()
 			check_and_refresh_component $COMPONENTSCRIPTDIR $LOCALDIR $i
 			assert_present_package $LOCALDIR/$DIST $i
 		done
+
+		if echo "$LOCALDIR" | grep -q "/pvt/Etersoft" ; then
+			PRIVFILES=`find -L $LOCALDIR/$DIST -maxdepth 1 -type f`
+			# Нужно скопировать файлы
+			mkdir -p $FTPDIR/$DIST
+			for i in $PRIVFILES; do
+				# try create hard link firstly
+				cp -fl $i $FTPDIR/$DIST || cp -f $i $FTPDIR/$DIST || fatal "Can't copy $i"
+			done
+		fi
 
 		prepare_component_mail $TMPMAIL || fatal "Can't prepare letter"
 	fi
