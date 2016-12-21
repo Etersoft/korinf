@@ -124,7 +124,7 @@ build_selta()
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Windows"
 	PUBDOWNLOAD1="$MPROTO://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/Windows"
 
-	# Posgre@Etersoft
+	# Postgre@Etersoft
 	PGLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Postgre"
 
 	# Use real path instead link
