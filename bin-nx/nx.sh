@@ -10,4 +10,4 @@ kormod korinf
 
 SKIPBUILDLIST="OpenSolaris Windows"
 
-build_project /var/ftp/pub/Etersoft/RX@Etersoft nx "" $@
+build_project /var/ftp/pvt/Etersoft/RX@Etersoft nx "" $@

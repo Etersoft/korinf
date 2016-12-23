@@ -8,4 +8,4 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
-build_project /var/ftp/pub/Etersoft/RX@Etersoft nxclient "" $@
+build_project /var/ftp/pvt/Etersoft/RX@Etersoft nxclient "" $@
