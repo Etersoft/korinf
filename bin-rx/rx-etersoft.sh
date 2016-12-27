@@ -10,4 +10,7 @@ kormod korinf
 
 SKIPBUILDLIST="FreeBSD OpenSolaris Windows"
 
-build_project /var/ftp/pvt/Etersoft/RX@Etersoft rx-etersoft "" $@
+NAME="rx-etersoft"
+MAINFILES="$NAME[-_][0-9]"
+
+build_project /var/ftp/pvt/Etersoft/RX@Etersoft $NAME "" $@

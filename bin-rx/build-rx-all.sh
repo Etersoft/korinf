@@ -9,7 +9,8 @@
 kormod korinf
 
 # Неправильно вызывать несколько раз подряд (переопределение переменных)
-(build_project /var/ftp/pvt/Etersoft/RX@Etersoft nx-libs "" $@)
+(build_project /var/ftp/pvt/Etersoft/RX@Etersoft nx "" $@)
 (build_project /var/ftp/pvt/Etersoft/RX@Etersoft rx-etersoft "" $@)
+(build_project /var/ftp/pvt/Etersoft/RX@Etersoft rx-etersoft-smartcard "" $@)
 (build_project /var/ftp/pvt/Etersoft/RX@Etersoft rxclient "" $@)
 (build_project /var/ftp/pvt/Etersoft/RX@Etersoft nxsadmin "" $@)
