@@ -124,12 +124,14 @@ prepare_wine_etersoft()
 
 	# Нужно скопировать файлы
 	for i in $PRIVFILES $PUB1FILES $PUB2FILES $PUB4FILES $PUB5FILES; do
+		[ -n "$i" ] || fatal "Empty source filename"
 		# try create hard link firstly
 		cp -fl $i $FTPDIR || cp -f $i $FTPDIR || fatal "Can't copy $i"
 	done
 
 	# Копируем дополнительные в extra
 	for i in $PUB3FILES; do
+		[ -n "$i" ] || fatal "Empty source filename"
 		# try create hard link firstly
 		cp -fl $i $FTPDIR/extra/ || cp -f $i $FTPDIR/extra/ || fatal "Can't copy $i"
 	done
