@@ -111,28 +111,29 @@ copying_packages()
 
 	clean_copying_destination
 
-	# Debug packages can contains source files, copy only if allowed
-	if [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
-		# FIXME: some other names?
-		for i in *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-* ; do
-			if [ -e $i ] ; then
-				mkdir_dest $DESTDIR/extra/
-				# FIXME: already done when copying, but not for extra
-				# HACK: can be not *BUILDNAME*
-				rm -vf $DESTDIR/extra/*${BUILDNAME}-*debuginfo*
-				rm -vf $DESTDIR/extra/*${BUILDNAME}-*debug-*
-				mv -f $i $DESTDIR/extra/ || warning "Cannot move debug package $i to extra"
-				EXPMAINFILES=$(estrlist reg_exclude ".*debuginfo.* .*debug.*" "$EXPMAINFILES")
-			fi
-		done
-	else
-		# HACK: can be not *BUILDNAME*
-		echo "Debug packages is forbidden, Remove debug packages"
-		rm -vf *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-*
-	fi
-
 	copying_packages_by_list "$DESTDIR" "$EXPMAINFILES" || RC=1
 	copying_packages_by_list "$DESTDIR/extra" "$EXPEXTRAFILES" || RC=1
+
+	# Debug packages can contains source files, copy only if allowed
+	if [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
+		echo "Copying debug packages for $BUILTRPM to $DESTDIR/extra"
+		mkdir_dest $DESTDIR/extra/
+		rm -vf $DESTDIR/extra/*${BUILDNAME}-*debuginfo*
+		rm -vf $DESTDIR/extra/*${BUILDNAME}-*debug-*
+		# FIXME: some other names?
+		for i in *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-* ; do
+			if [ -e "$i" ] ; then
+				# FIXME: already done when copying, but not for extra
+				# HACK: can be not *BUILDNAME*
+				mv -vf $i $DESTDIR/extra/ || warning "Cannot move debug package $i to extra"
+			fi
+		done
+		EXPMAINFILES=$(estrlist reg_exclude ".*debuginfo.* .*debug.*" "$EXPMAINFILES")
+	else
+		# TODO: not only BUILDNAME
+		echo "Debug packages is forbidden now, Remove debug packages"
+		rm -vf *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-*
+	fi
 
 	# Return OK if all files are exists
 	for i in $EXPMAINFILES $EXPEXTRAFILES ; do
