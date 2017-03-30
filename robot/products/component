@@ -181,8 +181,10 @@ build_anycomponent()
 			CHECKCOMP="postgre-etersoft9.0"
 		elif echo "$PROJECTVERSION" | grep -q "9.1" ; then
 			CHECKCOMP="postgre-etersoft9.1"
-		else
+		elif echo "$PROJECTVERSION" | grep -q "9.2" ; then
 			CHECKCOMP="postgre-etersoft9.2"
+		else
+			CHECKCOMP="postgre-etersoft9.6"
 		fi
 		;;
 	*)
