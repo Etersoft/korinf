@@ -29,27 +29,15 @@
 
 kormod check_integrity status
 
-
-# Args: BUILDSCRIPTDIR   PRODPATH                     BUILDNAME  [PRVERSION]
-# Example: bin-etercifs  /var/.../WINE@Etersoft/CIFS  etercifs   5.4.7
-check_and_refresh_component()
+# uses DIST FORCEBUILD
+# changes DESTDIR
+check_if_updated()
 {
 	assert_var DIST
-	local BUILDSCRIPTDIR="$1"
-	# Etersoft/RX@Etersoft/last
-	local PRODPATH="$2"
-	# Etersoft/RX@Etersoft/last/sources
-	local SOURCEPATH="$(get_sources_dir "$PRODPATH")"
-	# haspd
-	local BUILDNAME=$3
-	local PRVERSION=$4
-
-	# hack
-	if [ -z "$PRVERSION" ] ; then
-		# get PROJECT version from SOURCEPATH
-		PRVERSION=$(basename $(dirname $SOURCEPATH) )
-	fi
-
+	local BUILDNAME="$1"
+	local SOURCEPATH="$2"
+	local PRODPATH="$3"
+	
 	# FIXMEP get_..._package always returns true
 	local SRCRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME)
 	test -r "$SRCRPM" || fatal "Source package for $BUILDNAME is not found"
@@ -71,9 +59,48 @@ check_and_refresh_component()
 		is_autobuild_failed && fatal "Package $BUILDNAME need rebuild from $SRCRPM, but already was failed"
 	fi
 
+	return 1
+}
+
+# Args: BUILDSCRIPTDIR   PRODPATH                     BUILDNAME  [PRVERSION]
+# Example: bin-etercifs  /var/.../WINE@Etersoft/CIFS  etercifs   5.4.7
+check_and_refresh_component()
+{
+	assert_var DIST
+	local BUILDSCRIPTDIR="$1"
+	# Etersoft/RX@Etersoft/last
+	local PRODPATH="$2"
+	# Etersoft/RX@Etersoft/last/sources
+	local SOURCEPATH="$(get_sources_dir "$PRODPATH")"
+	# haspd
+	local BUILDNAME=$3
+	local PRVERSION=$4
+
+	check_if_updated $BUILDNAME $SOURCEPATH $PRODPATH && return 0
+
 	$AROBOTDIR/../$BUILDSCRIPTDIR/$BUILDNAME.sh -f $DIST $PRVERSION && return 0
 
 	set_autobuild_failed
-	fatal "Package $BUILDNAME cannot rebuild from $SRCRPM"
+	fatal "Package $BUILDNAME cannot rebuild"
+	return 1
+}
+
+# Args: PRODPATH BUILDNAME
+# Example: /var/ftp/pub/Korinf eepm
+check_and_refresh_package()
+{
+	assert_var DIST
+	# Etersoft/RX@Etersoft/last
+	local PRODPATH=$1
+	# Etersoft/RX@Etersoft/last/sources
+	local SOURCEPATH="$(get_sources_dir "$PRODPATH")"
+	local BUILDNAME=$2
+
+	check_if_updated $BUILDNAME $SOURCEPATH $PRODPATH && return 0
+
+	$AROBOTDIR/../bin/korinf -f $BUILDNAME $DIST $PRODPATH && return 0
+
+	set_autobuild_failed
+	fatal "Package $BUILDNAME cannot rebuild"
 	return 1
 }
