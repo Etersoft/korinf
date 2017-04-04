@@ -104,7 +104,7 @@ prepare_wine_etersoft()
 	PUB1FILES=`find -L $PUBLOCAL/WINE/$DIST -maxdepth 1 -type f`
 	#PUB2FILES=`find -L $PUBLOCAL/fonts/$DIST -maxdepth 1 -type f`
 	# CIFS
-	PUB2FILES=`find -L $PUBLOCAL/CIFS/$DIST -maxdepth 1 -type f`
+	[ "$TYPE" = "Local" ] || PUB2FILES=`find -L $PUBLOCAL/CIFS/$DIST -maxdepth 1 -type f`
 	# extra
 	PUB3FILES=`find -L $PUBLOCAL/WINE/$DIST/extra -maxdepth 1 -type f`
 	# HASP
