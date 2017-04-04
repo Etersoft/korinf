@@ -52,10 +52,10 @@ convert_archlinux()
 	for i in $BUILTBINPKGLIST ; do
 		pkg=$INTBUILT/\$(basename \$i)
 		test -r \$pkg || exit
-		# needs cpio package
-		rpm2cpio \$pkg | cpio -dimv || exit
+		# rpm2cpio is broken
+		# rpm2cpio \$pkg | cpio -dimv || exit
 		# from rpmextract package
-		#rpmextract.sh \$pkg || exit
+		rpmextract.sh \$pkg || exit
 		rm -f \$pkg
 	done
 
@@ -73,7 +73,7 @@ pkgver=$PACKAGEVERSION
 pkgrel=$(echo $(get_numpartrelease ${PACKAGERELEASE})| cut -f1 -d'.')
 pkgdesc="$PKGCOMMENT"
 depends=($prepreqs)
-url=($PKGURL)
+url=$PKGURL
 arch=(${PKGARCH})
 license=('$PKGLICENSE')
 packager="$PKGPACKAGER"
