@@ -96,6 +96,7 @@ check_dist()
 	do_broken
 }
 
+# TODO: used ever for target dir without log
 # Check for package in target path
 assert_present_package()
 {
