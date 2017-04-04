@@ -122,8 +122,11 @@ prepare_wine_etersoft()
 		PUB5FILES=
 	fi
 
+	check_and_refresh_package $KORINFLOCAL eepm
+	PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm*"`
+
 	# Нужно скопировать файлы
-	for i in $PRIVFILES $PUB1FILES $PUB2FILES $PUB4FILES $PUB5FILES; do
+	for i in $PRIVFILES $PUB1FILES $PUB2FILES $PUB4FILES $PUB5FILES $PUB6FILES; do
 		[ -n "$i" ] || fatal "Empty source filename"
 		# try create hard link firstly
 		cp -fl $i $FTPDIR || cp -f $i $FTPDIR || fatal "Can't copy $i"
@@ -157,6 +160,8 @@ prepare_wine_etersoft()
 		fi
 		[ "$TYPE" = "SchoolDIS" ] || assert_present_package $FTPDIR fonts-ttf-liberation
 	fi
+
+	assert_present_package $FTPDIR eepm
 
 	assert_present_package $FTPDIR wine-etersoft-${PRODUCT_name}
 
@@ -387,6 +392,7 @@ build_wine_etersoft()
 	DOWNLOADDIR="$MPROTO://$DOWNLOADDOMAIN/W@E/$TARGETDIRNAME"
 
 	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME"
+	KORINFLOCAL="/var/ftp/pub/Korinf"
 
 	if [ -n "$LICENSEONLY" ] ; then
 		mail_wine_etersoft_license
