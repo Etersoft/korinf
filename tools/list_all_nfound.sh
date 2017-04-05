@@ -12,15 +12,15 @@ do_test()
 SC=$RPATH/list_nfound_libs.sh
 
 $SC 1.0.12
-$SC testing
-$SC 2.0
-$SC 2.0-testing
-$SC cad
+#$SC testing
+$SC 2.1
+$SC 2.1-testing
+#$SC cad
 $SC school
 $SC school-testing
 $SC unstable
 
-$SC last wine /var/ftp/pub/Etersoft/Wine-public
+#$SC last wine /var/ftp/pub/Etersoft/Wine-public
 $SC last wine-vanilla /var/ftp/pub/Etersoft/Wine-vanilla
 
 }
