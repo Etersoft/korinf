@@ -48,8 +48,9 @@ check_if_updated()
 		# if binary is newer than src.rpm
 		if [ "$BINPKG" -nt "$SRCRPM" ] ; then
 			check_pkg_integrity "$BINPKG" && return 0
-			warning "Package $BINPKG is broken, removing"
-			rm -vf "$BINPKG"
+			warning "Package $BINPKG is broken!!"
+			# We can't remove files partially
+			#rm -vf "$BINPKG"
 		fi
 	fi
 
