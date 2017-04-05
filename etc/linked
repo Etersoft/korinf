@@ -49,7 +49,7 @@ LinuxWizard/Server CentOS/5
 LinuxWizard/6 CentOS/6
 LinuxWizard/Desktop Ubuntu/10.04
 NauLinux/5 CentOS/5
-ArchLinux/CUR ArchLinux/2013.06
-x86_64/ArchLinux/CUR x86_64/ArchLinux/2013.02
+#ArchLinux/CUR ArchLinux/2015
+#x86_64/ArchLinux/CUR x86_64/ArchLinux/2013.2
 Gentoo/CUR Gentoo/13.0
 x86_64/Gentoo/CUR x86_64/Gentoo/13.0
