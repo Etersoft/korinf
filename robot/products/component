@@ -146,10 +146,16 @@ build_anycomponent()
 			COMPONENTSCRIPTDIR="bin-nx"
 			CHECKCOMP="opennx rx-etersoft nx"
 
+			if [ "$DIST" = "Windows/ALL" ] ; then
+				CHECKCOMP="opennx"
+			fi
 		else
 			COMPONENTSCRIPTDIR="bin-rx"
 			CHECKCOMP="rxclient rx-etersoft nx-libs nxssh"
 
+			if [ "$DIST" = "Windows/ALL" ] ; then
+				CHECKCOMP="rxclient"
+			fi
 		fi
 
 		# TODO: nxsadmin
