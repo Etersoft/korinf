@@ -78,6 +78,12 @@ check_and_refresh_component()
 
 	check_if_updated $BUILDNAME $SOURCEPATH $PRODPATH && return 0
 
+        # hack
+        if [ -z "$PRVERSION" ] ; then
+               # get PROJECT version from SOURCEPATH
+               PRVERSION=$(basename $(dirname $SOURCEPATH) )
+        fi
+
 	$AROBOTDIR/../$BUILDSCRIPTDIR/$BUILDNAME.sh -f $DIST $PRVERSION && return 0
 
 	set_autobuild_failed
