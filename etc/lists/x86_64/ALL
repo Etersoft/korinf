@@ -7,6 +7,7 @@
 . x86_64/SLED
 . x86_64/Fedora
 . x86_64/CentOS
+. x86_64/RHEL
 
 . x86_64/Ubuntu
 . x86_64/Debian
