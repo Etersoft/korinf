@@ -183,6 +183,7 @@ run_in_chroot()
 	echo "Run command in chrooted build system:" >&2
 	echo "# $@" >&2
 	assert_var BUILDARCH BUILDROOT
-	$NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
+	PATH=/sbin:/usr/sbin:/usr/local/sbin:/bin:/usr/bin $NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
 		su - $LOUSER -c "export LANG=C ; export LC_ALL=C ; $@"
+	# TODO: use -s instead -c: https://bugzilla.redhat.com/show_bug.cgi?id=186879
 }
