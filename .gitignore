@@ -1,5 +1,4 @@
-robot/dsa/selta.dsa
-robot/dsa/wine-etersoft.dsa
+robot/dsa/*.dsa
 /log
 *~
 
