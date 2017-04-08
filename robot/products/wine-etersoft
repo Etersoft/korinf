@@ -230,7 +230,7 @@ ${BETA}
    HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel (пакет haspd для HASP USB и haspd-modules, dkms-aksparlnx для HASP LPT);
  - пакет со свободными шрифтами Liberation (fonts-ttf-liberation)
    Во многих дистрибутивах он уже есть (в Ubuntu называется ttf-liberation),
-   ставить наш вариант не обязательно.
+   ставить наш вариант не нужно.
 $CIFSTEXT
 ОБРАТИТЕ ВНИМАНИЕ!
 Файл лицензии $LICENSEFILE необходимо расположить в каталоге /etc/wine, ~/.wine или
@@ -282,6 +282,27 @@ http://etersoft.ru/wine/faq
 при возникновении затруднений со скачиванием файлов.
 
 Благодарим Вас за использование нашего продукта.
+EOF
+elif [ "$TYPE" = "Local" ] ; then
+	cat >>$FILETO <<EOF
+
+Обязательно ознакомьтесь с известными проблемами в текущей сборке:
+http://wiki.etersoft.ru/WINE/knownbugs
+
+Ответы на частые вопросы смотрите на http://etersoft.ru/wine/faq
+
+Ознакомьтесь с документацией https://winehq.org.ru/WINE@Etersoft
+
+Поскольку данная версия продукта лицензируется бесплатно для
+частного использования, все вопросы мы рекомендуем обсуждать
+на форуме UnixForum
+
+https://unixforum.org/index.php?showforum=58
+
+Пожалуйста, отвечайте на это письмо только
+при возникновении затруднений со скачиванием файлов.
+
+$THANKTEXT
 EOF
 else
 	cat >>$FILETO <<EOF
