@@ -28,12 +28,14 @@ EXTRADIR=extra/
 BASEBUILDNAME=$2
 if [ -n "$BASEBUILDNAME" ] ; then
     BUILDNAME=wine-$BASEBUILDNAME
-    [ "$BASEBUILDNAME" = "public" ] && BUILDNAME=wine
+    EXTRABASENAME=lib$BUILDNAME
+    [ "$BASEBUILDNAME" = "public" ] && BUILDNAME=wine && EXTRABASENAME=libwine
+    [ "$BASEBUILDNAME" = "staging" ] && BUILDNAME=wine && EXTRABASENAME=libwine
     LIBBUILDNAME=lib$BUILDNAME
     EXTRADIR=
 fi
 
-[ -n "$BUILDNAME" ] || BUILDNAME=wine-etersoft
+[ -z "$BUILDNAME" ] && BUILDNAME=wine-etersoft EXTRABASENAME=$BUILDNAME
 
 PRIVPART='SQL'
 [ "$PROJECTVERSION" = "cad" ] && PRIVPART='CAD'
@@ -70,8 +72,9 @@ if [ -z "$VERSION" ] ; then
 	if [ "$SYSTEM" != "ALTLinux/Sisyphus" ] ; then
 		# TODO: fix RELEASE
 		load_mod spec
-		# TODO: $(get_altdistr_mod $BINARYREPO)
-		MDISTR=M70P
+		BINARYREPO=$(distr_vendor -v)
+		MDISTR=$(get_altdistr_mod $BINARYREPO)
+		#MDISTR=M70P
 		local BASERELEASE=$(get_numpartrelease $RELEASE)
 		RELEASE=$(get_txtpartrelease $RELEASE)$(decrement_release $BASERELEASE).$MDISTR.$BASERELEASE
 
@@ -121,12 +124,11 @@ if cd $TARGETPATH ; then
 	pwd
 
 	LIST=
-	for i in $LIBBUILDNAME $BUILDNAME $BUILDNAME-gl ; do
+	for i in $LIBBUILDNAME $BUILDNAME $EXTRABASENAME-gl ; do
 		pkg_is_installed $i && LIST="$LIST $i[-_]$VERSION-*$RELEASE[._]*.$EXT"
 	done
 
-	# FIXME: not for wine / wine-vanilla
-	for i in lib$BUILDNAME-devel $BUILDNAME-twain ; do
+	for i in $LIBBUILDNAME-devel $EXTRABASENAME-twain ; do
 		pkg_is_installed $i && LIST="$LIST $EXTRADIR$i[-_]$VERSION-*$RELEASE[._]*.$EXT"
 	done
 
