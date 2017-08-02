@@ -52,7 +52,7 @@ other_copy_to()
 distro_path=/var/ftp/pub/Etersoft/LINUX@Etersoft
 
 for arch in i586 x86_64 ; do
-	other_copy_to "$arch" p5 ALTLinux/p5 $distro_path/p5/branch
+	#other_copy_to "$arch" p5 ALTLinux/p5 $distro_path/p5/branch
 	exit
 	other_copy_to "$arch" Sisyphus ALTLinux/Sisyphus $distro_path/Sisyphus
 	other_copy_to "$arch" p6 ALTLinux/p6 $distro_path/p6/branch

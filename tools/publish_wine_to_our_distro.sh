@@ -61,10 +61,11 @@ wine_copy_to()
 distro_path=/var/ftp/pub/Etersoft/LINUX@Etersoft
 
 for arch in i586 ; do
-	wine_copy_to "$arch" p5 ALTLinux/p5 $distro_path/p5/branch
+	#wine_copy_to "$arch" p5 ALTLinux/p5 $distro_path/p5/branch
 	wine_copy_to "$arch" Sisyphus ALTLinux/Sisyphus $distro_path/Sisyphus
-	wine_copy_to "$arch" p6 ALTLinux/p6 $distro_path/p6/branch
+	#wine_copy_to "$arch" p6 ALTLinux/p6 $distro_path/p6/branch
 	#wine_copy_to "$arch" t6 ALTLinux/p6 $distro_path/t6/branch
 	wine_copy_to "$arch" p7 ALTLinux/p7 $distro_path/p7/branch
+	wine_copy_to "$arch" p8 ALTLinux/p8 $distro_path/p8/branch
 	#wine_copy_to "$arch" t7 ALTLinux/p7 $distro_path/t7/branch
 done
