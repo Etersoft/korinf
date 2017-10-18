@@ -1,5 +1,5 @@
 Name: korinf
-Version: 2.1.7
+Version: 2.1.8
 Release: alt1
 
 Summary: Korinf multidistro single source build system
@@ -47,6 +47,13 @@ This package contains Korinf multidistro build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Wed Oct 18 2017 Vitaly Lipatov <lav@altlinux.ru> 2.1.8-alt1
+- add install initial buildreqs without internal eepm (bootstrap)
+- update repo for publish
+- update system list
+- update x86_64 linked for Debian/9 and Ubuntu 17.10
+- lists: update systems
+
 * Sun Jul 23 2017 Vitaly Lipatov <lav@altlinux.ru> 2.1.7-alt1
 - update nfound script
 - fix su missed: set PATH for chrooted
