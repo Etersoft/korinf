@@ -70,6 +70,7 @@ install_built()
 	local INSTALLCOMMAND
 	# Bootstrap install eepm (get command from host's epm)
 	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || { warning "Can't get install command" ; return 1 ; }
+	[ -n "$INSTALLCOMMAND" ] || { warning "Got empty install command" ; return 1 ; }
 	# CHECKME: why we need yes here
 	run_in_chroot "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" #|| set_build_failed
 	if [ "$BUILDNAME" = "eepm" ] ; then
@@ -109,9 +110,9 @@ install_build_requires()
 		local INSTALLCOMMAND
 		#run_in_chroot "epm -h >/dev/null" || set_build_failed
 		# Bootstrap install eepm (get command from host's epm)
-		INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || { warning "Can't get install command" ; return 1 ; }
+		INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install $reqs) || { warning "Can't get install command" ; return 1 ; }
 		# CHECKME: why we need yes here
-		run_in_chroot "yes | $INSTALLCOMMAND $reqs" #|| set_build_failed
+		run_in_chroot "yes | $INSTALLCOMMAND" #|| set_build_failed
 		return
 	fi
 
