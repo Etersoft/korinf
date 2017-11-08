@@ -17,6 +17,7 @@ NAME=$WINEPUB_PATH/$VERSION
 [ -n "$VERBOSE" ] && echo "Check in $NAME for $PACKAGENAME package..."
 for n in $(get_distro_list $NAME) ; do
 	FILE=$NAME/$IPATH/$n/log/$PACKAGENAME.log.bz2
+	[ -s "$FILE" ] || { echo "$FILE: no such file" ; continue ; }
 	res=$(bzcat $FILE | grep "configure:" | grep development | grep found | sed -e "s|^configure:|          |g" | grep -E -v "($SKIPPED)")
 	if [ -n "$VERBOSE" ] || [ -n "$res" ] ; then
 		echo
