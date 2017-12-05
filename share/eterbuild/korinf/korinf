@@ -81,6 +81,10 @@ build_package()
 	BUILDSRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME || fatal "Can't find package for $BUILDNAME")
 	readonly BUILDSRPM
 
+	if [ -z "$QUIET" ] ; then
+		echo "Build $BUILDSRPM package"
+	fi
+
 	PACKAGEVERSION=$(rpm -qp "$BUILDSRPM" --queryformat="%{VERSION}")
 	[ -n "$PACKAGEVERSION" ] || fatal "Can't get version from $BUILDSRPM package"
 	readonly PACKAGEVERSION
