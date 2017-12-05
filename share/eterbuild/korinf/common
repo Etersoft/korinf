@@ -31,7 +31,9 @@ realpath()
 
 load_etersoft_build_utils()
 {
-# Load etersoft-build-utils part
+	local dir=$(echo $BASH_SOURCE)
+	# TODO: use more correct method
+	# Load etersoft-build-utils part
 LOCETERBUILDDIR=`dirname $0`/$TOPDIR/share/eterbuild/functions
 RELETERBUILDDIR=$TOPDIR/../etersoft-build-utils/share/eterbuild/functions
 
@@ -62,6 +64,7 @@ if [ ! -d "$ETERBUILDDIR" ] ; then
 fi
 }
 
+# TODO
 [ -n "$TOPDIR" ] || TOPDIR=../
 load_etersoft_build_utils
 

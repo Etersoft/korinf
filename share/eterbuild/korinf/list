@@ -85,12 +85,12 @@ set_rebuildlist()
 	if [ -n "$REBUILDLIST" ] && [ ! "$REBUILDLIST" = "all" ] ; then
 		# Test for absolute path
 		if [ -r "/$REBUILDLIST" ] ; then
-			RESULT="Use distros from full path $REBUILDLIST"
+			RESULT="Use distros list from full path $REBUILDLIST"
 		elif [ -r "$KORINFETC/lists/$REBUILDLIST" ] ; then
 			# for compatibility
 			[ "$REBUILDLIST" = "x86_64" ] && REBUILDLIST="x86_64/ALL"
 			REBUILDLIST=$KORINFETC/lists/$REBUILDLIST
-			RESULT="Use distros from $REBUILDLIST"
+			RESULT="Use distros list from $REBUILDLIST"
 		else
 			# Build for concrete target if it is exists
 			check_target_dist $REBUILDLIST || fatal "Run with unknown target '$REBUILDLIST'"
