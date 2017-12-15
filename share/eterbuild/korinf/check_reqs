@@ -82,6 +82,8 @@ check_package_requires()
 		# hack to skip ALT checking
 		[ "$DISTRNAME" = "ALTLinux" ] && continue
 
+		####### Create req file for binary packages #########
+
 		# fills $PKGFORMAT, $PKGVENDOR, $RPMVENDOR
 		set_target_var
 		prepare_filelist
