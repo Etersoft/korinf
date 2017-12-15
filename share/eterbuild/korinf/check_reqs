@@ -118,6 +118,8 @@ test_package_requirements()
 	pkgnames="$(get_target_package_names)"
 
 	for pkgname in $pkgnames ; do
+		rhas "$pkgname" "-debuginfo" && continue
+		rhas "$pkgname" "-debug-" && continue
 		reqs=$(get_target_deplist $pkgname)
 		reqs=$(do_exclude_list "$pkgnames" "$reqs")
 		run_in_chroot "epm --skip-installed simulate \"$reqs\""
