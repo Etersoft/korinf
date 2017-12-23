@@ -121,14 +121,15 @@ copying_packages()
 		rm -vf $DESTDIR/extra/*${BUILDNAME}-*debuginfo*
 		rm -vf $DESTDIR/extra/*${BUILDNAME}-*debug-*
 		# FIXME: some other names?
-		for i in *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-* ; do
+		for i in $EXPMAINFILES $EXPEXTRAFILES ; do
+			rhas "$i" "-debug(-|info)" || continue
 			if [ -e "$i" ] ; then
 				# FIXME: already done when copying, but not for extra
 				# HACK: can be not *BUILDNAME*
 				mv -vf $i $DESTDIR/extra/ || warning "Cannot move debug package $i to extra"
 			fi
 		done
-		EXPMAINFILES=$(estrlist reg_exclude ".*debuginfo.* .*debug.*" "$EXPMAINFILES")
+		EXPMAINFILES=$(estrlist reg_exclude ".*debuginfo.* .*debug-.*" "$EXPMAINFILES")
 	else
 		# TODO: not only BUILDNAME
 		echo "Debug packages is forbidden now, Remove debug packages"
