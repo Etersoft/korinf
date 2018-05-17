@@ -85,7 +85,7 @@ install_build_requires()
 	local reqs dist="$1"
 	load_mod repl rpm
 
-	assert_var BUILDNAME BUILDARCH BUILDSRPM PKGFORMAT
+	assert_var BUILDNAME BUILDARCH TARGETSRPM PKGFORMAT
 	assert_var BUILDERHOME
 
 	# NOTE: possible side effect with redefined DISTRNAME, BUILDARCH, DISTRVERSION
@@ -94,14 +94,15 @@ install_build_requires()
 	# create needed files in home directory
 	#init_home
 
+	# Req build base system packages
 	# Note: some additional requires we add in rpmbph
 	local buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch gcc coreutils grep make rpm gawk"
 
 	# hack to prepare Debian based system
 	[ "$PKGFORMAT" = "deb" ] && buildsystempkgs="$buildsystempkgs build-essential alien fakeroot debhelper"
 
-	reqs=$(get_rpmpkg_requires -p "$BUILDSRPM" | clean_pkgreq)
-	reqs=$(convert_pkgreqs_to_target $reqs $buildsystempkgs | xargs -n 1000 echo)
+	reqs=$(get_rpmpkg_requires -p "$TARGETSRPM" | clean_pkgreq | xargs -n 1000 echo)
+	reqs="$reqs $(convert_pkgreqs_to_target $buildsystempkgs | xargs -n 1000 echo)"
 
 	[ -z "$reqs" ] && return
 
