@@ -116,7 +116,7 @@ copying_packages()
 
 	# Debug packages can contains source files, copy only if allowed
 	if [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
-		echo "Copying debug packages for $BUILTRPM to $DESTDIR/extra"
+		echo "Copying debug packages for $BUILTRPM from $(pwd) to $DESTDIR/extra"
 		mkdir_dest $DESTDIR/extra/
 		rm -vf $DESTDIR/extra/*${BUILDNAME}-*debuginfo*
 		rm -vf $DESTDIR/extra/*${BUILDNAME}-*debug-*
@@ -126,19 +126,28 @@ copying_packages()
 			if [ -e "$i" ] ; then
 				# FIXME: already done when copying, but not for extra
 				# HACK: can be not *BUILDNAME*
-				mv -vf $i $DESTDIR/extra/ || warning "Cannot move debug package $i to extra"
+				cp -vf $i $DESTDIR/extra/ || warning "Cannot move debug package $i to extra"
 			fi
 		done
+		# HACK: never have debug packages in main list
 		EXPMAINFILES=$(estrlist reg_exclude ".*debuginfo.* .*debug-.*" "$EXPMAINFILES")
+		echo "HACK: remove debug packages again"
+		rm -vf $DESTDIR/*${BUILDNAME}-*debuginfo*
+		rm -vf $DESTDIR/*${BUILDNAME}-*debug-*
 	else
 		# TODO: not only BUILDNAME
 		echo "Debug packages is forbidden now, Remove debug packages"
 		rm -vf *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-*
 	fi
 
-	# Return OK if all files are exists
-	for i in $EXPMAINFILES $EXPEXTRAFILES ; do
-		test -r $i || RC=1
+	# Return OK if all files are exists on ftp
+	for i in $EXPMAINFILES ; do
+		test -r "$DESTDIR/$i" || { echo "$i is missed in $DESTDIR" ; RC=1 ; }
+	done
+
+	# Return OK if all files are exists on ftp
+	for i in $EXPEXTRAFILES ; do
+		test -r "$DESTDIR/extra/$i" || { echo "$i is missed in $DESTDIR/extra" ; RC=1 ; }
 	done
 
 	popd >/dev/null
