@@ -11,5 +11,6 @@ kormod korinf
 NAME=wine
 
 MAINFILES="$NAME[-_][0-9] lib$NAME[-_][0-9] lib$NAME-gl lib$NAME-twain lib$NAME-devel"
+EXTRAFILES="$NAME[-_]debug lib$NAME[-_]debug lib$NAME-gl-debug lib$NAME-twain-debug lib$NAME-devel-debug"
 
 build_project $WINEPUB_PATH/../Wine-staging $NAME "" $@
