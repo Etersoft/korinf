@@ -54,6 +54,7 @@ write_altdeps_by_list()
 	# trick with expand mask here
 	for i in $expfiles ; do
 		[ -s "$i" ] || continue
+		rhas "$i" "-debug(-|info)" && continue
 		make_alt_depends_list "$i" || { warning "Some depends error with $i" ; return 1 ; }
 	done
 
