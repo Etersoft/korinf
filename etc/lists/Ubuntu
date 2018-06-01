@@ -5,7 +5,7 @@
 #Ubuntu/11.10
 
 # LTS until 04.2017
-Ubuntu/12.04
+#Ubuntu/12.04
 
 #Ubuntu/12.10
 #Ubuntu/13.04
@@ -21,10 +21,15 @@ Ubuntu/14.04
 # LTS until 04.2021
 Ubuntu/16.04
 
-Ubuntu/16.10
+#Ubuntu/16.10
 
-Ubuntu/17.04
+# until 07.2018
+#Ubuntu/17.04
+Ubuntu/17.10
 
+# EOL 04.2023
+#32bit support dropped ???
+Ubuntu/18.04
 
 # like 12.04: LTS until 04.2017
 Mint/13
