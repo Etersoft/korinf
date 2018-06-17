@@ -40,6 +40,9 @@ clean_copying_destination()
 		pushd $dir >/dev/null || return 1
 		rm -fv $EXPMAINFILES
 		rm -fv $EXPEXTRAFILES
+		# HACK
+		rm -vf *${BUILDNAME}-*debuginfo*
+		rm -vf *${BUILDNAME}-*debug-*
 		popd >/dev/null
 	done
 }
@@ -64,6 +67,7 @@ copying_packages_by_list()
 	mkdir_dest $destdir/
 	echo "Copying built packages $expfiles to $destdir..."
 	for i in $expfiles ; do
+		rhas "$i" "-debug(-|info)" && continue
 		if [ ! -e $i ] ; then
 			error "Cannot find package $i, skip copy"
 			return 1
@@ -90,6 +94,7 @@ copying_sources()
 		echo "Skip conf. source copying"
 		rm -fv "$TARGETSRPM"
 	fi
+	true
 }
 
 copying_packages()
@@ -116,29 +121,17 @@ copying_packages()
 
 	# Debug packages can contains source files, copy only if allowed
 	if [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
-		echo "Copying debug packages for $BUILTRPM from $(pwd) to $DESTDIR/extra"
-		mkdir_dest $DESTDIR/extra/
-		rm -vf $DESTDIR/extra/*${BUILDNAME}-*debuginfo*
-		rm -vf $DESTDIR/extra/*${BUILDNAME}-*debug-*
-		# FIXME: some other names?
-		for i in $EXPMAINFILES $EXPEXTRAFILES ; do
+		echo "Copying all debug packages for $BUILTRPM from $(pwd) to $DESTDIR/extra"
+		for i in *debug*; do
 			rhas "$i" "-debug(-|info)" || continue
-			if [ -e "$i" ] ; then
-				# FIXME: already done when copying, but not for extra
-				# HACK: can be not *BUILDNAME*
-				cp -vf $i $DESTDIR/extra/ || warning "Cannot move debug package $i to extra"
-			fi
+			[ -e "$i" ] || continue
+			cp -vf $i $DESTDIR/extra/ || warning "Cannot copy debug package $i to extra"
 		done
-		# HACK: never have debug packages in main list
-		EXPMAINFILES=$(estrlist reg_exclude ".*debuginfo.* .*debug-.*" "$EXPMAINFILES")
-		echo "HACK: remove debug packages again"
-		rm -vf $DESTDIR/*${BUILDNAME}-*debuginfo*
-		rm -vf $DESTDIR/*${BUILDNAME}-*debug-*
-	else
-		# TODO: not only BUILDNAME
-		echo "Debug packages is forbidden now, Remove debug packages"
-		rm -vf *${BUILDNAME}-*debuginfo* *${BUILDNAME}-*debug-*
 	fi
+
+	# HACK: never have debug packages in lists
+	EXPMAINFILES=$(estrlist reg_exclude ".*debuginfo.* .*debug-.*" "$EXPMAINFILES")
+	EXPEXTRAFILES=$(estrlist reg_exclude ".*debuginfo.* .*debug-.*" "$EXPEXTRAFILES")
 
 	# Return OK if all files are exists on ftp
 	for i in $EXPMAINFILES ; do
