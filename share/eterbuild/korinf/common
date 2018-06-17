@@ -235,6 +235,9 @@ is_remote_build()
 {
 	local rhost
 	local dist="$1"
+	# return true if use local hasher
+	[ "$DISTRNAME" = "ALTLinux" ] && return
+
 	if [ -z "$dist" ] ; then
 		assert_var DISTRNAME DISTRVERSION
 		dist=$DISTRNAME/$DISTRVERSION
