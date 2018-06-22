@@ -149,6 +149,13 @@ build_anycomponent()
 			if [ "$DIST" = "Windows/ALL" ] ; then
 				CHECKCOMP="opennx"
 			fi
+		elif [ "$PROJECTVERSION" = "1.1.4" ] ; then
+			COMPONENTSCRIPTDIR="bin-rx"
+			CHECKCOMP="rxclient rx-etersoft nx"
+
+			if [ "$DIST" = "Windows/ALL" ] ; then
+				CHECKCOMP="opennx"
+			fi
 		else
 			COMPONENTSCRIPTDIR="bin-rx"
 			CHECKCOMP="rxclient rx-etersoft nx-libs nxssh"
