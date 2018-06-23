@@ -83,17 +83,23 @@ if echo "$PUBDOWNLOAD" | grep -q "/pub/Etersoft" ; then
 EOF
 fi
 	cat >>$FILETO <<EOF
+
+Вы можете напрямую зайти в каталог, чтобы загрузить файлы:
+	${DOWNLOADDIR}/$PROJECTVERSION/$DIST
+EOF
+
+	cat >>$FILETO <<EOF
+
 По вопросам использования продукта пишите на support@etersoft.ru, указав
 в теме письма регистрационный номер.
 
-Пожалуйста, отвечайте на это письмо только
-при возникновении затруднений со скачиванием файлов.
+Пожалуйста, отвечайте на это письмо только при возникновении затруднений со скачиванием файлов.
 
 $THANKTEXT
 
 -- 
 Команда разработчиков
-Etersoft, 2017
+Etersoft, 2018
 EOF
 }
 
@@ -120,6 +126,7 @@ build_anycomponent()
 	fi
 	[ -n "$PROJ" ] || exit
 	PUBDOWNLOAD="$MPROTO://$DOWNLOADDOMAIN/pub/Etersoft/$PROJ"
+	KORINFLOCAL="/var/ftp/pub/Korinf"
 
 	TEXTDIST=$DIST
 	# Check for linked system (собираем для основной системы)
@@ -213,15 +220,20 @@ build_anycomponent()
 			assert_present_package $LOCALDIR/$DIST $i
 		done
 
+		check_and_refresh_package $KORINFLOCAL eepm
+		PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm*"`
+
 		if echo "$LOCALDIR" | grep -q "/pvt/Etersoft" ; then
-			PRIVFILES=`find -L $LOCALDIR/$DIST -maxdepth 1 -type f`
+			[ -n "$PRIVFILES" ] || PRIVFILES=`find -L $LOCALDIR/$DIST -maxdepth 1 -type f`
 			[ -n "$PRIVFILES" ] || fatal "Can't find files in $LOCALDIR/$DIST"
 			# Нужно скопировать файлы
 			mkdir -p $FTPDIR/$DIST
-			for i in $PRIVFILES; do
+			for i in $PRIVFILES $PUB6FILES; do
 				# try create hard link firstly
 				cp -fl $i $FTPDIR/$DIST || cp -f $i $FTPDIR/$DIST || fatal "Can't copy $i"
 			done
+			# replace LOCALDIR for link list!
+			LOCALDIR=$FTPDIR
 		fi
 
 		prepare_component_mail $TMPMAIL || fatal "Can't prepare letter"
