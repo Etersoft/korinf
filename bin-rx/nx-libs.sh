@@ -10,4 +10,7 @@ kormod korinf
 
 SKIPBUILDLIST="OpenSolaris Windows"
 
+MAINFILES="nx-libs[-_][0-9] nxproxy[-_][0-9] nxagent[-_][0-9]"
+EXTRAFILES="nx-libs-devel[-_][0-9]"
+
 build_project /var/ftp/pvt/Etersoft/RX@Etersoft nx-libs "" $@
