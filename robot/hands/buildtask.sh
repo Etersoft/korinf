@@ -107,6 +107,11 @@ case $COMPONENTNAME in
 		. $AROBOTDIR/products/selta
 		build_selta
 		;;
+	*RX@Etersoft*)
+		. $AROBOTDIR/products/component
+		. $AROBOTDIR/products/rx
+		build_rx
+		;;
 	*)
 		. $AROBOTDIR/products/component
 		build_anycomponent

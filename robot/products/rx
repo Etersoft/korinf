@@ -29,82 +29,8 @@
 # FIXME: если в имени запятая, разделяет на два адреса
 #
 
-# Ошибка: не ловятся ошибки отсюда
-prepare_component_mail()
-{
-	local FILETO BETA
-	FILETO=$1
-	>$FILETO
-	NAME="$(get_dear_from_fio "$FULLNAME" "покупатель")"
-	BETA=""
-
-	if [ "$TYPE_LICENSE" = "Demo" ] ; then
-		THANKTEXT="Благодарим Вас за внимание к нашему продукту."
-	else
-		THANKTEXT="Благодарим Вас за покупку!"
-	fi
-
-	cat >>$FILETO <<EOF
-${DEAR} ${NAME}!
-
-Ваш заказ компоненты ${COMPONENTNAME} (версия $PROJECTVERSION)
-для продукта ${PRODUCT} выполнен.
-${BETA}
-Регистрационный номер Продукта: ${ETERREGNUM}.
-
-Вам потребуется скачать файлы по приведённым ссылкам:
-
-EOF
-	LOCALFILES=`find -L $LOCALDIR/$DIST -maxdepth 1 -type f`
-	printURL "$LOCALDIR/$DIST" "$PUBDOWNLOAD/$DIST" $LOCALFILES >>$FILETO || fatal "Error with ftp ($LOCALDIR with '$LOCALFILES') (possible files are missed!)"
-
-# only if have license file
-if [ -f "$FTPDIR/$LICENSEFILE" ] ; then
-cat >>$FILETO <<EOF
-
-Файл лицензии можно скачать по следующей ссылке:
-EOF
-	printURL "$FTPDIR" "$DOWNLOADDIR/$PROJECTVERSION" $LICENSEFILE >>$FILETO || fatal "Error with license (files are missed) "
-	cat >>$FILETO <<EOF
-
-Файл лицензии $LICENSEFILE необходимо расположить в каталоге $LICENSEDIR
-и проверить права на его чтение пользователями.
-EOF
-fi
-
-	cat >>$FILETO <<EOF
-
-При необходимости эти же файлы могут быть получены по протоколу $RPROTO: замените $MPROTO:// на $RPROTO:// в пути.
-EOF
-if echo "$PUBDOWNLOAD" | grep -q "/pub/Etersoft" ; then
-	cat >>$FILETO <<EOF
-Также Вы можете напрямую зайти в каталог, чтобы загрузить файлы:
-	$PUBDOWNLOAD/$DIST
-EOF
-fi
-	cat >>$FILETO <<EOF
-
-Вы можете напрямую зайти в каталог, чтобы загрузить файлы:
-	${DOWNLOADDIR}/$PROJECTVERSION/$DIST
-EOF
-
-	cat >>$FILETO <<EOF
-
-По вопросам использования продукта пишите на support@etersoft.ru, указав
-в теме письма регистрационный номер.
-
-Пожалуйста, отвечайте на это письмо только при возникновении затруднений со скачиванием файлов.
-
-$THANKTEXT
-
--- 
-Команда разработчиков
-Etersoft, 2018
-EOF
-}
-
 # DOWNLOADDIR - RX@Etersoft/VERSION
-build_anycomponent()
+build_rx()
 {
 	local COMPONENTSCRIPTDIR
 	local CHECKCOMP
@@ -145,34 +71,49 @@ build_anycomponent()
 	TARGETDIR="/var/ftp/pub/download/$CNAME/$TARGETDIRNAME"
 	DOWNLOADDIR="$MPROTO://$DOWNLOADDOMAIN/pub/download/$CNAME/$TARGETDIRNAME"
 
-	case "$COMPONENTNAME" in
-	"Postgres@Etersoft")
-		COMPONENTSCRIPTDIR="bin-postgres"
-                if echo "$PROJECTVERSION" | grep -q "8.3" ; then
-			CHECKCOMP="postgresql-8.3eter"
+		LOCALDIR=/var/ftp/pvt/Etersoft/$PROJ
+		PUBDOWNLOAD=$DOWNLOADDIR/$PROJECTVERSION
+		PACKAGELIST=''
+
+		if [ "$PROJECTVERSION" = "1.1.3" ] ; then
+			COMPONENTSCRIPTDIR="bin-nx"
+			CHECKCOMP="opennx rx-etersoft nx"
+
+			if [ "$DIST" = "Windows/ALL" ] ; then
+				CHECKCOMP="opennx"
+			fi
+		elif [ "$PROJECTVERSION" = "1.1.4" ] ; then
+			COMPONENTSCRIPTDIR="bin-rx"
+			CHECKCOMP="rxclient rx-etersoft nx"
+
+			if [ "$DIST" = "Windows/ALL" ] ; then
+				CHECKCOMP="opennx"
+			fi
 		else
-			CHECKCOMP="postgresql-8.4eter"
+			COMPONENTSCRIPTDIR="bin-rx"
+			CHECKCOMP="rxclient rx-etersoft nx-libs nxssh"
+			PACKAGELIST="nx-libs nxagent nxproxy nxssh prunner rx-etersoft rxclient"
+
+                        if [ "$DIST" = "SLES/11" ] || [ "$DIST" = "SLED/11" ] ; then
+                                # checking for wxLogStream... configure: error:
+                                # Your wxWidgets does not provide the required wxLogStream class.
+                                # Please reconfigure wxWidgets using the option --enable-std_iostreams
+                                CHECKCOMP="rx-etersoft nx-libs"
+                                PACKAGELIST="nx-libs nxagent nxproxy prunner rx-etersoft"
+                        fi
+
+			if [ "$DIST" = "Windows/ALL" ] ; then
+				CHECKCOMP="rxclient"
+				PACKAGELIST="rxclient"
+			fi
 		fi
-		# TODO: has not source pkg: postgresql-8.3eter-contrib postgresql-8.3eter-server"
-		;;
-	"Postgre@Etersoft 9")
-		COMPONENTSCRIPTDIR="bin-postgres"
-		if echo "$PROJECTVERSION" | grep -q "9.0" ; then
-			CHECKCOMP="postgre-etersoft9.0"
-		elif echo "$PROJECTVERSION" | grep -q "9.1" ; then
-			CHECKCOMP="postgre-etersoft9.1"
-		elif echo "$PROJECTVERSION" | grep -q "9.2" ; then
-			CHECKCOMP="postgre-etersoft9.2"
-		else
-			CHECKCOMP="postgre-etersoft9.6"
-		fi
-		;;
-	*)
-		COMPONENTSCRIPTDIR="NO"
-		CHECKCOMP=""
-		echo "No check rule for component '$COMPONENTNAME'"
-		;;
-	esac
+
+		# TODO: nxsadmin
+
+		# exports FTPDIR
+		LICENSEFILE=rx-etersoft.lic
+		LICENSEDIR="/etc/nxserver"
+		create_license_dir
 
 	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8
@@ -190,6 +131,12 @@ build_anycomponent()
 		PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm*"`
 
 		if echo "$LOCALDIR" | grep -q "/pvt/Etersoft" ; then
+			PRIVFILES=''
+			for i in $PACKAGELIST ; do
+				n="$(echo $LOCALDIR/$DIST/$i[-_][0-9]*)"
+				[ -r "$n" ] || fatal "Missed $i package in $LOCALDIR/$DIST"
+				PRIVFILES="$PRIVFILES $n"
+			done
 			[ -n "$PRIVFILES" ] || PRIVFILES=`find -L $LOCALDIR/$DIST -maxdepth 1 -type f`
 			[ -n "$PRIVFILES" ] || fatal "Can't find files in $LOCALDIR/$DIST"
 			# Нужно скопировать файлы
