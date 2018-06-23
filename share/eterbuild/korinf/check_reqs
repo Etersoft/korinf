@@ -66,6 +66,7 @@ check_package_requires()
 {
 	local BUILDNAME=$1
 	local reqs
+	local rc=0
 
 	# TODO: can we for deb or rpm?
 	# it have no place before done?
@@ -103,13 +104,14 @@ check_package_requires()
 
 		# Test for install requirements
 		for pkgname in $pkgnames ; do
-			reqs=$(get_target_deplist $pkgname)
+			reqs=$(get_target_deplist $pkgname) || rc=$?
 			reqs=$(do_exclude_list "$pkgnames" "$reqs")
 			print_check_reqs_item $dist $pkgname $reqs
 		done
 
 		end_umount > /dev/null
 	done
+	return $rc
 }
 
 # Test for install requirements (virtually, check only converted requirements)
@@ -122,7 +124,7 @@ test_package_requirements()
 	for pkgname in $pkgnames ; do
 		rhas "$pkgname" "-debuginfo" && continue
 		rhas "$pkgname" "-debug-" && continue
-		reqs=$(get_target_deplist $pkgname)
+		reqs=$(get_target_deplist $pkgname) || return 1
 		reqs=$(do_exclude_list "$pkgnames" "$reqs")
 		run_in_chroot "epm --skip-installed simulate \"$reqs\""
 		local res="$?"

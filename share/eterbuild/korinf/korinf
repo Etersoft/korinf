@@ -110,10 +110,10 @@ build_package()
 
 	if [ -n "$CHECKPACKAGE" ] ; then
 		kormod check_built
-		check_built_package "$BUILDNAME"
+		check_built_package "$BUILDNAME" || rc=$?
 	elif [ -n "$CHECKREQUIRES" ] ; then
 		kormod check_reqs
-		check_package_requires "$BUILDNAME"
+		check_package_requires "$BUILDNAME" || rc=$?
 	else
 		mainbuild
 	fi
