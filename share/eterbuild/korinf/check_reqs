@@ -95,10 +95,10 @@ check_package_requires()
 		# Test for build requirements
 		local pkgnames="$(get_target_package_names)"
 		# first print about source package
-		reqs=$($ETERBUILDBIN/rpmreqs -p $BUILDSRPM)
+		reqs="$($EPMCMD req $BUILDSRPM | grep -v "[<=>]")"
 		echo "Before convert $(basename $BUILDSRPM): $(estrlist strip_spaces $reqs)"
-		reqs=$(convert_pkgreqs_to_target $reqs)
-		reqs=$(do_exclude_list "$pkgnames" "$reqs")
+		reqs="$(convert_pkgreqs_to_target $reqs)"
+		reqs="$(do_exclude_list "$pkgnames" "$reqs")"
 		print_check_reqs_item $dist $BUILDSRPM $reqs
 
 		# Test for install requirements

@@ -91,7 +91,7 @@ case $DISTRNAME in
 		return 0
 	fi
 
-	if [ -z "$BOOTSTRAP$INITIALBOOTSTRAP" ] ; then
+	if [ -z "$INITIALBOOTSTRAP" ] ; then
 		logit "assure build requires" install_build_requires || return 1
 	fi
 

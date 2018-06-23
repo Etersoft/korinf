@@ -101,11 +101,12 @@ install_build_requires()
 	# hack to prepare Debian based system
 	[ "$PKGFORMAT" = "deb" ] && buildsystempkgs="$buildsystempkgs build-essential alien fakeroot debhelper"
 
-	reqs=$(get_rpmpkg_requires -p "$TARGETSRPM" | clean_pkgreq | xargs -n 1000 echo)
+	reqs="$($EPMCMD req "$TARGETSRPM" | grep -v "[<=>]" | xargs -n 1000 echo)"
 	reqs="$reqs $(convert_pkgreqs_to_target $buildsystempkgs | xargs -n 1000 echo)"
 
-	[ -z "$reqs" ] && return
+	[ -z "$reqs" ] && return 0
 
+	# bootstrap install
 	if [ "$BUILDNAME" = "eepm" ] || [ "$BUILDNAME" = "rpm-build-altlinux-compat" ] ; then
 		assert_var DISTRNAME
 		local INSTALLCOMMAND
@@ -114,7 +115,7 @@ install_build_requires()
 		INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install $reqs) || { warning "Can't get install command" ; return 1 ; }
 		# CHECKME: why we need yes here
 		run_in_chroot "yes | $INSTALLCOMMAND" #|| set_build_failed
-		return
+		return 0
 	fi
 
 	# Appeared the backslashed quotes are required if package names contain parentheses
