@@ -57,7 +57,7 @@ check_if_updated()
 	# needed for autobuild_failed
 	DESTDIR=$PRODPATH/$DIST
 	if [ -z "$FORCEBUILD" ] ; then
-		is_autobuild_failed && fatal "Package $BUILDNAME need rebuild from $SRCRPM, but already was failed"
+		is_autobuild_failed && fatal "Package $BUILDNAME should be rebuilt from $SRCRPM,  but previous build has failed"
 	fi
 
 	return 1
