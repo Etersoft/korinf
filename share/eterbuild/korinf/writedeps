@@ -33,7 +33,12 @@ make_alt_depends_list()
     echo "Dependencies list for $pkg:"
     local TFILE=$(make_temp_file)
     # TODO: in any way, rpmreqs run apt-get install directly!
-    BUILDARCH=i586 $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || return
+    # hack against imperfect rpmreqs
+    if hostname | grep -q office.etersoft.ru ; then
+        ssh builder32 $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || return
+    else
+        BUILDARCH=i586 $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || return
+    fi
     set_destlogdir
     local DEPFILE=$DESTLOGDIR/$(get_pkgname_from_filename $pkg | filter_deb_pkgnames).rpm.depends
     rm -f $DEPFILE # for keep correct owner
