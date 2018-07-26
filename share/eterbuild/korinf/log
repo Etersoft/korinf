@@ -104,7 +104,7 @@ copying_log()
 	set_destlogdir
 
 	DESTLOGFILE=$DESTLOGDIR/`basename $LOGFILE`
-	rm -f $DESTLOGFILE.bz2
+	rm -f $DESTLOGFILE $DESTLOGFILE.bz2
 	cp -f $LOGFILE $DESTLOGFILE && bzip $DESTLOGFILE
 }
 
