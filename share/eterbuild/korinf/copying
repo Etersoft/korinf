@@ -26,7 +26,8 @@ kormod build/rpm log
 mkdir_dest()
 {
 	mkdir -p "$1" && return
-	sleep 100  # Hack due NFS troubles
+	echo "sleep 100:# Hack due NFS troubles"
+	sleep 100
 	mkdir -p "$1" || fatal "Can't create $1"
 }
 
@@ -121,11 +122,12 @@ copying_packages()
 
 	# Debug packages can contains source files, copy only if allowed
 	if [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
+		mkdir_dest "$DESTDIR/extra"
 		echo "Copying all debug packages for $BUILTRPM from $(pwd) to $DESTDIR/extra"
 		for i in *debug*; do
 			rhas "$i" "-debug(-|info)" || continue
 			[ -e "$i" ] || continue
-			cp -vf $i $DESTDIR/extra/ || warning "Cannot copy debug package $i to extra"
+			cp -vf $i "$DESTDIR/extra/" || warning "Cannot copy debug package $i to extra"
 		done
 	fi
 
