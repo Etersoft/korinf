@@ -90,7 +90,8 @@ cat <<EOF >$BUILDERHOME/.rpmmacros || fatal "Can't copy macros"
 %packager Etersoft Builder <support@etersoft.ru>
 
 # see http://wiki.sisyphus.ru/devel/RpmSetup
-%_build_name_fmt %{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}.rpm
+# Disable due https://bugs.etersoft.ru/show_bug.cgi?id=13109 at new rpm
+#%_build_name_fmt %{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}.rpm
 EOF
 
 }
