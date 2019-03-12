@@ -11,7 +11,7 @@ do_test()
 
 SC=$RPATH/list_nfound_libs.sh
 
-$SC 1.0.12
+#$SC 1.0.12
 #$SC testing
 $SC 2.1
 $SC 2.1-testing
