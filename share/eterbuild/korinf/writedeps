@@ -35,7 +35,7 @@ make_alt_depends_list()
     # TODO: in any way, rpmreqs run apt-get install directly!
     # hack against imperfect rpmreqs
     if hostname | grep -q office.etersoft.ru ; then
-        ssh builder32 $ETERBUILDBIN/rpmreqs -p $(pwd)/$pkg > $TFILE || return
+        ssh builder@builder32 $ETERBUILDBIN/rpmreqs -p $(pwd)/$pkg > $TFILE || return
     else
         BUILDARCH=i586 $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || return
     fi
@@ -54,16 +54,13 @@ write_altdeps_by_list()
 	local expfiles="$2"
 	[ -n "$expfiles" ] || return 0
 
-	# TODO: need we pushd here?
-	pushd "$destdir" >/dev/null || return 0
+	mkdir -p "$destdir" || return 0
 	# trick with expand mask here
 	for i in $expfiles ; do
 		[ -s "$i" ] || continue
 		rhas "$i" "-debug(-|info)" && continue
 		make_alt_depends_list "$i" || { warning "Some depends error with $i" ; return 1 ; }
 	done
-
-	popd >/dev/null
 }
 
 write_altdeps()
