@@ -12,5 +12,6 @@ NAME=wine-gecko
 
 MAINFILES="$NAME[-_][0-9]"
 
-(build_project $WINEPUB_PATH/../Wine-public $NAME "" $@)
+#(build_project $WINEPUB_PATH/../Wine-public $NAME "" $@)
+(build_project $WINEPUB_PATH/../Wine-staging $NAME "" $@)
 (build_project $WINEPUB_PATH/../Wine-vanilla $NAME "" $@)
