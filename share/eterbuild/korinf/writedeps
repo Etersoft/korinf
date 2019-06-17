@@ -55,12 +55,15 @@ write_altdeps_by_list()
 	[ -n "$expfiles" ] || return 0
 
 	mkdir -p "$destdir" || return 0
+	# do expfiles expandable in a curent dir
+	pushd "$destdir" >/dev/null || return 0
 	# trick with expand mask here
 	for i in $expfiles ; do
 		[ -s "$i" ] || continue
 		rhas "$i" "-debug(-|info)" && continue
-		make_alt_depends_list "$i" || { warning "Some depends error with $i" ; return 1 ; }
+		make_alt_depends_list "$i" || { warning "Some depends error with $i" ; popd; return 1 ; }
 	done
+	popd >/dev/null
 }
 
 write_altdeps()
