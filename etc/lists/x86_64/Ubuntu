@@ -41,3 +41,6 @@ x86_64/Mint/18
 
 # like 18.04: LTS until 04.2023
 x86_64/Mint/19
+
+x86_64/Ubuntu/18.10
+x86_64/Ubuntu/19.04

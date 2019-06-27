@@ -1,12 +1,13 @@
 #x86_64/ALTLinux/4.0
 #x86_64/ALTLinux/4.1
-x86_64/ALTLinux/p5
+#x86_64/ALTLinux/p5
 #x86_64/ALTLinux/5.1
 x86_64/ALTLinux/p6
 x86_64/ALTLinux/c7
 x86_64/ALTLinux/c8
 x86_64/ALTLinux/p7
 x86_64/ALTLinux/p8
+x86_64/ALTLinux/p9
 x86_64/ALTLinux/Sisyphus
 
 LINUX@Etersoft/p8
