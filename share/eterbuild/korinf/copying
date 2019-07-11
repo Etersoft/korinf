@@ -43,6 +43,7 @@ clean_copying_destination()
 		rm -fv $EXPEXTRAFILES
 		# HACK
 		rm -vf *${BUILDNAME}-*debuginfo*
+		rm -vf *${BUILDNAME}-*debugsource*
 		rm -vf *${BUILDNAME}-*debug-*
 		popd >/dev/null
 	done
@@ -125,15 +126,15 @@ copying_packages()
 		mkdir_dest "$DESTDIR/extra"
 		echo "Copying all debug packages for $BUILTRPM from $(pwd) to $DESTDIR/extra"
 		for i in *debug*; do
-			rhas "$i" "-debug(-|info)" || continue
+			rhas "$i" "-debug(-|info|source)" || continue
 			[ -e "$i" ] || continue
 			cp -vf $i "$DESTDIR/extra/" || warning "Cannot copy debug package $i to extra"
 		done
 	fi
 
 	# HACK: never have debug packages in lists
-	EXPMAINFILES=$(estrlist reg_exclude ".*debuginfo.* .*debug-.*" "$EXPMAINFILES")
-	EXPEXTRAFILES=$(estrlist reg_exclude ".*debuginfo.* .*debug-.*" "$EXPEXTRAFILES")
+	EXPMAINFILES=$(estrlist reg_exclude ".*debugsource.*. .*debuginfo.* .*debug-.*" "$EXPMAINFILES")
+	EXPEXTRAFILES=$(estrlist reg_exclude ".*debugsource.* .*debuginfo.* .*debug-.*" "$EXPEXTRAFILES")
 
 	# Return OK if all files are exists on ftp
 	for i in $EXPMAINFILES ; do

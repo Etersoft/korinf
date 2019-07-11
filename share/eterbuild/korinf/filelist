@@ -72,7 +72,7 @@ fill_filelist()
 	# TODO: use real package name list
 	# HACK: remove unneeded debug packages
 	if [ "$ALLOWPUBLICDEBUG" != "1" ] ; then
-		rm -vf $BUILTRPM/*${BUILDNAME}-*debuginfo* $BUILTRPM/*${BUILDNAME}-*debug-*
+		rm -vf $BUILTRPM/*${BUILDNAME}-*debugsource* $BUILTRPM/*${BUILDNAME}-*debuginfo* $BUILTRPM/*${BUILDNAME}-*debug-*
 	fi
 
 	# HACK: the follow code copied from build/hasher
