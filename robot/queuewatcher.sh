@@ -42,7 +42,7 @@ fatal()
 	exit 1
 }
 
-echo $$ >$PIDFILE
+echo $$ >$PIDFILE || exit
 
 AROBOT=`dirname $0`
 # load common functions, compatible with local and installed script
