@@ -25,7 +25,7 @@
 
 fatal()
 {
-	echo $@
+	echo "$*" >&2
 	exit 1
 }
 
@@ -74,22 +74,20 @@ for TASKTORUN in $(list_tasks task.run) ; do
 	rm -f $TASKTORUN
 done
 
-COPYTASKDIR="${TASKDIR}/copytsks"
-if [ ! -d "${COPYTASKDIR}" ]
-then
-	mkdir -p "${COPYTASKDIR}"
-fi
+#COPYTASKDIR="${TASKDIR}/copytsks"
 
 for TASKTORUN in $(list_tasks task) ; do
 	[ -e "$TASKTORUN" ] || continue
 	
-	NAMETASKTOCP=$(basename ${TASKTORUN})
-	FULLNAMECOPYTASK="${COPYTASKDIR}/${NAMETASKTOCP}.tsk"
-	
-	if [ ! -e "${FULLNAMECOPYTASK}" ]
-	then
-	    cp "${TASKTORUN}" "${FULLNAMECOPYTASK}"
-	fi
+	# drop strange copying
+	#NAMETASKTOCP=$(basename ${TASKTORUN})
+	#FULLNAMECOPYTASK="${COPYTASKDIR}/${NAMETASKTOCP}.tsk"
+	#
+	#if [ ! -e "${FULLNAMECOPYTASK}" ]
+	#then
+	#    mkdir -p "${COPYTASKDIR}"
+	#    cp "${TASKTORUN}" "${FULLNAMECOPYTASK}"
+	#fi
 	
 	flock $TASKTORUN test -e "$TASKTORUN.run" && continue
 	echo $$ >$TASKTORUN.run
