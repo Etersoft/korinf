@@ -61,7 +61,7 @@ skipped()
 set_log_dir()
 {
 	ALOGDIR=`pwd`/log
-	if [ ! -w "$ALOGDIR" ] ; then
+	if [ ! -d "$ALOGDIR" ] && [ ! -w "$ALOGDIR" ] ; then
 		ALOGDIR=$TMPDIR/korinf-log
 		if [ -n "$KORINFSOURCETREE" ] && [ ! -L "$KORINFSOURCETREE/log" ] ; then
 			ln -s $ALOGDIR "$KORINFSOURCETREE/log"
