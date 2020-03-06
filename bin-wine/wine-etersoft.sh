@@ -13,4 +13,11 @@ NAME=wine-etersoft
 MAINFILES="$NAME[-_][0-9] $NAME-gl"
 EXTRAFILES="$NAME-twain lib$NAME-devel"
 
+# Hack for WINE@Etersoft 5.x
+# see korinf/robot/funcs/build
+if [ "$2" = "5.x" ] || [ "$3" = "5.x" ] ; then
+    MAINFILES="$NAME[-_][0-9] $NAME-full[-_][0-9] $NAME-programs[-_][0-9] lib$NAME[-_][0-9] lib$NAME-gl"
+    EXTRAFILES="lib$NAME-twain lib$NAME-devel"
+fi
+
 build_project $WINEPUB_PATH $NAME WINE $@
