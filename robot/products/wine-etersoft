@@ -47,9 +47,9 @@ prepare_wine_etersoft_license()
 {
 	assert_var PROJECTVERSION TYPE_LICENSE PRODUCT AROBOTDIR
 
-	if [ "$PROJECTVERSION" = "1.0.11" ] ; then
-		[ "$TYPE_LICENSE" = "DemoTerminal" ] && TYPE_LICENSE="Demo"
-	fi
+	#if [ "$PROJECTVERSION" = "1.0.11" ] ; then
+	#	[ "$TYPE_LICENSE" = "DemoTerminal" ] && TYPE_LICENSE="Demo"
+	#fi
 
 	# HACK for WINE@Etersoft Enterprise
 	if echo "$COMPONENTNAME" | grep -q "Enterprise" ; then
@@ -58,16 +58,20 @@ prepare_wine_etersoft_license()
 
 	LICENSE_name=`echo "$TYPE_LICENSE" | sed -e "s| ||g" | tr "[A-Z]" "[a-z]"`
 
-	local DSAKEY=wine-etersoft-2.0.dsa
+	# use N.x by PROJECTVERSION
+	local FIRSTCHAR="$(echo "$PROJECTVERSION" | cut -c1)"
+	local DSAKEY=wine-etersoft-$FIRSTCHAR.x.dsa
 
-	# Тут же может быть testing в PROJECTVERSION, поэтому только его проверять нельзя
+	# FIXME: Тут же может быть testing в PROJECTVERSION, поэтому только его проверять нельзя
+	local KEYPATH=$AROBOTDIR/dsa/$DSAKEY
+	[ -s "$KEYPATH" ] || fatal "missed $KEYPATH" #KEYPATH=$AROBOTDIR/dsa/ine-etersoft-5.x.dsa
+
 	# Обязательно нужно проверять на версию, потому что для WINE@Etersoft 2.0 мы отгружаем 1.0.12
-	if echo "$PRODUCT" | grep -q "WINE@Etersoft 1\.0" || [ "$PROJECTVERSION" = "1.0.12" ] ; then
-		DSAKEY=wine-etersoft.dsa
-	fi
-	
-	
-	create_license $1 $AROBOTDIR/dsa/$DSAKEY
+	#if echo "$PRODUCT" | grep -q "WINE@Etersoft 1\.0" || [ "$PROJECTVERSION" = "1.0.12" ] ; then
+	#	DSAKEY=wine-etersoft.dsa
+	#fi
+
+	create_license $1 $KEYPATH
 }
 
 # TARGETDIR - user download dir on the site
@@ -87,17 +91,15 @@ prepare_wine_etersoft()
 	check_and_refresh_component bin-wine $PVTLOCAL wine-etersoft-${PRODUCT_name}
 	check_and_refresh_component bin-wine $PUBLOCAL/WINE wine-etersoft
 
-	[ "$TYPE" = "School" ] || check_and_refresh_component bin-wine $PUBLOCAL/fonts fonts-ttf-ms
+	check_and_refresh_package $PUBLOCAL/WINE wine-gecko
+	check_and_refresh_package $PUBLOCAL/WINE wine-mono
 
-	# skip on FreeBSD
-	if ! echo "$DIST" | grep -q "FreeBSD" ; then
-		if [ "$PROJECTVERSION" != "1.0.11" ] ; then
-			check_and_refresh_component bin-hasp $PUBLOCAL/HASP haspd
-		fi
+	#[ "$TYPE" = "School" ] || check_and_refresh_component bin-wine $PUBLOCAL/fonts fonts-ttf-ms
 
-		[ "$TYPE" = "Local" ] || check_and_refresh_component bin-cifs $PUBLOCAL/CIFS etercifs
-		[ "$TYPE" = "SchoolDIS" ] || check_and_refresh_component bin-wine $PUBLOCAL/WINE fonts-ttf-liberation
-	fi
+	check_and_refresh_component bin-hasp $PUBLOCAL/HASP haspd
+
+	[ "$TYPE" = "Local" ] || check_and_refresh_component bin-cifs $PUBLOCAL/CIFS etercifs
+	#[ "$TYPE" = "SchoolDIS" ] || check_and_refresh_component bin-wine $PUBLOCAL/WINE fonts-ttf-liberation
 
 	# Get file list
 	PRIVFILES=`find -L $PVTLOCAL/$DIST -maxdepth 1 -type f`
@@ -109,11 +111,7 @@ prepare_wine_etersoft()
 	PUB3FILES=`find -L $PUBLOCAL/WINE/$DIST/extra -maxdepth 1 -type f`
 	# HASP
 	# TODO: copy haspd-modules to extra
-	if [ "$PROJECTVERSION" != "1.0.11" ] ; then
-		PUB4FILES=`find -L $PUBLOCAL/HASP/$DIST -maxdepth 1 -type f`
-	else
-		PUB4FILES=
-	fi
+	PUB4FILES=`find -L $PUBLOCAL/HASP/$DIST -maxdepth 1 -type f`
 
 	if [ "$TYPE" = "CAD" ] ; then
 		# GL for CAD
@@ -158,10 +156,12 @@ prepare_wine_etersoft()
 		if [ "$TYPE" != "Local" ] ; then
 			assert_present_package $FTPDIR etercifs
 		fi
-		[ "$TYPE" = "SchoolDIS" ] || assert_present_package $FTPDIR fonts-ttf-liberation
+		#[ "$TYPE" = "SchoolDIS" ] || assert_present_package $FTPDIR fonts-ttf-liberation
 	fi
 
 	assert_present_package $FTPDIR eepm
+	assert_present_package $FTPDIR wine-gecko
+	assert_present_package $FTPDIR wine-mono
 
 	assert_present_package $FTPDIR wine-etersoft-${PRODUCT_name}
 
@@ -222,15 +222,12 @@ ${BETA}
 
 Всегда можно заказать сборку ещё раз по адресу http://sales.etersoft.ru/product/${ETERREGNUM}/email=${MAILTO}
 
-Для получения Продукта необходимо скачать файлы по приведённым ссылкам, в их числе:
+Для получения Продукта скачайте файлы по приведённым ссылкам, в их числе:
  - пакеты Продукта (wine-etersoft, wine-etersoft-$PRODUCT_name);
  - файл лицензии $LICENSEFILE;
  - документацию (файл manual.html);
  - пакеты с драйверами и менеджерами лицензий для аппаратных ключей защиты
    HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel (пакет haspd для HASP USB и haspd-modules, dkms-aksparlnx для HASP LPT);
- - пакет со свободными шрифтами Liberation (fonts-ttf-liberation)
-   Во многих дистрибутивах он уже есть (в Ubuntu называется ttf-liberation),
-   ставить наш вариант не нужно.
 $CIFSTEXT
 ОБРАТИТЕ ВНИМАНИЕ!
 Файл лицензии $LICENSEFILE необходимо расположить в каталоге /etc/wine, ~/.wine или
@@ -238,7 +235,7 @@ C:\WINDOWS\INF и проверить права на его чтение пол�
 EOF
 	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" $FTPDIR/$LICENSEFILE >>$FILETO || fatal "Error with $LICENSEFILE "
 
-if [ "$TYPE" != "School" ] ; then
+if false && [ "$TYPE" != "School" ] ; then
 	cat >>$FILETO <<EOF
 
 Для полного соответствия шрифтов в программах
@@ -265,12 +262,12 @@ if [ "$TYPE" = "School" ] ; then
 	cat >>$FILETO <<EOF
 
 Обязательно ознакомьтесь с известными проблемами в текущей сборке:
-http://wiki.etersoft.ru/WINE/knownbugs
+https://wiki.etersoft.ru/WINE/knownbugs
 
 Ответы на частые вопросы смотрите на страницах 
-http://kb.etersoft.ru/WINE@Etersoft_School/FAQ
+https://kb.etersoft.ru/WINE@Etersoft_School/FAQ
 и
-http://etersoft.ru/wine/faq
+https://etersoft.ru/wine/faq
 
 Прочитайте документацию https://winehq.org.ru/WINE@Etersoft
 
@@ -289,7 +286,7 @@ elif [ "$TYPE" = "Local" ] ; then
 Обязательно ознакомьтесь с известными проблемами в текущей сборке:
 http://wiki.etersoft.ru/WINE/knownbugs
 
-Ответы на частые вопросы смотрите на http://etersoft.ru/wine/faq
+Ответы на частые вопросы смотрите на https://etersoft.ru/wine/faq
 
 Ознакомьтесь с документацией https://winehq.org.ru/WINE@Etersoft
 
@@ -308,9 +305,9 @@ else
 	cat >>$FILETO <<EOF
 
 Обязательно ознакомьтесь с известными проблемами в текущей сборке:
-http://wiki.etersoft.ru/WINE/knownbugs
+https://wiki.etersoft.ru/WINE/knownbugs
 
-Ответы на частые вопросы смотрите на http://etersoft.ru/wine/faq
+Ответы на частые вопросы смотрите на https://etersoft.ru/wine/faq
 
 Прочитайте документацию https://winehq.org.ru/WINE@Etersoft
 
@@ -328,7 +325,7 @@ fi
 
 -- 
 Команда разработчиков
-Etersoft, 2017
+Etersoft, 2020
 EOF
 }
 
@@ -377,7 +374,7 @@ EOF
 
 -- 
 Команда разработчиков
-Etersoft, 2017
+Etersoft, 2020
 EOF
 }
 
