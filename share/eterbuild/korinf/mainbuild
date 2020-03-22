@@ -75,7 +75,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 		# Set target dir for built packages
 		DESTDIR="$TARGETPATH/$dist"
 		# if already built
-		grep -q "$dist" $BUILTLOGFILE && continue
+		grep -q "^$dist$" $BUILTLOGFILE && continue
 	fi
 
 	# Set target URL for get tarballs or checking
