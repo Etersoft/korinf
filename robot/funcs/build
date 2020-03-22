@@ -105,6 +105,11 @@ check_and_refresh_package()
 
 	check_if_updated $BUILDNAME $SOURCEPATH $PRODPATH && return 0
 
+	if is_autobuild_failed ; then
+		fatal "Package $BUILDNAME has autobuild failed, please build it manually"
+		return 1
+	fi
+
 	$AROBOTDIR/../bin/korinf -f $BUILDNAME $DIST $PRODPATH && return 0
 
 	set_autobuild_failed

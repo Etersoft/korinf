@@ -91,8 +91,10 @@ prepare_wine_etersoft()
 	check_and_refresh_component bin-wine $PVTLOCAL wine-etersoft-${PRODUCT_name}
 	check_and_refresh_component bin-wine $PUBLOCAL/WINE wine-etersoft
 
-	check_and_refresh_package $PUBLOCAL/WINE wine-gecko
-	check_and_refresh_package $PUBLOCAL/WINE wine-mono
+	if echo "$PROJECTVERSION" | grep "^5" ; then
+		check_and_refresh_package $PUBLOCAL/WINE wine-gecko
+		check_and_refresh_package $PUBLOCAL/WINE wine-mono
+	fi
 
 	#[ "$TYPE" = "School" ] || check_and_refresh_component bin-wine $PUBLOCAL/fonts fonts-ttf-ms
 
@@ -160,8 +162,11 @@ prepare_wine_etersoft()
 	fi
 
 	assert_present_package $FTPDIR eepm
-	assert_present_package $FTPDIR wine-gecko
-	assert_present_package $FTPDIR wine-mono
+
+	if echo "$PROJECTVERSION" | grep "^5" ; then
+		assert_present_package $FTPDIR wine-gecko
+		assert_present_package $FTPDIR wine-mono
+	fi
 
 	assert_present_package $FTPDIR wine-etersoft-${PRODUCT_name}
 

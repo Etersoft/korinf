@@ -53,7 +53,7 @@ rpm-dir file:$(dirname $DESTDIR/extra) $(basename $DESTDIR/extra) main"
 
 	if echo "$DESTDIR" | grep -q /pvt/ ; then
 		# HACK
-		local TRTOPUB="$(echo "$DESTDIR" | sed -e "s|/pvt/|/pub/|" -e "s|WINE-Network|WINE|" -e "s|WINE-Local|WINE|")"
+		local TRTOPUB="$(echo "$DESTDIR" | sed -e "s|/pvt/|/pub/|" -e "s|WINE-Network|WINE|" -e "s|WINE-Local|WINE|" -e "s|WINE-SQL|WINE|")"
 		if [ -d "$TRTOPUB/RPMS.main" ] ; then
 			ETERBUILD_APTREPO="$ETERBUILD_APTREPO
 rpm-dir file:$(dirname $TRTOPUB) $(basename $TRTOPUB) main"
