@@ -23,6 +23,20 @@
 
 load_mod rpm hasher
 
+# add rpm-dir to global ETERBUILD_APTREPO
+function __try_add_rpm_dir()
+{
+	local COMPONENT="$2"
+	if [ ! -d "$1/RPMS.$COMPONENT" ] ; then
+		#test -z "$VERBOSE" || warning "Cannot find already built packages repo RPMS.main"
+		return
+	fi
+	# FIXME: it works only for Sisyphus, needs /extra too...
+	ETERBUILD_APTREPO="$ETERBUILD_APTREPO
+rpm-dir file:$(dirname $1) $(basename $1) $COMPONENT"
+#	[ -z "$VERBOSE" ] || echo "base dir found, add aptrepo $ETERBUILD_APTREPO"
+}
+
 function build_in_hasher()
 {
 	assert_var DISTRVERSION BUILDARCH DESTDIR RPMDIR
@@ -37,34 +51,13 @@ function build_in_hasher()
 	ETERBUILD_APTREPO=''
 
 	# HACK: try to use previous built packages
-	if [ -d "$DESTDIR/RPMS.main" ] ; then
-		# FIXME: it works only for Sisyphus, needs /extra too...
-		ETERBUILD_APTREPO="$ETERBUILD_APTREPO
-rpm-dir file:$(dirname $DESTDIR) $(basename $DESTDIR) main"
-		if [ -d "$DESTDIR/extra/RPMS.main" ] ; then
-			# FIXME: it works only for Sisyphus, needs /extra too...
-			ETERBUILD_APTREPO="$ETERBUILD_APTREPO
-rpm-dir file:$(dirname $DESTDIR/extra) $(basename $DESTDIR/extra) main"
-		fi
-		[ -z "$VERBOSE" ] || echo "base dir found, add aptrepo $ETERBUILD_APTREPO"
-	else
-		test -z "$VERBOSE" || warning "Cannot find already built packages repo RPMS.main"
-	fi
+	__try_add_rpm_dir $DESTDIR main
+	__try_add_rpm_dir $DESTDIR/extra main
 
 	if echo "$DESTDIR" | grep -q /pvt/ ; then
-		# HACK
 		local TRTOPUB="$(echo "$DESTDIR" | sed -e "s|/pvt/|/pub/|" -e "s|WINE-Network|WINE|" -e "s|WINE-Local|WINE|" -e "s|WINE-SQL|WINE|")"
-		if [ -d "$TRTOPUB/RPMS.main" ] ; then
-			ETERBUILD_APTREPO="$ETERBUILD_APTREPO
-rpm-dir file:$(dirname $TRTOPUB) $(basename $TRTOPUB) main"
-			if [ -d "$TRTOPUB/extra/RPMS.main" ] ; then
-				ETERBUILD_APTREPO="$ETERBUILD_APTREPO
-rpm-dir file:$(dirname $TRTOPUB/extra) $(basename $TRTOPUB/extra) main"
-			fi
-			[ -z "$VERBOSE" ] || echo "base PUB dir found, add aptrepo $ETERBUILD_APTREPO"
-		else
-			test -z "$VERBOSE" || warning "Cannot find already built packages PUB repo RPMS.main"
-		fi
+		__try_add_rpm_dir $TRTOPUB main
+		__try_add_rpm_dir $TRTOPUB/extra main
 	fi
 
 	export ETERBUILD_APTREPO
