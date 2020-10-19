@@ -4,21 +4,14 @@
 # Список для сборки основных систем при создании ISO
 
 # ALT Linux
-#ALTLinux/2.3
-#ALTLinux/2.4
-#ALTLinux/3.0
-#ALTLinux/4.0
-#ALTLinux/4.1
-#ALTLinux/p5
-ALTLinux/p6
-#ALTLinux/cert6
-ALTLinux/c7
+ALTLinux/Sisyphus
+ALTLinux/p9
+ALTLinux/p8
 ALTLinux/c8
 ALTLinux/p7
-ALTLinux/p8
-ALTLinux/p9
-ALTLinux/Sisyphus
+#ALTLinux/c7
+#ALTLinux/p6
 
-LINUX@Etersoft/p7
-LINUX@Etersoft/p8
+#LINUX@Etersoft/p7
 LINUX@Etersoft/p9
+LINUX@Etersoft/p8

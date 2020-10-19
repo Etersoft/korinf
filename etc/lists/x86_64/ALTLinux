@@ -1,10 +1,10 @@
-x86_64/ALTLinux/p6
-x86_64/ALTLinux/c7
-x86_64/ALTLinux/c8
-x86_64/ALTLinux/p7
-x86_64/ALTLinux/p8
-x86_64/ALTLinux/p9
 x86_64/ALTLinux/Sisyphus
+x86_64/ALTLinux/p9
+x86_64/ALTLinux/p8
+x86_64/ALTLinux/c8
+#x86_64/ALTLinux/p7
+#x86_64/ALTLinux/c7
+#x86_64/ALTLinux/p6
 
-LINUX@Etersoft/p8
 LINUX@Etersoft/p9
+LINUX@Etersoft/p8
