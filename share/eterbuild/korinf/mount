@@ -27,7 +27,18 @@ MOUNT_MODULE_INCLUDED=1
 mount_linux()
 {
 	local dist=$1
-	is_remote_build $dist && return
+	if is_remote_build $dist ; then
+		rhost=$(get_remote_host $DISTRNAME/$DISTRVERSION)
+		if [ "$rhost" = "docker" ] ; then
+			if docker ps --all --format "{{.Names}}" | grep "^$DISTRNAME-$DISTRVERSION$" ; then
+				return
+			fi
+			echo "Create docker build system:" >&2
+			docker build -f $KORINFETC/docker/$DISTRNAME/$DISTRVERSION/Dockerfile -t $DISTRNAME-$DISTRVERSION || fatal
+		fi
+		return
+	fi
+
 	local MOUNTPARAM
 
 	# Note!
@@ -164,6 +175,18 @@ run_in_chroot()
 	local rhost rcommands
 	rhost=$(get_remote_host $DISTRNAME/$DISTRVERSION)
 	if [ -n "$rhost" ] ; then
+		if [ "$rhost" = "docker" ] ; then
+			echo "Run command in docker build system:" >&2
+			if [ -z "$LOUSER" ] || [ "$LOUSER" = "root" ] ; then
+				#evz exec $DISTRNAME/$DISTRVERSION "$@"
+				a='' docker exec -ti -e LC_ALL=C $DISTRNAME-$DISTRVERSION "$@"
+			else
+				#evz exec $DISTRNAME/$DISTRVERSION "gosu $INTUSER export LANG=C ; export LC_ALL=C ; . ~/.profile ; $@"
+				a='' docker exec -ti --user $INTUSER -e LC_ALL=C $DISTRNAME-$DISTRVERSION "$@"
+			    ssh -i $PRIVATESSHKEY $INTUSER@$rhost "export LANG=C ; export LC_ALL=C ; . ~/.profile ; $@"
+			fi
+			return
+		fi
 		rcommands=`eval echo $(get_remote_commands $DISTRNAME/$DISTRVERSION)`
 		# do not use command for a user
 		#[ -n "$LOUSER" ] || rcommands=
