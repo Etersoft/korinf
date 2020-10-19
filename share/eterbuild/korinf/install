@@ -26,7 +26,7 @@ load_mod tarball
 # install built packages
 install_built()
 {
-	assert_var DISTRNAME INTBUILT EXPMAINFILES EPMCMD
+	assert_var DISTRNAME INTBUILT EPMCMD
 	
 	# try use preinstalled epm
 	####
@@ -53,7 +53,7 @@ install_built()
 		fi
 		return
 	else
-		run_in_chroot "cd $INTBUILT && epm --verbose --auto --force install ${EXPMAINFILES} ${EXPEXTRAFILES}" && return
+		run_in_chroot "cd $INTBUILT && ls -l && epm --verbose --auto --force install ${EXPMAINFILES} ${EXPEXTRAFILES}" && return
 	fi
 
 	# if status is skipped
