@@ -83,6 +83,8 @@ case $DISTRNAME in
 
 	logit "mount root dir" mount_linux $dist || return 1
 
+	logit "initialize home dir" init_home || return 1
+
 	logit "convert src.rpm to target $PKGVENDOR" convert_rpm_to_target $dist || return 1
 
 	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then

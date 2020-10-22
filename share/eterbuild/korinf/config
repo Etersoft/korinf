@@ -61,27 +61,32 @@ EOF
 # Create need for build files in home dir
 init_home()
 {
-	assert_var BUILDERHOME
-	[ -d "$BUILDERHOME/" ] || return
-
-	mkdir -p "$BUILDERHOME/.config"
-	[ -r $BUILDERHOME/.config/eterbuild ] || echo "RPMBUILD=rpmbuild" > $BUILDERHOME/.config/eterbuild
-	$SUDO chown $LOCUSER -R $BUILDERHOME/.config
+	echo "Initializing $INTUSER home ..."
+	cat <<EOF | run_in_chroot --user "bash -x -" || return
+#	echo "Run in \$(distr_info)"
+	umask 002
+	#mkdir -p "$BUILDERHOME/.config"
+	#[ -r $BUILDERHOME/.config/eterbuild ] || echo "RPMBUILD=rpmbuild" > $BUILDERHOME/.config/eterbuild
+	#$SUDO chown $LOCUSER -R $BUILDERHOME/.config
 
 	#create_strip_workaround
 
+	rm -rf /home/$INTUSER/RPM/ /home/$INTUSER/tmp/ 2>/dev/null
+	mkdir -p /home/$INTUSER/RPM/
+	mkdir -p /home/$INTUSER/tmp/
+
 	# create rpmmacros if missed
-	if [ -r $BUILDERHOME/.rpmmacros ] ; then
-		return
+	if [ -r ~/.rpmmacros ] ; then
+		exit 0
 	fi
 
-cat <<EOF >$BUILDERHOME/.rpmmacros || fatal "Can't copy macros"
+	cat <<INTEOF >~/.rpmmacros
 # Etersoft's default macros
 %_topdir        /home/$INTUSER/RPM
 %_tmppath       /home/$INTUSER/tmp
 %_sourcedir %_topdir/SOURCES
 %vendor Etersoft
-%distribution WINE@Etersoft
+%distribution Korinf
 #%_target_cpu i586
 %buildhost builder.etersoft.ru
 # do wrong (crossed with --buildroot?
@@ -92,6 +97,7 @@ cat <<EOF >$BUILDERHOME/.rpmmacros || fatal "Can't copy macros"
 # see http://wiki.sisyphus.ru/devel/RpmSetup
 # Disable due https://bugs.etersoft.ru/show_bug.cgi?id=13109 at new rpm
 #%_build_name_fmt %{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}.rpm
+INTEOF
 EOF
 
 }

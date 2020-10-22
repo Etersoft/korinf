@@ -30,7 +30,7 @@ build_rpms()
 	local dist=$1
 
 	# create needed files in home directory
-	init_home
+	#init_home
 	INTBUILT=/home/$INTUSER/$RPMSDIR
 
 	RPMARGS="$(get_rpm_args $dist $BUILDNAME)"
