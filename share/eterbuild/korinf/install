@@ -107,7 +107,7 @@ install_build_requires()
 	[ -z "$reqs" ] && return 0
 
 	# bootstrap install
-	if [ "$BUILDNAME" = "eepm" ] || [ "$BUILDNAME" = "rpm-build-altlinux-compat" ] ; then
+	if [ "$BUILDNAME" = "eepm" ] || [ "$BUILDNAME" = "distro_info" ] ||  [ "$BUILDNAME" = "rpm-build-altlinux-compat" ] ; then
 		assert_var DISTRNAME
 		local INSTALLCOMMAND
 		#run_in_chroot "epm -h >/dev/null" || set_build_failed
