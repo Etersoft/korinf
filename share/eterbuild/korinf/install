@@ -120,7 +120,7 @@ install_build_requires()
 		return 0
 	fi
 
-	# Appeared the backslashed quotes are required if package names contain parentheses
+	# TODO: Appeared the backslashed quotes are required if package names contain parentheses
 	# safe input for eepm
-	run_in_chroot "epm --auto --verbose --skip-installed install \"$reqs\"" </dev/null
+	run_in_chroot "epm --auto --verbose --skip-installed install $reqs" </dev/null
 }
