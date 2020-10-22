@@ -25,6 +25,7 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 
 kormod mount list
+load_mod repl
 
 SUDO="sudo"
 if [ $UID = "0" ]; then
@@ -91,5 +92,5 @@ export PS1="[\u@$SYS \W]\$"
 
 run_in_chroot $USERCO --interactive "$COMMANDTO"
 
-end_umount
+end_umount $SYS
 

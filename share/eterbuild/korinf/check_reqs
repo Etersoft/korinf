@@ -109,7 +109,7 @@ check_package_requires()
 			print_check_reqs_item $dist $pkgname $reqs
 		done
 
-		end_umount > /dev/null
+		end_umount $dist > /dev/null
 	done
 	return $rc
 }

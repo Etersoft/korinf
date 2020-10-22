@@ -87,7 +87,7 @@ case $DISTRNAME in
 
 	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
 		logit "install build requires only" install_build_requires $dist || return 1
-		logit "umount" end_umount || return 1
+		logit "umount" end_umount $dist || return 1
 		return 0
 	fi
 
@@ -117,7 +117,7 @@ case $DISTRNAME in
 	fi
 
 	logit "copying to FTP dir" copying_packages || return 1
-	logit "umount" end_umount || return 1
+	logit "umount" end_umount $dist || return 1
 	;;
 esac
 }

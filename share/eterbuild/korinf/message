@@ -28,7 +28,7 @@ exit_now()
 	EXIT_PROCESSING=1
 	# disable trap before exit
 	trap - EXIT
-	[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount
+	[ -n "$MOUNT_MODULE_INCLUDED" ] && end_umount $DISTRNAME/$DISTRVERSION
 	exit 1
 }
 

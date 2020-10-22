@@ -27,6 +27,7 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 
 kormod mount list
+load_mod repl
 
 if [ -z "$1" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
 	echo "korexec - executes command in chroot system"
@@ -57,7 +58,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 
     run_in_chroot --interactive "$*"
 
-    end_umount
+    end_umount $dist
 
 #    RES=$?
 done

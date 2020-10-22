@@ -148,7 +148,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 
 		# Get error, umount if do not need debug
 		if [ -z "$ADEBUG" ] ; then
-			logit "umount" end_umount
+			logit "umount" end_umount "$dist"
 		fi
 
 		logit "copying log from broken build" copying_log
