@@ -96,7 +96,9 @@ install_build_requires()
 
 	# Req build base system packages
 	# Note: some additional requires we add in rpmbph
-	local buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch gcc coreutils grep make rpm gawk"
+	# Note: sudo less for eepm
+	# TODO: remove toolchain from this list
+	local buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch gcc coreutils grep make rpm gawk sudo less"
 
 	# hack to prepare Debian based system
 	[ "$PKGFORMAT" = "deb" ] && buildsystempkgs="$buildsystempkgs build-essential alien fakeroot debhelper"
