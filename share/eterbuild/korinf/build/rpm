@@ -91,12 +91,13 @@ EOF
 	#	return 1
 	#fi
 
-	# copy remote files to the local filesystem
 	if is_remote_build ; then
+		echo "Copying remote build rpm packages to the local filesystem"
 		mkdir -p $BUILTRPM
 		local tmptar
 		tmptar=$(basename $TARGETSRPM .src.rpm)
-		run_in_chroot --user "cd /home/$INTUSER/RPM/RPMS/ && tar -cf - *" >$BUILTRPM/$tmptar.tar || return
+		#run_in_chroot --user "cd /home/$INTUSER/RPM/RPMS/ && ls -a"
+		run_in_chroot --user "cd /home/$INTUSER/RPM/RPMS/ && tar -cf - *.rpm" >$BUILTRPM/$tmptar.tar || return
 		pushd $BUILTRPM
 		tar xfv $BUILTRPM/$tmptar.tar && rm -f $BUILTRPM/$tmptar.tar || return
 		popd
