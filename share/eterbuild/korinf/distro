@@ -115,7 +115,7 @@ case $DISTRNAME in
 	fi
 
 	if [ -n "$BOOTSTRAP" ] && [ -z "$MAKESPKG" ]; then
-		logit "install built packages" install_built || return 1
+		logit "install built packages" install_built_packages || return 1
 	fi
 
 	logit "copying to FTP dir" copying_packages || return 1

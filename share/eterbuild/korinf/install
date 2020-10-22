@@ -24,7 +24,7 @@
 load_mod tarball
 
 # install built packages
-install_built()
+install_built_packages()
 {
 	assert_var DISTRNAME INTBUILT EPMCMD
 	
