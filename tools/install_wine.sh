@@ -31,19 +31,19 @@ if [ -n "$BASEBUILDNAME" ] ; then
     EXTRABASENAME=lib$BUILDNAME
     [ "$BASEBUILDNAME" = "public" ] && BUILDNAME=wine && EXTRABASENAME=libwine
     [ "$BASEBUILDNAME" = "staging" ] && BUILDNAME=wine && EXTRABASENAME=libwine
+    [ "$BASEBUILDNAME" = "vanilla" ] && BUILDNAME=wine-vanilla && EXTRABASENAME=libwine-vanilla
     LIBBUILDNAME=lib$BUILDNAME
     EXTRADIR=
+else
+    BUILDNAME=wine-etersoft
+    EXTRABASENAME=lib$BUILDNAME
+    LIBBUILDNAME=lib$BUILDNAME
+    [ "$PROJECTVERSION" = "5.x" ] || EXTRABASENAME=$BUILDNAME
 fi
 
-[ -z "$BUILDNAME" ] && BUILDNAME=wine-etersoft EXTRABASENAME=$BUILDNAME
 
-PRIVPART='SQL'
+PRIVPART='Network'
 [ "$PROJECTVERSION" = "cad" ] && PRIVPART='CAD'
-
-#SYSTEM=ALTLinux/Sisyphus
-# p6 - needs some release rewrite (alt14 -> alt13.M60P.14)
-#SYSTEM=ALTLinux/p7
-SYSTEM=$(distr_info)
 
 
 # TODO: move to etersoft-build-utils spec
@@ -69,10 +69,10 @@ if [ -z "$VERSION" ] ; then
 		RELEASE=eter`echo "$RELEASE" | sed -e "s|\([a-zA-Z]*\)\([0-9\.]\)[^0-9\.]*|\2|" `ubuntu
 	fi
 
-	if [ "$SYSTEM" != "ALTLinux/Sisyphus" ] ; then
+	if [ "$(distro_info -e)" != "ALTLinux/Sisyphus" ] ; then
 		# TODO: fix RELEASE
 		load_mod spec
-		BINARYREPO=$(distr_vendor -v)
+		BINARYREPO=$(distro_info -v)
 		MDISTR=$(get_altdistr_mod $BINARYREPO)
 		#MDISTR=M70P
 		local BASERELEASE=$(get_numpartrelease $RELEASE)
@@ -99,19 +99,11 @@ install_pkg()
 	epm install --auto $NODEPS $FORCE $LIST
 }
 
-#############
-# FIXME: use distr_info
-if [ -r "/etc/lsb-release" ] && [ ! -r "/etc/altlinux-release" ] ; then
-	. /etc/lsb-release
-	SYSTEM=$DISTRIB_ID/$DISTRIB_RELEASE
-	if [ $DEFAULTARCH = "x86_64" ] ; then
-		SYSTEM="x86_64/$SYSTEM"
-	fi
-	EXT=deb
-
-else
-	EXT=rpm
+SYSTEM=$(distro_info -e)
+if [ "$(distro_info -a)" = "x86_64" ] ; then
+	SYSTEM="x86_64/$SYSTEM"
 fi
+EXT=$(distro_info -p rpm)
 
 if [ -n "$BASEBUILDNAME" ] ; then
 	TARGETPATH=/var/ftp/pub/Etersoft/Wine-$BASEBUILDNAME/$PROJECTVERSION/$SYSTEM
@@ -136,6 +128,8 @@ if cd $TARGETPATH ; then
 	RESULT=$(echo $?)
 	[ $RESULT -eq 100 ] && echo "There are no proper packages in Sisyphus directory or wrong version" >&2
 fi
+
+[ "$BUILDNAME" = "wine-etersoft" ] || exit 0
 
 #############
 # private public
