@@ -10,4 +10,6 @@ FIRST="$1"
 shift
 
 $(dirname $0)/../bin/korinf rpm-build-altlinux-compat "$FIRST" /var/ftp/pub/Etersoft/Sisyphus "$@"
+# workaround
+$(dirname $0)/../bin/korinf distro_info "$FIRST" /var/ftp/pub/Etersoft/Sisyphus "$@"
 $(dirname $0)/../bin/korinf eepm "$FIRST" /var/ftp/pub/Etersoft/Sisyphus "$@"
