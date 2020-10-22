@@ -66,7 +66,11 @@ convert_debian()
 
 	set_destlogdir
 	for i in $BUILTBINPKGLIST ; do
-		if [ -e $i ] ; then
+		if [ ! -e $i ] ; then
+			warning "Fatal: Package $i is missed in $(pwd)"
+			# FIXME: some projects has variable package list
+			return 1
+		fi
 			# prepare dependencies file
 			# TODO: rewrite this part
 			local depf=$(get_pkgname_from_filename $i)
@@ -76,9 +80,7 @@ convert_debian()
 				#cp "$DESTLOGDIR/${depf}.deb.depends" ${depf}.deb.depends
 				local dep
 				for dep in $(cat "$DESTLOGDIR/${depf}.deb.depends") ; do
-					# FIXME: handle first arg separately before the cycle
-					#[ -z "$dependencies" ] || dependencies="$dependencies, "
-					dependencies="$dependencies, $dep"
+					[ -n "$dependencies" ] && dependencies="$dependencies, $dep" || dependencies="$dep"
 				done
 				#dependencies=$(estrlist uniq $prepreqs)
 				#dependencies=$(cat "$DESTLOGDIR/${depf}.deb.depends" | xargs -n1000 echo)
@@ -107,7 +109,7 @@ convert_debian()
 
 	# Note: we need sed -i on target
 	# TODO: ${misc:Depends} and debian/nx.substvars
-	sed -i -e "s/Depends: \(.*\)/Depends: \1$dependencies/g" debian/control || exit
+	sed -i -e "s/Depends: \(.*\)/Depends: \1 $dependencies/g" debian/control || exit
 
 	# hack for nx (see eterbug #11025)
 	sed -i -e "s/dh_shlibdeps$/dh_shlibdeps -- -v -xlibx11-private/g" debian/rules
