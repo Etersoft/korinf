@@ -124,25 +124,20 @@ convert_debian()
 	rm -rf $WRKDIR/
 	true
 EOF
-
-			# rename result package to filtered name
-			#local debname=$(internal_get_deb_pkgname_from_rpm $i)
-			#pwd
-			#ls -1
-			#debname=$(echo *.deb)
-			#local newdebname=$(get_deb_pkgname_from_rpm $i)
-			#echo "debname=$debname newdebname=$newdebname"
-			#[ "$newdebname" != "$debname" ] && mv -v "$debname" "$newdebname"
-		else
-			warning "Fatal: Package $i is missed in $(pwd)"
-			# FIXME: some projects has variable package list
-			return 1
-		fi
 	done
 
 
-	# Skip, we can get packages locally
-	#echo "$BUILTRPM/$TARGETPKG"
-	#run_in_chroot --user "cat $INTBUILT/$TARGETPKG" >$BUILTRPM/$TARGETPKG || return
+	if is_remote_build ; then
+#		echo "$BUILTRPM/$TARGETPKG"
+#		run_in_chroot --user "cat $INTBUILT/$TARGETPKG" >$BUILTRPM/$TARGETPKG || return
+		mkdir -p $BUILTRPM
+		local tmptar
+		tmptar=$(basename $TARGETSRPM .src.rpm)
+		run_in_chroot --user "cd $INTBUILT/ && tar -cf - *.$PKGFORMAT" >$BUILTRPM/$tmptar.tar || return
+		pushd $BUILTRPM
+		tar xfv $BUILTRPM/$tmptar.tar && rm -f $BUILTRPM/$tmptar.tar || return
+		popd
+
+	fi
 }
 
