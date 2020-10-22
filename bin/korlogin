@@ -89,7 +89,7 @@ mount_linux $SYS $KORLOGINHOME || continue
 export HOSTNAME=$SYS
 export PS1="[\u@$SYS \W]\$"
 
-run_in_chroot $USERCO "$COMMANDTO"
+run_in_chroot $USERCO --interactive "$COMMANDTO"
 
 end_umount
 

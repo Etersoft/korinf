@@ -171,6 +171,9 @@ run_in_chroot()
 		LOUSER=root
 	fi
 
+    local INTERACTIVE="-i"
+    [ "$1" = "--interactive" ] && INTERACTIVE="-ti" && shift
+
 	# run via ssh if remote build system
 	local rhost rcommands
 	rhost=$(get_remote_host $DISTRNAME/$DISTRVERSION)
