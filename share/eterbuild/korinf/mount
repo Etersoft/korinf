@@ -30,11 +30,15 @@ mount_linux()
 	if is_remote_build $dist ; then
 		rhost=$(get_remote_host $DISTRNAME/$DISTRVERSION)
 		if [ "$rhost" = "docker" ] ; then
-			if docker ps --all --format "{{.Names}}" | grep "^$DISTRNAME-$DISTRVERSION$" ; then
-				return
-			fi
+			#if a='' docker ps --all --format "{{.Names}}" | grep "^$(get_docker_image)$" ; then
+			#	return
+			#fi
 			echo "Create docker build system:" >&2
-			docker build -f $KORINFETC/docker/$DISTRNAME/$DISTRVERSION/Dockerfile -t $DISTRNAME-$DISTRVERSION || fatal
+			a='' docker build -f $KORINFETC/docker/$DISTRNAME/$DISTRVERSION/Dockerfile -t $(get_docker_image) . #|| return 1
+# --rm
+			a='' docker run -d --name $(get_docker_container) $(get_docker_image)
+			a='' docker start $(get_docker_container)
+return 0
 		fi
 		return
 	fi
@@ -114,12 +118,24 @@ terminate_using()
 
 end_umount()
 {
+	local dist=$1
+	local i u ERR
+	ERR=0
+
 	# if early error
 	[ -z "$DISTRNAME" ] && return
 
-	is_remote_build && return
-	local i u ERR
-	ERR=0
+	if is_remote_build $dist ; then
+		rhost=$(get_remote_host $DISTRNAME/$DISTRVERSION)
+		if [ "$rhost" = "docker" ] ; then
+			echo "Remove docker build system:" >&2
+			a= docker stop -t1 $(get_docker_container) || return 1
+			#a= docker destroy $(get_docker_container) || return 1
+			#a= docker rmi --no-prune $(get_docker_image) || return 1
+		fi
+		return $ERR
+	fi
+
 	if [ -z "$BUILDROOT" ] ; then
 		[ -z "$ADEBUG" ] || echo "Skip umount due empty BUILDROOT"
 		return 1
@@ -182,11 +198,12 @@ run_in_chroot()
 			echo "Run command in docker build system:" >&2
 			if [ -z "$LOUSER" ] || [ "$LOUSER" = "root" ] ; then
 				#evz exec $DISTRNAME/$DISTRVERSION "$@"
-				a='' docker exec -ti -e LC_ALL=C $DISTRNAME-$DISTRVERSION "$@"
+				echo "# $@" >&2
+				a='' docker exec $INTERACTIVE -e LC_ALL=C $(get_docker_container) sh -c "$*"
 			else
 				#evz exec $DISTRNAME/$DISTRVERSION "gosu $INTUSER export LANG=C ; export LC_ALL=C ; . ~/.profile ; $@"
-				a='' docker exec -ti --user $INTUSER -e LC_ALL=C $DISTRNAME-$DISTRVERSION "$@"
-			    ssh -i $PRIVATESSHKEY $INTUSER@$rhost "export LANG=C ; export LC_ALL=C ; . ~/.profile ; $@"
+				echo "$ $@" >&2
+				a='' docker exec $INTERACTIVE --user $INTUSER -e LC_ALL=C $(get_docker_container) sh -c "$*"
 			fi
 			return
 		fi
@@ -195,12 +212,13 @@ run_in_chroot()
 		#[ -n "$LOUSER" ] || rcommands=
 		# Note: this output can be write to file with redirect output
 		echo "Run command in remote ($rhost) build system:" >&2
-		echo "# $@" >&2
 		# FIXME: add -t if need interactive
 		if [ -z "$LOUSER" ] || [ "$LOUSER" = "root" ] ; then
 		    #ssh -i $PRIVATESSHKEY $INTUSER@$rhost $rcommands "\"export LANG=C ; export LC_ALL=C ; $@\""
+			echo "# $@" >&2
 		    ssh -i $PRIVATESSHKEY $INTUSER@$rhost $rcommands "\"$@\""
 		else
+			echo "$ $@" >&2
 		    ssh -i $PRIVATESSHKEY $INTUSER@$rhost "export LANG=C ; export LC_ALL=C ; . ~/.profile ; $@"
 		fi
 		return

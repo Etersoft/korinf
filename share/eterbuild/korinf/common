@@ -231,6 +231,17 @@ get_remote_commands()
         grep "^$1 " $KORINFETC/remote 2>/dev/null | ( read d host commands ; echo $commands ; )
 }
 
+get_docker_image()
+{
+        echo "$DISTRNAME-$DISTRVERSION" | filter_deb_pkgnames
+}
+
+get_docker_container()
+{
+        #echo "$(get_docker_image)-$(basename $0)-$BUILDNAME" | filter_deb_pkgnames
+        echo "$(get_docker_image)-c" | filter_deb_pkgnames
+}
+
 is_remote_build()
 {
 	local rhost
