@@ -230,8 +230,8 @@ convert_gentoo()
 	fi
 	
 # re-expand file masks by PKGFORMAT
-        EXPMAINFILES=$(expand_filelist $MAINFILESLIST)
-        EXPEXTRAFILES=$(expand_filelist $EXTRAFILESLIST)
+        EXPMAINFILES=$(expand_filelist $PKGFORMAT $MAINFILESLIST)
+        EXPEXTRAFILES=$(expand_filelist $PKGFORMAT $EXTRAFILESLIST)
 
 	if [ -n "$ADEBUG" ]
 	then

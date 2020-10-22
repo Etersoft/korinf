@@ -23,7 +23,10 @@
 # Internal: printout args with add *.$PKGFORMAT
 expand_filelist()
 {
-        [ -n"$PKGFORMAT" ] || fatal "PKGFORMAT is empty"
+        local PKGFORMAT="$1"
+        shift
+        [ -n "$PKGFORMAT" ] || fatal "PKGFORMAT is empty"
+
         # FIXME: bash related
         declare -a ar
         ar=( $@ )
@@ -46,12 +49,12 @@ prepare_filelist()
 	fi
 
 	# expand file masks by PKGFORMAT
-	EXPMAINFILES=$(expand_filelist $MAINFILESLIST)
-	EXPEXTRAFILES=$(expand_filelist $EXTRAFILESLIST)
+	EXPMAINFILES=$(expand_filelist $PKGFORMAT $MAINFILESLIST)
+	EXPEXTRAFILES=$(expand_filelist $PKGFORMAT $EXTRAFILESLIST)
 
 	# expand file masks by rpm
-	EXPRPMMAINFILES=$(PKGFORMAT=rpm expand_filelist $MAINFILESLIST)
-	EXPRPMEXTRAFILES=$(PKGFORMAT=rpm expand_filelist $EXTRAFILESLIST)
+	EXPRPMMAINFILES=$(expand_filelist "rpm" $MAINFILESLIST)
+	EXPRPMEXTRAFILES=$(expand_filelist "rpm" $EXTRAFILESLIST)
 
 	# do lowercase for deb packages only
 	if [ "$PKGFORMAT" = "deb" ] ; then
@@ -65,7 +68,7 @@ prepare_filelist()
 	true
 }
 
-# fill MAILFILELIST and run prepare_filelist
+# fill MAINFILELIST and run prepare_filelist
 fill_filelist()
 {
 	assert_var BUILDNAME BUILTRPM TARGETSRPM
