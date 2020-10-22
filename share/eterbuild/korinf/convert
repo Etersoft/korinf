@@ -28,7 +28,7 @@ kormod converts/common
 
 # converts ALT src.rpm to target src.rpm and send it to build system
 # used BUILDERHOME to put in src.rpm
-convert_rpm_to_target()
+convert_srpm_to_target()
 {
 	local dist=$1
 

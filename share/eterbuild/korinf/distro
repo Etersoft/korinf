@@ -50,7 +50,7 @@ case $DISTRNAME in
 	kormod build/solaris
 
 	# FIXME: rewrite build rules
-	# used in convert_rpm_to_target
+	# used in convert_srpm_to_target
 	BUILDERHOME=/var/empty
 
 	logit "build in $DISTRNAME $DISTRNAME" build_solaris || return 1
@@ -85,7 +85,7 @@ case $DISTRNAME in
 
 	logit "initialize home dir" init_home || return 1
 
-	logit "convert src.rpm to target $PKGVENDOR" convert_rpm_to_target $dist || return 1
+	logit "convert src.rpm to target $PKGVENDOR" convert_srpm_to_target $dist || return 1
 
 	if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
 		logit "install build requires only" install_build_requires $dist || return 1
