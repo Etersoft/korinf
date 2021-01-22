@@ -44,17 +44,17 @@ print_check_reqs_item()
 	local dist=$1
 	local fname=$(basename $2)
 	shift 2
-	local reqs=$@
-
+	local reqs="$*"
+	reqs="$(quote_pkgname $reqs)"
 	if [ "$CHECKREQUIRES" = "-R" ] ; then
 		printf "* %s: %s" "$fname" "$(echo $reqs)"
 		[ -z "$reqs" ] && skipped && echo && continue
 		echo
-		run_in_chroot "epm --verbose --skip-installed simulate \"$reqs\""
+		run_in_chroot "epm --verbose --skip-installed simulate $reqs"
 	else
 		printf "  * %60s: " "$fname"
 		[ -z "$reqs" ] && skipped && echo && continue
-		run_in_chroot "epm --verbose --skip-installed simulate \"$reqs\"" >/dev/null 2>&1
+		run_in_chroot "epm --verbose --skip-installed simulate $reqs" >/dev/null 2>&1
 	fi
 	print_status $?
 }
@@ -99,13 +99,13 @@ check_package_requires()
 		reqs="$($EPMCMD req $BUILDSRPM | grep -v "[<=>]")"
 		echo "Before convert $(basename $BUILDSRPM): $(estrlist strip_spaces $reqs)"
 		reqs="$(convert_pkgreqs_to_target $reqs)"
-		reqs="$(do_exclude_list "$pkgnames" "$reqs")"
+		reqs="$(estrlist exclude "$pkgnames" "$reqs")"
 		print_check_reqs_item $dist $BUILDSRPM $reqs
 
 		# Test for install requirements
 		for pkgname in $pkgnames ; do
 			reqs=$(get_target_deplist $pkgname) || rc=$?
-			reqs=$(do_exclude_list "$pkgnames" "$reqs")
+			reqs=$(estrlist exclude "$pkgnames" "$reqs")
 			print_check_reqs_item $dist $pkgname $reqs
 		done
 
@@ -126,8 +126,9 @@ test_package_requirements()
 		rhas "$pkgname" "-debuginfo" && continue
 		rhas "$pkgname" "-debug-" && continue
 		reqs=$(get_target_deplist $pkgname) || return 1
-		reqs=$(do_exclude_list "$pkgnames" "$reqs")
-		run_in_chroot "epm --skip-installed simulate \"$reqs\""
+		reqs=$(estrlist exclude "$pkgnames" "$reqs")
+		reqs="$(quote_pkgname $reqs)"
+		run_in_chroot "epm --skip-installed simulate $reqs"
 		local res="$?"
 		[ "$res" != "0" ] && [ "$res" != "22" ] && return $res
 	done
@@ -155,8 +156,9 @@ test_package_files_requirements()
 
 	for pkgfile in $EXPMAINFILES $EXPEXTRAFILES; do
 		reqs=$(epm requires $pkgfile)
-		reqs=$(do_exclude_list "$pkgnames" "$reqs")
-		run_in_chroot "epm --skip-installed simulate \"$reqs\""
+		reqs=$(estrlist exclude "$pkgnames" "$reqs")
+		reqs="$(quote_pkgname $reqs)"
+		run_in_chroot "epm --skip-installed simulate $reqs"
 		local res="$?"
 		[ "$res" != "0" ] && [ "$res" != "22" ] && return $res
 	done

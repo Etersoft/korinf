@@ -260,4 +260,13 @@ is_remote_build()
 	test -n "$rhost"
 }
 
+quote_pkgname()
+{
+	local i
+	for i in $* ; do
+	echo -n " '$i'"
+	done
+}
+
+
 kormod config log list

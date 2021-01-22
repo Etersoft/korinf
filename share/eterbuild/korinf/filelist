@@ -57,10 +57,11 @@ prepare_filelist()
 	EXPRPMEXTRAFILES=$(expand_filelist "rpm" $EXTRAFILESLIST)
 
 	# do lowercase for deb packages only
-	if [ "$PKGFORMAT" = "deb" ] ; then
-	    EXPMAINFILES=$(echo $EXPMAINFILES | filter_deb_pkgnames)
-	    EXPEXTRAFILES=$(echo $EXPEXTRAFILES | filter_deb_pkgnames)
-	fi
+	# TODO: этот фильтр делает из [-_] [--]
+	#if [ "$PKGFORMAT" = "deb" ] ; then
+	#    EXPMAINFILES=$(echo $EXPMAINFILES | filter_deb_pkgnames)
+	#    EXPEXTRAFILES=$(echo $EXPEXTRAFILES | filter_deb_pkgnames)
+	#fi
 
 	[ -n "$ADEBUG" ] && echo "EXPMAINFILES: $EXPMAINFILES EXPEXTRAFILES: $EXPEXTRAFILES"
 	[ -z "$EXPMAINFILES$EXPEXTRAFILES" ] && fatal "Logical error with EXPMAINFILES EXPEXTRAFILES"

@@ -129,14 +129,18 @@ prepare_wine_etersoft()
 	for i in $PRIVFILES $PUB1FILES $PUB2FILES $PUB4FILES $PUB5FILES $PUB6FILES; do
 		[ -n "$i" ] || fatal "Empty source filename"
 		# try create hard link firstly
-		cp -fl $i $FTPDIR || cp -f $i $FTPDIR || fatal "Can't copy $i"
+		cp -fl $i $FTPDIR ||  cp -fl $i $FTPDIR || cp -f $i $FTPDIR || fatal "Can't copy $i"
 	done
 
 	# Копируем дополнительные в extra
 	for i in $PUB3FILES; do
 		[ -n "$i" ] || fatal "Empty source filename"
 		# try create hard link firstly
-		cp -fl $i $FTPDIR/extra/ || cp -f $i $FTPDIR/extra/ || fatal "Can't copy $i"
+		# some gluster problem?
+		# 
+		# cp: cannot create hard link '/var/ftp/pub/download/WINE@Etersoft/B7A8-huphoaxaet/Local-2.1/x86_64/Ubuntu/18.04/wine-etersoft_2.1.4-eter37ubuntu_i386.deb' to '/var/ftp/pub/Etersoft/WINE@Etersoft/2.1.4/WINE/x86_64/Ubuntu/18.04/wine-etersoft_2.1.4-eter37ubuntu_i386.deb': No space left on device
+		# cp: '/var/ftp/pub/Etersoft/WINE@Etersoft/2.1.4/WINE/x86_64/Ubuntu/18.04/wine-etersoft_2.1.4-eter37ubuntu_i386.deb' and '/var/ftp/pub/download/WINE@Etersoft/B7A8-ieshaimaec/Local-2.1/x86_64/Ubuntu/18.04/wine-etersoft_2.1.4-eter37ubuntu_i386.deb' are the same file
+		cp -fl $i $FTPDIR/extra/ || cp -fl $i $FTPDIR/extra/ || cp -f $i $FTPDIR/extra/ || fatal "Can't copy $i"
 	done
 
 	prepare_wine_etersoft_license $FTPDIR/$LICENSEFILE

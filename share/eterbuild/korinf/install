@@ -105,8 +105,8 @@ install_build_requires()
 
 	reqs="$($EPMCMD req "$TARGETSRPM" | grep -v "[<=>]" | xargs -n 1000 echo)"
 	reqs="$reqs $(convert_pkgreqs_to_target $buildsystempkgs | xargs -n 1000 echo)"
-
 	[ -z "$reqs" ] && return 0
+	reqs="$(quote_pkgname $reqs)"
 
 	# bootstrap install
 	if [ "$BUILDNAME" = "eepm" ] || [ "$BUILDNAME" = "distro_info" ] ||  [ "$BUILDNAME" = "rpm-build-altlinux-compat" ] ; then

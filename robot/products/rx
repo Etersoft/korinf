@@ -66,7 +66,7 @@ build_rx()
 	fi
 
 	# need for license file creating
-	local CNAME=$(strip_spaces $COMPONENTNAME)
+	local CNAME=$(estrlist strip_spaces $COMPONENTNAME)
 	# will do FTPDIR from it in create_license_dir
 	TARGETDIR="/var/ftp/pub/download/$CNAME/$TARGETDIRNAME"
 	DOWNLOADDIR="$MPROTO://$DOWNLOADDOMAIN/pub/download/$CNAME/$TARGETDIRNAME"

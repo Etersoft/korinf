@@ -109,7 +109,7 @@ convert_debian()
 
 	# Note: we need sed -i on target
 	# TODO: ${misc:Depends} and debian/nx.substvars
-	sed -i -e "s/Depends: \(.*\)/Depends: \1 $dependencies/g" debian/control || exit
+	sed -i -e "s/Depends: \(.*\)/Depends: \1, $dependencies/g" debian/control || exit
 
 	# hack for nx (see eterbug #11025)
 	sed -i -e "s/dh_shlibdeps$/dh_shlibdeps -- -v -xlibx11-private/g" debian/rules
