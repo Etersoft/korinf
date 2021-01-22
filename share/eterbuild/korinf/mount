@@ -28,16 +28,16 @@ mount_linux()
 {
 	local dist=$1
 	if is_remote_build $dist ; then
-		rhost=$(get_remote_host $DISTRNAME/$DISTRVERSION)
+		rhost=$(get_remote_host $dist)
 		if [ "$rhost" = "docker" ] ; then
 			#if a='' docker ps --all --format "{{.Names}}" | grep "^$(get_docker_image)$" ; then
 			#	return
 			#fi
 			echo "Create docker build system:" >&2
-			a='' docker build -f $KORINFETC/docker/$DISTRNAME/$DISTRVERSION/Dockerfile -t $(get_docker_image) . #|| return 1
+			a='' docker build -f $KORINFETC/docker/$dist/Dockerfile -t $(get_docker_image $dist) . #|| return 1
 # --rm
-			a='' docker run -d --name $(get_docker_container) $(get_docker_image)
-			a='' docker start $(get_docker_container)
+			a='' docker run -d --name $(get_docker_container $dist) $(get_docker_image $dist)
+			a='' docker start $(get_docker_container $dist)
 return 0
 		fi
 		return
@@ -126,10 +126,10 @@ end_umount()
 	[ -z "$DISTRNAME" ] && return
 
 	if is_remote_build $dist ; then
-		rhost=$(get_remote_host $DISTRNAME/$DISTRVERSION)
+		rhost=$(get_remote_host $dist)
 		if [ "$rhost" = "docker" ] ; then
 			echo "Remove docker build system:" >&2
-			a= docker stop -t1 $(get_docker_container) || return 1
+			a= docker stop -t1 $(get_docker_container $dist) || return 1
 			#a= docker destroy $(get_docker_container) || return 1
 			#a= docker rmi --no-prune $(get_docker_image) || return 1
 		fi
@@ -173,10 +173,11 @@ end_umount()
 	return $ERR
 }
 
+# run command for dist
 # use --user for change to local user INTUSER
 run_in_chroot()
 {
-	assert_var DISTRNAME DISTRVERSION INTUSER
+	assert_var INTUSER
 
 	local LOUSER=""
 	if [ "$1" = "--user" ] ; then
@@ -192,22 +193,23 @@ run_in_chroot()
 
 	# run via ssh if remote build system
 	local rhost rcommands
-	rhost=$(get_remote_host $DISTRNAME/$DISTRVERSION)
+	rhost=$(get_remote_host $dist)
 	if [ -n "$rhost" ] ; then
+		assert_var dist
 		if [ "$rhost" = "docker" ] ; then
 			echo "Run command in docker build system:" >&2
 			if [ -z "$LOUSER" ] || [ "$LOUSER" = "root" ] ; then
 				#evz exec $DISTRNAME/$DISTRVERSION "$@"
 				echo "# $@" >&2
-				a='' docker exec $INTERACTIVE -e LC_ALL=C $(get_docker_container) sh -c "$*"
+				a='' docker exec $INTERACTIVE -e LC_ALL=C $(get_docker_container $dist) sh -c "$*"
 			else
 				#evz exec $DISTRNAME/$DISTRVERSION "gosu $INTUSER export LANG=C ; export LC_ALL=C ; . ~/.profile ; $@"
 				echo "$ $@" >&2
-				a='' docker exec $INTERACTIVE --user $INTUSER -e LC_ALL=C $(get_docker_container) sh -c "$*"
+				a='' docker exec $INTERACTIVE --user $INTUSER -e LC_ALL=C $(get_docker_container $dist) sh -c "$*"
 			fi
 			return
 		fi
-		rcommands=`eval echo $(get_remote_commands $DISTRNAME/$DISTRVERSION)`
+		rcommands=`eval echo $(get_remote_commands $dist)`
 		# do not use command for a user
 		#[ -n "$LOUSER" ] || rcommands=
 		# Note: this output can be write to file with redirect output

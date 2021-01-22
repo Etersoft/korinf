@@ -100,7 +100,7 @@ install_pkg()
 }
 
 SYSTEM=$(distro_info -e)
-if [ "$(distro_info -a)" = "x86_64" ] ; then
+if [ "$(distro_info -a)" = "x86_64" ] && [ "$(distro_info -n)" != "alt" ]  ; then
 	SYSTEM="x86_64/$SYSTEM"
 fi
 EXT=$(distro_info -p rpm)
