@@ -5,3 +5,4 @@ FreeBSD/8.4       freebsd84   sudo su - $LOUSER -c
 OpenSolaris/11    solaris     sudo su - $LOUSER -c
 #Normal/8.2       freebsd     sudo su - $LOUSER -c
 AstraLinux/smolensk smolensk sudo su - $LOUSER -c
+x86_64/Ubuntu/20.04      docker
