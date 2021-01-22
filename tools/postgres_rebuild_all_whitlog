@@ -1,0 +1,5 @@
+#!/bin/bash
+
+~/Projects/korinf/bin-postgres/postgre-etersoft9.2.sh all $@ 2>&1 | tee ~/Projects/korinf/log/postgresall-$1.log
+
+exit 0
