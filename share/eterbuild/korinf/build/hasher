@@ -98,7 +98,7 @@ fi
 	if [ -n "$MAKESPKG" ] ; then
 		BUILTRPM=$RPMDIR/SRPMS
 		if [ "$MENV" = "SS" ] ; then
-			BUILDCOMMAND="$RPMBS -s"
+			BUILDCOMMAND="$RPMBS -s -w"
 		else
 			BUILDCOMMAND="$RPMBP $MENVARG"
 		fi
@@ -108,7 +108,7 @@ fi
 
 	# build binary packages
 	if [ "$MENV" = "SS" ] ; then
-		BUILDCOMMAND="$RPMBSH"
+		BUILDCOMMAND="$RPMBSH -w"
 	else
 		BUILDCOMMAND="$RPMBPH $MENVARG"
 	fi
