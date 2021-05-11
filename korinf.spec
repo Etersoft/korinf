@@ -1,10 +1,10 @@
 Name: korinf
-Version: 2.2.0
+Version: 2.3.0
 Release: alt1
 
 Summary: Korinf multidistro single source build system
 
-License: AGPLv3
+License: AGPL-3.0+
 Group: Development/Other
 Url: http://freesource.info/wiki/korinf
 
@@ -19,6 +19,8 @@ Requires: eepm >= 2.1.1
 Requires: etersoft-build-utils >= 2.7.14
 Requires: alien >= 8.86-alt3
 Requires: lsof
+
+%add_python3_req_skip %_datadir/eterbuild/korinf/helpers/send_via_pyxmpp.py
 
 %description
 This package contains Korinf multidistro build system.
@@ -47,6 +49,9 @@ This package contains Korinf multidistro build system.
 %_datadir/eterbuild/korinf/
 
 %changelog
+* Tue May 11 2021 Vitaly Lipatov <lav@altlinux.ru> 2.3.0-alt1
+- fix build
+
 * Sun Mar 22 2020 Vitaly Lipatov <lav@altlinux.ru> 2.2.0-alt1
 - worker.sh: drop copying to copytsks
 - update list of systems
