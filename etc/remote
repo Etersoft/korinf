@@ -5,5 +5,12 @@ FreeBSD/8.4       freebsd84   sudo su - $LOUSER -c
 OpenSolaris/11    solaris     sudo su - $LOUSER -c
 #Normal/8.2       freebsd     sudo su - $LOUSER -c
 AstraLinux/smolensk smolensk sudo su - $LOUSER -c
+x86_64/Ubuntu/19.04      docker
 x86_64/Ubuntu/20.04      docker
+x86_64/Ubuntu/20.10      docker
+x86_64/Ubuntu/21.04      docker
+x86_64/Ubuntu/21.10      docker
 Fedora/32         docker
+Fedora/33         docker
+Fedora/34         docker
+x86_64/ArchLinux/rolling docker
