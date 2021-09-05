@@ -198,7 +198,7 @@ run_in_chroot()
 	local INTERACTIVE="-i"
 	[ "$1" = "--interactive" ] && INTERACTIVE="-ti" && shift
 
-	dist="$1"
+	local dist="$1"
 	shift
 
 	[ -n "$dist" ] || fatal "empty dist"
@@ -207,6 +207,7 @@ run_in_chroot()
 	local rhost rcommands
 	rhost=$(get_remote_host $dist)
 	if [ -n "$rhost" ] ; then
+
 		if [ "$rhost" = "docker" ] ; then
 			echo "Run command in docker build system:" >&2
 			if [ -z "$LOUSER" ] || [ "$LOUSER" = "root" ] ; then
@@ -220,6 +221,7 @@ run_in_chroot()
 			fi
 			return
 		fi
+
 		rcommands=`eval echo $(get_remote_commands $dist)`
 		# do not use command for a user
 		#[ -n "$LOUSER" ] || rcommands=

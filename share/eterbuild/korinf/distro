@@ -94,7 +94,7 @@ case $DISTRNAME in
 	fi
 
 	if [ -z "$INITIALBOOTSTRAP" ] ; then
-		logit "assure build requires" install_build_requires || return 1
+		logit "assure build requires" install_build_requires $dist || return 1
 	fi
 
 	logit "build RPM package" build_rpms $dist || return 1

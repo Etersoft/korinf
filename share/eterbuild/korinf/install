@@ -87,6 +87,7 @@ install_build_requires()
 
 	assert_var BUILDNAME BUILDARCH TARGETSRPM PKGFORMAT
 	assert_var BUILDERHOME
+	assert_var dist
 
 	# NOTE: possible side effect with redefined DISTRNAME, BUILDARCH, DISTRVERSION
 	#parse_dist_name $dist

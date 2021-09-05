@@ -33,7 +33,7 @@ exit_handler()
     local rc=$?
     trap - EXIT
     warning "Interrupted, exiting..."
-    end_umount $DISTRNAME/$DISTRVERSION
+    end_umount $dist
     exit $rc
 }
 
