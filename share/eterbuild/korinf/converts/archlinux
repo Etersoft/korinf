@@ -42,7 +42,7 @@ convert_archlinux()
 	done
 	prepreqs=$(estrlist uniq $prepreqs)
 
-	cat <<EOF | run_in_chroot --user "bash -x -" || return
+	cat <<EOF | run_in_chroot --user $dist "bash -x -" || return
 	umask 002
 	mkdir -p ~/RPM/log
 

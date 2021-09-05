@@ -50,11 +50,11 @@ print_check_reqs_item()
 		printf "* %s: %s" "$fname" "$(echo $reqs)"
 		[ -z "$reqs" ] && skipped && echo && continue
 		echo
-		run_in_chroot "epm --verbose --skip-installed simulate $reqs"
+		run_in_chroot $dist "epm --verbose --skip-installed simulate $reqs"
 	else
 		printf "  * %60s: " "$fname"
 		[ -z "$reqs" ] && skipped && echo && continue
-		run_in_chroot "epm --verbose --skip-installed simulate $reqs" >/dev/null 2>&1
+		run_in_chroot $dist "epm --verbose --skip-installed simulate $reqs" >/dev/null 2>&1
 	fi
 	print_status $?
 }
@@ -128,7 +128,7 @@ test_package_requirements()
 		reqs=$(get_target_deplist $pkgname) || return 1
 		reqs=$(estrlist exclude "$pkgnames" "$reqs")
 		reqs="$(quote_pkgname $reqs)"
-		run_in_chroot "epm --skip-installed simulate $reqs"
+		run_in_chroot $dist "epm --skip-installed simulate $reqs"
 		local res="$?"
 		[ "$res" != "0" ] && [ "$res" != "22" ] && return $res
 	done
@@ -144,7 +144,7 @@ test_package_files_requirements()
 	[ -n "$INITIALBOOTSTRAP" ] && return
 
 	# FIXME: epm requires can't return correct requires list
-	run_in_chroot "cd $INTBUILT && epm --skip-installed simulate \$(epm requires ${EXPMAINFILES} ${EXPEXTRAFILES})"
+	run_in_chroot $dist "cd $INTBUILT && epm --skip-installed simulate \$(epm requires ${EXPMAINFILES} ${EXPEXTRAFILES})"
 	return
 
 	# unworked way:
@@ -158,7 +158,7 @@ test_package_files_requirements()
 		reqs=$(epm requires $pkgfile)
 		reqs=$(estrlist exclude "$pkgnames" "$reqs")
 		reqs="$(quote_pkgname $reqs)"
-		run_in_chroot "epm --skip-installed simulate $reqs"
+		run_in_chroot $dist "epm --skip-installed simulate $reqs"
 		local res="$?"
 		[ "$res" != "0" ] && [ "$res" != "22" ] && return $res
 	done

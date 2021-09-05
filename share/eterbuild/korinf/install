@@ -34,7 +34,7 @@ install_built_packages()
 	####
 	if [ $PKGVENDOR == "gentoo" ]
 	then
-		run_in_chroot "cd $INTBUILT && ls -a && ./${INSTALLBUILTSCRIPTNAME}"
+		run_in_chroot $dist "cd $INTBUILT && ls -a && ./${INSTALLBUILTSCRIPTNAME}"
 		
 		local RESULTRET=$?
 		
@@ -53,7 +53,7 @@ install_built_packages()
 		fi
 		return
 	else
-		run_in_chroot "cd $INTBUILT && ls -l && epm --verbose --auto --force install ${EXPMAINFILES} ${EXPEXTRAFILES}" && return
+		run_in_chroot $dist "cd $INTBUILT && ls -l && epm --verbose --auto --force install ${EXPMAINFILES} ${EXPEXTRAFILES}" && return
 	fi
 
 	# if status is skipped
@@ -72,9 +72,9 @@ install_built_packages()
 	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || { warning "Can't get install command" ; return 1 ; }
 	[ -n "$INSTALLCOMMAND" ] || { warning "Got empty install command" ; return 1 ; }
 	# CHECKME: why we need yes here
-	run_in_chroot "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" #|| set_build_failed
+	run_in_chroot $dist "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" #|| set_build_failed
 	if [ "$BUILDNAME" = "eepm" ] ; then
-		run_in_chroot "epm -h >/dev/null" || set_build_failed
+		run_in_chroot $dist "epm -h >/dev/null" || set_build_failed
 	fi
 }
 
@@ -116,11 +116,11 @@ install_build_requires()
 		# Bootstrap install eepm (get command from host's epm)
 		INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install $reqs) || { warning "Can't get install command" ; return 1 ; }
 		# CHECKME: why we need yes here
-		run_in_chroot "yes | $INSTALLCOMMAND" #|| set_build_failed
+		run_in_chroot $dist "yes | $INSTALLCOMMAND" #|| set_build_failed
 		return 0
 	fi
 
 	# TODO: Appeared the backslashed quotes are required if package names contain parentheses
 	# safe input for eepm
-	run_in_chroot "epm --auto --verbose --skip-installed install $reqs" </dev/null
+	run_in_chroot $dist "epm --auto --verbose --skip-installed install $reqs" </dev/null
 }

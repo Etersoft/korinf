@@ -173,6 +173,7 @@ end_umount()
 	return $ERR
 }
 
+# args: [--user USER] [--interactive] <dist> <command>
 # run command for dist
 # use --user for change to local user INTUSER
 run_in_chroot()
@@ -188,14 +189,18 @@ run_in_chroot()
 		LOUSER=root
 	fi
 
-    local INTERACTIVE="-i"
-    [ "$1" = "--interactive" ] && INTERACTIVE="-ti" && shift
+	local INTERACTIVE="-i"
+	[ "$1" = "--interactive" ] && INTERACTIVE="-ti" && shift
+
+	dist="$1"
+	shift
+
+	[ -n "$dist" ] || fatal "empty dist"
 
 	# run via ssh if remote build system
 	local rhost rcommands
 	rhost=$(get_remote_host $dist)
 	if [ -n "$rhost" ] ; then
-		assert_var dist
 		if [ "$rhost" = "docker" ] ; then
 			echo "Run command in docker build system:" >&2
 			if [ -z "$LOUSER" ] || [ "$LOUSER" = "root" ] ; then

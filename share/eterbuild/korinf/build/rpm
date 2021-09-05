@@ -56,7 +56,7 @@ build_rpms()
 	#rm -f "$LOGFAILFILE" "$LOGFAILFILE.clog"
 
 	echo "Chrooting as $INTUSER and run script"
-	cat <<EOF | run_in_chroot --user "bash -x -" || return
+	cat <<EOF | run_in_chroot --user $dist "bash -x -" || return
 	echo "Run in \$(distr_info)"
 	umask 002
 	mkdir -p ~/RPM/log
@@ -97,7 +97,7 @@ EOF
 		local tmptar
 		tmptar=$(basename $TARGETSRPM .src.rpm)
 		#run_in_chroot --user "cd /home/$INTUSER/RPM/RPMS/ && ls -a"
-		run_in_chroot --user "cd /home/$INTUSER/RPM/RPMS/ && tar -cf - *.rpm" >$BUILTRPM/$tmptar.tar || return
+		run_in_chroot --user $dist "cd /home/$INTUSER/RPM/RPMS/ && tar -cf - *.rpm" >$BUILTRPM/$tmptar.tar || return
 		pushd $BUILTRPM
 		tar xfv $BUILTRPM/$tmptar.tar && rm -f $BUILTRPM/$tmptar.tar || return
 		popd

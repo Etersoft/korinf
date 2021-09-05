@@ -32,7 +32,7 @@ convert_freebsd()
 	# FIXME: arch?
 	local TARGETPKG=$TARGETBUILDNAME-$PACKAGEVERSION-$PACKAGERELEASE$PKGVENDOR.$PKGFORMAT
 
-	cat <<EOF | run_in_chroot --user "bash -x -" || return
+	cat <<EOF | run_in_chroot --user $dist "bash -x -" || return
 	umask 002
 	mkdir -p ~/RPM/log
 
@@ -72,5 +72,5 @@ convert_freebsd()
 EOF
 
 	# return built package
-	run_in_chroot --user "cat $INTBUILT/$TARGETPKG" >$BUILTRPM/$TARGETPKG || return
+	run_in_chroot --user $dist "cat $INTBUILT/$TARGETPKG" >$BUILTRPM/$TARGETPKG || return
 }

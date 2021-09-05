@@ -214,7 +214,7 @@ convert_gentoo()
 
 	create_build_script_in_chroot "${PACKETCATHEGORY}/${BUILDNAME}/${TRUEEBUILDNAME}" "${PTGTMPDIR}/${BUILDSCRIPTRUNEBUILD}"
 
-	run_in_chroot "cd ${INTHOME}/${TMPDIROFOVERLAY}; ./${BUILDSCRIPTRUNEBUILD}" || return
+	run_in_chroot $dist "cd ${INTHOME}/${TMPDIROFOVERLAY}; ./${BUILDSCRIPTRUNEBUILD}" || return
 	
 	local TBZ2NAME="$TARGETBUILDNAME-$PACKAGEVERSION-$PACKAGERELEASEGENTOO.tbz2"
 # Copy resultat of build - *.tbz2 -in standart directory for RPM result

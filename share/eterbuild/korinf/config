@@ -62,7 +62,7 @@ EOF
 init_home()
 {
 	echo "Initializing $INTUSER home ..."
-	cat <<EOF | run_in_chroot --user "bash -x -" || return
+	cat <<EOF | run_in_chroot --user $dist "bash -x -" || return
 #	echo "Run in \$(distr_info)"
 	umask 002
 	#mkdir -p "$BUILDERHOME/.config"

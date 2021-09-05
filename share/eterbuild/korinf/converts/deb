@@ -89,7 +89,7 @@ convert_debian()
 				#touch $depf.deb.depends
 			fi
 
-	cat <<EOF | run_in_chroot --user "bash -x -" || return
+	cat <<EOF | run_in_chroot --user $dist "bash -x -" || return
 	umask 002
 	mkdir -p ~/RPM/log
 
@@ -135,7 +135,7 @@ EOF
 		mkdir -p $BUILTRPM
 		local tmptar
 		tmptar=$(basename $TARGETSRPM .src.rpm)
-		run_in_chroot --user "cd $INTBUILT/ && tar -cf - *.$PKGFORMAT" >$BUILTRPM/$tmptar.tar || return
+		run_in_chroot --user $dist "cd $INTBUILT/ && tar -cf - *.$PKGFORMAT" >$BUILTRPM/$tmptar.tar || return
 		pushd $BUILTRPM
 		tar xfv $BUILTRPM/$tmptar.tar && rm -f $BUILTRPM/$tmptar.tar || return
 		popd
