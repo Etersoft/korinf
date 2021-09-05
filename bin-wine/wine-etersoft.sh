@@ -13,9 +13,25 @@ NAME=wine-etersoft
 MAINFILES="$NAME[-_][0-9] $NAME-gl"
 EXTRAFILES="$NAME-twain lib$NAME-devel"
 
+
 # Hack for WINE@Etersoft 5.x
 # see korinf/robot/funcs/build
-if [ "$2" = "5.x" ] || [ "$3" = "5.x" ]  || [ "$2" = "5" ] || [ "$3" = "5" ] || [ "$2" = "6.x" ] || [ "$3" = "6.x" ]  || [ "$2" = "6" ] || [ "$3" = "6" ] ; then
+
+ver="$3"
+[ -n "$ver" ] && ver="$2"
+
+case $ver in
+    5*)
+        ver=5
+        ;;
+    6*)
+        ver=6
+        ;;
+esac
+
+KORINFMODULE=wine-$ver
+
+if [ "$ver" = "5" ] || [ "$ver" = "6" ] ; then
     MAINFILES="$NAME[-_][0-9] $NAME-full[-_][0-9] $NAME-programs[-_][0-9] lib$NAME[-_][0-9] lib$NAME-gl"
     EXTRAFILES="lib$NAME-twain lib$NAME-devel"
 fi
