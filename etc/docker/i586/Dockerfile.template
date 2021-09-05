@@ -1,0 +1,6 @@
+FROM @FROM@
+
+RUN useradd -m korinfer
+
+ENTRYPOINT ["sleep"]
+CMD ["6000"]
