@@ -1,0 +1,19 @@
+[Unit]
+Description=Korinf robot watch builder
+After=syslog.target network.target
+#ConditionFileIsExecutable=
+
+[Service]
+StartLimitInterval=5
+StartLimitBurst=10
+ExecStart=/srv/builder/Projects/korinf/robot/service/watchbuilder.sh
+ExecStop=/srv/builder/Projects/korinf/robot/service/watchbuilder.sh stop
+Type=forking
+PIDFile=/var/run/eterbuild/watchbuilder.pid
+#User=
+
+Restart=always
+RestartSec=120
+
+[Install]
+WantedBy=multi-user.target
