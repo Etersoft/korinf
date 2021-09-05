@@ -4,8 +4,8 @@
 #
 #  Local chroot mount related functions
 #
-#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009, 2021
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2021
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -24,9 +24,11 @@
 
 MOUNT_MODULE_INCLUDED=1
 
+# args: <dist> <BUILDERHOME>
 mount_linux()
 {
 	local dist=$1
+	[ -n "$dist" ] || fatal "empty dist"
 	if is_remote_build $dist ; then
 		rhost=$(get_remote_host $dist)
 		if [ "$rhost" = "docker" ] ; then
@@ -116,6 +118,8 @@ terminate_using()
 	$SUDO su $LOCUSER -c "echo $LISTPROC | xargs kill"
 }
 
+# args: <dist>
+# uses BUILDROOT, DISTRNAME
 end_umount()
 {
 	local dist=$1
@@ -125,13 +129,15 @@ end_umount()
 	# if early error
 	[ -z "$DISTRNAME" ] && return
 
+	[ -n "$dist" ] || fatal "empty dist"
+
 	if is_remote_build $dist ; then
 		rhost=$(get_remote_host $dist)
 		if [ "$rhost" = "docker" ] ; then
 			echo "Remove docker build system:" >&2
 			a= docker stop -t1 $(get_docker_container $dist) || return 1
-			#a= docker destroy $(get_docker_container) || return 1
-			#a= docker rmi --no-prune $(get_docker_image) || return 1
+			#a= docker destroy $(get_docker_container $dist) || return 1
+			#a= docker rmi --no-prune $(get_docker_image $dist) || return 1
 		fi
 		return $ERR
 	fi

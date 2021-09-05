@@ -48,7 +48,7 @@ ${DEAR} ${NAME}!
 
 -- 
 КОМАНДА РАЗРАБОТЧИКОВ
-Etersoft, 2017
+Etersoft, 2021
 " ;
 ) | mutt -s "Сборка ${PRODUCT} задерживается" "${FULLMAILTO}" -b "support@etersoft.ru"
 
@@ -74,8 +74,8 @@ Prepared mail in $TMPMAIL:
 `cat $TMPMAIL`
 
 -- 
-Робот сборки Korinf v.2.1.5
-Etersoft, 2017
+Робот сборки Korinf v.2.2.1
+Etersoft, 2021
 " ;
 [ -r "$LOGFILE" ] && echo "Лог сборки $LOGFILE приложен." || echo "Лог сборки $LOGFILE не был создан. "
 ) | mutt -s "Ошибка при сборке $ETERREGNUM  на ${DIST}" $EMAILNOTIFY $PARAMMUTT
@@ -103,7 +103,7 @@ ${DEAR} ${NAME}!
 
 -- 
 Команда разработчиков
-Etersoft, 2017
+Etersoft, 2021
 " ;
 ) | mutt -s "Ошибка при сборке ${ETERREGNUM} на ${DIST}" "${FULLMAILTO}" -b "support@etersoft.ru"
 fi
