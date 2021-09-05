@@ -236,14 +236,31 @@ get_remote_commands()
 
 get_docker_image()
 {
-        echo "$dist" | sed -e "s|/|-|g" | filter_deb_pkgnames
+        echo "korinf-$dist" | sed -e "s|/|-|g" | filter_deb_pkgnames
+}
+
+get_docker_image_module()
+{
+        [ -n "$KORINFMODULE" ] || return
+        echo "korinf-$dist-$KORINFMODULE" | sed -e "s|/|-|g" | filter_deb_pkgnames
 }
 
 get_docker_container()
 {
         #echo "$(get_docker_image)-$(basename $0)-$BUILDNAME" | filter_deb_pkgnames
-        echo "$(get_docker_image $1)-c" | filter_deb_pkgnames
+        if [ -n "$KORINFMODULE" ] ; then
+            echo "$(get_docker_image_module $1)-c" | filter_deb_pkgnames
+        else
+            echo "$(get_docker_image $1)-c" | filter_deb_pkgnames
+        fi
 }
+
+is_docker_image()
+{
+    docker images | cut -f1 -d" " | grep -q "^$1$"
+}
+
+
 
 is_remote_build()
 {

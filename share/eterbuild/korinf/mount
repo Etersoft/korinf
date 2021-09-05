@@ -24,6 +24,69 @@
 
 MOUNT_MODULE_INCLUDED=1
 
+create_base_docker()
+{
+	local dist=$1
+	# use versioned or base Dockerfile
+	local dockerfile=$KORINFETC/docker/$dist/Dockerfile
+	[ -s $dockerfile ] || $KORINFETC/docker/$DISTRNAME/Dockerfile
+	local baseimage=$(get_docker_image $dist)
+	a='' docker build -f $dockerfile -t $baseimage . #|| return 1
+}
+
+# args: <dist>
+# uses:DISTRNAME
+run_docker_container()
+{
+	local dist=$1
+	assert_var DISTRNAME
+	local dockerimage
+	#if a='' docker ps --all --format "{{.Names}}" | grep "^$(get_docker_image $dist)$" ; then
+	#	return
+	#fi
+	if [ -n "$KORINFMODULE" ] ; then
+		dockerimage="$(get_docker_image_module $dist)" || fatal "Clone base image firstly"
+		if ! is_docker_image $dockerimage ; then
+			dockerimage=$(get_docker_image $dist)
+		fi
+	fi
+
+	local baseimage=$(get_docker_image $dist)
+	if ! is_docker_image $baseimage ; then
+		echo "Create base docker build system $baseimage:" >&2
+		create_base_docker $dist
+	fi
+
+	contname=$(get_docker_container $dist)
+	echo "Create docker build system in $contname from $dockerimage:" >&2
+	a='' docker rm $contname # || return 1
+	a='' docker run -d --name $contname $dockerimage
+	a='' docker start $contname
+	return 0
+}
+
+# args: <dist>
+stop_docker_container()
+{
+	local dist=$1
+	local dockername=$(get_docker_container $dist)
+	if [ -n "$BOOTSTRAP$INSTALLREQUIREDPACKAGE" ] ; then
+		if [ -n "$KORINFMODULE" ] ; then
+			dockerimage="$(get_docker_image_module $dist)"
+		else
+			dockerimage=$(get_docker_image $dist)
+		fi
+		echo "Save $dockername to docker image $dockerimage:latest:" >&2
+		a='' docker commit $dockername $dockerimage:latest
+	fi
+
+	[ -n "$ADEBUG" ] && return
+	echo "Remove docker build system:" >&2
+	a='' evz stop $dockername || return 1
+	echo 'Yes' | a='' evz destroy $dockername || return 1
+	#a='' docker rmi --no-prune $(get_docker_image $dist) || return 1
+}
+
 # args: <dist> <BUILDERHOME>
 mount_linux()
 {
@@ -32,15 +95,7 @@ mount_linux()
 	if is_remote_build $dist ; then
 		rhost=$(get_remote_host $dist)
 		if [ "$rhost" = "docker" ] ; then
-			#if a='' docker ps --all --format "{{.Names}}" | grep "^$(get_docker_image)$" ; then
-			#	return
-			#fi
-			echo "Create docker build system:" >&2
-			a='' docker build -f $KORINFETC/docker/$dist/Dockerfile -t $(get_docker_image $dist) . #|| return 1
-# --rm
-			a='' docker run -d --name $(get_docker_container $dist) $(get_docker_image $dist)
-			a='' docker start $(get_docker_container $dist)
-return 0
+			run_docker_container $dist
 		fi
 		return
 	fi
@@ -134,10 +189,7 @@ end_umount()
 	if is_remote_build $dist ; then
 		rhost=$(get_remote_host $dist)
 		if [ "$rhost" = "docker" ] ; then
-			echo "Remove docker build system:" >&2
-			a= docker stop -t1 $(get_docker_container $dist) || return 1
-			#a= docker destroy $(get_docker_container $dist) || return 1
-			#a= docker rmi --no-prune $(get_docker_image $dist) || return 1
+			stop_docker_container $dist
 		fi
 		return $ERR
 	fi
