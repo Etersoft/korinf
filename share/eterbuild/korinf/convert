@@ -55,6 +55,7 @@ convert_srpm_to_target()
 	[ -r "$TARGETSRPM" ] && [ -f "$TARGETSRPM" ] || { warning "Can't read target $TARGETSRPM src.rpm" ; return 1 ; }
 
 	if is_remote_build ; then
+		BUILTRPM="$(mktemp -d)"
 		cat $TARGETSRPM | run_in_chroot --user $dist "mkdir -p /home/$INTUSER/tmp ; cat >/home/$INTUSER/tmp/$(basename $TARGETSRPM)"
 		return
 	else

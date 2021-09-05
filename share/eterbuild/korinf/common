@@ -220,18 +220,47 @@ get_rpm_args()
         grep "^$2 " $KORINFETC/rpmopt/rpm 2>/dev/null | cut -f2-100 -d" "
 }
 
+get_distname_by_dist()
+{
+        local dist="$1"
+        local dname=$(echo $dist | sed -e 's|x86_64/||' -e 's|/.*||')
+        echo "$dname"
+}
+
+get_distversion_by_dist()
+{
+        local dist="$1"
+        local dname=$(echo $dist | sed -e 's|.*/||')
+        echo "$dname"
+}
+
 # $1 - dist like CentOS/5.4
 get_remote_host()
 {
         [ -n "$1" ] || fatal "get_remote_host: empty args"
-        grep "^$1 " $KORINFETC/remote 2>/dev/null | ( read d host commands ; echo $host ; )
+        local i
+        local rhost
+        local dname=$(get_distname_by_dist $dist)
+        for i in $dist $dname ; do
+            rhost="$(grep "^$i " $KORINFETC/remote 2>/dev/null | ( read d host commands ; echo $host ; ))"
+            [ -n "$rhost" ] && break
+        done
+        [ -z "$rhost" ] && [ -z "$LOCALLINUXFARM" ] && rhost='docker'
+        echo "$rhost"
 }
 
 # $1 - dist like CentOS/5.4
 get_remote_commands()
 {
         [ -n "$1" ] || fatal "get_remote_commands: empty args"
-        grep "^$1 " $KORINFETC/remote 2>/dev/null | ( read d host commands ; echo $commands ; )
+        local i
+        local rcommand
+        local dname=$(get_distname_by_dist $dist)
+        for i in $dist $dname ; do
+            rcommand="$(grep "^$i " $KORINFETC/remote 2>/dev/null | ( read d host commands ; echo $commands ; ))"
+            [ -n "$rcommand" ] && break
+        done
+        echo "$rcommand"
 }
 
 get_docker_image()

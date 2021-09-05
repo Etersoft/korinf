@@ -56,7 +56,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
     echo "############"
     mount_linux $dist || continue
 
-    run_in_chroot --interactive "$*"
+    run_in_chroot --interactive $dist "$*"
 
     end_umount $dist
 

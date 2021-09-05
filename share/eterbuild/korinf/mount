@@ -27,11 +27,30 @@ MOUNT_MODULE_INCLUDED=1
 create_base_docker()
 {
 	local dist=$1
+
 	# use versioned or base Dockerfile
 	local dockerfile=$KORINFETC/docker/$dist/Dockerfile
-	[ -s $dockerfile ] || $KORINFETC/docker/$DISTRNAME/Dockerfile
+	local rcommand=$(get_remote_commands $dist)
+	local toremove=''
+	if [ ! -s "$dockerfile" ] && [ -n "$rcommand" ] ; then
+		rcommand=$(echo "$rcommand" | sed -e "s|@VERSION@|$(get_distversion_by_dist $dist)|") #"
+		rhas "$rcommand" ":" || rcommand="$rcommand:$(get_distversion_by_dist $dist)"
+		dockerfile=$(mktemp)
+		local template=$KORINFETC/docker/$BUILDARCH/$(get_distname_by_dist $dist)/Dockerfile.template
+		[ -s "$template" ] || template=$KORINFETC/docker/$BUILDARCH/Dockerfile.template
+		[ -s "$template" ] || fatal "template $template is missed"
+		echo "Create default Dockerfile $dockerfile for $rcommand from $template"
+		cat $template | sed -e "s|@FROM@|$rcommand|" >$dockerfile
+		toremove=$dockerfile
+	fi
+
+	# TODO: generate in some way
+	#[ -s "$dockerfile" ] || dockerfile=$KORINFETC/docker/$DISTRNAME/Dockerfile
 	local baseimage=$(get_docker_image $dist)
 	a='' docker build -f $dockerfile -t $baseimage . #|| return 1
+	if [ -n "$toremove" ] ; then
+		rm -v $toremove
+	fi
 }
 
 # args: <dist>
@@ -49,17 +68,18 @@ run_docker_container()
 		if ! is_docker_image $dockerimage ; then
 			dockerimage=$(get_docker_image $dist)
 		fi
-	fi
-
-	local baseimage=$(get_docker_image $dist)
-	if ! is_docker_image $baseimage ; then
-		echo "Create base docker build system $baseimage:" >&2
-		create_base_docker $dist
+	else
+		dockerimage=$(get_docker_image $dist)
+		if ! is_docker_image $dockerimage ; then
+			echo "Create base docker build system $dockerimage:" >&2
+			create_base_docker $dist
+		fi
 	fi
 
 	contname=$(get_docker_container $dist)
 	echo "Create docker build system in $contname from $dockerimage:" >&2
-	a='' docker rm $contname # || return 1
+	# TODO: check before remove
+	a='' docker rm $contname 2>/dev/null # || return 1
 	a='' docker run -d --name $contname $dockerimage
 	a='' docker start $contname
 	return 0
@@ -78,6 +98,7 @@ stop_docker_container()
 		fi
 		echo "Save $dockername to docker image $dockerimage:latest:" >&2
 		a='' docker commit $dockername $dockerimage:latest
+		# TODO: вообще-то тут надо удалять все образы, порождённые от этого базового
 	fi
 
 	[ -n "$ADEBUG" ] && return
@@ -189,7 +210,10 @@ end_umount()
 	if is_remote_build $dist ; then
 		rhost=$(get_remote_host $dist)
 		if [ "$rhost" = "docker" ] ; then
+			assert_var INTUSER
+			[ -n "$ADEBUG" ] || run_in_chroot --user $dist "rm -v /home/$INTUSER/tmp/* ; rm -rv /home/$INTUSER/RPM/*"
 			stop_docker_container $dist
+			[ -n "$BUILTRPM" ] && rm -rv $BUILTRPM
 		fi
 		return $ERR
 	fi
