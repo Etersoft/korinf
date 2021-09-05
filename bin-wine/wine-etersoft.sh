@@ -15,7 +15,7 @@ EXTRAFILES="$NAME-twain lib$NAME-devel"
 
 # Hack for WINE@Etersoft 5.x
 # see korinf/robot/funcs/build
-if [ "$2" = "5.x" ] || [ "$3" = "5.x" ]  || [ "$2" = "5" ] || [ "$3" = "5" ] ; then
+if [ "$2" = "5.x" ] || [ "$3" = "5.x" ]  || [ "$2" = "5" ] || [ "$3" = "5" ] || [ "$2" = "6.x" ] || [ "$3" = "6.x" ]  || [ "$2" = "6" ] || [ "$3" = "6" ] ; then
     MAINFILES="$NAME[-_][0-9] $NAME-full[-_][0-9] $NAME-programs[-_][0-9] lib$NAME[-_][0-9] lib$NAME-gl"
     EXTRAFILES="lib$NAME-twain lib$NAME-devel"
 fi
