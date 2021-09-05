@@ -55,6 +55,16 @@ build_package()
 	# used in external get_distro_list
 	export SKIPBUILDLIST
 
+	# detect module by dir
+	local nn
+	nn="$(basename $(dirname $0))"
+	if [ "$nn" != "bin-common" ] ; then
+		if [ "$nn" = "." ] ; then
+			nn=$(basename $(pwd))
+		fi
+		rhas "$nn" "^bin-" && [ -z "$KORINFMODULE" ] && export KORINFMODULE=${nn/bin-}
+	fi
+
 	MAINFILESLIST=$MAINFILES
 	EXTRAFILESLIST=$EXTRAFILES
 
