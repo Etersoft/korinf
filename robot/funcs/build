@@ -37,11 +37,13 @@ check_if_updated()
 	local BUILDNAME="$1"
 	local SOURCEPATH="$2"
 	local PRODPATH="$3"
+	local BINBUILDNAME="$4"
+	[ -n "$BINBUILDNAME" ] || BINBUILDNAME="$BUILDNAME"
 	
 	# FIXMEP get_..._package always returns true
 	local SRCRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME)
 	test -r "$SRCRPM" || fatal "Source package for $BUILDNAME is not found"
-	local BINPKG=$(get_bin_package "$PRODPATH/$DIST" $BUILDNAME)
+	local BINPKG=$(get_bin_package "$PRODPATH/$DIST" $BINBUILDNAME)
 
 	# if binary is exists
 	if [ -r "$BINPKG" ] ; then
@@ -57,7 +59,7 @@ check_if_updated()
 	# needed for autobuild_failed
 	DESTDIR=$PRODPATH/$DIST
 	if [ -z "$FORCEBUILD" ] ; then
-		is_autobuild_failed && fatal "Package $BUILDNAME should be rebuilt from $SRCRPM,  but previous build has failed"
+		is_autobuild_failed && fatal "Package $BINBUILDNAME should be rebuilt from $SRCRPM,  but previous build has failed"
 	fi
 
 	return 1
@@ -76,8 +78,10 @@ check_and_refresh_component()
 	# haspd
 	local BUILDNAME=$3
 	local PRVERSION=$4
+	local BINBUILDNAME=$5
+	[ -n "$BINBUILDNAME" ] || BINBUILDNAME=$BUILDNAME
 
-	check_if_updated $BUILDNAME $SOURCEPATH $PRODPATH && return 0
+	check_if_updated $BUILDNAME $SOURCEPATH $PRODPATH $BINBUILDNAME && return 0
 
         # hack
         if [ -z "$PRVERSION" ] ; then
@@ -85,10 +89,10 @@ check_and_refresh_component()
                PRVERSION=$(basename $(dirname $SOURCEPATH) )
         fi
 
-	$AROBOTDIR/../$BUILDSCRIPTDIR/$BUILDNAME.sh -f $DIST $PRVERSION && return 0
+	$AROBOTDIR/../$BUILDSCRIPTDIR/$BINBUILDNAME.sh -f $DIST $PRVERSION && return 0
 
 	set_autobuild_failed
-	fatal "Package $BUILDNAME cannot rebuild"
+	fatal "Package $BINBUILDNAME cannot rebuild"
 	return 1
 }
 
@@ -102,17 +106,19 @@ check_and_refresh_package()
 	# Etersoft/RX@Etersoft/last/sources
 	local SOURCEPATH="$(get_sources_dir "$PRODPATH")"
 	local BUILDNAME=$2
+	local BINBUILDNAME=$3
+	[ -n "$BINBUILDNAME" ] || BINBUILDNAME=$BUILDNAME
 
-	check_if_updated $BUILDNAME $SOURCEPATH $PRODPATH && return 0
+	check_if_updated $BUILDNAME $SOURCEPATH $PRODPATH $BINBUILDNAME && return 0
 
 	if is_autobuild_failed ; then
-		fatal "Package $BUILDNAME has autobuild failed, please build it manually"
+		fatal "Package $BINBUILDNAME has autobuild failed, please build it manually"
 		return 1
 	fi
 
 	$AROBOTDIR/../bin/korinf -f $BUILDNAME $DIST $PRODPATH && return 0
 
 	set_autobuild_failed
-	fatal "Package $BUILDNAME cannot rebuild"
+	fatal "Package $BINBUILDNAME cannot rebuild"
 	return 1
 }
