@@ -137,13 +137,24 @@ get_bin_package()
 		BUILDNAME=`echo $BUILDNAME | filter_deb_pkgnames`
 	fi
 
+	local BUILDBINMASK=''
+	if [ -n "$MAINFILES" ] ; then
+		# check by first package from MAINFILES
+		BUILDBINMASK="$(echo "$MAINFILES" | sed -e 's| .*||')*"
+	elif [ -n "$EXTRAFILES" ] ; then
+		# check by first package from EXTRAFILES
+		BUILDBINMASK="$(echo "$EXTRAFILES" | sed -e 's| .*||')*"
+	else
+		 BUILDBINMASK="$BUILDNAME[-_][0-9]*"
+	fi
+
 	# check for package started with NAME
-	BUILDPKG="$(ls -1 $target_path/$BUILDNAME[-_][0-9]* 2>/dev/null | tail -n1)"
+	BUILDPKG="$(ls -1 $target_path/$BUILDBINMASK 2>/dev/null | tail -n1)"
 
 	# try check in extra
 	if [ ! -r "$BUILDPKG" ] ; then
 		# check for package started with NAME
-		BUILDPKG="$(ls -1 $target_path/extra/$BUILDNAME[-_][0-9]* 2>/dev/null | tail -n1)"
+		BUILDPKG="$(ls -1 $target_path/extra/$BUILDBINMASK 2>/dev/null | tail -n1)"
 	fi
 
 	if [ ! -r "$BUILDPKG" ] ; then
