@@ -251,12 +251,16 @@ get_remote_host()
         [ -n "$1" ] || fatal "get_remote_host: empty args"
         local i
         local rhost
+
         local dname=$(get_distname_by_dist $dist)
-        for i in $dist $dname ; do
+        for i in $dist $(dirname $dist) $dname ; do
             rhost="$(grep "^$i " $KORINFETC/remote 2>/dev/null | ( read d host commands ; echo $host ; ))"
             [ -n "$rhost" ] && break
         done
-        [ -z "$rhost" ] && [ -z "$LOCALLINUXFARM" ] && rhost='docker'
+        # docker by default
+        [ -z "$rhost" ] && rhost='docker'
+        # use local for localfarm
+        [ "$rhost" = "local" ] && rhost=''
         echo "$rhost"
 }
 
@@ -267,7 +271,7 @@ get_remote_commands()
         local i
         local rcommand
         local dname=$(get_distname_by_dist $dist)
-        for i in $dist $dname ; do
+        for i in $dist $(dirname $dist) $dname ; do
             rcommand="$(grep "^$i " $KORINFETC/remote 2>/dev/null | ( read d host commands ; echo $commands ; ))"
             [ -n "$rcommand" ] && break
         done
