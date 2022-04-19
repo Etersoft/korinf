@@ -30,8 +30,18 @@ create_base_docker()
 
 	# use versioned or base Dockerfile
 	local dockerfile=$KORINFETC/docker/$dist/Dockerfile
+	if [ "$TARGETARCH" = "i586" ] ; then
+		# use arch in path (x86_64 for i586 by default)
+		dockerfile=$KORINFETC/docker/$BUILDARCH/$dist/Dockerfile
+		dockerfile_target=$KORINFETC/docker/$BUILDARCH-$TARGETARCH/$dist/Dockerfile
+		# if there exists special Dockefile
+		[ "$TARGETARCH" != "$BUILDARCH" ] && [ -s "$dockerfile_target" ] && dockerfile=$dockerfile_target
+	fi
+
 	local rcommand=$(get_remote_commands $dist)
 	local toremove=''
+	
+	# autocreating Dockerfile
 	if [ ! -s "$dockerfile" ] && [ -n "$rcommand" ] ; then
 		rcommand=$(echo "$rcommand" | sed -e "s|@VERSION@|$(get_distversion_by_dist $dist)|") #"
 		rhas "$rcommand" ":" || rcommand="$rcommand:$(get_distversion_by_dist $dist)"
@@ -60,51 +70,47 @@ run_docker_container()
 	local dist=$1
 	assert_var DISTRNAME
 	local dockerimage
-	#if a='' docker ps --all --format "{{.Names}}" | grep "^$(get_docker_image $dist)$" ; then
-	#	return
-	#fi
-	if [ -n "$KORINFMODULE" ] ; then
-		dockerimage="$(get_docker_image_module $dist)" || fatal "Clone base image firstly"
-		if ! is_docker_image $dockerimage ; then
-			dockerimage=$(get_docker_image $dist)
-		fi
-	else
-		dockerimage=$(get_docker_image $dist)
-		if ! is_docker_image $dockerimage ; then
-			echo "Create base docker build system $dockerimage:" >&2
-			create_base_docker $dist
-		fi
+
+	dockerimage=$(get_docker_image $dist)
+	# Используем образ для модуля, если нет — базовый
+	if ! is_docker_image $dockerimage ; then
+		dockerimage=$(KORINFMODULE= get_docker_image $dist)
+	fi
+
+	# Создаём базовый образ, если его нет
+	if ! is_docker_image $dockerimage ; then
+		echo "Creating base docker build system $dockerimage:" >&2
+		create_base_docker $dist
 	fi
 
 	contname=$(get_docker_container $dist)
-	echo "Create docker build system in $contname from $dockerimage:" >&2
+	echo "Creating build system in docker $contname from $dockerimage:" >&2
 	# TODO: check before remove
 	a='' docker rm $contname 2>/dev/null # || return 1
 	a='' docker run -d --name $contname $dockerimage
 	a='' docker start $contname
+	# save name of running container
+	CONTAINERNAME=$contname
 	return 0
 }
 
 # args: <dist>
 stop_docker_container()
 {
+	assert_var CONTAINERNAME
 	local dist=$1
-	local dockername=$(get_docker_container $dist)
+	local contname=$CONTAINERNAME
 	if [ -n "$BOOTSTRAP$INSTALLREQUIREDPACKAGE" ] ; then
-		if [ -n "$KORINFMODULE" ] ; then
-			dockerimage="$(get_docker_image_module $dist)"
-		else
-			dockerimage=$(get_docker_image $dist)
-		fi
-		echo "Save $dockername to docker image $dockerimage:latest:" >&2
-		a='' docker commit $dockername $dockerimage:latest
+		dockerimage=$(get_docker_image $dist)
+		echo "Save $contname to docker image $dockerimage:latest:" >&2
+		a='' docker commit $contname $dockerimage:latest
 		# TODO: вообще-то тут надо удалять все образы, порождённые от этого базового
 	fi
 
 	[ -n "$ADEBUG" ] && return
 	echo "Remove docker build system:" >&2
-	a='' evz stop $dockername || return 1
-	echo 'Yes' | a='' evz destroy $dockername || return 1
+	a='' evz stop $contname || return 1
+	echo 'Yes' | a='' evz destroy $contname || return 1
 	#a='' docker rmi --no-prune $(get_docker_image $dist) || return 1
 }
 
