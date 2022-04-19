@@ -42,8 +42,8 @@ function build_in_hasher()
 	assert_var DISTRVERSION BUILDARCH DESTDIR RPMDIR
 	assert_var LOGFILE
 
-	set_target_type $(get_altdistr_mod $DISTRVERSION)
-	detect_target_env >>$LOGFILE 2>&1
+	#set_target_type $(get_altdistr_mod $DISTRVERSION)
+	BINARYREPONAME=$DISTRVERSION set_binaryrepo >>$LOGFILE 2>&1
 	# use loginhsh -q -d here
 	# workaround for detect needed path build for other target arch
 	HASHERDIR=$(set_hasherdir; echo $HASHERDIR )
@@ -97,24 +97,24 @@ fi
 	# build source package
 	if [ -n "$MAKESPKG" ] ; then
 		BUILTRPM=$RPMDIR/SRPMS
-		if [ "$MENV" = "SS" ] ; then
+		if [ "$BINARYREPO" = "sisyphus" ] ; then
 			BUILDCOMMAND="$RPMBS -s -w"
 		else
-			BUILDCOMMAND="$RPMBP $MENVARG"
+			BUILDCOMMAND="$RPMBP -b $BINARYREPO"
 		fi
 		$BUILDCOMMAND $BUILDSRPM || { warning "Cannot build srpm" ; return 1 ; }
 		return
 	fi
 
 	# build binary packages
-	if [ "$MENV" = "SS" ] ; then
+	if [ "$BINARYREPO" = "sisyphus" ] ; then
 		BUILDCOMMAND="$RPMBSH -w"
 	else
-		BUILDCOMMAND="$RPMBPH $MENVARG"
+		BUILDCOMMAND="$RPMBPH -b $BINARYREPO"
 	fi
 
 	( HASHER_NOCHECK=nvr,gpg,packager,changelog,deps $BUILDCOMMAND $BUILDSRPM ) ||
-		{ warning "Do not hashered" ; [ -n "$ADEBUG" ] || ( setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c $MENVARG) ; return 1 ; }
+		{ warning "Do not hashered" ; [ -n "$ADEBUG" ] || ( setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c -b $BINARYREPO) ; return 1 ; }
 
 
 	TARGETSRPM=$(ls -1 $HASHERDIR/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm | head -n1)
