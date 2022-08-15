@@ -7,6 +7,6 @@ export SKIPBUILDLIST="FreeBSD OpenSolaris Windows"
 
 NAME=$(basename $0 .sh)
 
-export KORINFMODULE=wine-7
+export KORINFMODULE=crypto
 
 $(dirname $0)/../bin/korinf $NAME "$@" /var/ftp/pvt/Etersoft/CRYPTO@Etersoft

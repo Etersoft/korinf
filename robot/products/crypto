@@ -1,0 +1,132 @@
+#!/bin/sh -x
+##
+#  Korinf project
+#
+#  Publish any component for client by task file
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009, 2013
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009, 2013
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+# Выполняет сборку по первому заказу в списке
+# Отправляет на реальный адрес только с параметром --real /путь
+# Также отладку можно включить, создав файл arobot.sh.debug
+# (c) Etersoft
+# 08.06.2006, 09.06.06, 28.02.07, 09.03.07, 15.12.07, 2008
+# FIXME: если в имени запятая, разделяет на два адреса
+#
+
+# DOWNLOADDIR - CRYPTO@Etersoft/VERSION
+build_crypto()
+{
+	local COMPONENTSCRIPTDIR
+	local CHECKCOMP
+	local PROJ=$DOWNLOADDIR
+	LOCALDIR=/var/ftp/pub/Etersoft/$PROJ
+	
+	# Lav 28.06.11: skip checking for previous built one
+	#if [ ! -d "$LOCALDIR/$DIST" ] ; then
+	#	warning "System $DIST not supported for build ($LOCALDIR/$DIST does not exist)"
+	#	do_broken
+	#fi
+
+	# Use real path if possible
+	# NOTE: replace PROJECTVERSION with linked version
+	if [ -L "$LOCALDIR" ] ; then
+		LOCALDIR=`readlink -f "$LOCALDIR"`
+		PROJECTVERSION=`basename $LOCALDIR`
+		PROJ=`dirname $PROJ`/$PROJECTVERSION
+	fi
+	[ -n "$PROJ" ] || exit
+	PUBDOWNLOAD="$MPROTO://$DOWNLOADDOMAIN/pub/Etersoft/$PROJ"
+	KORINFLOCAL="/var/ftp/pub/Korinf"
+
+	TEXTDIST=$DIST
+	# Check for linked system (собираем для основной системы)
+	if [ -L "$LOCALDIR/$DIST" ] ; then
+		DIST=`readlink $LOCALDIR/$DIST | sed -e "s|\.\./||g"`
+		TEXTDIST="$TEXTDIST (фактически сборка выполнена для $DIST)"
+	fi
+	
+	if [ -z "$LICENSEONLY" ] ; then
+		check_dist $DIST
+	fi
+
+	# need for license file creating
+	local CNAME=$(estrlist strip_spaces $COMPONENTNAME)
+	# will do FTPDIR from it in create_license_dir
+	TARGETDIR="/var/ftp/pub/download/$CNAME/$TARGETDIRNAME"
+	DOWNLOADDIR="$MPROTO://$DOWNLOADDOMAIN/pub/download/$CNAME/$TARGETDIRNAME"
+
+		LOCALDIR=/var/ftp/pvt/Etersoft/$PROJ
+		PUBDOWNLOAD=$DOWNLOADDIR/$PROJECTVERSION
+		PACKAGELIST=''
+
+		COMPONENTSCRIPTDIR="bin-crypto"
+		CHECKCOMP="ecryptomgr wine-cpcsp_proxy"
+		CHECKKORINFCOMP="eget eepm"
+		PACKAGELIST="ecryptomgr wine-cpcsp_proxy"
+
+		# exports FTPDIR
+		#LICENSEFILE=rx-etersoft.lic
+		#LICENSEDIR="/etc/rx-etersoft"
+		#create_license_dir
+		create_ftp_dir
+
+	# Для отправки писем обязательно нужна локаль!
+	export LC_ALL=ru_RU.UTF-8
+	TMPMAIL=`mktemp`
+
+	if [ -n "$LICENSEONLY" ] ; then
+		prepare_license_mail $TMPMAIL support@etersoft.ru || fatal "Can't prepare letter"
+	else
+		for i in $CHECKCOMP ; do
+			check_and_refresh_component $COMPONENTSCRIPTDIR $LOCALDIR $i
+			assert_present_package $LOCALDIR/$DIST $i
+		done
+
+		for i in $CHECKKORINFCOMP ; do
+			check_and_refresh_package $KORINFLOCAL $i
+		done
+		PUB5FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eget[_-]*"`
+		PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm[_-]3*"`
+
+		if echo "$LOCALDIR" | grep -q "/pvt/Etersoft" ; then
+			PRIVFILES=''
+			for i in $PACKAGELIST ; do
+				n="$(echo $LOCALDIR/$DIST/$i[-_][0-9]*)"
+				[ -r "$n" ] || fatal "Missed $i package in $LOCALDIR/$DIST"
+				PRIVFILES="$PRIVFILES $n"
+			done
+			[ -n "$PRIVFILES" ] || PRIVFILES=`find -L $LOCALDIR/$DIST -maxdepth 1 -type f`
+			[ -n "$PRIVFILES" ] || fatal "Can't find files in $LOCALDIR/$DIST"
+			# Нужно скопировать файлы
+			mkdir -p $FTPDIR/$DIST
+			for i in $PRIVFILES $PUB5FILES $PUB6FILES; do
+				# try create hard link firstly
+				cp -fl $i $FTPDIR/$DIST || cp -f $i $FTPDIR/$DIST || fatal "Can't copy $i"
+			done
+			# replace LOCALDIR for link list!
+			LOCALDIR=$FTPDIR
+		fi
+
+		prepare_component_mail $TMPMAIL || fatal "Can't prepare letter"
+	fi
+
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Сборка $COMPONENTNAME $PROJECTVERSION" || fatal "Can't send"
+	rm -f $TMPMAIL
+}
+

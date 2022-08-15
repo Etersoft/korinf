@@ -112,6 +112,11 @@ case $COMPONENTNAME in
 		. $AROBOTDIR/products/rx
 		build_rx
 		;;
+	*CRYPTO@Etersoft*)
+		. $AROBOTDIR/products/component
+		. $AROBOTDIR/products/crypto
+		build_crypto
+		;;
 	*)
 		. $AROBOTDIR/products/component
 		build_anycomponent
