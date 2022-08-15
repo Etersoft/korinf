@@ -28,36 +28,16 @@ install_built_packages()
 {
 	assert_var DISTRNAME INTBUILT EPMCMD
 	
-	# try use preinstalled epm
-	####
-	# for gentoo epm not use !
-	####
-	if [ $PKGVENDOR == "gentoo" ]
-	then
-		run_in_chroot $dist "cd $INTBUILT && ls -a && ./${INSTALLBUILTSCRIPTNAME}"
+	#if [ $PKGVENDOR == "gentoo" ]
+	#then
+	#	run_in_chroot $dist "cd $INTBUILT && ls -a && ./${INSTALLBUILTSCRIPTNAME}"
 		
-		local RESULTRET=$?
-		
-		if [ "$ADEBUG" == "1" ]
-		then
-			echo
-			echo "---------------------------------------------"
-			echo "after run_in_chroot result : $RESULTRET"
-			echo "---------------------------------------------"
-			echo
-		fi
-		
-		if [ "$RESULTRET" != "0" ]
-		then
-			set_build_failed
-		fi
-		return
-	else
-		run_in_chroot $dist "cd $INTBUILT && ls -l && epm --verbose --auto --force install ${EXPMAINFILES} ${EXPEXTRAFILES}" && return
-	fi
+	run_in_chroot $dist "cd $INTBUILT && ls -l && bash -x /usr/bin/epm --verbose --auto --force install ${EXPMAINFILES} ${EXPEXTRAFILES}" && return
+	local status="$?"
 
+	echo "epm install status: $status"
 	# if status is skipped
-	if [ "$?" = "22" ] ; then
+	if [ "$status" = "22" ] ; then
 		return 22
 	fi
 
@@ -67,9 +47,9 @@ install_built_packages()
 		return
 	fi
 
-	local INSTALLCOMMAND
 	# Bootstrap install eepm (get command from host's epm)
-	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install) || { warning "Can't get install command" ; return 1 ; }
+	local INSTALLCOMMAND
+	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only install) || { warning "Can't get install command" ; return 1 ; }
 	[ -n "$INSTALLCOMMAND" ] || { warning "Got empty install command" ; return 1 ; }
 	# CHECKME: why we need yes here
 	run_in_chroot $dist "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" #|| set_build_failed
@@ -85,7 +65,7 @@ install_build_requires()
 	local reqs dist="$1"
 	load_mod repl rpm
 
-	assert_var BUILDNAME BUILDARCH TARGETSRPM PKGFORMAT
+	assert_var BUILDNAME TARGETARCH BUILDARCH TARGETSRPM PKGFORMAT
 	assert_var BUILDERHOME
 	assert_var dist
 
