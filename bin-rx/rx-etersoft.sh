@@ -13,4 +13,6 @@ SKIPBUILDLIST="FreeBSD OpenSolaris Windows"
 NAME="rx-etersoft"
 MAINFILES="$NAME[-_][0-9]"
 
+export KORINFMODULE=rx
+
 build_project /var/ftp/pvt/Etersoft/RX@Etersoft $NAME "" $@

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+build_eepm()
+{
+    ./korinf eepm all $1
+}
+
+build_eepm $1
+
+for i in wine-2 wine-7 rx ; do
+    KORINFMODULE=$i build_eepm $1
+done

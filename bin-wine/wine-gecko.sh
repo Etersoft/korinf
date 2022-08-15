@@ -12,12 +12,8 @@ NAME=wine-gecko
 
 MAINFILES="$NAME[-_][0-9]"
 
-#(build_project $WINEPUB_PATH/../Wine-public $NAME "" $@)
-export KORINFMODULE=wine5
-(build_project $WINEPUB_PATH/5.x $NAME "WINE" $@)
-export KORINFMODULE=wine6
-(build_project $WINEPUB_PATH/6.x $NAME "WINE" $@)
-export KORINFMODULE=wine
-(build_project $WINEPUB_PATH/../Wine-staging $NAME "" $@)
-export KORINFMODULE=wine
-(build_project $WINEPUB_PATH/../Wine-vanilla $NAME "" $@)
+. `dirname $0`/functions
+
+set_ver "$@"
+
+(build_project $WINEPUB_PATH $NAME "WINE" "$@")

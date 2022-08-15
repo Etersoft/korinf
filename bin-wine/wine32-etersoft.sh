@@ -9,6 +9,7 @@
 kormod korinf
 
 NAME=wine-etersoft
+NAME32=wine32-etersoft
 
 . `dirname $0`/functions
 
@@ -24,8 +25,8 @@ case "$ver" in
         EXTRAFILES="lib$NAME-twain lib$NAME-devel"
         ;;
     7*)
-        MAINFILES="$NAME[-_][0-9] $NAME-common[-_][0-9] $NAME-full[-_][0-9] $NAME-programs[-_][0-9]"
-        EXTRAFILES="$NAME-devel $NAME-ping[-_][0-9]"
+        MAINFILES="$NAME32[-_][0-9] $NAME-common[-_][0-9] $NAME32-full[-_][0-9] $NAME-programs[-_][0-9]"
+        EXTRAFILES="$NAME32-devel $NAME-ping[-_][0-9]"
         ;;
      *)
         fatal "Unknown ver $ver"

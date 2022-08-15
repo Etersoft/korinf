@@ -12,8 +12,13 @@ NAME=wine-grdwine
 
 MAINFILES="$NAME[-_][0-9]"
 
-. `dirname $0`/functions
+#(build_project $WINEPUB_PATH/../Wine-public $NAME "" $@)
 
-set_ver "$@"
+#export KORINFMODULE=wine-5
+#(build_project $WINEPUB_PATH/5.x $NAME "WINE" $@)
 
-build_project $WINEPUB_PATH $NAME "WINE" "$@"
+#export KORINFMODULE=wine-6
+#(build_project $WINEPUB_PATH/6.x $NAME "WINE" $@)
+
+export KORINFMODULE=wine-7
+(build_project $WINEPUB_PATH/7.x $NAME "WINE" $@)

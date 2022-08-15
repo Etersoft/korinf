@@ -8,6 +8,8 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
+export KORINFMODULE=rx
+
 SKIPBUILDLIST="OpenSolaris Windows"
 
 build_project /var/ftp/pvt/Etersoft/RX@Etersoft nxssh "" $@

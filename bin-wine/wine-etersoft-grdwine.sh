@@ -8,7 +8,7 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
-NAME=wine-mono
+NAME=wine-etersoft-grdwine
 
 MAINFILES="$NAME[-_][0-9]"
 
@@ -16,4 +16,4 @@ MAINFILES="$NAME[-_][0-9]"
 
 set_ver "$@"
 
-(build_project $WINEPUB_PATH $NAME "WINE" "$@")
+build_project $WINEPUB_PATH $NAME "WINE" "$@"

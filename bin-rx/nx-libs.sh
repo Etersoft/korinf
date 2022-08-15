@@ -8,6 +8,8 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
+export KORINFMODULE=rx
+
 SKIPBUILDLIST="OpenSolaris Windows"
 
 MAINFILES="nx-libs[-_][0-9] nxproxy[-_][0-9] nxagent[-_][0-9]"

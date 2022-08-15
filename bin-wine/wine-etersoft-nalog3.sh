@@ -8,12 +8,14 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
+export KORINFMODULE=wine-5-nalog3
+
 NAME=wine-etersoft
 
 MAINFILES="$NAME[-_][0-9] $NAME-full[-_][0-9] $NAME-programs[-_][0-9] lib$NAME[-_][0-9] lib$NAME-gl lib$NAME-twain lib$NAME-devel"
 
 (build_project $WINEETER_PATH/../WINE@Etersoft $NAME "" $@)
-
+exit
 NAME=wine-gecko
 
 MAINFILES="$NAME[-_][0-9]"

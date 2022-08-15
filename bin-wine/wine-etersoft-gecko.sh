@@ -8,7 +8,7 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
-NAME=wine-mono
+NAME=wine-etersoft-gecko
 
 MAINFILES="$NAME[-_][0-9]"
 

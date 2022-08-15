@@ -1,0 +1,50 @@
+#!/bin/sh
+
+. `dirname $0`/config
+
+set_module()
+{
+local ver="$1"
+case $ver in
+    1.0.12*)
+        ver=1
+        ;;
+    2*)
+        ver=2
+        ;;
+    5*)
+        ver=5
+        ;;
+    6*)
+        ver=6
+        ;;
+    7-unstable)
+        ver=7-unstable
+        ;;
+    7*)
+        ver=7
+        ;;
+esac
+export KORINFMODULE=wine-$ver
+}
+
+
+set_ver()
+{
+    # System/Version [Version] [option]
+    ver="$3"
+    case "$ver" in
+        -*|"")
+            ver="$2"
+            ;;
+    esac
+
+    case "$ver" in
+        -*)
+            ver=""
+            ;;
+    esac
+
+    [ -n "$ver" ]|| ver="$DEFAULTVERSION"
+    set_module "$ver"
+}
