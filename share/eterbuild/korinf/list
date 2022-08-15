@@ -33,6 +33,14 @@ get_linked_x86_64_wine_system()
 	grep "^$1 " $KORINFETC/linked-x86_64-wine | cut -d" " -f2
 }
 
+check_native_32_system()
+{
+	grep -q "^$1 *$" $KORINFETC/native-32 && return
+	local sys="$(echo "$1" | sed -e "s|/.*$||")"
+	grep -q "^$sys *$" $KORINFETC/native-32 && return
+}
+
+
 
 # get list from TARGETPATH/distro.list or use lists/$ALL
 # arg: ALL or other full list
