@@ -52,12 +52,6 @@ if [ ! -r $TASKDIR/SALESDIR ] ; then
 	fatal "Can't detect $TASKDIR/SALESDIR"
 fi
 
-if [ -f "$TASKDIR/STOP" ] ; then
-	echo "Stop build due $TASKDIR/STOP file"
-	sleep 60
-	exit
-fi
-
 if [ "$1" = "debug" ] ; then
 	TASKCOMMAND="--debug"
 else
@@ -77,6 +71,14 @@ done
 #COPYTASKDIR="${TASKDIR}/copytsks"
 
 for TASKTORUN in $(list_tasks task) ; do
+
+	# check before every task to stop immediately
+	if [ -f "$TASKDIR/STOP" ] ; then
+		echo "Pause for 60 seconds build due $TASKDIR/STOP file"
+		sleep 60
+		exit
+	fi
+
 	[ -e "$TASKTORUN" ] || continue
 	
 	# drop strange copying

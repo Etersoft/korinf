@@ -26,7 +26,7 @@
 # Следит за файлами и отправляет на пересборку
 
 PIDFILE=/var/run/eterbuild/queuewatcher.pid
-SSHMOUNTOPT="reconnect,sshfs_sync,no_readahead,cache=no,compression=yes,uid=$UID,gid=500"
+SSHMOUNTOPT="reconnect,sshfs_sync,no_readahead,cache=yes,compression=yes,uid=$UID,gid=500"
 SSHMOUNTBASE="sales:/var/www/site/downloads"
 
 if [ "$1" = "stop" ] ; then

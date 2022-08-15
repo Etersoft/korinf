@@ -7,7 +7,7 @@ function showhelp(){
 	echo "Usage:"
 	echo "-d : distributive statistic"
 	echo "-d DIST: certain distributive statistic"
-	echo "-r : product statistic"
+	echo "-p : product statistic"
 }
 
 function byproduct(){
