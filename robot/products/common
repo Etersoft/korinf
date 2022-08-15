@@ -21,13 +21,19 @@
 
 # sets FTPDIR (dir with license file)
 # use: LICENSEFILE
-create_license_dir()
+create_ftp_dir()
 {
-	assert_var TARGETDIR PROJECTVERSION ETERREGNUM AROBOTDIR LICENSEFILE
+	assert_var TARGETDIR PROJECTVERSION AROBOTDIR
 	export FTPDIR=$TARGETDIR/$PROJECTVERSION
 	# Можем стирать только каталог дистрибутива, а не весь
 	test -d $FTPDIR && rm -rf $FTPDIR
 	mkdir -p $FTPDIR || fatal "error with $FTPDIR creating"
+}
+
+create_license_dir()
+{
+	assert_var TARGETDIR PROJECTVERSION ETERREGNUM AROBOTDIR LICENSEFILE
+	create_ftp_dir
 
 	echo >> $ALOGDIR/autobuild.report.log
 	echo "$(date): Build license $TYPE for $ETERREGNUM in $FTPDIR" >> $ALOGDIR/autobuild.report.log
@@ -84,6 +90,6 @@ $THANKTEXT
 
 -- 
 Команда разработчиков
-Etersoft, 2020
+Etersoft, 2022
 EOF
 }

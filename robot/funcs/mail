@@ -48,7 +48,7 @@ ${DEAR} ${NAME}!
 
 -- 
 КОМАНДА РАЗРАБОТЧИКОВ
-Etersoft, 2021
+Etersoft, 2022
 " ;
 ) | mutt -s "Сборка ${PRODUCT} задерживается" "${FULLMAILTO}" -b "support@etersoft.ru"
 
@@ -66,7 +66,8 @@ send_fatal()
 (	echo "
 Произошла ошибка '${@}' при сборке
 продукта $PRODUCT (релиз $PROJECTVERSION) с номером $ETERREGNUM
-для платформы $DIST. Получатель: $FULLMAILTO.
+для платформы $DIST.
+Получатель: $FULLMAILTO.
 Каталог результата: $TARGETDIR.
 Задание отложено до исправления проблемы.
 
@@ -74,8 +75,8 @@ Prepared mail in $TMPMAIL:
 `cat $TMPMAIL`
 
 -- 
-Робот сборки Korinf v.2.2.1
-Etersoft, 2021
+Робот сборки Korinf v.2.3.0
+Etersoft, 2022
 " ;
 [ -r "$LOGFILE" ] && echo "Лог сборки $LOGFILE приложен." || echo "Лог сборки $LOGFILE не был создан. "
 ) | mutt -s "Ошибка при сборке $ETERREGNUM  на ${DIST}" $EMAILNOTIFY $PARAMMUTT
@@ -103,7 +104,7 @@ ${DEAR} ${NAME}!
 
 -- 
 Команда разработчиков
-Etersoft, 2021
+Etersoft, 2022
 " ;
 ) | mutt -s "Ошибка при сборке ${ETERREGNUM} на ${DIST}" "${FULLMAILTO}" -b "support@etersoft.ru"
 fi

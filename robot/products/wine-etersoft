@@ -88,27 +88,61 @@ prepare_wine_etersoft()
 	echo >> $ALOGDIR/autobuild.report.log
 	echo "$(date): Build $TYPE for $ETERREGNUM in $DIST" >> $ALOGDIR/autobuild.report.log
 
-	check_and_refresh_component bin-wine $PVTLOCAL wine-etersoft-${PRODUCT_name}
-	check_and_refresh_component bin-wine $PUBLOCAL/WINE wine-etersoft
+	WINEPRODUCT=wine-etersoft
+	WINEPRODUCT32=wine32-etersoft
+	WINETRICKS=$WINEPRODUCT-winetricks
+	# temp compat
+	[ "$PROJECTVERSION" != "7-unstable" ] && WINEPRODUCT=wine
+	[ "$PROJECTVERSION" != "7-unstable" ] && WINEPRODUCT32=wine32
+	[ "$PROJECTVERSION" != "7-unstable" ] && WINETRICKS=winetricks
 
-	if echo "$PROJECTVERSION" | grep "^5" ; then
-		check_and_refresh_package $PUBLOCAL/WINE wine-gecko
-		check_and_refresh_package $PUBLOCAL/WINE wine-mono
+	check_and_refresh_component bin-wine $PUBLOCAL/WINE wine-etersoft
+	check_and_refresh_component bin-wine $PVTLOCAL wine-etersoft-${PRODUCT_name}
+
+	if echo "$PROJECTVERSION" | grep "^[567]" ; then
+		check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINEPRODUCT-gecko
+		check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINEPRODUCT-mono
+		check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINEPRODUCT-grdwine
+		check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINETRICKS
+	fi
+
+
+	DIST32=''
+	if rhas "$PROJECTVERSION" "^[7]" && rhas "$DIST" "^x86_64" ; then
+		DIST32=$(echo "$DIST" | sed -e"s|x86_64/||")
+		#
+		#( DIST=$DIST32 check_and_refresh_component bin-wine $PVTLOCAL wine-etersoft-${PRODUCT_name} ) || fatal "Can't build 32 bit part"
+		( DIST=$DIST32 check_and_refresh_component bin-wine $PUBLOCAL/WINE wine-etersoft '' wine32-etersoft ) || fatal "Can't build 32 bit part"
+		( DIST=$DIST32 check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINEPRODUCT-grdwine '' $WINEPRODUCT32-grdwine ) || fatal "Can't build 32 bit part"
 	fi
 
 	#[ "$TYPE" = "School" ] || check_and_refresh_component bin-wine $PUBLOCAL/fonts fonts-ttf-ms
 
 	check_and_refresh_component bin-hasp $PUBLOCAL/HASP haspd
 
-	[ "$TYPE" = "Local" ] || check_and_refresh_component bin-cifs $PUBLOCAL/CIFS etercifs
+	#[ "$TYPE" = "Local" ] || check_and_refresh_component bin-cifs $PUBLOCAL/CIFS etercifs
+
 	#[ "$TYPE" = "SchoolDIS" ] || check_and_refresh_component bin-wine $PUBLOCAL/WINE fonts-ttf-liberation
 
 	# Get file list
 	PRIVFILES=`find -L $PVTLOCAL/$DIST -maxdepth 1 -type f`
 	PUB1FILES=`find -L $PUBLOCAL/WINE/$DIST -maxdepth 1 -type f`
+	if [ -n "$DIST32" ] ; then
+		PUB1FILES32=`find -L $PUBLOCAL/WINE/$DIST32 -maxdepth 1 -type f | grep -E "wine32-(etersoft|grdwine|etersoft-grdwine)[-_][0-9]"`
+		# extra
+		PUB3FILES32=`find -L $PUBLOCAL/WINE/$DIST32/extra -maxdepth 1 -type f | grep "wine32[-_]"`
+		# HACK: pack only i586 private
+		#PRIVFILES=`find -L $PVTLOCAL/$DIST32 -maxdepth 1 -type f`
+	else
+		PUB1FILES32=''
+		PUB3FILES32=''
+	fi
+
+	# fonts
 	#PUB2FILES=`find -L $PUBLOCAL/fonts/$DIST -maxdepth 1 -type f`
+
 	# CIFS
-	[ "$TYPE" = "Local" ] || PUB2FILES=`find -L $PUBLOCAL/CIFS/$DIST -maxdepth 1 -type f`
+	#[ "$TYPE" = "Local" ] || PUB2FILES=`find -L $PUBLOCAL/CIFS/$DIST -maxdepth 1 -type f`
 	# extra
 	PUB3FILES=`find -L $PUBLOCAL/WINE/$DIST/extra -maxdepth 1 -type f`
 	# HASP
@@ -123,17 +157,19 @@ prepare_wine_etersoft()
 	fi
 
 	check_and_refresh_package $KORINFLOCAL eepm
-	PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm*"`
+	PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm[_-]3*"`
 
 	# Нужно скопировать файлы
-	for i in $PRIVFILES $PUB1FILES $PUB2FILES $PUB4FILES $PUB5FILES $PUB6FILES; do
+	for i in $PRIVFILES $PUB1FILES $PUB1FILES32 $PUB2FILES $PUB4FILES $PUB5FILES $PUB6FILES; do
 		[ -n "$i" ] || fatal "Empty source filename"
+		# skip if already exists (usually, skip noarch packages)
+		[ -s "$FTPDIR/$(basename $i)" ] && continue
 		# try create hard link firstly
 		cp -fl $i $FTPDIR ||  cp -fl $i $FTPDIR || cp -f $i $FTPDIR || fatal "Can't copy $i"
 	done
 
 	# Копируем дополнительные в extra
-	for i in $PUB3FILES; do
+	for i in $PUB3FILES $PUB3FILES32; do
 		[ -n "$i" ] || fatal "Empty source filename"
 		# try create hard link firstly
 		# some gluster problem?
@@ -145,35 +181,47 @@ prepare_wine_etersoft()
 
 	prepare_wine_etersoft_license $FTPDIR/$LICENSEFILE
 
+	# FIXME: Не можем проверить, что у нас с файлами для разных архитектур
+
 	# Ещё раз проверяем наличие обязательных пакетов
 	# Check package files
 	assert_present_package $FTPDIR wine-etersoft
+	if [ -n "$DIST32" ] ; then
+		assert_present_package $FTPDIR wine32-etersoft
+		assert_present_package $FTPDIR $WINEPRODUCT32-grdwine
+	fi
 
 	# FIXME: сделать простую проверку на систему
 	# skip on FreeBSD
 	if ! echo "$DIST" | grep -q "FreeBSD" ; then
 		assert_present_package $FTPDIR haspd
 		
-		if ! $(instrKRF "$DIST" "ArchLinux") && ! $(instrKRF "$DIST" "Gentoo")
-		then
-			assert_present_package $FTPDIR haspd-modules
-		fi
+		#if ! $(instrKRF "$DIST" "ArchLinux") && ! $(instrKRF "$DIST" "Gentoo")
+		#then
+		#	assert_present_package $FTPDIR haspd-modules
+		#fi
 
-		if [ "$TYPE" != "Local" ] ; then
-			assert_present_package $FTPDIR etercifs
-		fi
+		#if [ "$TYPE" != "Local" ] ; then
+		#	assert_present_package $FTPDIR etercifs
+		#fi
 		#[ "$TYPE" = "SchoolDIS" ] || assert_present_package $FTPDIR fonts-ttf-liberation
 	fi
 
-	assert_present_package $FTPDIR eepm
+	if rhas "$PROJECTVERSION" "^[567]" ; then
+		assert_present_package $FTPDIR eepm
 
-	if echo "$PROJECTVERSION" | grep "^5" ; then
-		assert_present_package $FTPDIR wine-gecko
-		assert_present_package $FTPDIR wine-mono
+		assert_present_package $FTPDIR $WINEPRODUCT-gecko
+		assert_present_package $FTPDIR $WINEPRODUCT-mono
+		assert_present_package $FTPDIR $WINEPRODUCT-grdwine
+		assert_present_package $FTPDIR $WINETRICKS
 	fi
 
+	# HACK
+	#if [ -n "$DIST32" ] ; then
+	#	( DIST=$DIST32 assert_present_package $FTPDIR wine-etersoft-${PRODUCT_name} )
+	#else
 	assert_present_package $FTPDIR wine-etersoft-${PRODUCT_name}
-
+	#fi
 
 	# user will download it from separate place
 	#assert_present_package $FTPDIR fonts-ttf-ms
@@ -186,7 +234,22 @@ prepare_wine_etersoft()
 	DOCS=$PVTLOCAL/../docs
 	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/README_$TYPE.html >$FTPDIR/README.html || fatal "readme copying"
 	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/license_${PRODUCT_name}_${LICENSE_name}.html >$FTPDIR/license.html || fatal "license copying"
-	cp -f $DOCS/${PRODUCT_name}_manual.html $FTPDIR/manual.html || fatal "manual copying"
+	# не пакуем документацию для новых версий
+	if echo "$PROJECTVERSION" | grep "^[12]" ; then
+		cp -f $DOCS/${PRODUCT_name}_manual.html $FTPDIR/manual.html || fatal "manual copying"
+	fi
+
+	# список файлов
+	cd $FTPDIR/ || fatal "cd"
+	md5sum *.* >$FTPDIR/wine-etersoft-install.md5 || fatal "file list"
+	sha256sum *.* >$FTPDIR/wine-etersoft-install.sha256 || fatal "file list"
+	cd - >/dev/null
+
+	if [ -s $DOCS/wine-etersoft-install.sh ] ; then
+		# скрипт установки
+		sed -e "s|^URLRPM=|URLRPM=$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST|" <$DOCS/wine-etersoft-install.sh >$FTPDIR/wine-etersoft-install.sh || fatal "install script"
+	fi
+
 }
 
 
@@ -229,14 +292,13 @@ ${PRODUCT}
 ${BETA}
 Регистрационный номер Продукта: ${ETERREGNUM}.
 
-Всегда можно заказать сборку ещё раз по адресу http://sales.etersoft.ru/product/${ETERREGNUM}/email=${MAILTO}
+Всегда можно заказать сборку ещё раз по адресу https://sales.etersoft.ru/product/${ETERREGNUM}/email=${MAILTO}
 
 Для получения Продукта скачайте файлы по приведённым ссылкам, в их числе:
  - пакеты Продукта (wine-etersoft, wine-etersoft-$PRODUCT_name);
  - файл лицензии $LICENSEFILE;
  - документацию (файл manual.html);
- - пакеты с драйверами и менеджерами лицензий для аппаратных ключей защиты
-   HASP 4/HL/SRM, Smartkey 3 Eutron и SafeNet Sentinel (пакет haspd для HASP USB и haspd-modules, dkms-aksparlnx для HASP LPT);
+ - пакеты с драйверами и менеджером лицензий для аппаратных ключей защиты HASP HL (пакет haspd);
 $CIFSTEXT
 ОБРАТИТЕ ВНИМАНИЕ!
 Файл лицензии $LICENSEFILE необходимо расположить в каталоге /etc/wine, ~/.wine или
@@ -263,7 +325,6 @@ EOF
 (действительны в течение 4 суток)
 
 Вы можете напрямую зайти в каталог, чтобы загрузить файлы открытой и закрытой части:
-	${DOWNLOADDIR/$MPROTO:/$RPROTO:}/$TYPE-$PROJECTVERSION/$DIST
 	${DOWNLOADDIR}/$TYPE-$PROJECTVERSION/$DIST
 EOF
 
@@ -334,7 +395,116 @@ fi
 
 -- 
 Команда разработчиков
-Etersoft, 2020
+Etersoft, 2022
+EOF
+}
+
+
+# Ошибка: не ловятся ошибки отсюда
+prepare_wine_etersoft7_mail()
+{
+	local FILETO BETA NAME
+	FILETO=$1
+	>$FILETO
+	NAME="$(get_dear_from_fio "$FULLNAME" "покупатель")"
+	BETA=""
+	# FIXME: is it used?
+	if [ "$RELEASECANDIDAT" = "1" ] ; then
+		BETA="
+!! Это предварительная версия продукта, используйте её с осторожностью !!
+!! Устанавливайте в повседневное использование только после проверки !!
+!! Создавайте резервные копии !!
+"
+	fi
+
+CIFSTEXT=""
+#if [ "$TYPE" != "Local" ] ; then
+#CIFSTEXT=" - пакет для обеспечения сетевого взаимодействия по протоколу CIFS с сервером
+#   SAMBA или Windows Server (etercifs) (и dkms-etercifs - только если нужен)
+#"
+#fi
+
+if [ "$TYPE_LICENSE" = "Demo" ] || [ "$TYPE_LICENSE" = "DemoTerminal" ] ; then
+	THANKTEXT="Благодарим Вас за внимание к нашему продукту."
+else
+	THANKTEXT="Благодарим Вас за покупку!"
+fi
+
+	cat >>$FILETO <<EOF
+${DEAR} ${NAME}!
+
+Ваш заказ по сборке для системы ${TEXTDIST} Продукта
+${PRODUCT}
+(релиз $PROJECTVERSION) выполнен.
+${BETA}
+Регистрационный номер Продукта: ${ETERREGNUM}.
+
+Ссылки для скачивания действительны в течение 4 суток. В любое время вы можете заказать сборку ещё раз, перейдя по ссылке https://sales.etersoft.ru/product/${ETERREGNUM}/email=${MAILTO}
+
+Для получения и установки Продукта вы можете скачать скрипт скачивания и установки wine-etersoft-install.sh:
+EOF
+printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" $FTPDIR/wine-etersoft-install.sh >>$FILETO || fatal "Error with missed wine-etersoft-install.sh "
+
+cat >>$FILETO <<EOF
+и запустить его с правами root:
+  # bash wine-etersoft-install.sh
+
+Также вы можете скачать файлы вручную и установить согласно документации:
+ - пакеты Продукта (wine-etersoft, wine32-etersoft, wine-etersoft-$PRODUCT_name);
+ - файл лицензии $LICENSEFILE;
+ - файл README.html с базовой информацией о продукте;
+$(printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" $FTPDIR/README.html)
+ - пакеты с драйверами и менеджером лицензий для аппаратных ключей защиты HASP HL (пакет haspd);
+$CIFSTEXT
+
+для этого пройдите по ссылке, чтобы загрузить файлы открытой и закрытой части:
+	${DOWNLOADDIR}/$TYPE-$PROJECTVERSION/$DIST
+EOF
+
+if [ "$TYPE" = "Local" ] ; then
+	cat >>$FILETO <<EOF
+
+Обязательно ознакомьтесь с известными проблемами в текущей сборке:
+http://wiki.etersoft.ru/WINE/knownbugs
+
+Ответы на частые вопросы смотрите на https://etersoft.ru/wine/faq
+
+Документация доступна здесь: https://winehq.org.ru/WINE@Etersoft/Local
+
+Поскольку данная версия продукта лицензируется бесплатно для
+частного использования, все вопросы мы рекомендуем обсуждать
+на форуме UnixForum
+
+https://unixforum.org/index.php?showforum=58
+
+Пожалуйста, не отвечайте на это письмо.
+
+$THANKTEXT
+EOF
+else
+	cat >>$FILETO <<EOF
+
+Обязательно ознакомьтесь с известными проблемами в текущей сборке:
+https://winehq.org.ru/WINE@Etersoft/knownbugs
+
+Ответы на частые вопросы смотрите на https://etersoft.ru/wine/faq
+
+Документация доступна здесь: https://winehq.org.ru/WINE@Etersoft/Enterprise
+
+По вопросам использования продукта пишите новое письмо
+на support@etersoft.ru,
+указав в теме письма регистрационный номер.
+
+Пожалуйста, не отвечайте на это письмо.
+
+$THANKTEXT
+EOF
+fi
+	cat >>$FILETO <<EOF
+
+-- 
+Команда разработчиков
+Etersoft, 2022
 EOF
 }
 
@@ -383,7 +553,7 @@ EOF
 
 -- 
 Команда разработчиков
-Etersoft, 2020
+Etersoft, 2022
 EOF
 }
 
@@ -463,8 +633,11 @@ build_wine_etersoft()
 	prepare_wine_etersoft
 
 	TMPMAIL=$(make_temp_file)
-	prepare_wine_etersoft_mail $TMPMAIL || fatal "Can't prepare letter"
-
+	if echo "$PROJECTVERSION" | grep "^[7]" ; then
+		prepare_wine_etersoft7_mail $TMPMAIL || fatal "Can't prepare letter"
+	else
+		prepare_wine_etersoft_mail $TMPMAIL || fatal "Can't prepare letter"
+	fi
 	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8
 	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Сборка $COMPONENTNAME для ${TEXTDIST}" || fatal "Can't send"

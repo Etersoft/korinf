@@ -74,7 +74,6 @@ fi
 
 	cat >>$FILETO <<EOF
 
-При необходимости эти же файлы могут быть получены по протоколу $RPROTO: замените $MPROTO:// на $RPROTO:// в пути.
 EOF
 if echo "$PUBDOWNLOAD" | grep -q "/pub/Etersoft" ; then
 	cat >>$FILETO <<EOF
@@ -99,7 +98,7 @@ $THANKTEXT
 
 -- 
 Команда разработчиков
-Etersoft, 2020
+Etersoft, 2022
 EOF
 }
 
@@ -188,7 +187,7 @@ build_anycomponent()
 
 		if [ "$DIST" != "Windows/ALL" ] ; then
 			check_and_refresh_package $KORINFLOCAL eepm
-			PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm*"`
+			PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm[_-]3*"`
 		fi
 
 		if echo "$LOCALDIR" | grep -q "/pvt/Etersoft" ; then

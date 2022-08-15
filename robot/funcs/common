@@ -37,7 +37,6 @@ exit_now()
 }
 
 MPROTO="https"
-RPROTO="ftp"
 
 # TODO: add URL checking (touch it via GET?)
 printURL()
@@ -111,6 +110,7 @@ assert_present_package()
 		fatal "Package $BUILDNAME is missed in $DESTDIR"
 	fi
 
+	# Возможно, что это не особо работает:
 	if is_autobuild_failed ; then
 		fatal "Note! $BUILDNAME.autobuild.failed is present"
 	fi

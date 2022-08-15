@@ -49,18 +49,23 @@ check_if_updated()
 	if [ -r "$BINPKG" ] ; then
 		# if binary is newer than src.rpm
 		if [ "$BINPKG" -nt "$SRCRPM" ] ; then
+			# TODO: используется неизвестное метод сжатия для «control.tar.zst», прекращаем
+			# В Ubuntu напрочь другая ветка dpkg, где поддерживается zstd: https://launchpad.net/ubuntu/+source/dpkg/1.20.9ubuntu2
+			# Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=892664
+			rhas $DIST "Ubuntu/22.04" && return 0
 			check_pkg_integrity "$BINPKG" && return 0
-			warning "Package $BINPKG is broken!!"
+			fatal "Package $BINPKG is broken!!! Check it with epm checkpkg"
 			# We can't remove files partially
 			#rm -vf "$BINPKG"
 		fi
 	fi
 
-	# needed for autobuild_failed
+	# used for autobuild_failed
 	DESTDIR=$PRODPATH/$DIST
-	if [ -z "$FORCEBUILD" ] ; then
-		is_autobuild_failed && fatal "Package $BINBUILDNAME should be rebuilt from $SRCRPM,  but previous build has failed"
-	fi
+
+	#if [ -z "$FORCEBUILD" ] ; then
+	is_autobuild_failed && fatal "Package $BINBUILDNAME should be rebuilt from $SRCRPM, but previous autobuild was failed"
+	#fi
 
 	return 1
 }
@@ -83,16 +88,20 @@ check_and_refresh_component()
 
 	check_if_updated $BUILDNAME $SOURCEPATH $PRODPATH $BINBUILDNAME && return 0
 
-        # hack
+        # FIXME: hack
         if [ -z "$PRVERSION" ] ; then
                # get PROJECT version from SOURCEPATH
                PRVERSION=$(basename $(dirname $SOURCEPATH) )
         fi
 
-	$AROBOTDIR/../$BUILDSCRIPTDIR/$BINBUILDNAME.sh -f $DIST $PRVERSION && return 0
+	if [ -x $AROBOTDIR/../$BUILDSCRIPTDIR/$BINBUILDNAME.sh ] ; then
+		$AROBOTDIR/../$BUILDSCRIPTDIR/$BINBUILDNAME.sh -f $DIST $PRVERSION && return 0
+	else
+		$AROBOTDIR/../$BUILDSCRIPTDIR/$BUILDNAME.sh -f $DIST $PRVERSION && return 0
+	fi
 
 	set_autobuild_failed
-	fatal "Package $BINBUILDNAME cannot rebuild"
+	fatal "Can't rebuild $BINBUILDNAME package"
 	return 1
 }
 
@@ -111,14 +120,9 @@ check_and_refresh_package()
 
 	check_if_updated $BUILDNAME $SOURCEPATH $PRODPATH $BINBUILDNAME && return 0
 
-	if is_autobuild_failed ; then
-		fatal "Package $BINBUILDNAME has autobuild failed, please build it manually"
-		return 1
-	fi
-
 	$AROBOTDIR/../bin/korinf -f $BUILDNAME $DIST $PRODPATH && return 0
 
 	set_autobuild_failed
-	fatal "Package $BINBUILDNAME cannot rebuild"
+	fatal "Can't rebuild $BINBUILDNAME package"
 	return 1
 }

@@ -2,4 +2,3 @@
 export TASKDIR=$HOME/sales
 
 #export MPROTO="https"
-#export RPROTO="ftp"
