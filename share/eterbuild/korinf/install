@@ -79,29 +79,113 @@ install_build_requires()
 	# Note: some additional requires we add in rpmbph
 	# Note: sudo less for eepm
 	# TODO: remove toolchain from this list
-	local buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch gcc coreutils grep make rpm gawk sudo less"
+	# TODO: which for eepm
+	local buildsystempkgs="which libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch gcc coreutils grep make rpm gawk sudo less ed"
 
 	# hack to prepare Debian based system
 	[ "$PKGFORMAT" = "deb" ] && buildsystempkgs="$buildsystempkgs build-essential alien fakeroot debhelper"
 
+	# TODO: convert reqs only here due alt macros?
 	reqs="$($EPMCMD req "$TARGETSRPM" | grep -v "[<=>]" | xargs -n 1000 echo)"
-	reqs="$reqs $(convert_pkgreqs_to_target $buildsystempkgs | xargs -n 1000 echo)"
-	[ -z "$reqs" ] && return 0
+	# super hack (reqs almost converted to target conventions (but only depends from BR)
+	if echo "$reqs" | grep -q "python3-module-setuptools" ; then
+		reqs="$(echo "$reqs" | sed -e 's|python3-module-setuptools||')"
+		buildsystempkgs="$buildsystempkgs python3-module-setuptools"
+	fi
+
+	reqsbr="$(convert_pkgreqs_to_target $buildsystempkgs | xargs -n 1000 echo)"
+	[ -z "$reqs$reqsbr" ] && return 0
 	reqs="$(quote_pkgname $reqs)"
+	reqsbr="$(quote_pkgname $reqsbr)"
+
+	# run fixes only for rpm-build-altlinux-compat (as initial step)
+	if  [ -n "$INITIALBOOTSTRAP" ] && [ "$BUILDNAME" = "rpm-build-altlinux-compat" ] ; then
+		if [ "$PKGFORMAT" = "deb" ] && [ "$TARGETARCH" != "$BUILDARCH" ] ; then
+			run_in_chroot $dist "dpkg --add-architecture i386" </dev/null
+		fi
+
+		if [ $DISTRNAME = "RockyLinux" ] ; then
+			run_in_chroot $dist "epm --auto repo add epel ; epm --auto repo add powertools"
+		fi
+
+		if [ "$DISTRNAME/$DISTRVERSION" = "AstraLinux/smolensk" ] ; then
+			# https://bugs.etersoft.ru/show_bug.cgi?id=15668#c12
+			run_in_chroot $dist "epm --auto install http://download.etersoft.ru/pub/download/astra-WE7xha2ia/ia32-libs_20220330+1.7se_amd64.deb"
+		fi
+
+		if [ $DISTRNAME = "ROSA" ] ; then
+			run_in_chroot $dist "sed -i -e 's|executable-marked-as-config-file||' /usr/share/rpmlint/config.d/rosa.error.list"
+			# /tmp with noexec fails a test for %cross_compiling
+			#run_in_chroot $dist "sed -i -e 's| /tmp/rpm| /var/tmp/rpm|g' /usr/lib/rpm/rosa/macros"
+			# https://bugs.etersoft.ru/show_bug.cgi?id=15741#c3
+			run_in_chroot $dist "cd /tmp ; which epm && { epm -q libpython3-devel.i686 || epm download libpython3-devel.i686 && epm install --force --nodeps libpython3*.rpm ;}"
+		fi
+	fi
+
+	# prepare repository before install
+	if [ -n "$BOOTSTRAP" ] ; then
+		# safe input for eepm
+		run_in_chroot $dist "which epm && epm --auto --verbose fix || true" </dev/null || { warning "epm fix failure" ; return 1 ; }
+	fi
 
 	# bootstrap install
-	if [ "$BUILDNAME" = "eepm" ] || [ "$BUILDNAME" = "distro_info" ] ||  [ "$BUILDNAME" = "rpm-build-altlinux-compat" ] ; then
+	if [ -n "$INITIALBOOTSTRAP" ] ; then
 		assert_var DISTRNAME
 		local INSTALLCOMMAND
 		#run_in_chroot "epm -h >/dev/null" || set_build_failed
 		# Bootstrap install eepm (get command from host's epm)
-		INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only --nodeps install $reqs) || { warning "Can't get install command" ; return 1 ; }
+		INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME DISTRVERSION=$DISTRVERSION $EPMCMD --auto --show-command-only --nodeps install $reqsbr $reqs) || { warning "Can't get install command" ; return 1 ; }
 		# CHECKME: why we need yes here
-		run_in_chroot $dist "yes | $INSTALLCOMMAND" #|| set_build_failed
-		return 0
+		run_in_chroot $dist "$INSTALLCOMMAND </dev/null" || return
+	else
+		# TODO: Appeared the backslashed quotes are required if package names contain parentheses
+		# safe input for eepm
+		run_in_chroot $dist "epm --auto --verbose --skip-installed install $reqsbr" </dev/null || return
+		run_in_chroot $dist "epm --auto --verbose --skip-installed install $reqs" </dev/null || return
 	fi
 
-	# TODO: Appeared the backslashed quotes are required if package names contain parentheses
-	# safe input for eepm
-	run_in_chroot $dist "epm --auto --verbose --skip-installed install $reqs" </dev/null
+	# run fixes only for rpm-build-altlinux-compat (as initial step)
+	[ -n "$INITIALBOOTSTRAP" ] && [ "$BUILDNAME" = "rpm-build-altlinux-compat" ] || return 0
+
+	# fix libdir macros on deb platforms
+	libdir32="%{_prefix}/lib/i386-linux-gnu"
+	libdir64="%{_prefix}/lib/x86_64-linux-gnu"
+	[ $DISTRNAME = "AstraLinux" ] && libdir32="%{_prefix}/lib32/i386-linux-gnu"
+
+	if [ "$PKGFORMAT" = "deb" ] && [ "$TARGETARCH" != "$BUILDARCH" ] ; then
+cat <<EOF | run_in_chroot $dist "sed -i -e 's|^optflags: i586|optflags: i586 -O2 -g -m32 -march=i586|' /usr/lib/rpm/rpmrc ; mkdir -p /etc/rpm/$TARGETARCH-linux && tee /etc/rpm/$TARGETARCH-linux/macros"
+# created with Korinf
+# FIXME: by some reason really overrides in /usr/lib/rpm/rpmrc
+%optflags               -O2 -g -m32 -g -march=i586
+
+%__isa_name             x86
+%__isa_bits             32
+%__isa                  %{__isa_name}-%{__isa_bits}
+
+# The default transaction color. This value is a set of bits to
+# determine file and dependency affinity for this arch.
+#       0       uncolored (i.e. use only arch as install hint)
+#       1       Elf32 permitted
+#       2       Elf64 permitted
+%_transaction_color     0
+
+#==============================================================================
+# ---- configure macros.
+#
+%_libexecdir            %{_prefix}/lib
+%_lib                   lib
+%_libdir                $libdir32
+EOF
+	fi
+
+	if [ "$PKGFORMAT" = "deb" ] && [ "$TARGETARCH" = "x86_64" ] ; then
+cat <<EOF | run_in_chroot $dist "mkdir -p /etc/rpm/$TARGETARCH-linux && tee /etc/rpm/$TARGETARCH-linux/macros"
+# created with Korinf
+
+%_libexecdir            %{_prefix}/lib
+%_lib                   lib
+%_libdir                $libdir64
+EOF
+	fi
+
 }
