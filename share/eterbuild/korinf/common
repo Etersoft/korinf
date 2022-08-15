@@ -168,13 +168,15 @@ get_bin_package()
 	test -r "$BUILDPKG"
 }
 
-# fills DISTRNAME, DISTRVERSION, BUILDARCH by arch/SystemName/Version
+# fills DISTRNAME, DISTRVERSION, BUILDARCH, TARGETARCH by arch/SystemName/Version
+# BUILDARCH - arch of the system (x86_64)
+# TARGETARCH - target arch (i586)
 parse_dist_name()
 {
 	local dist=$1
 	local v
 	# CHECKME: miss export
-	[ -z "$1" ] && DISTRNAME="" && DISTRVERSION="" && BUILDARCH="" && return 1
+	[ -z "$1" ] && DISTRNAME="" && DISTRVERSION="" && BUILDARCH="" && TARGETARCH="" && return 1
 	# dist format: [arch/]Name/Version
 	DISTRVERSION=`echo $dist | sed -e "s|.*/||g"`
 	v=`echo $dist | sed -e "s|/$DISTRVERSION\$||g"`
@@ -182,9 +184,14 @@ parse_dist_name()
 	BUILDARCH=`echo $v | sed -e "s|/.*||g"`
 	# FIXME: i586 by default, some x86_64 detection?
 	test "$BUILDARCH" = "$v" && BUILDARCH=i586
+	TARGETARCH="$BUILDARCH"
+	if [ "$BUILDARCH" = "i586" ] && ! check_native_32_system $dist ; then
+		BUILDARCH=x86_64
+		TARGETARCH=i586
+	fi
 	# if parse error
 	[ "$DISTRNAME" = "$DISTRVERSION" ] && DISTRNAME="" && DISTRVERSION=""
-	export DISTRNAME DISTRVERSION BUILDARCH
+	export DISTRNAME DISTRVERSION BUILDARCH TARGETARCH
 }
 
 # return full path to sources
@@ -195,6 +202,7 @@ get_sources_dir()
 	test -d "$PRODPATH" || fatal "$PRODPATH does not exists."
 	# use real realpath command, not our replacement
 	/usr/bin/realpath -e "$PRODPATH/sources" 2>/dev/null && return
+	# hack against WINE subdir
 	/usr/bin/realpath -e "$PRODPATH/../sources" 2>/dev/null && return
 	fatal "Can't get source path from target path $PRODPATH. It is possible, sources dir missed there."
 }
@@ -257,10 +265,10 @@ get_remote_host()
             rhost="$(grep "^$i " $KORINFETC/remote 2>/dev/null | ( read d host commands ; echo $host ; ))"
             [ -n "$rhost" ] && break
         done
+
         # docker by default
         [ -z "$rhost" ] && rhost='docker'
-        # use local for localfarm
-        [ "$rhost" = "local" ] && rhost=''
+
         echo "$rhost"
 }
 
@@ -299,23 +307,21 @@ is_docker_image()
 }
 
 
-
+# check if we have no direct access to build system files
+# optional arg: dist
 is_remote_build()
 {
 	local rhost
 	local dist="$1"
-
-	# FIXME:
-	# return true if use local hasher
-	[ "$DISTRNAME" = "ALTLinux" ] && return
-
+	[ -n "$dist" ] || fatal "empty dist"
+	# if without dist, construct from current env
 	if [ -z "$dist" ] ; then
 		assert_var BUILDARCH DISTRNAME DISTRVERSION
 		dist=$DISTRNAME/$DISTRVERSION
 		[ "$BUILDARCH" != "i586" ] && dist=$BUILDARCH/$dist
 	fi
 	rhost=$(get_remote_host $dist)
-	test -n "$rhost"
+	[ "$rhost" != "local" ]
 }
 
 quote_pkgname()

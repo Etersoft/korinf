@@ -97,7 +97,7 @@ fi
 	# build source package
 	if [ -n "$MAKESPKG" ] ; then
 		BUILTRPM=$RPMDIR/SRPMS
-		if [ "$BINARYREPO" = "sisyphus" ] ; then
+		if [ "$BINARYREPO" = "Sisyphus" ] ; then
 			BUILDCOMMAND="$RPMBS -s -w"
 		else
 			BUILDCOMMAND="$RPMBP -b $BINARYREPO"
@@ -107,7 +107,7 @@ fi
 	fi
 
 	# build binary packages
-	if [ "$BINARYREPO" = "sisyphus" ] ; then
+	if [ "$BINARYREPO" = "Sisyphus" ] ; then
 		BUILDCOMMAND="$RPMBSH -w"
 	else
 		BUILDCOMMAND="$RPMBPH -b $BINARYREPO"

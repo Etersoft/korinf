@@ -34,10 +34,10 @@ make_alt_depends_list()
     local TFILE=$(make_temp_file)
     # TODO: in any way, rpmreqs run apt-get install directly!
     # hack against imperfect rpmreqs
-    if hostname | grep -q office.etersoft.ru ; then
+    if [ "$TARGETARCH" = "i586" ] && hostname | grep -q office.etersoft.ru ; then
         ssh builder@builder32 $ETERBUILDBIN/rpmreqs -p $(pwd)/$pkg > $TFILE || return
     else
-        BUILDARCH=i586 $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || return
+        $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || return
     fi
     set_destlogdir
     local DEPFILE=$DESTLOGDIR/$(get_pkgname_from_filename $pkg | filter_deb_pkgnames).rpm.depends

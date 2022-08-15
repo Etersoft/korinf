@@ -37,6 +37,7 @@ check_built_package()
 		ST="   "
 		DESTDIR=$TARGETPATH/$i
 		test -L "$DESTDIR" && NAME="$NAME [L]"
+
 		FILENAME=$(get_bin_package "$DESTDIR" $BUILDNAME check)
 
 		if [ -r "$FILENAME" ] ; then
@@ -57,7 +58,7 @@ check_built_package()
 			BASENAME="$BUILDNAME"
 		fi
 
-		printf "%22s: %17s  %8s" "$NAME" "$FILEDATE" "$FILESIZE"
+		printf "%22s: %17s  %9s" "$NAME" "$FILEDATE" "$FILESIZE"
 		[ "$ST" = "OBS" ] && SETCOLOR_WARNING || SETCOLOR_FAILURE
 		printf " %s " "$ST"
 		SETCOLOR_NORMAL
@@ -65,7 +66,7 @@ check_built_package()
 		test -L "$DESTDIR" && echo -n " (link to `readlink $DESTDIR`)"
 		echo
 	done
-	echo "Legend: MIS - missed, OBS - obsoleted build, ABF - autobuild failed, FIL - manual build failed"
+	[ -n "$QUIET" ] || echo "Legend: MIS - missed, OBS - obsoleted build, ABF - autobuild failed, FIL - manual build failed"
 }
 
 # args: BUILDNAME

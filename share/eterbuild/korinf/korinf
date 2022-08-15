@@ -62,7 +62,7 @@ build_package()
 		if [ "$nn" = "." ] ; then
 			nn=$(basename $(pwd))
 		fi
-		rhas "$nn" "^bin-" && [ -z "$KORINFMODULE" ] && export KORINFMODULE=${nn/bin-}
+		rhas "$nn" "^bin-" && [ -z "$KORINFMODULE" ] && [ "$nn" != "bin-common" ] && export KORINFMODULE=${nn/bin-}
 	fi
 
 	MAINFILESLIST=$MAINFILES
@@ -70,8 +70,8 @@ build_package()
 
 	if [ -z "$QUIET" ] ; then
 		#echo "Build $BUILDNAME package"
-		echo "Source dir: $SOURCEPATH"
-		echo "Target dir: $TARGETPATH"
+		echo "Korinf module: $KORINFMODULE"
+		echo "Source dir: $SOURCEPATH     Target dir: $TARGETPATH"
 	fi
 
 	if [ -z "$SOURCEPATH" ] || [ -z "$TARGETPATH" ] ; then
@@ -157,7 +157,7 @@ handle_arg()
 		;;
 	-c)
 		CHECKPACKAGE=1
-		echo "Run checking package status"
+		[ -n "$QUIET" ] || echo "Run checking package status"
 		;;
 	-b)
 		BOOTSTRAP=1
@@ -251,7 +251,8 @@ build_project()
 		export VERBOSE=1
 	fi
 
-	TARGETPATH=$(readlink -f "$SP")
+	#TARGETPATH=$(readlink -f "$SP")
+	TARGETPATH="$SP"
 	
 	if [ -n "$ADEBUG" ]
 	then
@@ -266,7 +267,7 @@ build_project()
 		# drop sources from TARGETPATH if was set
 		TARGETPATH=$(dirname $TARGETPATH)
 	else
-		SOURCEPATH=$TARGETPATH/sources
+		SOURCEPATH=$(get_sources_dir $TARGETPATH)
 	fi
 	readonly SOURCEPATH
 

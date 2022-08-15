@@ -163,6 +163,9 @@ logit()
 	if [ "$1" = "SKIPPED" ] ; then
 		echo -n "$STRMSG"
 		print_status 22
+		if [ -n "$LOGFILE" ] ; then
+			print_status 22 >>$LOGFILE
+		fi
 		return 0
 	fi
 
@@ -187,6 +190,9 @@ logit()
 
 	[ "$1" = "SKIPPED" ] && RET=22
 	print_status $RET
+	if [ -n "$LOGFILE" ] ; then
+		print_status $RET >>$LOGFILE
+	fi
 
 	# fix skipped status
 	[ "$RET" = 22 ] && RET=0

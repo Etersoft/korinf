@@ -93,7 +93,7 @@ copying_sources()
 		rm -f "$SOURCEPATH/$dist/$BUILDNAME-[0-9]*.src.rpm" 2>/dev/null
 		mv -fv "$TARGETSRPM" "$SOURCEPATH/$dist/"
 	else
-		echo "Skip conf. source copying"
+		echo "Skip converted source package copying (no asked with ALLOWPUBLICDEBUG?)"
 		rm -fv "$TARGETSRPM"
 	fi
 	true

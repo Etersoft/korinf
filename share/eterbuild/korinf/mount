@@ -50,7 +50,7 @@ create_base_docker()
 		[ -s "$template" ] || template=$KORINFETC/docker/$BUILDARCH/Dockerfile.template
 		[ -s "$template" ] || fatal "template $template is missed"
 		echo "Create default Dockerfile $dockerfile for $rcommand from $template"
-		cat $template | sed -e "s|@FROM@|$rcommand|" >$dockerfile
+		cat $template | sed -e "s|@FROM@|$rcommand|" | tee $dockerfile
 		toremove=$dockerfile
 	fi
 
@@ -83,14 +83,41 @@ run_docker_container()
 		create_base_docker $dist
 	fi
 
-	contname=$(get_docker_container $dist)
+
+	# create tmp home dir
+	assert_var CHROOTDIR LOCUSER INTUSER
+
+	EXTERNALDOCKERHOME=1
+	MOUNTBUILDERSTRING=''
+	if [ -n $EXTERNALDOCKERHOME ] ; then
+		# x86_64/Debian/6.0 -> x86_64-Debian-6.0
+		# Создаём необходимые каталоги
+		mkdir -p $CHROOTDIR
+		BUILDROOT=`mktemp -d $CHROOTDIR/${dist//\//-}-XXXXXX`
+		BUILDERHOME=$BUILDROOT/home/$INTUSER
+		mkdir -p $BUILDERHOME/tmp/
+		# will set owner later via run_in_chroot
+		#$SUDO chown $LOCUSER $BUILDERHOME/
+		MOUNTBUILDERSTRING="--mount type=bind,source=$BUILDERHOME,target=/home/$INTUSER"
+	fi
+
+	# generate contname with random suffix
+	contname=$(get_docker_container $dist)-$(pwgen -1)
 	echo "Creating build system in docker $contname from $dockerimage:" >&2
 	# TODO: check before remove
 	a='' docker rm $contname 2>/dev/null # || return 1
-	a='' docker run -d --name $contname $dockerimage
+	a='' docker run -d \
+		--name $contname \
+		--tmpfs /tmp:exec \
+		$MOUNTBUILDERSTRING \
+		$dockerimage
 	a='' docker start $contname
+
 	# save name of running container
 	CONTAINERNAME=$contname
+
+	run_in_chroot $dist "chown $INTUSER /home/$INTUSER /home/$INTUSER/tmp"
+
 	return 0
 }
 
@@ -100,7 +127,7 @@ stop_docker_container()
 	assert_var CONTAINERNAME
 	local dist=$1
 	local contname=$CONTAINERNAME
-	if [ -n "$BOOTSTRAP$INSTALLREQUIREDPACKAGE" ] ; then
+	if [ -n "$BOOTSTRAP$INSTALLREQUIREDPACKAGE" ] && [ "$STATUSBUILD" = "done" ] ; then
 		dockerimage=$(get_docker_image $dist)
 		echo "Save $contname to docker image $dockerimage:latest:" >&2
 		a='' docker commit $contname $dockerimage:latest

@@ -27,6 +27,7 @@ build_rpms()
 {
 	assert_var INTUSER RPMSDIR BUILDNAME BUILDSRPM
 	assert_var PKGFORMAT PKGVENDOR
+	assert_var TARGETARCH
 	local dist=$1
 
 	# create needed files in home directory
@@ -40,6 +41,8 @@ build_rpms()
 	RPMBUILDROOT="/home/$INTUSER/tmp/$BUILDNAME-buildroot"
 
 	RPMBUILDNODEPS=""
+	# ROSA hack
+	RPMBUILDNODEPS="--nodeps"
 	# Skip buildreqs checking on non RPM systems
 	[ "$PKGFORMAT" = "rpm" ] || RPMBUILDNODEPS="--nodeps"
 	# hack: we set target to rpm before for Gentoo
@@ -51,16 +54,20 @@ build_rpms()
 	[ "$PKGFORMAT" = "rpm" ] || DISABLEDEBUGFLAG="--without debug"
 	[ "$ALLOWPUBLICDEBUG" = "1" ] || DISABLEDEBUGFLAG="--without debug"
 
+	#local SETARCH=''
+	#[ "$TARGETARCH" != "$BUILDARCH" ] && SETARCH=i386
+
 	## Control file for check build result
 	#LOGFAILFILE="$BUILDERHOME/RPM/log/$BUILDNAME.log.failed"
 	#rm -f "$LOGFAILFILE" "$LOGFAILFILE.clog"
 
 	echo "Chrooting as $INTUSER and run script"
 	cat <<EOF | run_in_chroot --user $dist "bash -x -" || return
-	echo "Run in \$(distr_info)"
+	echo "Run in \$(distr_info -e)"
 	umask 002
 	mkdir -p ~/RPM/log
 	rm -f ~/tmp/rpm-tmp.*
+	rm -rf $RPMBUILDROOT
 	# FIXME: has quote problem
 	RPMARGS="$RPMARGS"
 	RPMCMD=rpmbuild
@@ -68,11 +75,34 @@ build_rpms()
 	# some systems has no rpmbuild, only rpm (or just install rpm-build package?)
 	#which \$RPMCMD 2>/dev/null || { RPMCMD=rpm ; DDF="" ; }
 
+#		--define='_host $SETARCH-pc-linux-gnu' \
+#		--define='_libdir /usr/lib/$SETARCH-linux-gnu' \
+#		--define='_libexecdir /usr/lib' \
+
+	echo
+	echo "\$RPMCMD --target $TARGETARCH --showrc"
+	\$RPMCMD --target $TARGETARCH --showrc
+
+	#echo "srpm requires:"
+	#epm req /home/$INTUSER/tmp/$(basename $TARGETSRPM)
+
 	\$RPMCMD -v --rebuild $RPMBUILDNODEPS \$RPMARGS \$DDF \
 		--define='_unpackaged_files_terminate_build 0' \
+		--define='_build_id_links none' \
+		--define='%debug_package %{nil}' \
+		--target $TARGETARCH \
 		--buildroot $RPMBUILDROOT \
-		/home/$INTUSER/tmp/$(basename $TARGETSRPM) --target $BUILDARCH
+		/home/$INTUSER/tmp/$(basename $TARGETSRPM)
 	RES=\$?
+	if [ "\$RES" != "0" ] ; then
+		logfile="\$(echo ~/RPM/BUILD/*/config.log)"
+		if [ -s "\$logfile" ] ; then
+			echo
+			echo "===================== cat \$logfile: ========================"
+			cat "\$logfile"
+			echo "================== EOF \$logfile ========================="
+		fi
+	fi
 
 	# Workaround again flow target dirs
 	pushd /home/$INTUSER/RPM/RPMS/
@@ -91,7 +121,7 @@ EOF
 	#	return 1
 	#fi
 
-	if is_remote_build ; then
+	if is_remote_build $dist ; then
 		echo "Copying remote build rpm packages to the local filesystem"
 		mkdir -p $BUILTRPM
 		local tmptar

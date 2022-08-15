@@ -71,9 +71,9 @@ init_home()
 
 	#create_strip_workaround
 
-	rm -rf /home/$INTUSER/RPM/ /home/$INTUSER/tmp/ 2>/dev/null
-	mkdir -p /home/$INTUSER/RPM/
-	mkdir -p /home/$INTUSER/tmp/
+	#rm -rf /home/$INTUSER/RPM/ /home/$INTUSER/tmp/ 2>/dev/null
+	#mkdir -p /home/$INTUSER/RPM/
+	#mkdir -p /home/$INTUSER/tmp/
 
 	# create rpmmacros if missed
 	if [ -r ~/.rpmmacros ] ; then

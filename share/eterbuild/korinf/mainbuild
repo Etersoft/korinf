@@ -40,11 +40,12 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 
 	local LINKED=$(get_linked_system $dist)
 
+	# Keep it for WINE@Etersoft 2.1 compatibility
 	# FIXME: Hack for pseudo build 32 bit wine on x86_64 systems
-	if rhas "$BUILDNAME" "wine" ; then
-		local WINELINKED=$(get_linked_x86_64_wine_system $dist)
-		[ -n "$WINELINKED" ] && LINKED=$WINELINKED
-	fi
+	#if rhas "$PROJECTVERSION" "^[12]" && rhas "$BUILDNAME" "wine" ; then
+	#	local WINELINKED=$(get_linked_x86_64_wine_system $dist)
+	#	[ -n "$WINELINKED" ] && LINKED=$WINELINKED
+	#fi
 
 	if [ -n "$LINKED" ] ; then
 		if [ ! -L "$DESTDIR" ] && [ -d "$DESTDIR" ] ; then
@@ -91,17 +92,17 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 	# FIXME: Hack
 	[ "$TARGETPRIVPATH" ] && DESTDIR=$TARGETPRIVPATH
 
-	# fills $BUILDARCH, $DISTRNAME, $DISTRVERSION
+	# fills $BUILDARCH, $TARGETARCH, $DISTRNAME, $DISTRVERSION
 	parse_dist_name $dist
 	[ -z "$DISTRNAME" ] && fatal "Empty DISTRNAME for $dist"
 
 	# fills $PKGFORMAT, $PKGVENDOR, $RPMVENDOR
 	set_target_var
 
-	INITIALBOOTSTRAP=
+	INITIALBOOTSTRAP=''
 	# detect if we will not epm use possibility
 	if [ "$BUILDNAME" == "eepm" ] || [ "$BUILDNAME" == "distro_info" ] || [ "$BUILDNAME" == "rpm-build-altlinux-compat" ] ; then
-		INITIALBOOTSTRAP=1
+		[ -n "$BOOTSTRAP" ] && INITIALBOOTSTRAP=1
 	fi
 
 	# Initialize LOGDIR and LOGFILE variables
@@ -140,6 +141,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 	# Clean log
 	reset_dist_log "$dist"
 
+	STATUSBUILD=''
 	# Run build and check result
 	if build_dist_pkg ; then
 		logit "copying log" copying_log || fatal "Can't copying log"
