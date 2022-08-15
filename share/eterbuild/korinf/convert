@@ -31,36 +31,42 @@ kormod converts/common
 convert_srpm_to_target()
 {
 	local dist=$1
+	# used in rpmbp
+	assert_var TARGETARCH BUILDARCH
 
-	# FIXME: hack
-	[ -n "$BUILDERHOME" ] || BUILDERHOME=/tmp/korinfer-$USER
-	mkdir -p $BUILDERHOME
+	# create temp path for save src.rpm
+	[ -n "$BUILDERHOME" ] || BUILDERHOME="$(mktemp -u /tmp/korinfer-$USER/XXXX)"
+	local bhd=$BUILDERHOME/.in
+	mkdir -p $bhd/
 
 	# rpmbph will use DISTRNAME/DISTRVERSION and so on
 
 	# FIXME: when build to remote dist, we need generic src.rpm
 	echo "Convert '$BUILDSRPM' for $dist distro"
-	rm -f $BUILDERHOME/tmp/$BUILDNAME*
+	rm -vf $bhd/$BUILDNAME*
 	if [ -n "$MAKESPKG" ] ; then
 		$RPMBP -v -z $BUILDSRPM
 		BUILTRPM=~/$RPMSDIR
 		return 0
 	else
-		ETERDESTSRPM=$BUILDERHOME/tmp $RPMBP -v -z $BUILDSRPM
+		ETERDESTSRPM=$bhd $RPMBP -v -z $BUILDSRPM
 		BUILTRPM=$BUILDERHOME/$RPMSDIR
 	fi
 
-	# Get real src.rpm name
-	TARGETSRPM=$(echo $BUILDERHOME/tmp/$BUILDNAME*.src.rpm | head -n1)
+	# Get real src.rpm name (TARGETSRPM will used later)
+	TARGETSRPM=$(echo $bhd/$BUILDNAME*.src.rpm | head -n1)
 	[ -r "$TARGETSRPM" ] && [ -f "$TARGETSRPM" ] || { warning "Can't read target $TARGETSRPM src.rpm" ; return 1 ; }
 
-	if is_remote_build ; then
+	if is_remote_build $dist ; then
+		# hack to save built packages
 		BUILTRPM="$(mktemp -d)"
-		cat $TARGETSRPM | run_in_chroot --user $dist "mkdir -p /home/$INTUSER/tmp ; cat >/home/$INTUSER/tmp/$(basename $TARGETSRPM)"
-		return
-	else
-		$SUDO chown $LOCUSER $TARGETSRPM
 	fi
+
+	cat $TARGETSRPM | run_in_chroot --user $dist "mkdir -p /home/$INTUSER/tmp ; cat >/home/$INTUSER/tmp/$(basename $TARGETSRPM)"
+	#	return
+	#else
+	#	$SUDO chown $LOCUSER $TARGETSRPM
+	#fi
 
 	return 0
 }

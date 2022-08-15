@@ -76,7 +76,7 @@ convert_debian()
 			local depf=$(get_pkgname_from_filename $i)
 			local dependencies=""
 			if get_target_deplist "$depf" | tee $DESTLOGDIR/$depf.deb.depends ; then
-				__wine_dependence_hack "$i" "$depf"
+				#__wine_dependence_hack "$i" "$depf"
 				#cp "$DESTLOGDIR/${depf}.deb.depends" ${depf}.deb.depends
 				local dep
 				for dep in $(cat "$DESTLOGDIR/${depf}.deb.depends") ; do
@@ -109,11 +109,36 @@ convert_debian()
 
 	# Note: we need sed -i on target
 	# TODO: ${misc:Depends} and debian/nx.substvars
-	sed -i -e "s|Depends: \(.*\)|Depends: \1, $dependencies|g" debian/control || exit
+	#sed -i -e "s|Depends: \(.*\)|Depends: \1, $dependencies|g" debian/control || exit
+	# clean Depends: ${shlibs:Depends} (filled with )
+	# BIG HACK
+	# dpkg: dependency problems prevent configuration of wine32-etersoft-devel-tools:i386:
+	# wine32-etersoft-devel-tools:i386 depends on gcc.
+	# wine32-etersoft-devel-tools:i386 depends on gcc-multilib.
+	# wine32-etersoft-devel-tools:i386 depends on ia32-libs-dev.
+	# wine32-etersoft-devel-tools:i386 depends on perl-base.
 
+	if ! echo "$pkg"| grep -q wine32-etersoft-devel-tools ; then
+		sed -i -e "s|Depends: \(.*\)|Depends: $dependencies|g" debian/control || exit
+	fi
+
+	#if grep -q "Architecture: all" debian/control ; then
+		sed -i -e "s|\(^Architecture: .*\)|Multi-Arch: foreign\n\1|g" debian/control || exit
+	#fi
+
+	# TODO: remove me
 	# hack for nx (see eterbug #11025)
-	sed -i -e "s/dh_shlibdeps$/dh_shlibdeps -- -v -xlibx11-private/g" debian/rules
-	fakeroot debian/rules binary
+	#sed -i -e "s/dh_shlibdeps$/dh_shlibdeps -- -v -xlibx11-private/g" debian/rules
+
+	echo "Control file debian/control:"
+	cat debian/control
+	echo
+
+	if [ "$BUILDARCH" = "x86_64" ] && [ "$TARGETARCH" = "i586" ] ; then
+		dpkg-buildpackage -us -uc -b --host-arch i386 --ignore-builtin-builddeps
+	else
+		fakeroot debian/rules binary
+	fi
 
 	# hack for nx (see eterbug #11025)
 	#sed -i -e "s/libx11-private,//g" debian/*/DEBIAN/control
@@ -129,7 +154,7 @@ EOF
 	done
 
 
-	if is_remote_build ; then
+	if is_remote_build $dist ; then
 #		echo "$BUILTRPM/$TARGETPKG"
 #		run_in_chroot --user "cat $INTBUILT/$TARGETPKG" >$BUILTRPM/$TARGETPKG || return
 		mkdir -p $BUILTRPM

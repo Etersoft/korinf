@@ -28,10 +28,15 @@
 # call with packagename as arg
 get_target_deplist()
 {
-	assert_var TARGETPATH DISTRVENDOR BUILDARCH PKGFORMAT
-	local depfile=$TARGETPATH/ALTLinux/Sisyphus/log/$(echo $1 | filter_deb_pkgnames).rpm.depends
+	assert_var TARGETPATH DISTRVENDOR BUILDARCH TARGETARCH PKGFORMAT
+	local depfile
+	if [ "$TARGETARCH" = "x86_64" ] ; then
+		depfile=$TARGETPATH/x86_64/ALTLinux/Sisyphus/log/$(echo $1 | filter_deb_pkgnames).rpm.depends
+	else
+		depfile=$TARGETPATH/ALTLinux/Sisyphus/log/$(echo $1 | filter_deb_pkgnames).rpm.depends
+	fi
 	if [ ! -r $depfile ]; then
-		warning "Cannot locate '$depfile' file"
+		warning "Blocking: Cannot locate '$depfile' file"
 		return 1
 	fi
 	convert_pkgreqs_to_target $(cat $depfile)
