@@ -1,8 +1,9 @@
 x86_64/ALTLinux/Sisyphus
-x86_64/ALTLinux/p9
 x86_64/ALTLinux/p10
+x86_64/ALTLinux/c9f2
+x86_64/ALTLinux/p9
 x86_64/ALTLinux/p8
-x86_64/ALTLinux/c8
+#x86_64/ALTLinux/c8
 #x86_64/ALTLinux/p7
 #x86_64/ALTLinux/c7
 #x86_64/ALTLinux/p6

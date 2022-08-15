@@ -2,37 +2,39 @@
 # Не комментировать! Здесь полный список
 # Use ALL target for build for ALL distro ('all' builds only for target distros)
 
+. ALTLinux
+
 . Ubuntu
 
 . CentOS
 . RHEL
-#. Fedora
+. Fedora
 . ROSA
-. Mandriva
-
-. ALTLinux
+#. Mandriva
 
 . Debian
 
-. SUSE
+#. SUSE
 
-. SLED
+#. SLED
 
-. ArchLinux
+#. ArchLinux
 
-. Slackware
+. AstraLinux
 
-. Gentoo
+#. Slackware
 
-. Elbrus
+#. Gentoo
 
-. gen
+#. Elbrus
 
-. FreeBSD
+#. gen
+
+#. FreeBSD
 
 . x86_64/ALL
 
-. OpenSolaris
-. SunOS
-. Windows
+#. OpenSolaris
+#. SunOS
+#. Windows
 

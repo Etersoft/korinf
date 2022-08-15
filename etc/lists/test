@@ -1,10 +1,11 @@
 # Список тестируемых в первую очередь систем
 # Sisyphus должен быть первым, от него считаются зависимости
+x86_64/ALTLinux/Sisyphus
 ALTLinux/Sisyphus
-x86_64/ALTLinux/p9
-ALTLinux/p9
+x86_64/ALTLinux/p10
+ALTLinux/p10
 Ubuntu/20.04
 Debian/10
 x86_64/Ubuntu/20.04
-Fedora/34
-x86_64/CentOS/8
+Fedora/35
+x86_64/RockyLinux/8

@@ -1,3 +1,5 @@
+# don't using anymore
+# used for WINE@Etersoft 2.x only
 x86_64/Debian/7 Debian/7
 x86_64/Debian/8 Debian/8
 x86_64/Debian/9 Debian/9
@@ -20,7 +22,7 @@ x86_64/Ubuntu/18.10 Ubuntu/18.10
 
 x86_64/Mint/17 Ubuntu/14.04
 x86_64/Mint/18 Ubuntu/16.04
-x86_64/Mint/19 Ubuntu/18.04
+#x86_64/Mint/19 Ubuntu/18.04
 #x86_64/Mint/20 Ubuntu/20.04
 
-x86_64/ROSA/2014 ROSA/2014
+#x86_64/ROSA/2014 ROSA/2014

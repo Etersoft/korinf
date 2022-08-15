@@ -3,25 +3,27 @@
 
 #x86_64 systems (with prefix x86_64)
 
-. x86_64/SUSE
-. x86_64/SLED
-. x86_64/Fedora
-. x86_64/RHEL
-. x86_64/CentOS
-. x86_64/RHEL
-
-. x86_64/Ubuntu
-. x86_64/Debian
-. x86_64/AstraLinux
-
-. x86_64/ROSA
-. x86_64/Mandriva
-
 . x86_64/ALTLinux
 
-. x86_64/ArchLinux
+. x86_64/Ubuntu
 
-. x86_64/Slackware
+. x86_64/AstraLinux
 
-. x86_64/Gentoo
-. x86_64/GosLinux
+. x86_64/Fedora
+
+. x86_64/RHEL
+. x86_64/CentOS
+
+. x86_64/Debian
+
+. x86_64/ROSA
+#. x86_64/Mandriva
+
+#. x86_64/ArchLinux
+
+#. x86_64/Slackware
+
+#. x86_64/Gentoo
+
+#. x86_64/SUSE
+#. x86_64/SLED

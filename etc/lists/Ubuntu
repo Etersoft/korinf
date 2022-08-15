@@ -1,33 +1,20 @@
 # LTS until 04.2015
 #Ubuntu/10.04
-#Ubuntu/10.10
-#Ubuntu/11.04
-#Ubuntu/11.10
 
 # LTS until 04.2017
-Ubuntu/12.04
-
-#Ubuntu/12.10
-#Ubuntu/13.04
-#Ubuntu/13.10
+#Ubuntu/12.04
 
 # LTS until 04.2019
+# ESM until 04.2024
+# ESM — https://www.opennet.ru/opennews/art.shtml?num=55842
 Ubuntu/14.04
 
-#Ubuntu/14.10
-#Ubuntu/15.04
-#Ubuntu/15.10
-
 # LTS until 04.2021
+# ESM until 04.2026
 Ubuntu/16.04
 
-#Ubuntu/16.10
-
-# until 07.2018
-#Ubuntu/17.04
-Ubuntu/17.10
-
 # LTS until 04.2023
+# ESM until 04.2028
 #32bit support dropped ???
 Ubuntu/18.04
 
@@ -40,15 +27,21 @@ Mint/18
 # like 18.04: LTS until 04.2023
 Mint/19
 
-Ubuntu/18.10
-Ubuntu/19.04
-Ubuntu/19.10
+#Ubuntu/18.10
+#Ubuntu/19.04
+#Ubuntu/19.10
 
 # LTS until 04.2025
+# ESM until 04.2030
 Ubuntu/20.04
+Mint/20
 
-Ubuntu/20.10
+#Ubuntu/20.10
 
-Ubuntu/21.04
+#Ubuntu/21.04
 
-Ubuntu/21.10
+#Ubuntu/21.10
+
+# LTS until 04.2027
+# ESM until 04.2032
+Ubuntu/22.04

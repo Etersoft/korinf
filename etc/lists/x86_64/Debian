@@ -1,6 +1,14 @@
 #x86_64/Debian/6
 #x86_64/Debian/7
-x86_64/Debian/8
-x86_64/Debian/9
+
+# LTS until 06.06.2020
+#x86_64/Debian/8
+
+# LTS until 30.06.2022
+# x86_64/Debian/9
+
+# LTS until 06.2024
 x86_64/Debian/10
+
+# LTS until 06.2026
 x86_64/Debian/11

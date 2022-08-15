@@ -4,14 +4,17 @@
 # Debian/6
 
 # EOL: 31.05.2018
-#Debian/7
+# for 1.0.12
+Debian/7
 
-# EOL: 06.06.2020
-Debian/8
+# LTS until 06.06.2020
+#Debian/8
 
-# EOL: 2022
+# LTS until 30.06.2022
 Debian/9
 
+# LTS until 06.2024
 Debian/10
 
+# LTS until 06.2026
 Debian/11

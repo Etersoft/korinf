@@ -1,6 +1,17 @@
 x86_64/RHEL/5
+
+# EOL  11.2020
+# EELS 30.06.2024
+
 x86_64/RHEL/6
+
+# EOL  06.2024
 x86_64/RHEL/7
+
+# EOL  05.2029
+# EELS to be determined
 x86_64/RHEL/8
 
-
+# EOL  05.2032
+# EELS to be determined
+x86_64/RHEL/9

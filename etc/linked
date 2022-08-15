@@ -18,8 +18,8 @@ CentOS/4.0 Scientific/4.1
 CentOS/6 Scientific/6
 CentOS/7 x86_64/CentOS/7
 x86_64/CentOS/6 x86_64/Scientific/6
-StartCom/5 CentOS/5
-x86_64/RedOS/7.2 x86_64/CentOS/7
+#StartCom/5 CentOS/5
+#x86_64/RedOS/7.2 x86_64/CentOS/7
 
 SLES/10 SLED/10
 SLES/11 SLED/11
@@ -32,7 +32,7 @@ Runtu/3.0 Ubuntu/8.04
 Mint/17 Ubuntu/14.04
 Mint/18 Ubuntu/16.04
 Mint/19 Ubuntu/18.04
-#Mint/20 Ubuntu/20.04
+Mint/20 Ubuntu/20.04
 x86_64/Mint/17 x86_64/Ubuntu/14.04
 x86_64/Mint/18 x86_64/Ubuntu/16.04
 x86_64/Mint/19 x86_64/Ubuntu/18.04
@@ -42,7 +42,7 @@ LinuxWizard/Server CentOS/5
 LinuxWizard/6 CentOS/6
 LinuxWizard/Desktop Ubuntu/10.04
 NauLinux/5 CentOS/5
-#ArchLinux/CUR ArchLinux/2015
+x86_64/ArchLinux/CUR x86_64/ArchLinux/rolling
 #x86_64/ArchLinux/CUR x86_64/ArchLinux/2013.2
 Gentoo/CUR Gentoo/13.0
 x86_64/Gentoo/CUR x86_64/Gentoo/13.0
