@@ -1,15 +1,28 @@
 # System/Version  # host      # remote command to switch to root
 #FreeBSD/8.2       freebsd     sudo chroot /mnt/chroot/8.2 su - $LOUSER -c
-FreeBSD/8.2       freebsd82   /usr/local/bin/sudo su - $LOUSER -c
-FreeBSD/8.4       freebsd84   sudo su - $LOUSER -c
-OpenSolaris/11    solaris     sudo su - $LOUSER -c
+#FreeBSD/8.2       freebsd82   /usr/local/bin/sudo su - $LOUSER -c
+#FreeBSD/8.4       freebsd84   sudo su - $LOUSER -c
+#OpenSolaris/11    solaris     sudo su - $LOUSER -c
 #Normal/8.2       freebsd     sudo su - $LOUSER -c
 #AstraLinux/smolensk smolensk sudo su - $LOUSER -c
 
-Debian             docker i386/debian:@VERSION@
-Ubuntu             docker i386/ubuntu:@VERSION@
+# docker by default
+
+ALTLinux           hasher
+Debian             docker debian:@VERSION@
+Ubuntu             docker ubuntu:@VERSION@
+Ubuntu/12.04       docker i386/ubuntu:@VERSION@
+Fedora             docker fedora:@VERSION@
+
+x86_64/Ubuntu/12.04 local
+SLED/11             local
 
 x86_64/Debian             docker debian:@VERSION@-slim
 x86_64/Ubuntu             docker ubuntu
+x86_64/CentOS             docker centos
+x86_64/RockyLinux         docker rockylinux
 x86_64/Fedora             docker fedora
 x86_64/ArchLinux/rolling  docker
+
+x86_64/openSUSELeap       docker
+x86_64/openSUSETumbleweed docker

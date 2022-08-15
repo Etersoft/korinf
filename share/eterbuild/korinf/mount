@@ -146,20 +146,27 @@ mount_linux()
 {
 	local dist=$1
 	[ -n "$dist" ] || fatal "empty dist"
-	if is_remote_build $dist ; then
-		rhost=$(get_remote_host $dist)
-		if [ "$rhost" = "docker" ] ; then
+
+	local rhost
+	case "$(get_remote_host $dist)" in
+		"docker")
 			run_docker_container $dist
-		fi
-		return
-	fi
+			return 0
+			;;
+		"local")
+			;;
+		*)
+			# skip mounting for remote systems
+			return 0
+			;;
+	esac
 
 	local MOUNTPARAM
 
 	# Note!
 	BUILDERHOME=$2
 
-	assert_var CHROOTDIR LOCUSER
+	assert_var CHROOTDIR LOCUSER INTUSER
 
 	# x86_64/Debian/6.0 -> x86_64-Debian-6.0
 	BUILDROOT=`mktemp -d $CHROOTDIR/${dist//\//-}-XXXXXX`
@@ -240,16 +247,31 @@ end_umount()
 
 	[ -n "$dist" ] || fatal "empty dist"
 
-	if is_remote_build $dist ; then
-		rhost=$(get_remote_host $dist)
-		if [ "$rhost" = "docker" ] ; then
+	local rhost
+	case "$(get_remote_host $dist)" in
+		"docker")
 			assert_var INTUSER
-			[ -n "$ADEBUG" ] || run_in_chroot --user $dist "rm -v /home/$INTUSER/tmp/* ; rm -rv /home/$INTUSER/RPM/*"
+			# [ -n "$ADEBUG" ] || run_in_chroot --user $dist "rm /home/$INTUSER/tmp/* ; rm -r /home/$INTUSER/RPM/* ; true"
+			if [ -n "$BUILDROOT" ] ; then
+				echo "Removing $BUILDROOT ..."
+				if [ -z "$ADEBUG" ] ; then
+					run_in_chroot --user $dist "rm -rf /home/$INTUSER/* ; true"
+					rm -rf $BUILDROOT
+				fi
+			else
+				[ -z "$ADEBUG" ] || echo "Skip umount due empty BUILDROOT"
+			fi
 			stop_docker_container $dist
-			[ -n "$BUILTRPM" ] && rm -rv $BUILTRPM
-		fi
-		return $ERR
-	fi
+			[ -z "$BUILTRPM" ] || rm -rfv $BUILTRPM
+			return 0
+			;;
+		"local")
+			;;
+		*)
+			# skip umount for remote systems
+			return 0
+			;;
+	esac
 
 	if [ -z "$BUILDROOT" ] ; then
 		[ -z "$ADEBUG" ] || echo "Skip umount due empty BUILDROOT"
@@ -314,23 +336,33 @@ run_in_chroot()
 
 	# run via ssh if remote build system
 	local rhost rcommands
-	rhost=$(get_remote_host $dist)
-	if [ -n "$rhost" ] ; then
+	rhost="$(get_remote_host $dist)"
 
-		if [ "$rhost" = "docker" ] ; then
-			echo "Run command in docker build system:" >&2
-			if [ -z "$LOUSER" ] || [ "$LOUSER" = "root" ] ; then
-				#evz exec $DISTRNAME/$DISTRVERSION "$@"
-				echo "# $@" >&2
-				a='' docker exec $INTERACTIVE -e LC_ALL=C $(get_docker_container $dist) sh -c "$*"
-			else
-				#evz exec $DISTRNAME/$DISTRVERSION "gosu $INTUSER export LANG=C ; export LC_ALL=C ; . ~/.profile ; $@"
-				echo "$ $@" >&2
-				a='' docker exec $INTERACTIVE --user $INTUSER -e LC_ALL=C $(get_docker_container $dist) sh -c "$*"
-			fi
-			return
+	if [ "$rhost" = "docker" ] ; then
+		echo "Run command in docker build system:" >&2
+		if [ -z "$LOUSER" ] || [ "$LOUSER" = "root" ] ; then
+			#evz exec $DISTRNAME/$DISTRVERSION "$@"
+			echo "# $@" >&2
+			a='' docker exec $INTERACTIVE -e LC_ALL=C $CONTAINERNAME sh -c "$*"
+		else
+			#evz exec $DISTRNAME/$DISTRVERSION "gosu $INTUSER export LANG=C ; export LC_ALL=C ; . ~/.profile ; $@"
+			echo "$ $@" >&2
+			a='' docker exec $INTERACTIVE --user $INTUSER -e LC_ALL=C $CONTAINERNAME sh -c "$*"
 		fi
+		return
+	fi
 
+	if [ "$rhost" = "local" ] ; then
+		echo "Run command in chrooted build system:" >&2
+		echo "# $@" >&2
+		assert_var BUILDARCH BUILDROOT
+		PATH=/sbin:/usr/sbin:/usr/local/sbin:/bin:/usr/bin $NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
+			su - $LOUSER -c "export LANG=C ; export LC_ALL=C ; $@"
+		# TODO: use -s instead -c: https://bugzilla.redhat.com/show_bug.cgi?id=186879
+		return
+	fi
+
+	if [ -n "$rhost" ] ; then
 		rcommands=`eval echo $(get_remote_commands $dist)`
 		# do not use command for a user
 		#[ -n "$LOUSER" ] || rcommands=
@@ -348,10 +380,5 @@ run_in_chroot()
 		return
 	fi
 
-	echo "Run command in chrooted build system:" >&2
-	echo "# $@" >&2
-	assert_var BUILDARCH BUILDROOT
-	PATH=/sbin:/usr/sbin:/usr/local/sbin:/bin:/usr/bin $NICE setarch $BUILDARCH $SUDO chroot $BUILDROOT \
-		su - $LOUSER -c "export LANG=C ; export LC_ALL=C ; $@"
-	# TODO: use -s instead -c: https://bugzilla.redhat.com/show_bug.cgi?id=186879
+	fatal "empty rhost"
 }
