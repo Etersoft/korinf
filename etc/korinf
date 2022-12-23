@@ -1,7 +1,9 @@
 # Etersoft specific paths
 
 # Linux builder
-LOCALLINUXFARM=/net/os/stable
+#LOCALLINUXFARM=/net/os/stable
+# empty means use docker
+LOCALLINUXFARM=
 
 # base ftp dir for publish
 FTPDIR=/var/ftp
@@ -48,6 +50,6 @@ PRIVATESSHKEY=$KORINFETC/id_dsa.korinf
 #KORINFERJID=korinfer@localhost
 #KORINFERJIDPASSWD=secret
 
-# allow create debug subpackages with sources info by default
-[ -n "$ALLOWPUBLICDEBUG" ] || ALLOWPUBLICDEBUG=1
+# DISallow create debug subpackages with sources info by default
+[ -n "$ALLOWPUBLICDEBUG" ] || ALLOWPUBLICDEBUG=0
 
