@@ -108,13 +108,26 @@ install_build_requires()
 			run_in_chroot $dist "epm --auto repo add epel ; epm --auto repo add powertools"
 		fi
 
-		if [ "$DISTRNAME/$DISTRVERSION" = "AstraLinux/smolensk" ] ; then
-			# https://bugs.etersoft.ru/show_bug.cgi?id=15668#c12
-			run_in_chroot $dist "epm --auto install http://download.etersoft.ru/pub/download/astra-WE7xha2ia/ia32-libs_20220330+1.7se_amd64.deb"
-		fi
+#		if [ "$DISTRNAME/$DISTRVERSION" = "AstraLinux/smolensk" ] ; then
+#			# https://bugs.etersoft.ru/show_bug.cgi?id=15668#c12
+#			run_in_chroot $dist "epm --auto install http://download.etersoft.ru/pub/download/astra-WE7xha2ia/ia32-libs_20220330+1.7se_amd64.deb"
+#		fi
 
 		if [ $DISTRNAME = "ROSA" ] ; then
-			run_in_chroot $dist "sed -i -e 's|executable-marked-as-config-file||' /usr/share/rpmlint/config.d/rosa.error.list"
+			#run_in_chroot $dist "sed -i -e 's|executable-marked-as-config-file||' /usr/share/rpmlint/config.d/rosa.error.list"
+			#cat <<EOF | run_in_chroot --user $dist "mkdir -p ~/.config/rpmlint/ && tee ~/.config/rpmlint"
+			# https://www.apt-browse.org/browse/debian/jessie/main/all/rpmlint/1.6-2/file/etc/rpmlint/config
+			# http://wiki.rosalab.ru/ru/index.php/Rpmlint
+			cat <<EOF | run_in_chroot $dist "mkdir -p /etc/rpmlint/ && ! grep -q "subsys-not-used" /etc/rpmlint/config && tee -a /etc/rpmlint/config"
+addFilter("E:.* subsys-not-used")
+addFilter("E:.* postin-without-ldconfig")
+addFilter("E:.* non-versioned-file-in-library-package")
+addFilter("E:.* executable-marked-as-config-file")
+addFilter("E:.* no-status-entry")
+addFilter("E:.* no-chkconfig-line")
+addFilter("E:.* init-script-name-with-dot")
+addFilter("E:.* executable-in-library-package")
+EOF
 			# /tmp with noexec fails a test for %cross_compiling
 			#run_in_chroot $dist "sed -i -e 's| /tmp/rpm| /var/tmp/rpm|g' /usr/lib/rpm/rosa/macros"
 			# https://bugs.etersoft.ru/show_bug.cgi?id=15741#c3
@@ -129,7 +142,7 @@ install_build_requires()
 	fi
 
 	# bootstrap install
-	if [ -n "$INITIALBOOTSTRAP" ] ; then
+	if [ -n "$INITIALBOOTSTRAP" ] && [ "$BUILDNAME" = "eepm" ] ; then
 		assert_var DISTRNAME
 		local INSTALLCOMMAND
 		#run_in_chroot "epm -h >/dev/null" || set_build_failed
@@ -140,21 +153,71 @@ install_build_requires()
 	else
 		# TODO: Appeared the backslashed quotes are required if package names contain parentheses
 		# safe input for eepm
-		run_in_chroot $dist "epm --auto --verbose --skip-installed install $reqsbr" </dev/null || return
-		run_in_chroot $dist "epm --auto --verbose --skip-installed install $reqs" </dev/null || return
+		run_in_chroot $dist "epm --auto update" </dev/null || return
+
+		run_in_chroot $dist "epm --auto --verbose --skip-installed install $reqsbr" </dev/null
+		RES=$?
+		[ "$RES" != "0" ] && [ "$DISTRNAME" != "AstraLinuxSE" ] && return $RES # AstraLinuxSE due pcsxd failed
+
+		run_in_chroot $dist "epm --auto --verbose --skip-installed install $reqs" </dev/null #|| return
+		RES=$?
+		[ "$RES" != "0" ] && [ "$DISTRNAME" != "AstraLinuxSE" ] && return $RES # AstraLinuxSE due pcsxd failed
+
+		if [ "$TARGETARCH" != "$BUILDARCH" ] && [ "$PKGFORMAT" = "rpm" ] ; then
+			case "$DISTRNAME" in
+				RedOS|CentOS|RockyLinux|Fedora)
+					# hack against architecture independent pkgconfig deps, see https://bugs.etersoft.ru/show_bug.cgi?id=14846#c9
+					# FIXME: move hack with xargs -n1000 to epm
+					# not all packages existed in i686
+					#run_in_chroot $dist "epm --auto --verbose --skip-installed install $(epmqp devel .x86_64 | sed -e "s|\.x86_64|\.i686|" | xargs -n1000)" </dev/null || return
+					run_in_chroot $dist "for i in \$(epmqp devel .x86_64 | sed -e 's|\.x86_64|\.i686|') ; do epm --auto --skip-installed install \$i ; done " </dev/null
+					;;
+			esac
+		fi
 	fi
 
 	# run fixes only for rpm-build-altlinux-compat (as initial step)
 	[ -n "$INITIALBOOTSTRAP" ] && [ "$BUILDNAME" = "rpm-build-altlinux-compat" ] || return 0
 
+	# FIXME: Ubuntu 22.04 and Debian 11 only for now
+	if [ "$PKGFORMAT" = "deb" ] ; then
+		# https://bugs.etersoft.ru/show_bug.cgi?id=14664#c4
+		run_in_chroot $dist 'echo "true" >/usr/bin/dh_strip_nondeterminism' </dev/null
+	fi
+
 	# fix libdir macros on deb platforms
 	libdir32="%{_prefix}/lib/i386-linux-gnu"
 	libdir64="%{_prefix}/lib/x86_64-linux-gnu"
-	[ $DISTRNAME = "AstraLinux" ] && libdir32="%{_prefix}/lib32/i386-linux-gnu"
+	if [ "$DISTRNAME" = "AstraLinuxCE" ] || [ "$DISTRNAME" = "AstraLinuxSE" ] ; then
+		libdir32="%{_prefix}/lib32/i386-linux-gnu"
+	fi
+	
+	if [ "$TARGETARCH" != "$BUILDARCH" ] ; then
+cat <<EOF | run_in_chroot $dist "mkdir -p /etc/rpm/$TARGETARCH-linux && tee /etc/rpm/$TARGETARCH-linux/macros"
+# created with Korinf
+# Inverted meaning!!!
 
+# The system where built programs and libraries will run.
+%_host            i686-redhat-linux-gnu
+%_host_alias      i686-redhat-linux-gnu%{nil}
+%_host_cpu        i686
+
+# TODO: use standalone macros?
+%_build            i686-redhat-linux-gnu
+%_build_alias      i686-redhat-linux-gnu%{nil}
+%_build_cpu        i686
+
+# The system on which the package is built
+#_build           x86_64-redhat-linux-gnu
+#_build_alias     x86_64-redhat-linux-gnu%{nil}
+#_build_cpu       x86_64
+EOF
+	fi
+
+# biarch build (32 bit on 64 bit system)
 	if [ "$PKGFORMAT" = "deb" ] && [ "$TARGETARCH" != "$BUILDARCH" ] ; then
 cat <<EOF | run_in_chroot $dist "sed -i -e 's|^optflags: i586|optflags: i586 -O2 -g -m32 -march=i586|' /usr/lib/rpm/rpmrc ; mkdir -p /etc/rpm/$TARGETARCH-linux && tee /etc/rpm/$TARGETARCH-linux/macros"
-# created with Korinf
+# created with Korinf $(date)
 # FIXME: by some reason really overrides in /usr/lib/rpm/rpmrc
 %optflags               -O2 -g -m32 -g -march=i586
 
@@ -178,9 +241,21 @@ cat <<EOF | run_in_chroot $dist "sed -i -e 's|^optflags: i586|optflags: i586 -O2
 EOF
 	fi
 
+# native 32 bit target
+	if [ "$PKGFORMAT" = "deb" ] && [ "$BUILDARCH" = "i586" ] ; then
+cat <<EOF | run_in_chroot $dist "mkdir -p /etc/rpm/$TARGETARCH-linux && tee /etc/rpm/$TARGETARCH-linux/macros"
+# created with Korinf $(date)
+
+%_libexecdir            %{_prefix}/lib
+%_lib                   lib
+%_libdir                $libdir32
+EOF
+	fi
+
+# native 64 bit target
 	if [ "$PKGFORMAT" = "deb" ] && [ "$TARGETARCH" = "x86_64" ] ; then
 cat <<EOF | run_in_chroot $dist "mkdir -p /etc/rpm/$TARGETARCH-linux && tee /etc/rpm/$TARGETARCH-linux/macros"
-# created with Korinf
+# created with Korinf $(date)
 
 %_libexecdir            %{_prefix}/lib
 %_lib                   lib

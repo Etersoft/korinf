@@ -81,7 +81,8 @@ build_rpms()
 
 	echo
 	echo "\$RPMCMD --target $TARGETARCH --showrc"
-	\$RPMCMD --target $TARGETARCH --showrc
+	# https://bugs.etersoft.ru/show_bug.cgi?id=14846#c8
+	rpm --target $TARGETARCH --showrc
 
 	#echo "srpm requires:"
 	#epm req /home/$INTUSER/tmp/$(basename $TARGETSRPM)
