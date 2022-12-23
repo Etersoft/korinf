@@ -1,25 +1,26 @@
-LINUX@Etersoft/4.1 ALTLinux/4.1
-LINUX@Etersoft/p6 ALTLinux/p6
-LINUX@Etersoft/p7 ALTLinux/p7
-LINUX@Etersoft/p8 ALTLinux/p8
-x86_64/LINUX@Etersoft/p8 x86_64/ALTLinux/p8
+#LINUX@Etersoft/4.1 ALTLinux/4.1
+#LINUX@Etersoft/p6 ALTLinux/p6
+#LINUX@Etersoft/p7 ALTLinux/p7
+#LINUX@Etersoft/p8 ALTLinux/p8
+#x86_64/LINUX@Etersoft/p8 x86_64/ALTLinux/p8
+x86_64/MOC/10 x86_64/ALTLinux/p10
+x86_64/ALTServer/10 x86_64/ALTLinux/p10
 
-ASPLinuxServer/IV Scientific/4.1
-ASPLinuxServer/V CentOS/5
-RHEL/4 Scientific/4.1
-RHEL/5 CentOS/5
-MCBC/5 CentOS/5
+#RHEL/4 Scientific/4.1
+#RHEL/5 CentOS/5
+#MCBC/5 CentOS/5
 RHEL/6 Scientific/6
 RHEL/7 x86_64/CentOS/7
 x86_64/RHEL/5 x86_64/CentOS/5
 x86_64/RHEL/6 x86_64/Scientific/6
 x86_64/RHEL/7 x86_64/CentOS/7
-CentOS/4.0 Scientific/4.1
+#CentOS/4.0 Scientific/4.1
 CentOS/6 Scientific/6
 CentOS/7 x86_64/CentOS/7
 x86_64/CentOS/6 x86_64/Scientific/6
 #StartCom/5 CentOS/5
-#x86_64/RedOS/7.2 x86_64/CentOS/7
+x86_64/RedOS/7 x86_64/RedOS/7.3
+RedOS/7 RedOS/7.3
 
 SLES/10 SLED/10
 SLES/11 SLED/11
@@ -27,22 +28,27 @@ x86_64/SLES/11 x86_64/SLED/11
 SUSE/10.2 SUSE/10.1
 
 
-Runtu/3.0 Ubuntu/8.04
+LinuxMint/19 Ubuntu/18.04
+LinuxMint/20 Ubuntu/20.04
 
-Mint/17 Ubuntu/14.04
-Mint/18 Ubuntu/16.04
-Mint/19 Ubuntu/18.04
-Mint/20 Ubuntu/20.04
-x86_64/Mint/17 x86_64/Ubuntu/14.04
-x86_64/Mint/18 x86_64/Ubuntu/16.04
-x86_64/Mint/19 x86_64/Ubuntu/18.04
-x86_64/Mint/20 x86_64/Ubuntu/20.04
+x86_64/LinuxMint/19 x86_64/Ubuntu/18.04
+x86_64/LinuxMint/20 x86_64/Ubuntu/20.04
 
-LinuxWizard/Server CentOS/5
-LinuxWizard/6 CentOS/6
-LinuxWizard/Desktop Ubuntu/10.04
-NauLinux/5 CentOS/5
+#LinuxWizard/Server CentOS/5
+#LinuxWizard/6 CentOS/6
+#LinuxWizard/Desktop Ubuntu/10.04
+
+#NauLinux/5 CentOS/5
+
 x86_64/ArchLinux/CUR x86_64/ArchLinux/rolling
 #x86_64/ArchLinux/CUR x86_64/ArchLinux/2013.2
 Gentoo/CUR Gentoo/13.0
 x86_64/Gentoo/CUR x86_64/Gentoo/13.0
+
+AstraLinux/orel AstraLinuxCE/2.12
+AstraLinuxCE/2.12.44 AstraLinuxCE/2.12
+AstraLinux/smolensk AstraLinuxSE/1.7
+
+x86_64/AstraLinux/orel x86_64/AstraLinuxCE/2.12
+x86_64/AstraLinuxCE/2.12.44 x86_64/AstraLinuxCE/2.12
+x86_64/AstraLinux/smolensk x86_64/AstraLinuxSE/1.7

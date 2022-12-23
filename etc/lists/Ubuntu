@@ -1,47 +1,32 @@
-# LTS until 04.2015
+# LTS until 04.2015 (repo is deleted)
 #Ubuntu/10.04
 
-# LTS until 04.2017
+# LTS until 04.2017 (repo is deleted)
 #Ubuntu/12.04
 
 # LTS until 04.2019
 # ESM until 04.2024
 # ESM — https://www.opennet.ru/opennews/art.shtml?num=55842
 Ubuntu/14.04
+LinuxMint/17
 
 # LTS until 04.2021
 # ESM until 04.2026
 Ubuntu/16.04
+LinuxMint/18
 
 # LTS until 04.2023
 # ESM until 04.2028
 #32bit support dropped ???
 Ubuntu/18.04
-
-# like 14.04: LTS until 04.2019
-Mint/17
-
-# like 16.04: LTS until 04.2021
-Mint/18
-
-# like 18.04: LTS until 04.2023
-Mint/19
-
-#Ubuntu/18.10
-#Ubuntu/19.04
-#Ubuntu/19.10
+LinuxMint/19
 
 # LTS until 04.2025
 # ESM until 04.2030
 Ubuntu/20.04
-Mint/20
-
-#Ubuntu/20.10
-
-#Ubuntu/21.04
-
-#Ubuntu/21.10
+LinuxMint/20
 
 # LTS until 04.2027
 # ESM until 04.2032
 Ubuntu/22.04
+LinuxMint/21
