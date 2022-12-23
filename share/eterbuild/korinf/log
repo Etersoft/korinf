@@ -70,7 +70,7 @@ set_log_dir()
 
 	[ -z "$1" ] || ALOGDIR="$ALOGDIR$1"
 
-	[ -z "$ADEBUG" ] || echo "set_log_dir: Check me and disable. I create logdir in $ALOGDIR"
+	[ -z "$ADEBUG" ] || echo "set_log_dir: Check me and disable. I have created logdir in $ALOGDIR"
 	mkdir -p $ALOGDIR
 }
 

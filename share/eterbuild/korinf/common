@@ -324,11 +324,13 @@ is_remote_build()
 	[ "$rhost" != "local" ]
 }
 
+# workaround for 'lib(x86-32)' with eval
 quote_pkgname()
 {
 	local i
 	for i in $* ; do
-	echo -n " '$i'"
+		! rhas "$i" "[()]" && echo -n " $i" && continue
+		echo -n " '$i'"
 	done
 }
 

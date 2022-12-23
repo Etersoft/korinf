@@ -103,6 +103,14 @@ build_rpms()
 			cat "\$logfile"
 			echo "================== EOF \$logfile ========================="
 		fi
+
+		logfile="\$(echo ~/RPM/BUILD/*/*/config.log)"
+		if [ -s "\$logfile" ] ; then
+			echo
+			echo "===================== cat \$logfile: ========================"
+			cat "\$logfile"
+			echo "================== EOF \$logfile ========================="
+		fi
 	fi
 
 	# Workaround again flow target dirs

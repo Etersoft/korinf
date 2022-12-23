@@ -43,7 +43,7 @@ __wine_dependence_hack()
 	# only for wine packages
 	if rhas "$pkg" "wine" ; then
 		# HACK due requires on x86_64?? FIXME
-		if [ $DISTRNAME = "Ubuntu" ] && version_more_version $DISTRVERSION 12.04 || [ $DISTRNAME = "Debian" ] && version_more_version $DISTRVERSION 7.0 || [ $DISTRNAME = "AstraLinux" ]; then
+		if [ $DISTRNAME = "Ubuntu" ] && version_more_version $DISTRVERSION 12.04 || [ $DISTRNAME = "Debian" ] && version_more_version $DISTRVERSION 7.0 || [ $DISTRNAME = "AstraLinuxCE" ] || [ $DISTRNAME = "AstraLinuxSE" ]; then
 			# FIXME: replace with grep inplace or just subst
 			local df=$DESTLOGDIR/${depf}.deb.depends
 			# just drop lib dependencies
