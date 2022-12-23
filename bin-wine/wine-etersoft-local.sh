@@ -10,36 +10,9 @@ kormod korinf
 
 export ALLOWPUBLICDEBUG=0
 
-ver="$3"
-case $ver in
-    -*)
-        ver="$2"
-        ;;
-esac
+. `dirname $0`/functions
 
-[ -n "$ver" ] || ver="7"
-
-
-case $ver in
-    1.0.12*)
-        ver=1
-        ;;
-    2*)
-        ver=2
-        ;;
-    5*)
-        ver=5
-        ;;
-    6*)
-        ver=6
-        ;;
-    7*)
-        ver=7
-        ;;
-esac
-
-KORINFMODULE=wine-$ver
-
+set_ver "$@"
 
 build_project $WINEETER_PATH wine-etersoft-local WINE-Local $@
 

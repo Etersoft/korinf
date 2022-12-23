@@ -21,8 +21,17 @@ case $ver in
     7-unstable)
         ver=7-unstable
         ;;
-    7*)
+    7.15)
+        ver=7-unstable
+        ;;
+    7.13)
         ver=7
+        ;;
+    7*)
+        ver=7-unstable
+        ;;
+    8*)
+        ver=7-unstable
         ;;
 esac
 export KORINFMODULE=wine-$ver

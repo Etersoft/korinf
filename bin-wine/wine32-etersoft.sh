@@ -24,7 +24,7 @@ case "$ver" in
         MAINFILES="$NAME[-_][0-9] $NAME-full[-_][0-9] $NAME-programs[-_][0-9] lib$NAME[-_][0-9] lib$NAME-gl"
         EXTRAFILES="lib$NAME-twain lib$NAME-devel"
         ;;
-    7*)
+    7*|8*)
         MAINFILES="$NAME32[-_][0-9] $NAME-common[-_][0-9] $NAME32-full[-_][0-9] $NAME-programs[-_][0-9]"
         EXTRAFILES="$NAME32-devel $NAME-ping[-_][0-9]"
         ;;
