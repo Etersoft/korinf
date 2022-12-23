@@ -12,8 +12,11 @@ ALTLinux           hasher
 Debian             docker debian:@VERSION@
 Ubuntu             docker ubuntu:@VERSION@
 Ubuntu/12.04       docker i386/ubuntu:@VERSION@
+Ubuntu/14.04       docker i386/ubuntu:@VERSION@
+Ubuntu/16.04       docker i386/ubuntu:@VERSION@
 Fedora             docker fedora:@VERSION@
 
+Debian/7            local
 x86_64/Ubuntu/12.04 local
 SLED/11             local
 
