@@ -91,10 +91,12 @@ prepare_wine_etersoft()
 	WINEPRODUCT=wine-etersoft
 	WINEPRODUCT32=wine32-etersoft
 	WINETRICKS=$WINEPRODUCT-winetricks
-	# temp compat
-	[ "$PROJECTVERSION" != "7-unstable" ] && WINEPRODUCT=wine
-	[ "$PROJECTVERSION" != "7-unstable" ] && WINEPRODUCT32=wine32
-	[ "$PROJECTVERSION" != "7-unstable" ] && WINETRICKS=winetricks
+
+	if echo "$PROJECTVERSION" | grep "^[12456]" || [ "$PROJECTVERSION" = "7.13" ]  ; then
+		WINEPRODUCT=wine
+		WINEPRODUCT32=wine32
+		WINETRICKS=winetricks
+	fi
 
 	check_and_refresh_component bin-wine $PUBLOCAL/WINE wine-etersoft
 	check_and_refresh_component bin-wine $PVTLOCAL wine-etersoft-${PRODUCT_name}
