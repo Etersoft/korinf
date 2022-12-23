@@ -1,4 +1,4 @@
-FROM x86-64-astralinux-orel:2.12
+FROM x86-64-astralinuxce:2.12
 
 # TODO: install epm
 # RPM specific
