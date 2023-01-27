@@ -76,9 +76,9 @@ build_crypto()
 		PACKAGELIST=''
 
 		COMPONENTSCRIPTDIR="bin-crypto"
-		CHECKCOMP="ecryptomgr wine-cpcsp_proxy"
+		CHECKCOMP="ecryptomgr wine-etersoft-cpcsp_proxy"
 		CHECKKORINFCOMP="eget eepm"
-		PACKAGELIST="ecryptomgr wine-cpcsp_proxy"
+		PACKAGELIST="ecryptomgr wine-etersoft-cpcsp_proxy"
 
 		# exports FTPDIR
 		#LICENSEFILE=rx-etersoft.lic
