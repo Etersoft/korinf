@@ -247,9 +247,12 @@ prepare_wine_etersoft()
 	sha256sum *.* >$FTPDIR/wine-etersoft-install.sha256 || fatal "file list"
 	cd - >/dev/null
 
+	DDIR="${DOWNLOADDIR}/$TYPE-$PROJECTVERSION/$DIST"
+	echo "$DDIR" >$FTPDIR/Version
+
 	if [ -s $DOCS/wine-etersoft-install.sh ] ; then
 		# скрипт установки
-		sed -e "s|^URLRPM=|URLRPM=$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST|" <$DOCS/wine-etersoft-install.sh >$FTPDIR/wine-etersoft-install.sh || fatal "install script"
+		sed -e "s|^URLRPM=|URLRPM=$DDIR|" <$DOCS/wine-etersoft-install.sh >$FTPDIR/wine-etersoft-install.sh || fatal "install script"
 	fi
 
 }
