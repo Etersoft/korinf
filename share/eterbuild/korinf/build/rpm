@@ -4,8 +4,8 @@
 #
 #  Common rpm build packages in chrooted Linux system
 #
-#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009
+#  Copyright (c) Etersoft <http://etersoft.ru> 2005, 2006, 2007, 2009, 2023
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2009, 2023
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -57,14 +57,12 @@ build_rpms()
 	#local SETARCH=''
 	#[ "$TARGETARCH" != "$BUILDARCH" ] && SETARCH=i386
 
-	## Control file for check build result
-	#LOGFAILFILE="$BUILDERHOME/RPM/log/$BUILDNAME.log.failed"
-	#rm -f "$LOGFAILFILE" "$LOGFAILFILE.clog"
-
+	res=0
 	echo "Chrooting as $INTUSER and run script"
-	cat <<EOF | run_in_chroot --user $dist "bash -x -" || return
+	cat <<EOF | run_in_chroot --user $dist "bash -x -" || res=1
 	echo "Run in \$(distr_info -e)"
 	umask 002
+	# FIXME: ~ works?
 	mkdir -p ~/RPM/log
 	rm -f ~/tmp/rpm-tmp.*
 	rm -rf $RPMBUILDROOT
@@ -79,10 +77,10 @@ build_rpms()
 #		--define='_libdir /usr/lib/$SETARCH-linux-gnu' \
 #		--define='_libexecdir /usr/lib' \
 
-	echo
-	echo "\$RPMCMD --target $TARGETARCH --showrc"
+	#echo
+	#echo "\$RPMCMD --target $TARGETARCH --showrc"
 	# https://bugs.etersoft.ru/show_bug.cgi?id=14846#c8
-	rpm --target $TARGETARCH --showrc
+	#rpm --target $TARGETARCH --showrc
 
 	#echo "srpm requires:"
 	#epm req /home/$INTUSER/tmp/$(basename $TARGETSRPM)
@@ -95,23 +93,6 @@ build_rpms()
 		--buildroot $RPMBUILDROOT \
 		/home/$INTUSER/tmp/$(basename $TARGETSRPM)
 	RES=\$?
-	if [ "\$RES" != "0" ] ; then
-		logfile="\$(echo ~/RPM/BUILD/*/config.log)"
-		if [ -s "\$logfile" ] ; then
-			echo
-			echo "===================== cat \$logfile: ========================"
-			cat "\$logfile"
-			echo "================== EOF \$logfile ========================="
-		fi
-
-		logfile="\$(echo ~/RPM/BUILD/*/*/config.log)"
-		if [ -s "\$logfile" ] ; then
-			echo
-			echo "===================== cat \$logfile: ========================"
-			cat "\$logfile"
-			echo "================== EOF \$logfile ========================="
-		fi
-	fi
 
 	# Workaround again flow target dirs
 	pushd /home/$INTUSER/RPM/RPMS/
@@ -121,17 +102,37 @@ build_rpms()
 	popd
 
 	exit \$RES
-	#( cat ~/tmp/rpm-tmp.* ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.log; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/config.h ; cat ~/$RPMSDIR/../BUILD/${BUILDNAME}*/include/config.h ) >~/RPM/log/$BUILDNAME.log.failed.clog
 EOF
 
-	#if [ -r "$LOGFAILFILE" ] ; then
-	#	rm -f "$LOGFAILFILE" ; warning "build failed"
-	#	[ -r "$LOGFAILFILE.clog" ] && mv "$LOGFAILFILE.clog" "${LOGFILE/.log/.conf.log}"
-	#	return 1
-	#fi
+	echo "Chrooting as $INTUSER and get logs"
+	cat <<EOF | run_in_chroot --user $dist "bash -x -" &>${LOGFILE/.log/.config.log}
+
+	# FIXME: has quote problem
+	RPMARGS="$RPMARGS"
+	RPMCMD=rpmbuild
+
+	echo
+	echo "\$RPMCMD --target $TARGETARCH --showrc"
+	# https://bugs.etersoft.ru/show_bug.cgi?id=14846#c8
+	rpm --target $TARGETARCH --showrc
+
+	cd /home/$INTUSER/RPM/BUILD/*/
+	for logfile in config.log */config.log config.h */config.h ; do
+		if [ -s "\$logfile" ] ; then
+			echo
+			echo "===================== cat \$logfile: ========================"
+			cat "\$logfile"
+			echo "================== end of \$logfile ========================="
+		fi
+	done
+EOF
+
+	if [ "$res" != "0" ] ; then
+		return $res
+	fi
 
 	if is_remote_build $dist ; then
-		echo "Copying remote build rpm packages to the local filesystem"
+		echo "Copying remote built rpm packages to the local filesystem"
 		mkdir -p $BUILTRPM
 		local tmptar
 		tmptar=$(basename $TARGETSRPM .src.rpm)

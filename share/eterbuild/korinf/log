@@ -105,7 +105,17 @@ copying_log()
 
 	DESTLOGFILE=$DESTLOGDIR/`basename $LOGFILE`
 	rm -f $DESTLOGFILE $DESTLOGFILE.bz2
-	cp -f $LOGFILE $DESTLOGFILE && bzip $DESTLOGFILE
+	cp -f $LOGFILE $DESTLOGFILE && bzip $DESTLOGFILE || return
+
+	# don't copy config logs to ftp
+	return 0
+	LOGCONFFILE=${LOGFILE/.log/.config.log}
+	if [ -r "$LOGCONFFILE" ] ; then
+		DESTLOGFILE=$DESTLOGDIR/`basename $LOGCONFFILE`
+		rm -f $DESTLOGFILE $DESTLOGFILE.bz2
+		cp -f $LOGCONFFILE $DESTLOGFILE && bzip $DESTLOGFILE
+	fi
+	return 0
 }
 
 
