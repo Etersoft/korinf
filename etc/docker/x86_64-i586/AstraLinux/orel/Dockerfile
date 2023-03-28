@@ -8,6 +8,7 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --add-architecture i386
 # rpm-build
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libtool automake autoconf gzip bzip2 pkg-config cpio patch gcc coreutils grep make rpm gawk
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libc6-dev
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libusb-1.0-dev
 # Debian specific
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential alien fakeroot debhelper
 
@@ -26,10 +27,14 @@ RUN ln -s libvulkan.so.1 /usr/lib/i386-linux-gnu/libvulkan.so ; ln -s libXpm.so.
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y ia32-libs-dev
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libssl-dev && ln -s /usr/include/x86_64-linux-gnu/openssl/opensslconf.h /usr/include/openssl/opensslconf.h
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libusb-1.0-0-dev
+RUN cp -a /usr/lib/x86_64-linux-gnu/pkgconfig/libusb-1.0.pc /usr/lib32/i386-linux-gnu/pkgconfig/
+sed -i -e "s|x86_64-linux-gnu|i386-linux-gnu|g" /usr/lib32/i386-linux-gnu/pkgconfig/libusb-1.0.pc
+
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libkrb5-dev krb5-multidev
 RUN cp -a /usr/lib/x86_64-linux-gnu/mit-krb5 /usr/lib32/i386-linux-gnu
 RUN cp -a /usr/lib/x86_64-linux-gnu/pkgconfig/mit-krb5 /usr/lib32/i386-linux-gnu/pkgconfig ; sed -i -e "s|x86_64-linux-gnu|i386-linux-gnu|g" /usr/lib32/i386-linux-gnu/pkgconfig/mit-krb5/*.pc
-# really still used pkgconfig fro x86_64
+# really still used pkgconfig from x86_64
 RUN sed -i -e "s|x86_64-linux-gnu|i386-linux-gnu|g" -e "s|-lcom_err||" /usr/lib/x86_64-linux-gnu/pkgconfig/mit-krb5/*.pc /usr/lib/x86_64-linux-gnu/pkgconfig/mit-k*.pc
 
 RUN useradd -m korinfer
