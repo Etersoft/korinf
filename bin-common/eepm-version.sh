@@ -9,4 +9,4 @@ kormod korinf
 MAINFILES="eepm[-_][0-9]"
 #EXTRAFILES="eepm-[a-z]*[-_][0-9]"
 
-build_project /var/ftp/pub/Korinf eepm "" $@
+build_project /var/ftp/pub/Etersoft/EPM/$1 eepm "" all
