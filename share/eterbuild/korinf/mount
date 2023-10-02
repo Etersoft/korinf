@@ -24,9 +24,21 @@
 
 MOUNT_MODULE_INCLUDED=1
 
+remote_command()
+{
+	local dist="$1"
+	shift
+
+	[ -n "$dist" ] || fatal "empty dist"
+
+	echo "$ $@" >&2
+	ssh -i $PRIVATESSHKEY $INTUSER@$rhost "export LANG=C ; export LC_ALL=C ; . ~/.profile ; $@"
+}
+
 create_base_docker()
 {
-	local dist=$1
+	local dist="$1"
+	local remotehost="$2"
 
 	# use versioned or base Dockerfile
 	local dockerfile=$KORINFETC/docker/$dist/Dockerfile
@@ -34,15 +46,31 @@ create_base_docker()
 		# use arch in path (x86_64 for i586 by default)
 		dockerfile=$KORINFETC/docker/$BUILDARCH/$dist/Dockerfile
 		dockerfile_target=$KORINFETC/docker/$BUILDARCH-$TARGETARCH/$dist/Dockerfile
-		# if there exists special Dockefile
-		[ "$TARGETARCH" != "$BUILDARCH" ] && [ -s "$dockerfile_target" ] && dockerfile=$dockerfile_target
+		# if there exists special Dockerfile
+		if [ "$TARGETARCH" != "$BUILDARCH" ] ; then
+			if  [ -s "$dockerfile_target" ] ; then
+				dockerfile=$dockerfile_target
+				echo "Target arch is $TARGETARCH, BUT build arch is $BUILDARCH. Use alternative $dockerfile"
+			else
+				echo "Target arch is $TARGETARCH, BUT build arch is $BUILDARCH. Continue with $dockerfile, alternative $dockerfile_target is missed."
+			fi
+		else
+			echo "Target arch is $TARGETARCH, build arch is $BUILDARCH (the same): use $dockerfile"
+		fi
+	else
+		echo "Target arch is $TARGETARCH, use default $dockerfile"
 	fi
 
 	local rcommand=$(get_remote_commands $dist)
 	local toremove=''
-	
+
+	local platform=''
+	# 
+	#[ "$BUILDARCH" = "i586" ] && platform="--platform linux/i386"
+
 	# autocreating Dockerfile
 	if [ ! -s "$dockerfile" ] && [ -n "$rcommand" ] ; then
+		echo "Selected $dockerfile is missed, but we get rcommand $rcommand from remote list"
 		rcommand=$(echo "$rcommand" | sed -e "s|@VERSION@|$(get_distversion_by_dist $dist)|") #"
 		rhas "$rcommand" ":" || rcommand="$rcommand:$(get_distversion_by_dist $dist)"
 		dockerfile=$(mktemp)
@@ -57,7 +85,7 @@ create_base_docker()
 	# TODO: generate in some way
 	#[ -s "$dockerfile" ] || dockerfile=$KORINFETC/docker/$DISTRNAME/Dockerfile
 	local baseimage=$(get_docker_image $dist)
-	a='' docker build -f $dockerfile -t $baseimage . #|| return 1
+	a='' docker build $platform -f $dockerfile -t $baseimage . #|| return 1
 	if [ -n "$toremove" ] ; then
 		rm -v $toremove
 	fi
@@ -83,6 +111,10 @@ run_docker_container()
 		create_base_docker $dist
 	fi
 
+	if ! is_docker_image $dockerimage ; then
+		echo "Can't find $dockerimage docker image" >&2
+		return 1
+	fi
 
 	# create tmp home dir
 	assert_var CHROOTDIR LOCUSER INTUSER
@@ -101,24 +133,33 @@ run_docker_container()
 		MOUNTBUILDERSTRING="--mount type=bind,source=$BUILDERHOME,target=/home/$INTUSER"
 	fi
 
-	platform=''
+	local platform=''
 	[ "$BUILDARCH" = "i586" ] && platform="--platform linux/i386"
 
 	# generate contname with random suffix
 	contname=$(get_docker_container $dist)-$(pwgen -1)
+
+	# hack: don't use --platform for our images (TODO: only for remote)
+	echo "$contname" | grep -q "^korinf" && platform=''
+
+
 	echo "Creating build system in docker $contname from $dockerimage:" >&2
 	# TODO: check before remove
 	a='' docker rm $contname 2>/dev/null # || return 1
+	# about ENTRYMOUNT and CMD: https://habr.com/ru/companies/southbridge/articles/329138/
 	a='' docker run -d \
 		--name $contname \
 		$platform \
 		--tmpfs /tmp:exec \
 		$MOUNTBUILDERSTRING \
 		$dockerimage
+
+	# container was detached
+	sleep 1
 	a='' docker start $contname
 
 	# save name of running container
-	CONTAINERNAME=$contname
+	CONTAINERNAME="$contname"
 
 	run_in_chroot $dist "chown $INTUSER /home/$INTUSER /home/$INTUSER/tmp"
 
@@ -130,7 +171,7 @@ stop_docker_container()
 {
 	assert_var CONTAINERNAME
 	local dist=$1
-	local contname=$CONTAINERNAME
+	local contname="$CONTAINERNAME"
 	if [ -n "$BOOTSTRAP$INSTALLREQUIREDPACKAGE" ] && [ "$STATUSBUILD" = "done" ] ; then
 		dockerimage=$(get_docker_image $dist)
 		echo "Save $contname to docker image $dockerimage:latest:" >&2
@@ -140,7 +181,9 @@ stop_docker_container()
 
 	[ -n "$ADEBUG" ] && return
 	echo "Remove docker build system:" >&2
-	a='' evz stop $contname || return 1
+	# TODO
+	#a='' evz stop $contname || return 1
+	a='' docker stop -t1 $contname || return 1
 	echo 'Yes' | a='' evz destroy $contname || return 1
 	#a='' docker rmi --no-prune $(get_docker_image $dist) || return 1
 }
@@ -155,7 +198,7 @@ mount_linux()
 	case "$(get_remote_host $dist)" in
 		"docker")
 			run_docker_container $dist
-			return 0
+			return
 			;;
 		"local")
 			;;
@@ -183,13 +226,13 @@ mount_linux()
 		# create temp home
 		BUILDERHOME=$BUILDROOT-home
 		mkdir -p $BUILDERHOME/{,tmp,RPM,RPM/BUILD,RPM/RPMS} || fatal "Can't create $BUILDERHOME"
-		chmod g+rwx $BUILDERHOME
-		$SUDO chown $LOCUSER $BUILDERHOME -R
+		chmod -v g+rwx $BUILDERHOME
+		$SUDO chown $LOCUSER $BUILDERHOME -Rv
 	fi
 
 	# FIXME: why LOCUSER??
 	chmod g+rwx $BUILDROOT
-	$SUDO chown $LOCUSER $BUILDROOT -R
+	$SUDO chown $LOCUSER $BUILDROOT -Rv
 
 	[ -z "$BUILDROOT" ] && echo "Skip mount due empty BUILDROOT" && return 1
 	echo "Mount $LOCALLINUXFARM/$dist to $BUILDROOT (user $INTUSER)..."
@@ -197,7 +240,7 @@ mount_linux()
 	# FIXME:
 	[ -d $LOCALLINUXFARM ] && MOUNTPARAM="--bind" || MOUNTPARAM="-o soft"
 	$SUDO mount $LOCALLINUXFARM/$dist $BUILDROOT $MOUNTPARAM || { warning "Cannot mount..." ; return 1 ; }
-	$SUDO chmod o+rx $BUILDROOT
+	$SUDO chmod -v o+rx $BUILDROOT
 	#ls -l $BUILDROOT
 	test -d $BUILDROOT/etc/ || fatal "Linux system is missed in $BUILDROOT"
 
@@ -314,7 +357,7 @@ end_umount()
 	return $ERR
 }
 
-# args: [--user USER] [--interactive] <dist> <command>
+# args: [--user] [--interactive] <dist> <command>
 # run command for dist
 # use --user for change to local user INTUSER
 run_in_chroot()
@@ -330,8 +373,8 @@ run_in_chroot()
 		LOUSER=root
 	fi
 
-	local INTERACTIVE="-i"
-	[ "$1" = "--interactive" ] && INTERACTIVE="-ti" && shift
+	local INTERACTIVE=""
+	[ "$1" = "--interactive" ] && INTERACTIVE="-t" && shift
 
 	local dist="$1"
 	shift
@@ -343,9 +386,11 @@ run_in_chroot()
 	rhost="$(get_remote_host $dist)"
 
 	if [ "$rhost" = "docker" ] ; then
+		assert_var CONTAINERNAME
 		local arch
 		arch=''
 		[ "$BUILDARCH" = "i586" ] && arch="i386"
+		[ -n "$INTERACTIVE" ] && INTERACTIVE="-ti" || INTERACTIVE="-i"
 		echo "Run command in docker build system:" >&2
 		if [ -z "$LOUSER" ] || [ "$LOUSER" = "root" ] ; then
 			#evz exec $DISTRNAME/$DISTRVERSION "$@"
@@ -377,12 +422,16 @@ run_in_chroot()
 		echo "Run command in remote ($rhost) build system:" >&2
 		# FIXME: add -t if need interactive
 		if [ -z "$LOUSER" ] || [ "$LOUSER" = "root" ] ; then
-		    #ssh -i $PRIVATESSHKEY $INTUSER@$rhost $rcommands "\"export LANG=C ; export LC_ALL=C ; $@\""
+			#ssh -i $PRIVATESSHKEY $INTUSER@$rhost $rcommands "\"export LANG=C ; export LC_ALL=C ; $@\""
 			echo "# $@" >&2
-		    ssh -i $PRIVATESSHKEY $INTUSER@$rhost $rcommands "\"$@\""
+			if [ "$rcommands" = "esu" ] ; then
+				ssh $INTERACTIVE -i $PRIVATESSHKEY root@$rhost "$@"
+			else
+				ssh $INTERACTIVE -i $PRIVATESSHKEY $INTUSER@$rhost $rcommands "\"$@\""
+			fi
 		else
 			echo "$ $@" >&2
-		    ssh -i $PRIVATESSHKEY $INTUSER@$rhost "export LANG=C ; export LC_ALL=C ; . ~/.profile ; $@"
+			ssh $INTERACTIVE -i $PRIVATESSHKEY $INTUSER@$rhost "export LANG=C ; export LC_ALL=C ; . ~/.profile ; $@"
 		fi
 		return
 	fi
