@@ -120,7 +120,16 @@ prepare_wine_etersoft()
 
 	#[ "$TYPE" = "School" ] || check_and_refresh_component bin-wine $PUBLOCAL/fonts fonts-ttf-ms
 
-	check_and_refresh_component bin-hasp $PUBLOCAL/HASP haspd
+	# use epm play aksusbd
+	#check_and_refresh_component bin-hasp $PUBLOCAL/HASP haspd
+
+	if rhas "$PROJECTVERSION" "^[789]" ; then
+		check_and_refresh_component bin-wine $PUBLOCAL/WINE eepm
+		PUB6FILES=`find -L $PUBLOCAL/WINE/$DIST -maxdepth 1 -type f -name "eepm[_-]*"`
+	else
+		check_and_refresh_package $KORINFLOCAL eepm
+		PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm[_-]*"`
+	fi
 
 	#[ "$TYPE" = "Local" ] || check_and_refresh_component bin-cifs $PUBLOCAL/CIFS etercifs
 
@@ -140,6 +149,8 @@ prepare_wine_etersoft()
 		PUB3FILES32=''
 	fi
 
+	# WARNING: don't use check_and_refresh_* for $PUBLOCAL/WINE below (after PUB1FILES is filled)
+
 	# fonts
 	#PUB2FILES=`find -L $PUBLOCAL/fonts/$DIST -maxdepth 1 -type f`
 
@@ -149,7 +160,7 @@ prepare_wine_etersoft()
 	PUB3FILES=`find -L $PUBLOCAL/WINE/$DIST/extra -maxdepth 1 -type f`
 	# HASP
 	# TODO: copy haspd-modules to extra
-	PUB4FILES=`find -L $PUBLOCAL/HASP/$DIST -maxdepth 1 -type f`
+	#PUB4FILES=`find -L $PUBLOCAL/HASP/$DIST -maxdepth 1 -type f`
 
 	if [ "$TYPE" = "CAD" ] ; then
 		# GL for CAD
@@ -157,9 +168,6 @@ prepare_wine_etersoft()
 	else
 		PUB5FILES=
 	fi
-
-	check_and_refresh_package $KORINFLOCAL eepm
-	PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm[_-]3*"`
 
 	# Нужно скопировать файлы
 	for i in $PRIVFILES $PUB1FILES $PUB1FILES32 $PUB2FILES $PUB4FILES $PUB5FILES $PUB6FILES; do
@@ -196,7 +204,8 @@ prepare_wine_etersoft()
 	# FIXME: сделать простую проверку на систему
 	# skip on FreeBSD
 	if ! echo "$DIST" | grep -q "FreeBSD" ; then
-		assert_present_package $FTPDIR haspd
+		:
+		#assert_present_package $FTPDIR haspd
 		
 		#if ! $(instrKRF "$DIST" "ArchLinux") && ! $(instrKRF "$DIST" "Gentoo")
 		#then
@@ -244,7 +253,7 @@ prepare_wine_etersoft()
 	# список файлов
 	cd $FTPDIR/ || fatal "cd"
 	md5sum *.* >$FTPDIR/wine-etersoft-install.md5 || fatal "file list"
-	sha256sum *.* >$FTPDIR/wine-etersoft-install.sha256 || fatal "file list"
+	sha256sum *.* | grep -v "wine-etersoft-install.md5" >$FTPDIR/wine-etersoft-install.sha256 || fatal "file list"
 	cd - >/dev/null
 
 	DDIR="${DOWNLOADDIR}/$TYPE-$PROJECTVERSION/$DIST"
@@ -303,7 +312,6 @@ ${BETA}
  - пакеты Продукта (wine-etersoft, wine-etersoft-$PRODUCT_name);
  - файл лицензии $LICENSEFILE;
  - документацию (файл manual.html);
- - пакеты с драйверами и менеджером лицензий для аппаратных ключей защиты HASP HL (пакет haspd);
 $CIFSTEXT
 ОБРАТИТЕ ВНИМАНИЕ!
 Файл лицензии $LICENSEFILE необходимо расположить в каталоге /etc/wine, ~/.wine или
@@ -459,7 +467,6 @@ cat >>$FILETO <<EOF
  - файл лицензии $LICENSEFILE;
  - файл README.html с базовой информацией о продукте;
 $(printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" $FTPDIR/README.html)
- - пакеты с драйверами и менеджером лицензий для аппаратных ключей защиты HASP HL (пакет haspd);
 $CIFSTEXT
 
 для этого пройдите по ссылке, чтобы загрузить файлы открытой и закрытой части:
