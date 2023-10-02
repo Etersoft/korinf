@@ -76,6 +76,7 @@ get_real_target_dist()
 {
 	#assert_var LOCALLINUXFARM
 	local DIST="$1"
+	DIST="$(echo "$DIST" | sed -e 's|^i586/||')"
 	check_target_dist "$DIST" || fatal "Unknown distro $DIST"
 	local LINKED=$(get_linked_system "$DIST")
 	[ -n "$LINKED" ] && DIST="$LINKED"
@@ -101,6 +102,7 @@ set_rebuildlist()
 			RESULT="Use distros list from $REBUILDLIST"
 		else
 			# Build for concrete target if it is exists
+			REBUILDLIST="$(echo "$REBUILDLIST" | sed -e 's|^i586/||')"
 			check_target_dist $REBUILDLIST || fatal "Run with unknown target '$REBUILDLIST'"
 			RESULT="Use $REBUILDLIST target"
 		fi

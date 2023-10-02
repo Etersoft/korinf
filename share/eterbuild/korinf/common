@@ -149,12 +149,12 @@ get_bin_package()
 	fi
 
 	# check for package started with NAME
-	BUILDPKG="$(ls -1 $target_path/$BUILDBINMASK 2>/dev/null | tail -n1)"
+	BUILDPKG="$(ls -1 $target_path/$BUILDBINMASK 2>/dev/null)"
 
 	# try check in extra
 	if [ ! -r "$BUILDPKG" ] ; then
 		# check for package started with NAME
-		BUILDPKG="$(ls -1 $target_path/extra/$BUILDBINMASK 2>/dev/null | tail -n1)"
+		BUILDPKG="$(ls -1 $target_path/extra/$BUILDBINMASK 2>/dev/null)"
 	fi
 
 	if [ ! -r "$BUILDPKG" ] ; then
@@ -164,7 +164,7 @@ get_bin_package()
 		BUILDPKG=
 	fi
 
-	echo $BUILDPKG
+	echo "$BUILDPKG"
 	test -r "$BUILDPKG"
 }
 

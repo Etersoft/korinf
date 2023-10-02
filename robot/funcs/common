@@ -104,7 +104,7 @@ assert_present_package()
 
 	local DESTDIR=$1
 
-	FILENAME=$(get_bin_package "$DESTDIR" $BUILDNAME)
+	FILENAME="$(get_bin_package "$DESTDIR" $BUILDNAME)"
 
 	if [ ! -r "$FILENAME" ] ; then
 		fatal "Package $BUILDNAME is missed in $DESTDIR"

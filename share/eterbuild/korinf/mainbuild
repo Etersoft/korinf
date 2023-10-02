@@ -64,11 +64,13 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 				warning "Overwrite already existed link $(readlink $DESTDIR) to $LFROM"
 				rm -rfv "$DESTDIR"
 			else
+				loginfo "linked system"
 				logit "Linked to $(readlink $DESTDIR)" SKIPPED
 			fi
 		fi
 		if [ ! -L "$DESTDIR" ] ; then
 			mkdir -p "$(dirname "$DESTDIR")"
+			loginfo "linked system"
 			logit "Create link $dist to $LINKED" ln -s "$LFROM" "$DESTDIR"
 		fi
 		# replace dist with linked
@@ -115,6 +117,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 			if [ -n "$INSTALLREQUIREDPACKAGE" ] ; then
 				loginfo "install for broken build"
 			elif [ -z "$REBUILDPACKAGE" ] ; then
+				loginfo ""
 				logit "build was already broken in manual build" SKIPPED
 				echo "`date` $BUILDNAME on $dist ALREADY FAILED" | write_report
 				RES=1
@@ -127,6 +130,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 			#	logit "skip install for built package" SKIPPED
 			#	continue
 			if ! do_need_build_package $BUILDNAME ; then
+				loginfo ""
 				logit "$BUILDNAME is up-to-date" SKIPPED
 				# remove fatal flag if checking is passed
 				clear_build_status

@@ -59,8 +59,8 @@ build_rpms()
 
 	res=0
 	echo "Chrooting as $INTUSER and run script"
-	cat <<EOF | run_in_chroot --user $dist "bash -x -" || res=1
-	echo "Run in \$(distr_info -e)"
+	cat <<EOF | run_in_chroot --user $dist "bash -x -" || res=$?
+	echo "Run in \$(epm print info -e </dev/null)"
 	umask 002
 	# FIXME: ~ works?
 	mkdir -p ~/RPM/log
@@ -92,16 +92,17 @@ build_rpms()
 		--target $TARGETARCH \
 		--buildroot $RPMBUILDROOT \
 		/home/$INTUSER/tmp/$(basename $TARGETSRPM)
-	RES=\$?
+EOF
 
-	# Workaround again flow target dirs
-	pushd /home/$INTUSER/RPM/RPMS/
-	test -d i586 && mv -f i586/* ./ && rmdir i586
-	test -d x86_64 && mv -f x86_64/* ./ && rmdir x86_64
-	test -d noarch && mv -f noarch/* ./ && rmdir noarch
+# hack against strange exit in AlterOS
+	echo "Chrooting as $INTUSER and move built files"
+	cat <<EOF | run_in_chroot --user $dist "bash -x -"
+	echo "Workaround again flow target dirs ..."
+	pushd /home/$INTUSER/RPM/RPMS/ || { echo "Can't cd to /home/$INTUSER/RPM/RPMS/" ; exit ; }
+	test -d i586 && mv -v i586/* ./ && rmdir i586
+	test -d x86_64 && mv -v x86_64/* ./ && rmdir x86_64
+	test -d noarch && mv -v noarch/* ./ && rmdir noarch
 	popd
-
-	exit \$RES
 EOF
 
 	echo "Chrooting as $INTUSER and get logs"
@@ -114,10 +115,14 @@ EOF
 	echo
 	echo "\$RPMCMD --target $TARGETARCH --showrc"
 	# https://bugs.etersoft.ru/show_bug.cgi?id=14846#c8
-	rpm --target $TARGETARCH --showrc
+	rpm --target $TARGETARCH --showrc || \$RPMCMD --target $TARGETARCH --showrc
+	echo
+	gcc --version
+	echo
+	clang --version
 
 	cd /home/$INTUSER/RPM/BUILD/*/
-	for logfile in config.log */config.log config.h */config.h ; do
+	for logfile in config.log */config.log config.h */config.h loader/abs-libs.list Makefile ; do
 		if [ -s "\$logfile" ] ; then
 			echo
 			echo "===================== cat \$logfile: ========================"
@@ -136,7 +141,7 @@ EOF
 		mkdir -p $BUILTRPM
 		local tmptar
 		tmptar=$(basename $TARGETSRPM .src.rpm)
-		#run_in_chroot --user "cd /home/$INTUSER/RPM/RPMS/ && ls -a"
+		#run_in_chroot --user $dist "cd /home/$INTUSER/RPM/RPMS/ && ls -a"
 		run_in_chroot --user $dist "cd /home/$INTUSER/RPM/RPMS/ && tar -cf - *.rpm" >$BUILTRPM/$tmptar.tar || return
 		pushd $BUILTRPM
 		tar xfv $BUILTRPM/$tmptar.tar && rm -f $BUILTRPM/$tmptar.tar || return

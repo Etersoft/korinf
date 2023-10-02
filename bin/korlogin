@@ -54,7 +54,10 @@ fi
 
 [ "$1" = "-n" ] && { shift ; NETBUILD=1 ; } || NETBUILD=
 
-SYS=$(get_real_target_dist $1) || exit
+# it is too danger to allow login by links
+#SYS=$(get_real_target_dist $1) || exit
+SYS="$1"
+check_target_dist "$SYS" || fatal "Unknown distro $SYS"
 shift
 
 USERCO=""

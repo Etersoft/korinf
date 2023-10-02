@@ -56,9 +56,11 @@ check_if_updated()
 			# Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=892664
 			rhas $DIST "Ubuntu/22.04" && return 0
 			# epm checkpkg: sha1 ?UnknownSigatureType? md5 НЕ ОК
-			rhas $DIST "ROSA/2021" && return 0
+			rhas $DIST "ROSA/2021.1" && return 0
 			# epm checkpkg: sha1 ?UnknownSigatureType? md5 НЕ ОК
 			rhas $DIST "RockyLinux/8" && return 0
+			# epm checkpkg: sha1 ?UnknownSigatureType? md5 НЕ ОК
+			rhas $DIST "Fedora" && return 0
 
 			fatal "Package $BINPKG is broken!!! Check it with epm checkpkg"
 			# We can't remove files partially

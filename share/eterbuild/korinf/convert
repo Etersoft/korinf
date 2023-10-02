@@ -41,6 +41,7 @@ convert_srpm_to_target()
 
 	# rpmbph will use DISTRNAME/DISTRVERSION and so on
 
+	#export ETERADDREQUIRES=
 	# FIXME: when build to remote dist, we need generic src.rpm
 	echo "Convert '$BUILDSRPM' for $dist distro"
 	rm -vf $bhd/$BUILDNAME*
