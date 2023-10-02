@@ -21,7 +21,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-export COLUMNS=80
+#export COLUMNS=80
 kormod messages/outformat
 
 
@@ -49,11 +49,11 @@ failure()
 skipped()
 {
 	MOVE_TO_COL
-	echo -n '['
+	echo -n '[ '
 	SETCOLOR_WARNING
-	echo -n 'SKIPPED'
+	echo -n 'SKIP'
 	SETCOLOR_NORMAL
-	echo -n ']'
+	echo -n ' ]'
 }
 
 
@@ -146,7 +146,9 @@ print_pretty_distroname()
 		print_spaces_instead_string "$dist"
 	else
 		echo
-		echo -n "$dist"
+		SETCOLOR_SUCCESS
+		echo -n "$dist : $BUILDNAME"
+		SETCOLOR_NORMAL
 		PREVSYSTEMLOGIT=$dist
 	fi
 }

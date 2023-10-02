@@ -43,6 +43,7 @@ isatty && TERMOUTPUT=1 || TERMOUTPUT=
 MOVE_TO_COL()
 {
 	[ -n "$COLUMNS" ] || COLUMNS=80
+	COLUMNS=92
 	# "tput hpa N" moves to col N; on dumb terms does nothing.
 	local pos=$(($COLUMNS - $RES_OFFSET))
 	[ $pos -le 0 ] ||
