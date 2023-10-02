@@ -28,7 +28,7 @@ export TASKDIR=$HOME/sales
 INTUSER=korinfer
 
 # Private SSH key for login to remote build system (key without password)
-PRIVATESSHKEY=$KORINFETC/id_dsa.korinf
+PRIVATESSHKEY=$KORINFETC/id_ed25519.korinf
 
 # E-mails for info about robot fails
 #EMAILNOTIFY="your@localhost other@localhost"
