@@ -18,3 +18,6 @@ Debian/10
 
 # LTS until 06.2026
 Debian/11
+
+# LTS until 06.2028
+Debian/12

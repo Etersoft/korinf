@@ -4,7 +4,9 @@
 #LINUX@Etersoft/p8 ALTLinux/p8
 #x86_64/LINUX@Etersoft/p8 x86_64/ALTLinux/p8
 x86_64/MOC/10 x86_64/ALTLinux/p10
+MOC/10 ALTLinux/p10
 x86_64/ALTServer/10 x86_64/ALTLinux/p10
+ALTServer/10 ALTLinux/p10
 
 #RHEL/4 Scientific/4.1
 #RHEL/5 CentOS/5
@@ -20,7 +22,11 @@ CentOS/7 x86_64/CentOS/7
 x86_64/CentOS/6 x86_64/Scientific/6
 #StartCom/5 CentOS/5
 x86_64/RedOS/7 x86_64/RedOS/7.3
+x86_64/RockyLinux/9.1 x86_64/RockyLinux/9
+x86_64/RockyLinux/9.2 x86_64/RockyLinux/9
 RedOS/7 RedOS/7.3
+#x86_64/AlterOS/7 x86_64/RedOS/7.3
+x86_64/MOSDesktop/2021.1 x86_64/ROSA/2021.1
 
 SLES/10 SLED/10
 SLES/11 SLED/11
@@ -30,6 +36,7 @@ SUSE/10.2 SUSE/10.1
 
 LinuxMint/19 Ubuntu/18.04
 LinuxMint/20 Ubuntu/20.04
+LinuxMint/21 Ubuntu/22.04
 
 x86_64/LinuxMint/19 x86_64/Ubuntu/18.04
 x86_64/LinuxMint/20 x86_64/Ubuntu/20.04

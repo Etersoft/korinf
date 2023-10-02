@@ -1,5 +1,5 @@
 #x86_64/CentOS/5
-x86_64/CentOS/6
+#x86_64/CentOS/6
 x86_64/CentOS/7
 x86_64/CentOS/8
 #x86_64/Scientific/6
@@ -7,3 +7,6 @@ x86_64/RedOS/7.2
 x86_64/RedOS/7.3
 x86_64/RockyLinux/8
 x86_64/RockyLinux/9
+x86_64/RockyLinux/9.1
+x86_64/RockyLinux/9.2
+x86_64/AlterOS/7

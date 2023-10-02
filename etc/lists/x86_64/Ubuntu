@@ -14,12 +14,12 @@
 
 # LTS until 04.2019
 #x86_64/Ubuntu/14.04
-x86_64/LinuxMint/17
+#x86_64/LinuxMint/17
 
 
 # LTS until 04.2021
 #x86_64/Ubuntu/16.04
-x86_64/LinuxMint/18
+#x86_64/LinuxMint/18
 
 
 # LTS until 04.2023
@@ -33,3 +33,12 @@ x86_64/LinuxMint/20
 # LTS until 04.2027
 x86_64/Ubuntu/22.04
 x86_64/LinuxMint/21
+
+x86_64/Ubuntu/22.10
+
+# until 01.2024
+x86_64/Ubuntu/23.04
+
+# LTS until 04.2029
+# ESM until 04.2034
+x86_64/Ubuntu/24.04

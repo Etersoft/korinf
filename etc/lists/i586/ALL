@@ -2,7 +2,7 @@
 # Не комментировать! Здесь полный список
 # Use ALL target for build for ALL distro ('all' builds only for target distros)
 
-. x86_64/ALL
+#. x86_64/ALL
 
 . ALTLinux
 
@@ -40,5 +40,5 @@
 
 #. OpenSolaris
 #. SunOS
-. Windows
+#. Windows
 
