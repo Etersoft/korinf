@@ -49,6 +49,8 @@ dosh()
     local i j
     for i in "$@" ; do
         for j in $cmd ; do
+            echo
+            echo
             echo "> ./$i.sh $DISTR $ver $j"
             ./$i.sh $DISTR $ver $j || { [ -z "$NOSTOP" ] && exit ; }
         done
@@ -60,6 +62,7 @@ do_check()
 {
     local i
     for i in "$@" ; do
+        echo
         ./$i.sh $DISTR $ver -q -c
     done
     return 0
@@ -119,20 +122,20 @@ case "$ver" in
         fi
 
         # x86
-        DISTR="$(echo "$DISTR" | sed -e "s|x86_64/||")"
+        DISTR="$(echo "$DISTR" | sed -e "s|x86_64/|i586/|")"
         do_bootstrap wine-gecko wine-mono winetricks wine32-etersoft
         do_build wine32-grdwine
         ;;
     7*|8*)
         if echo "$DISTR" | grep -q "x86_64/" ; then
             # x86_64
-            do_bootstrap wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks wine-etersoft
+            do_bootstrap eepm wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks wine-etersoft
             do_build wine-etersoft-local wine-etersoft-network wine-etersoft-grdwine
         fi
 
         # x86
-        DISTR="$(echo "$DISTR" | sed -e "s|x86_64/||")"
-        do_bootstrap wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks wine32-etersoft
+        DISTR="$(echo "$DISTR" | sed -e "s|x86_64/|i586/|")"
+        do_bootstrap eepm wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks wine32-etersoft
         do_build wine32-etersoft-grdwine
         ;;
     *)

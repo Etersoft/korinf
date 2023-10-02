@@ -30,8 +30,11 @@ case $ver in
     7*)
         ver=7-unstable
         ;;
-    8*)
+    8.0*|8-testing)
         ver=7-unstable
+        ;;
+    8.12*|8-unstable)
+        ver=8.12
         ;;
 esac
 export KORINFMODULE=wine-$ver
