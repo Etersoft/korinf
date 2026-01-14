@@ -10,4 +10,7 @@ kormod korinf
 
 export KORINFMODULE=rx
 
+# Use precise pattern to avoid removing rxclient-pcsc packages
+MAINFILES="rxclient[-_][0-9]"
+
 build_project /var/ftp/pvt/Etersoft/RX@Etersoft rxclient "" $@
