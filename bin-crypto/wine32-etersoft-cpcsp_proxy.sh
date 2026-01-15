@@ -3,12 +3,18 @@
 # Author: Vitaly Lipatov <lav@etersoft.ru>
 # GNU Public License version 3
 
+# load common functions, compatible with local and installed script
+. `dirname $0`/../share/eterbuild/korinf/common
+kormod korinf
+
 NAME32=$(basename $0 .sh)
 NAME=${NAME32/wine32/wine}
 
-MAINFILES="$NAME32[-_][0-9]"
+MAINFILES="wine32-etersoft-cpcsp[-_]proxy[-_][0-9]"
 
-export KORINFMODULE=wine-7-unstable
+#export KORINFMODULE=wine-9.0
+. `dirname $0`/functions
+set_ver "$@"
 
-$(dirname $0)/../bin/korinf $NAME "$@" /var/ftp/pvt/Etersoft/CRYPTO@Etersoft
-
+#$(dirname $0)/../bin/korinf $NAME "$@" /var/ftp/pvt/Etersoft/CRYPTO@Etersoft
+(build_project /var/ftp/pvt/Etersoft/CRYPTO@Etersoft $NAME "" "$@")

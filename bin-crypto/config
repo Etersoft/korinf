@@ -1,0 +1,2 @@
+#DEFAULTVERSION=0.5
+DEFAULTVERSION=$(readlink /var/ftp/pub/Etersoft/CRYPTO@Etersoft/last)
