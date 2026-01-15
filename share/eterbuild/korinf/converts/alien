@@ -44,7 +44,10 @@ convert_by_target()
 	echo "Packages to convert: $PACKAGESLIST"
 	for i in $PACKAGESLIST ; do
 		if [ -e $i ] ; then
-			run_alien --scripts --to-$PKGFORMAT ${DEPPARAM} $i || { warning "alien problem with $PKGFORMAT"; RES=1 ; return $RES ; }
+			local SCRIPTS="--scripts"
+			# FIXME: hack
+			#[ "$BUILDNAME" = "libnss-role" ] && SCRIPTS=""
+			run_alien $SCRIPTS --to-$PKGFORMAT ${DEPPARAM} $i || { warning "alien problem with $PKGFORMAT"; RES=1 ; return $RES ; }
 		else
 			warning "Package $i is missed in $(pwd)"
 		fi

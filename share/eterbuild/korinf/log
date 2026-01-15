@@ -62,6 +62,7 @@ set_log_dir()
 {
 	ALOGDIR=`pwd`/log
 	if [ ! -d "$ALOGDIR" ] && [ ! -w "$ALOGDIR" ] ; then
+		[ -n "$TMPDIR" ] || TMPDIR=/tmp
 		ALOGDIR=$TMPDIR/korinf-log
 		if [ -n "$KORINFSOURCETREE" ] && [ ! -L "$KORINFSOURCETREE/log" ] ; then
 			ln -s $ALOGDIR "$KORINFSOURCETREE/log"
@@ -82,6 +83,7 @@ init_dist_log()
 	LOGDIR="$ALOGDIR/$1"
 	mkdir -p $LOGDIR || fatal "Can't create $LOGDIR"
 	LOGFILE=$LOGDIR/$BUILDNAME.log
+	[ -n "$INSTALLREQUIREDPACKAGE" ] && LOGFILE=$LOGDIR/$BUILDNAME.install.log
 	>>$LOGFILE || fatal "Can't create log $LOGFILE"
 	PREVSYSTEMLOGIT=""
 }
@@ -98,23 +100,22 @@ set_destlogdir()
 	mkdir -p $DESTLOGDIR/ || fatal "Error with $DESTLOGDIR"
 }
 
+copy_and_compress_log()
+{
+	local from="$1"
+	[ -n "$from" ] || return
+	[ -r "$from" ] || return
+	local DESTLOGFILE=$DESTLOGDIR/$(basename $from)
+	rm -f $DESTLOGFILE $DESTLOGFILE.bz2 $DESTLOGFILE.xz
+	xz < $from > $DESTLOGFILE.xz
+}
+
 copying_log()
 {
-	local DESTLOGFILE
 	set_destlogdir
 
-	DESTLOGFILE=$DESTLOGDIR/`basename $LOGFILE`
-	rm -f $DESTLOGFILE $DESTLOGFILE.bz2
-	cp -f $LOGFILE $DESTLOGFILE && bzip $DESTLOGFILE || return
-
-	# don't copy config logs to ftp
-	return 0
-	LOGCONFFILE=${LOGFILE/.log/.config.log}
-	if [ -r "$LOGCONFFILE" ] ; then
-		DESTLOGFILE=$DESTLOGDIR/`basename $LOGCONFFILE`
-		rm -f $DESTLOGFILE $DESTLOGFILE.bz2
-		cp -f $LOGCONFFILE $DESTLOGFILE && bzip $DESTLOGFILE
-	fi
+	copy_and_compress_log $LOGFILE
+	copy_and_compress_log ${LOGFILE/.log/.config.log}
 	return 0
 }
 

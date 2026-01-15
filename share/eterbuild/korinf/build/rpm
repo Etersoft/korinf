@@ -41,13 +41,16 @@ build_rpms()
 	RPMBUILDROOT="/home/$INTUSER/tmp/$BUILDNAME-buildroot"
 
 	RPMBUILDNODEPS=""
-	# ROSA hack
+	# FIXME: ROSA hack
 	RPMBUILDNODEPS="--nodeps"
 	# Skip buildreqs checking on non RPM systems
 	[ "$PKGFORMAT" = "rpm" ] || RPMBUILDNODEPS="--nodeps"
 	# hack: we set target to rpm before for Gentoo
 	[ "$PKGVENDOR" = "gentoo" ] && RPMBUILDNODEPS="--nodeps"
 
+	# FIXME
+	#[ "$BUILDNAME" = "libnss-role" ] && RPMBUILDNODEPS="--nodeps --noscripts"
+	
 	# TODO: we need do strip with some rpm rule? or during binary rpm converting
 	# --without debug is wine only hack
 	DISABLEDEBUGFLAG=""
@@ -121,14 +124,16 @@ EOF
 	echo
 	clang --version
 
-	cd /home/$INTUSER/RPM/BUILD/*/
-	for logfile in config.log */config.log config.h */config.h loader/abs-libs.list Makefile ; do
-		if [ -s "\$logfile" ] ; then
-			echo
-			echo "===================== cat \$logfile: ========================"
-			cat "\$logfile"
-			echo "================== end of \$logfile ========================="
-		fi
+	for sd in /home/$INTUSER/RPM/BUILD/* ; do
+		cd \$sd
+		for logfile in config.log */config.log config.h */config.h loader/abs-libs.list Makefile ; do
+			if [ -s "\$logfile" ] ; then
+				echo
+				echo "===================== cat \$logfile: ========================"
+				cat "\$logfile"
+				echo "================== end of \$logfile ========================="
+			fi
+		done
 	done
 EOF
 

@@ -101,10 +101,12 @@ convert_debian()
 
 	#fakeroot setarch $BUILDARCH alien --keep-version --scripts \$pkg || exit
 
-	# Note: dpkg-architecture detects Arch via gcc -dumpmachine, see korinf/helpers/gcc-stub-dumpmachine if needs
+	SCRIPTS="--scripts"
+	echo "$i" | grep -q "libnss-role" && SCRIPTS=''
 
+	# Note: dpkg-architecture detects Arch via gcc -dumpmachine, see korinf/helpers/gcc-stub-dumpmachine if needs
 	# repack with add dependencies
-	fakeroot alien --keep-version --scripts --single \$pkg || exit
+	fakeroot alien --veryverbose --keep-version \$SCRIPTS --single \$pkg || exit
 	cd ${depf}* || exit
 
 	# Note: we need sed -i on target
@@ -123,6 +125,7 @@ convert_debian()
 	fi
 
 	#if grep -q "Architecture: all" debian/control ; then
+	#if ! echo "$pkg"| grep -q eepm ; then
 		sed -i -e "s|\(^Architecture: .*\)|Multi-Arch: foreign\n\1|g" debian/control || exit
 	#fi
 

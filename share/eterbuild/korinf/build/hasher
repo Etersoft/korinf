@@ -31,9 +31,10 @@ function __try_add_rpm_dir()
 		#test -z "$VERBOSE" || warning "Cannot find already built packages repo RPMS.main"
 		return
 	fi
+	local rpath=$(realpath "$1")
 	# FIXME: it works only for Sisyphus, needs /extra too...
 	ETERBUILD_APTREPO="$ETERBUILD_APTREPO
-rpm-dir file:$(dirname $1) $(basename $1) $COMPONENT"
+rpm-dir file:$(dirname $rpath) $(basename $rpath) $COMPONENT"
 #	[ -z "$VERBOSE" ] || echo "base dir found, add aptrepo $ETERBUILD_APTREPO"
 }
 
@@ -53,6 +54,10 @@ function build_in_hasher()
 	# HACK: try to use previous built packages
 	__try_add_rpm_dir $DESTDIR main
 	__try_add_rpm_dir $DESTDIR/extra main
+
+	# try to use extra build repos
+	__try_add_rpm_dir $DESTDIR/build main
+	__try_add_rpm_dir $DESTDIR/build/extra main
 
 	if echo "$DESTDIR" | grep -q /pvt/ ; then
 		local TRTOPUB="$(echo "$DESTDIR" | sed -e "s|/pvt/|/pub/|" -e "s|WINE-Network|WINE|" -e "s|WINE-Local|WINE|" -e "s|WINE-SQL|WINE|")"
@@ -100,7 +105,7 @@ fi
 		if [ "$BINARYREPO" = "Sisyphus" ] ; then
 			BUILDCOMMAND="$RPMBS -s -w"
 		else
-			BUILDCOMMAND="$RPMBP -b $BINARYREPO"
+			BUILDCOMMAND="$RPMBP -w -b $BINARYREPO"
 		fi
 		$BUILDCOMMAND $BUILDSRPM || { warning "Cannot build srpm" ; return 1 ; }
 		return
@@ -110,11 +115,11 @@ fi
 	if [ "$BINARYREPO" = "Sisyphus" ] ; then
 		BUILDCOMMAND="$RPMBSH -w"
 	else
-		BUILDCOMMAND="$RPMBPH -b $BINARYREPO"
+		BUILDCOMMAND="$RPMBPH -w -b $BINARYREPO"
 	fi
 
 	( HASHER_NOCHECK=nvr,gpg,packager,changelog,deps $BUILDCOMMAND $BUILDSRPM ) ||
-		{ warning "Do not hashered" ; [ -n "$ADEBUG" ] || ( setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c -b $BINARYREPO) ; return 1 ; }
+		{ warning "Do not hashered" ; [ -n "$ADEBUG" ] && ( setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c -b $BINARYREPO) ; return 1 ; }
 
 
 	TARGETSRPM=$(ls -1 $HASHERDIR/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm | head -n1)

@@ -40,6 +40,7 @@ make_alt_depends_list()
         $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || return
     fi
     set_destlogdir
+    [ -r "$TFILE" ] || return
     local DEPFILE=$DESTLOGDIR/$(get_pkgname_from_filename $pkg | filter_deb_pkgnames).rpm.depends
     rm -f $DEPFILE # for keep correct owner
     cat $TFILE | tee $DEPFILE

@@ -269,8 +269,43 @@ get_remote_host()
         # docker by default
         [ -z "$rhost" ] && rhost='docker'
 
+        # osnovawae:docker
+        if rhas "$rhost" ":" ; then
+            #local lhost="$(echo "$rhost" | sed -e 's|:.*||')"
+            rhost="$(echo "$rhost" | sed -e 's|.*:||')"
+            #[ "$lhost" = "$(hostname -s)" ] || rhost="$lhost"
+        fi
+
         echo "$rhost"
 }
+
+get_dockerhost()
+{
+        [ -n "$1" ] || fatal "get_remote_host: empty args"
+        local i
+        local rhost
+
+        local dname=$(get_distname_by_dist $dist)
+        for i in $dist $(dirname $dist) $dname ; do
+            rhost="$(grep "^$i " $KORINFETC/remote 2>/dev/null | ( read d host commands ; echo $host ; ))"
+            [ -n "$rhost" ] && break
+        done
+
+        # osnovawae:docker
+        #if rhas "$rhost" ":" ; then
+        #    rhost="$(echo "$rhost" | sed -e 's|:.*||')"
+        #fi
+
+        # osnovawae:docker
+        if rhas "$rhost" ":" ; then
+            local lhost="$(echo "$rhost" | sed -e 's|:.*||')"
+            local dhost="$(echo "$rhost" | sed -e 's|.*:||')"
+            [ "$(hostname -s)" = "$lhost" ] || rhost="$lhost"
+        fi
+
+        echo "$rhost"
+}
+
 
 # $1 - dist like CentOS/5.4
 get_remote_commands()
@@ -294,16 +329,6 @@ get_docker_image()
         else
             echo "korinf-$dist" | sed -e "s|/|-|g" | filter_deb_pkgnames
         fi
-}
-
-get_docker_container()
-{
-        echo "$(get_docker_image $1)-c" | filter_deb_pkgnames
-}
-
-is_docker_image()
-{
-    docker images | cut -f1 -d" " | grep -q "^$1$"
 }
 
 

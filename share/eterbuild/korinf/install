@@ -31,8 +31,11 @@ install_built_packages()
 	#if [ $PKGVENDOR == "gentoo" ]
 	#then
 	#	run_in_chroot $dist "cd $INTBUILT && ls -a && ./${INSTALLBUILTSCRIPTNAME}"
-		
-	run_in_chroot $dist "cd $INTBUILT && ls -l && bash -x /usr/bin/epm --verbose --auto --force install ${EXPMAINFILES} ${EXPEXTRAFILES}" && return
+	local opts=""
+	# TODO: --force-overwrite since epm 3.64.2
+	[ "$BUILDNAME" = "rpm-build-altlinux-compat" ] && opts="--nodeps"
+	
+	run_in_chroot $dist "cd $INTBUILT && ls -l && bash -x /usr/bin/epm --verbose --auto --force $opts install ${EXPMAINFILES} ${EXPEXTRAFILES}" && return
 	local status="$?"
 
 	echo "epm install status: $status"
@@ -49,7 +52,7 @@ install_built_packages()
 
 	# Bootstrap install eepm (get command from host's epm)
 	local INSTALLCOMMAND
-	INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME $EPMCMD --auto --show-command-only install) || { warning "Can't get install command" ; return 1 ; }
+	INSTALLCOMMAND=$(DISTRNAMEOVERRIDE=$DISTRNAME/$DISTRVERSION $EPMCMD --auto --show-command-only install) || { warning "Can't get install command" ; return 1 ; }
 	[ -n "$INSTALLCOMMAND" ] || { warning "Got empty install command" ; return 1 ; }
 	# CHECKME: why we need yes here
 	run_in_chroot $dist "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" #|| set_build_failed
@@ -79,13 +82,27 @@ install_build_requires()
 	# Note: some additional requires we add in rpmbph
 	# Note: sudo less for eepm
 	# TODO: remove toolchain from this list
-	local buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch gcc coreutils grep make rpm gawk sudo less ed"
+	local buildsystempkgs="libtool automake autoconf rpm-build glibc-devel gzip bzip2 pkg-config cpio patch gcc grep make rpm gawk sudo less ed which gettext"
+	# coreutils-single
+
+	if rhas "$BUILDNAME" "wine" && ! rhas "$BUILDNAME" "local" && ! rhas "$BUILDNAME" "network" ; then
+		buildsystempkgs="$buildsystempkgs clang llvm lld"
+	fi
 
 	# hack to prepare Debian based system
 	[ "$PKGFORMAT" = "deb" ] && buildsystempkgs="$buildsystempkgs build-essential alien fakeroot debhelper"
 
+	# hack to prepare ArchLinux based system
+	[ "$DISTRNAME" = "ArchLinux" ] && buildsystempkgs="$buildsystempkgs rpm-tools"
+
 	# TODO: convert reqs only here due alt macros?
-	reqs="$($EPMCMD req "$TARGETSRPM" | grep -v "[<=>]" | xargs -n 1000 echo)"
+	# FIXME: get BR inside container!
+	if [ -z "$BOOTSTRAP" ] ; then
+		reqs="$($EPMCMD req "$TARGETSRPM" | grep -v "[<=>]" | xargs -n 1000 echo)"
+		# Зависимости можно получить только из спека, придётся устанавливать src.rpm и разбирать спек (получать зависимости от пересборанного пакета?)
+		#reqs="$(run_in_chroot $dist "epm req /home/$INTUSER/tmp/$(basename $TARGETSRPM)" </dev/null | grep -v "[<=>]" | xargs -n 1000 echo)"
+	fi
+
 	# super hack (reqs almost converted to target conventions (but only depends from BR)
 	if echo "$reqs" | grep -q "python3-module-setuptools" ; then
 		reqs="$(echo "$reqs" | sed -e 's|python3-module-setuptools||')"
@@ -96,6 +113,8 @@ install_build_requires()
 	[ -z "$reqs$reqsbr" ] && return 0
 	reqs="$(quote_pkgname $reqs)"
 	reqsbr="$(quote_pkgname $reqsbr)"
+	echo "reqs: $reqs"
+	echo "reqsbr: $reqsbr"
 
 	# run fixes only for rpm-build-altlinux-compat (as initial step)
 	if  [ -n "$INITIALBOOTSTRAP" ] && [ "$BUILDNAME" = "rpm-build-altlinux-compat" ] ; then
@@ -148,7 +167,7 @@ EOF
 		# TODO: try use epm if exists
 		#run_in_chroot "epm -h >/dev/null" || set_build_failed
 		# Bootstrap install eepm (get command from host's epm)
-		INSTALLCOMMAND=$(DISTRNAME=$DISTRNAME DISTRVERSION=$DISTRVERSION $EPMCMD --auto --show-command-only --nodeps install $reqsbr $reqs) || { warning "Can't get install command" ; return 1 ; }
+		INSTALLCOMMAND=$(DISTRNAMEOVERRIDE=$DISTRNAME/$DISTRVERSION $EPMCMD --auto --show-command-only --nodeps install $reqsbr $reqs) || { warning "Can't get install command" ; return 1 ; }
 		# CHECKME: why we need yes here
 		run_in_chroot $dist "$INSTALLCOMMAND </dev/null" || return
 	else
@@ -166,7 +185,7 @@ EOF
 
 		if [ "$TARGETARCH" != "$BUILDARCH" ] && [ "$PKGFORMAT" = "rpm" ] ; then
 			case "$DISTRNAME" in
-				RedOS|CentOS|RockyLinux|Fedora)
+				RedOS|CentOS|RockyLinux|Fedora|MSVSphere)
 					# hack against architecture independent pkgconfig deps, see https://bugs.etersoft.ru/show_bug.cgi?id=14846#c9
 					# FIXME: move hack with xargs -n1000 to epm
 					# not all packages existed in i686

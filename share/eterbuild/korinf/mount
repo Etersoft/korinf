@@ -35,6 +35,37 @@ remote_command()
 	ssh -i $PRIVATESSHKEY $INTUSER@$rhost "export LANG=C ; export LC_ALL=C ; . ~/.profile ; $@"
 }
 
+# filled in run_docker_container() if needed
+DOCKERHOST=
+
+dockercmd()
+{
+	if [ -z "$DOCKERHOST" ] ; then
+		a= docker "$@"
+		exit
+	fi
+	remote_command "$DOCKERHOST" docker "$@"
+}
+
+# откуда будет браться dist?
+is_docker_image()
+{
+    # TODO: dockercmd
+    #docker images | cut -f1 -d" " | grep -q "^$1$"
+
+    # akv:
+    # Без --no-trunc первый столбец выглядит как imagename:tag.
+    # Из-за tag эта функция всегда возвращает 1, так как reqexp ^name$
+    docker images --no-trunc | cut -f1 -d" " | grep -q "^$1$"
+}
+
+get_docker_container()
+{
+        echo "$(get_docker_image $1)-c" | filter_deb_pkgnames
+}
+
+
+
 create_base_docker()
 {
 	local dist="$1"
@@ -85,6 +116,7 @@ create_base_docker()
 	# TODO: generate in some way
 	#[ -s "$dockerfile" ] || dockerfile=$KORINFETC/docker/$DISTRNAME/Dockerfile
 	local baseimage=$(get_docker_image $dist)
+	# only locally
 	a='' docker build $platform -f $dockerfile -t $baseimage . #|| return 1
 	if [ -n "$toremove" ] ; then
 		rm -v $toremove
@@ -95,11 +127,20 @@ create_base_docker()
 # uses:DISTRNAME
 run_docker_container()
 {
-	local dist=$1
+	local dist="$1"
+	local BUILDERHOME="$2"
 	assert_var DISTRNAME
 	local dockerimage
 
-	dockerimage=$(get_docker_image $dist)
+	DOCKERHOST="$(get_dockerhost "$dist")"
+
+	#dockerimage=$(get_docker_image $dist)
+
+	# akv:
+	# Не понял в какой момент нужно передать в get_docker_image KORINFMODULE.
+	# Сейчас или в первом if ниже
+	dockerimage=$(KORINFMODULE=$KORINFMODULE get_docker_image $dist)
+
 	# Используем образ для модуля, если нет — базовый
 	if ! is_docker_image $dockerimage ; then
 		dockerimage=$(KORINFMODULE= get_docker_image $dist)
@@ -121,16 +162,21 @@ run_docker_container()
 
 	EXTERNALDOCKERHOME=1
 	MOUNTBUILDERSTRING=''
-	if [ -n $EXTERNALDOCKERHOME ] ; then
+	if [ -n "$EXTERNALDOCKERHOME" ] ; then
 		# x86_64/Debian/6.0 -> x86_64-Debian-6.0
 		# Создаём необходимые каталоги
 		mkdir -p $CHROOTDIR
 		BUILDROOT=`mktemp -d $CHROOTDIR/${dist//\//-}-XXXXXX`
-		BUILDERHOME=$BUILDROOT/home/$INTUSER
-		mkdir -p $BUILDERHOME/tmp/
+		if [ -z "$BUILDERHOME" ] ; then
+			BUILDERHOME=$BUILDROOT/home/$INTUSER
+		fi
 		# will set owner later via run_in_chroot
 		#$SUDO chown $LOCUSER $BUILDERHOME/
-		MOUNTBUILDERSTRING="--mount type=bind,source=$BUILDERHOME,target=/home/$INTUSER"
+		if [ "$BUILDERHOME" != none ] ; then
+			mkdir -p $BUILDERHOME/tmp/
+			echo "$FUNCNAME():: BUILDERHOME $BUILDERHOME" >&2
+			MOUNTBUILDERSTRING="--mount type=bind,source=$BUILDERHOME,target=/home/$INTUSER"
+		fi
 	fi
 
 	local platform=''
@@ -160,7 +206,7 @@ run_docker_container()
 
 	# save name of running container
 	CONTAINERNAME="$contname"
-
+	echo "$FUNCNAME::run_in_chroot" >&2
 	run_in_chroot $dist "chown $INTUSER /home/$INTUSER /home/$INTUSER/tmp"
 
 	return 0
@@ -184,20 +230,25 @@ stop_docker_container()
 	# TODO
 	#a='' evz stop $contname || return 1
 	a='' docker stop -t1 $contname || return 1
-	echo 'Yes' | a='' evz destroy $contname || return 1
+	# don't use evz
+	#echo 'Yes' | a='' evz destroy $contname || return 1
+	a='' docker rm -f -v $contname || return 1
 	#a='' docker rmi --no-prune $(get_docker_image $dist) || return 1
 }
 
 # args: <dist> <BUILDERHOME>
 mount_linux()
 {
+	echo "$FUNCNAME():: $*" >&2
 	local dist=$1
+	local BUILDERHOME="$2"
+
 	[ -n "$dist" ] || fatal "empty dist"
 
 	local rhost
 	case "$(get_remote_host $dist)" in
 		"docker")
-			run_docker_container $dist
+			run_docker_container $dist $BUILDERHOME
 			return
 			;;
 		"local")
@@ -209,9 +260,6 @@ mount_linux()
 	esac
 
 	local MOUNTPARAM
-
-	# Note!
-	BUILDERHOME=$2
 
 	assert_var CHROOTDIR LOCUSER INTUSER
 
@@ -256,8 +304,10 @@ mount_linux()
 		$SUDO mount -t tmpfs shmfs $BUILDROOT/dev/shm || { warning "Cannot mount /dev/shm" ; return 1 ; }
 	fi
 
-	echo "Mount home $BUILDERHOME ..."
-	$SUDO mount $BUILDERHOME $BUILDROOT/home/$INTUSER --bind || { warning "Cannot mount home" ; return 1 ; }
+	if [ "$BUILDERHOME" != "none" ] ; then
+		echo "Mount home $BUILDERHOME ..."
+		$SUDO mount $BUILDERHOME $BUILDROOT/home/$INTUSER --bind || { warning "Cannot mount home" ; return 1 ; }
+	fi
 
 	echo "Mount /tmp $BUILDROOT-tmp ..."
 	mkdir -p $BUILDROOT-tmp
@@ -362,6 +412,7 @@ end_umount()
 # use --user for change to local user INTUSER
 run_in_chroot()
 {
+	echo "$FUNCNAME::run_in_chroot $*" >&2
 	assert_var INTUSER
 
 	local LOUSER=""
@@ -393,12 +444,16 @@ run_in_chroot()
 		[ -n "$INTERACTIVE" ] && INTERACTIVE="-ti" || INTERACTIVE="-i"
 		echo "Run command in docker build system:" >&2
 		if [ -z "$LOUSER" ] || [ "$LOUSER" = "root" ] ; then
+			# to get needed privilegies
+			#[ "$DISTRNAME" = "OSNovaLinux" ] && arch="$arch sudo"
 			#evz exec $DISTRNAME/$DISTRVERSION "$@"
 			echo "# $@" >&2
+			echo "$FUNCNAME:: docker exec $INTERACTIVE --user $INTUSER -e LC_ALL=C $CONTAINERNAME $arch sh -c \"$*\"" >&2
 			a='' docker exec $INTERACTIVE -e LC_ALL=C $CONTAINERNAME $arch sh -c "$*"
 		else
 			#evz exec $DISTRNAME/$DISTRVERSION "gosu $INTUSER export LANG=C ; export LC_ALL=C ; . ~/.profile ; $@"
 			echo "$ $@" >&2
+			echo "$FUNCNAME:: docker exec $INTERACTIVE --user $INTUSER -e LC_ALL=C $CONTAINERNAME $arch sh -c \"$*\"" >&2
 			a='' docker exec $INTERACTIVE --user $INTUSER -e LC_ALL=C $CONTAINERNAME $arch sh -c "$*"
 		fi
 		return
