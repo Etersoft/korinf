@@ -21,11 +21,16 @@ CentOS/6 Scientific/6
 CentOS/7 x86_64/CentOS/7
 x86_64/CentOS/6 x86_64/Scientific/6
 #StartCom/5 CentOS/5
-x86_64/RedOS/7 x86_64/RedOS/7.3
-x86_64/RockyLinux/9.1 x86_64/RockyLinux/9
-x86_64/RockyLinux/9.2 x86_64/RockyLinux/9
-RedOS/7 RedOS/7.3
-#x86_64/AlterOS/7 x86_64/RedOS/7.3
+#x86_64/RedOS/7 x86_64/RedOS/7.3
+#x86_64/RockyLinux/9.1 x86_64/RockyLinux/9
+#x86_64/RockyLinux/9.2 x86_64/RockyLinux/9
+#RedOS/7 RedOS/7.3
+x86_64/CentOS/8 x86_64/RockyLinux/8
+CentOS/8 RockyLinux/8
+x86_64/RHEL/8 x86_64/RockyLinux/8
+RHEL/8 RockyLinux/8
+x86_64/RHEL/9 x86_64/RockyLinux/9
+RHEL/9 RockyLinux/9
 x86_64/MOSDesktop/2021.1 x86_64/ROSA/2021.1
 
 SLES/10 SLED/10
@@ -33,19 +38,18 @@ SLES/11 SLED/11
 x86_64/SLES/11 x86_64/SLED/11
 SUSE/10.2 SUSE/10.1
 
-
 LinuxMint/19 Ubuntu/18.04
 LinuxMint/20 Ubuntu/20.04
 LinuxMint/21 Ubuntu/22.04
+LinuxMint/22 Ubuntu/24.04
 
 x86_64/LinuxMint/19 x86_64/Ubuntu/18.04
 x86_64/LinuxMint/20 x86_64/Ubuntu/20.04
+x86_64/LinuxMint/21 x86_64/Ubuntu/22.04
+x86_64/LinuxMint/22 x86_64/Ubuntu/24.04
 
-#LinuxWizard/Server CentOS/5
-#LinuxWizard/6 CentOS/6
-#LinuxWizard/Desktop Ubuntu/10.04
-
-#NauLinux/5 CentOS/5
+LMDE/6 Debian/12
+x86_64/LMDE/6 x86_64/Debian/12
 
 x86_64/ArchLinux/CUR x86_64/ArchLinux/rolling
 #x86_64/ArchLinux/CUR x86_64/ArchLinux/2013.2
@@ -55,7 +59,11 @@ x86_64/Gentoo/CUR x86_64/Gentoo/13.0
 AstraLinux/orel AstraLinuxCE/2.12
 AstraLinuxCE/2.12.44 AstraLinuxCE/2.12
 AstraLinux/smolensk AstraLinuxSE/1.7
+AstraLinux/1.7 AstraLinuxSE/1.7
+AstraLinux/1.8 AstraLinuxSE/1.8
 
 x86_64/AstraLinux/orel x86_64/AstraLinuxCE/2.12
 x86_64/AstraLinuxCE/2.12.44 x86_64/AstraLinuxCE/2.12
 x86_64/AstraLinux/smolensk x86_64/AstraLinuxSE/1.7
+x86_64/AstraLinux/1.7 x86_64/AstraLinuxSE/1.7
+x86_64/AstraLinux/1.8 x86_64/AstraLinuxSE/1.8
