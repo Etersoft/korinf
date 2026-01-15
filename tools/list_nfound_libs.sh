@@ -13,10 +13,14 @@ IPATH="WINE"
 [ -n "$3" ] && { WINEPUB_PATH="$3" ; IPATH="" ; }
 [ -n "$4" ] && SKIPPED="$4" || SKIPPED="libcapi|OpenCL"
 NAME=$WINEPUB_PATH/$VERSION
+LOGNAME=$PACKAGENAME.log.bz2
 
 [ -n "$VERBOSE" ] && echo "Check in $NAME for $PACKAGENAME package..."
-for n in $(get_distro_list $NAME || korlogin) ; do
-	FILE=$NAME/$IPATH/$n/log/$PACKAGENAME.log.bz2
+#for n in $(get_distro_list $NAME || ../bin/korlogin) ; do
+for n in $(../bin/korlogin) ; do
+	FILE=$NAME/$IPATH/$n/log/$LOGNAME
+	FILE32=$(echo "$FILE" | sed -e 's|32-|-|')
+	[ -s "$FILE32" ] && FILE=$FILE32
 	[ -s "$FILE" ] || { echo "$FILE: no such file" ; continue ; }
 	res=$(bzcat $FILE | grep "configure:" | grep development | grep found | sed -e "s|^configure:|          |g" | grep -E -v "($SKIPPED)")
 	if [ -n "$VERBOSE" ] || [ -n "$res" ] ; then
