@@ -58,9 +58,21 @@ check_if_updated()
 			# epm checkpkg: sha1 ?UnknownSigatureType? md5 НЕ ОК
 			rhas $DIST "ROSA/2021.1" && return 0
 			# epm checkpkg: sha1 ?UnknownSigatureType? md5 НЕ ОК
-			rhas $DIST "RockyLinux/8" && return 0
+			rhas $DIST "RedOS" && return 0
+			# epm checkpkg: sha1 ?UnknownSigatureType? md5 НЕ ОК
+			rhas $DIST "RockyLinux" && return 0
+			# epm checkpkg: sha1 ?UnknownSigatureType? md5 НЕ ОК
+			rhas $DIST "CentOS" && return 0
+			# epm checkpkg: sha1 ?UnknownSigatureType? md5 НЕ ОК
+			rhas $DIST "AlterOS/9" && return 0
+			# epm checkpkg: sha1 ?UnknownSigatureType? md5 НЕ ОК
+			rhas $DIST "MSVSphere" && return 0
 			# epm checkpkg: sha1 ?UnknownSigatureType? md5 НЕ ОК
 			rhas $DIST "Fedora" && return 0
+
+			# Do not exec epm checkpkg on rxclient.exe if Windows/ALL
+			# eterbug #17420
+			rhas $DIST "Windows/ALL" && return 0
 
 			fatal "Package $BINPKG is broken!!! Check it with epm checkpkg"
 			# We can't remove files partially
@@ -72,7 +84,12 @@ check_if_updated()
 	DESTDIR=$PRODPATH/$DIST
 
 	#if [ -z "$FORCEBUILD" ] ; then
-	is_autobuild_failed && fatal "Package $BINBUILDNAME should be rebuilt from $SRCRPM, but previous autobuild was failed"
+	is_autobuild_failed || return 1
+
+	# skip build
+	[ -z "$NOFATAL" ] || return 0
+
+	fatal "Package $BINBUILDNAME should be rebuilt from $SRCRPM, but previous autobuild was failed"
 	#fi
 
 	return 1
@@ -109,7 +126,7 @@ check_and_refresh_component()
 	fi
 
 	set_autobuild_failed
-	fatal "Can't rebuild $BINBUILDNAME package"
+	[ -z "$NOFATAL" ] && fatal "Can't rebuild $BINBUILDNAME component"
 	return 1
 }
 
@@ -131,6 +148,6 @@ check_and_refresh_package()
 	$AROBOTDIR/../bin/korinf -f $BUILDNAME $DIST $PRODPATH && return 0
 
 	set_autobuild_failed
-	fatal "Can't rebuild $BINBUILDNAME package"
+	[ -z "$NOFATAL" ] && fatal "Can't rebuild $BINBUILDNAME package"
 	return 1
 }

@@ -35,6 +35,16 @@ do_removed()
         exit 1
 }
 
+set_var_from_task_file()
+{
+    # Чтение и установка переменных
+    while IFS='=' read -r key value; do
+        # Пропускаем комментарии и пустые строки
+        [[ $key =~ ^#.*$ ]] || [[ -z $key ]] && continue
+        # Устанавливаем переменную
+        declare -x "$key"="$value"
+    done < config.env
+}
 
 # Load task info in the script variables
 # set global: TASK, TARGETDIRNAME and vars from task
@@ -67,6 +77,10 @@ load_task()
 		DIST=ANY # for use in path
 		#do_broken "Unexisted DIST $DIST"
 	fi
+
+	# hack: ALT bug https://bugs.etersoft.ru/show_bug.cgi?id=15347
+	[ "$DATE_END" = '01/01/1970' ] && DATE_END='01/05/2036'
+	PKGTYPE="$(epm print info -p $DIST)"
 
 	grep -q "# buil. FAILED" "$TASK" && export FORCEBUILD=1
 

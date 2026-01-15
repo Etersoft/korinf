@@ -92,7 +92,7 @@ prepare_wine_etersoft()
 	WINEPRODUCT32=wine32-etersoft
 	WINETRICKS=$WINEPRODUCT-winetricks
 
-	if echo "$PROJECTVERSION" | grep "^[12456]" || [ "$PROJECTVERSION" = "7.13" ]  ; then
+	if echo "$PROJECTVERSION" | grep "^[12456][-.]" || [ "$PROJECTVERSION" = "7.13" ]  ; then
 		WINEPRODUCT=wine
 		WINEPRODUCT32=wine32
 		WINETRICKS=winetricks
@@ -101,21 +101,29 @@ prepare_wine_etersoft()
 	check_and_refresh_component bin-wine $PUBLOCAL/WINE wine-etersoft
 	check_and_refresh_component bin-wine $PVTLOCAL wine-etersoft-${PRODUCT_name}
 
-	if echo "$PROJECTVERSION" | grep "^[56789]" ; then
+	if rhas "$PROJECTVERSION" "^([56789]|10)[-.]" ; then
 		check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINEPRODUCT-gecko
 		check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINEPRODUCT-mono
 		check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINEPRODUCT-grdwine
 		check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINETRICKS
 	fi
 
-
+car_32bit_comp()
+{
+	check_and_refresh_component bin-wine $PUBLOCAL/WINE wine-etersoft '' wine32-etersoft  || return 1
+	check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINEPRODUCT-grdwine '' $WINEPRODUCT32-grdwine || return 1
+	return 0
+}
+	NOFATAL=''
+	rhas "$PROJECTVERSION" "^10[-.]" && NOFATAL=1
 	DIST32=''
-	if rhas "$PROJECTVERSION" "^[789]" && rhas "$DIST" "^x86_64" ; then
+	if rhas "$PROJECTVERSION" "^([789]|10)[-.]" && rhas "$DIST" "^x86_64" && ! rhas "$PROJECTVERSION" "wow64" ; then
 		DIST32=$(echo "$DIST" | sed -e"s|x86_64/||")
 		#
 		#( DIST=$DIST32 check_and_refresh_component bin-wine $PVTLOCAL wine-etersoft-${PRODUCT_name} ) || fatal "Can't build 32 bit part"
-		( DIST=$DIST32 check_and_refresh_component bin-wine $PUBLOCAL/WINE wine-etersoft '' wine32-etersoft ) || fatal "Can't build 32 bit part"
-		( DIST=$DIST32 check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINEPRODUCT-grdwine '' $WINEPRODUCT32-grdwine ) || fatal "Can't build 32 bit part"
+		if ! ( DIST=$DIST32 car_32bit_comp ) ; then
+			[ -z "$NOFATAL" ] && fatal "Can't build 32 bit part"
+		fi
 	fi
 
 	#[ "$TYPE" = "School" ] || check_and_refresh_component bin-wine $PUBLOCAL/fonts fonts-ttf-ms
@@ -123,13 +131,14 @@ prepare_wine_etersoft()
 	# use epm play aksusbd
 	#check_and_refresh_component bin-hasp $PUBLOCAL/HASP haspd
 
-	if rhas "$PROJECTVERSION" "^[789]" ; then
+	if rhas "$PROJECTVERSION" "^([789]|10)[-.]" ; then
 		check_and_refresh_component bin-wine $PUBLOCAL/WINE eepm
 		PUB6FILES=`find -L $PUBLOCAL/WINE/$DIST -maxdepth 1 -type f -name "eepm[_-]*"`
-	else
-		check_and_refresh_package $KORINFLOCAL eepm
-		PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm[_-]*"`
+	#else
+	#	check_and_refresh_package $KORINFLOCAL eepm
+	#	PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm[_-]*"`
 	fi
+
 
 	#[ "$TYPE" = "Local" ] || check_and_refresh_component bin-cifs $PUBLOCAL/CIFS etercifs
 
@@ -196,7 +205,7 @@ prepare_wine_etersoft()
 	# Ещё раз проверяем наличие обязательных пакетов
 	# Check package files
 	assert_present_package $FTPDIR wine-etersoft
-	if [ -n "$DIST32" ] ; then
+	if rhas "$PROJECTVERSION" "^[56789][-.]" ; then
 		assert_present_package $FTPDIR wine32-etersoft
 		assert_present_package $FTPDIR $WINEPRODUCT32-grdwine
 	fi
@@ -218,7 +227,7 @@ prepare_wine_etersoft()
 		#[ "$TYPE" = "SchoolDIS" ] || assert_present_package $FTPDIR fonts-ttf-liberation
 	fi
 
-	if rhas "$PROJECTVERSION" "^[56789]" ; then
+	if rhas "$PROJECTVERSION" "^([789]|10)[-.]" ; then
 		assert_present_package $FTPDIR eepm
 
 		assert_present_package $FTPDIR $WINEPRODUCT-gecko
@@ -246,15 +255,9 @@ prepare_wine_etersoft()
 	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/README_$TYPE.html >$FTPDIR/README.html || fatal "readme copying"
 	sed -e "s/XXXX-XXXX/$ETERREGNUM/g" <$DOCS/license_${PRODUCT_name}_${LICENSE_name}.html >$FTPDIR/license.html || fatal "license copying"
 	# не пакуем документацию для новых версий
-	if echo "$PROJECTVERSION" | grep "^[12]" ; then
+	if echo "$PROJECTVERSION" | grep "^[12][-.]" ; then
 		cp -f $DOCS/${PRODUCT_name}_manual.html $FTPDIR/manual.html || fatal "manual copying"
 	fi
-
-	# список файлов
-	cd $FTPDIR/ || fatal "cd"
-	md5sum *.* >$FTPDIR/wine-etersoft-install.md5 || fatal "file list"
-	sha256sum *.* | grep -v "wine-etersoft-install.md5" >$FTPDIR/wine-etersoft-install.sha256 || fatal "file list"
-	cd - >/dev/null
 
 	DDIR="${DOWNLOADDIR}/$TYPE-$PROJECTVERSION/$DIST"
 	echo "$DDIR" >$FTPDIR/Version
@@ -263,6 +266,12 @@ prepare_wine_etersoft()
 		# скрипт установки
 		sed -e "s|^URLRPM=|URLRPM=$DDIR|" <$DOCS/wine-etersoft-install.sh >$FTPDIR/wine-etersoft-install.sh || fatal "install script"
 	fi
+
+	# контрольные суммы для файлов
+	cd $FTPDIR/ || fatal "cd"
+	md5sum *.* >$FTPDIR/wine-etersoft-install.md5 || fatal "file list"
+	sha256sum *.* | grep -v "wine-etersoft-install.md5" >$FTPDIR/wine-etersoft-install.sha256 || fatal "file list"
+	cd - >/dev/null
 
 }
 
@@ -314,8 +323,8 @@ ${BETA}
  - документацию (файл manual.html);
 $CIFSTEXT
 ОБРАТИТЕ ВНИМАНИЕ!
-Файл лицензии $LICENSEFILE необходимо расположить в каталоге /etc/wine, ~/.wine или
-C:\WINDOWS\INF и проверить права на его чтение пользователями.
+Файл лицензии $LICENSEFILE размещается в каталоге /etc/wine-etersoft (доступный на чтение всеми пользователями),
+или в ~/.wine или C:\WINDOWS\INF для конкретного пользователя (окружения).
 EOF
 	printURL "$FTPDIR" "$DOWNLOADDIR/$TYPE-$PROJECTVERSION/$DIST" $FTPDIR/$LICENSEFILE >>$FILETO || fatal "Error with $LICENSEFILE "
 
@@ -408,7 +417,7 @@ fi
 
 -- 
 Команда разработчиков
-Etersoft, 2023
+Etersoft, 2025
 EOF
 }
 
@@ -516,7 +525,7 @@ fi
 
 -- 
 Команда разработчиков
-Etersoft, 2023
+Etersoft, 2025
 EOF
 }
 
@@ -550,8 +559,8 @@ EOF
 
 cat >>$FILETO <<EOF
 
-Файл лицензии $LICENSEFILE необходимо расположить в одном из следующих каталогов:
-/etc/wine, ~/.wine или C:\WINDOWS\INF и проверить права на его чтение пользователями.
+Файл лицензии $LICENSEFILE размещается в каталоге /etc/wine-etersoft (доступный на чтение всеми пользователями),
+или в ~/.wine или C:\WINDOWS\INF для конкретного пользователя (окружения).
 
 Всегда можно заказать сборку или файл лицензии ещё раз по адресу http://sales.etersoft.ru/product/${ETERREGNUM}/email=${MAILTO}
 
@@ -565,7 +574,7 @@ EOF
 
 -- 
 Команда разработчиков
-Etersoft, 2023
+Etersoft, 2025
 EOF
 }
 
@@ -645,10 +654,10 @@ build_wine_etersoft()
 	prepare_wine_etersoft
 
 	TMPMAIL=$(make_temp_file)
-	if echo "$PROJECTVERSION" | grep "^[789]" ; then
-		prepare_wine_etersoft7_mail $TMPMAIL || fatal "Can't prepare letter"
-	else
+	if echo "$PROJECTVERSION" | grep "^[123456][-.]" ; then
 		prepare_wine_etersoft_mail $TMPMAIL || fatal "Can't prepare letter"
+	else
+		prepare_wine_etersoft7_mail $TMPMAIL || fatal "Can't prepare letter"
 	fi
 	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8

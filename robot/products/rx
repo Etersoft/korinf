@@ -89,10 +89,18 @@ build_rx()
 			if [ "$DIST" = "Windows/ALL" ] ; then
 				CHECKCOMP="opennx"
 			fi
-		else
+		elif [ "$PROJECTVERSION" = "1.6" -o "$PROJECTVERSION" = "1.7" ] ; then
+			COMPONENTSCRIPTDIR="bin-rx"
+			CHECKCOMP="rxclient rx-etersoft nx"
+
 			COMPONENTSCRIPTDIR="bin-rx"
 			CHECKCOMP="rxclient rx-etersoft nx-libs nxssh prunner rx-etersoft-pcsc" #rx-etersoft-usbip"
 			PACKAGELIST="nx-libs nxagent nxproxy nxssh prunner rx-etersoft rxclient rx-etersoft-pcsc" #rx-etersoft-usbip"
+
+		else
+			COMPONENTSCRIPTDIR="bin-rx"
+			CHECKCOMP="rxclient rx-etersoft nx-libs nxssh prunner rx-etersoft-pcsc rx-etersoft-kdrive rxkdriveclient" #rx-etersoft-usbip"
+			PACKAGELIST="nx-libs nxagent nxproxy nxssh prunner rx-etersoft rxclient rx-etersoft-pcsc rxclient-pcsc rx-etersoft-pcsc-driver rx-etersoft-kdrive rxkdriveclient" #rx-etersoft-usbip"
 
                         if [ "$DIST" = "SLES/11" ] || [ "$DIST" = "SLED/11" ] ; then
                                 # checking for wxLogStream... configure: error:
@@ -112,7 +120,7 @@ build_rx()
 
 		# exports FTPDIR
 		LICENSEFILE=rx-etersoft.lic
-		LICENSEDIR="/etc/nxserver"
+		LICENSEDIR="/etc/rx-etersoft"
 		create_license_dir
 
 	# Для отправки писем обязательно нужна локаль!
@@ -127,8 +135,12 @@ build_rx()
 			assert_present_package $LOCALDIR/$DIST $i
 		done
 
-		check_and_refresh_package $KORINFLOCAL eepm
-		PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm[_-]3*"`
+		# Do not check eepm for "Windows/ALL"
+		# eterbug #17420
+		if [ "$DIST" != "Windows/ALL" ] ; then
+			check_and_refresh_package $KORINFLOCAL eepm
+			PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm[_-]3*"`
+		fi
 
 		if echo "$LOCALDIR" | grep -q "/pvt/Etersoft" ; then
 			PRIVFILES=''
@@ -152,7 +164,7 @@ build_rx()
 		prepare_component_mail $TMPMAIL || fatal "Can't prepare letter"
 	fi
 
-	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Сборка $COMPONENTNAME $PROJECTVERSION" || fatal "Can't send"
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Сборка $COMPONENTNAME $PROJECTVERSION для ${TEXTDIST}" || fatal "Can't send"
 	rm -f $TMPMAIL
 }
 
