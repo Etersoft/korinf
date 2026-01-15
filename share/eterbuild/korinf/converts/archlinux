@@ -55,7 +55,8 @@ convert_archlinux()
 		# rpm2cpio is broken
 		# rpm2cpio \$pkg | cpio -dimv || exit
 		# from rpmextract package
-		rpmextract.sh \$pkg || exit
+		# rpmextract.sh \$pkg || exit
+		rpm2cpio \$pkg | bsdtar -xf -
 		rm -f \$pkg
 	done
 
@@ -97,8 +98,13 @@ PKGEOF
 	true
 EOF
 
-	# Skip, we can get packages locally
-	#echo "$BUILTRPM/$TARGETPKG"
-	#run_in_chroot --user "cat $INTBUILT/$TARGETPKG" >$BUILTRPM/$TARGETPKG || return
+	# Copy built packages from container to host
+	mkdir -p $BUILTRPM
+	local tmptar
+	tmptar=$(basename $TARGETSRPM .src.rpm)
+	run_in_chroot --user $dist "cd $INTBUILT/ && tar -cf - *.$PKGFORMAT" >$BUILTRPM/$tmptar.tar || return
+	pushd $BUILTRPM
+	tar xfv $BUILTRPM/$tmptar.tar && rm -f $BUILTRPM/$tmptar.tar || return
+	popd
 }
 
