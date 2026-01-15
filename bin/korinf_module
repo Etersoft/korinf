@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 build_eepm()
 {
@@ -7,6 +7,6 @@ build_eepm()
 
 build_eepm $1
 
-for i in wine-2 wine-7 rx ; do
+for i in wine-2 wine-7 wine-8.12 rx ; do
     KORINFMODULE=$i build_eepm $1
 done

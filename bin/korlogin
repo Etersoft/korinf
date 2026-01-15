@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ##
 #  Korinf project
 #
@@ -62,6 +62,7 @@ shift
 
 USERCO=""
 [ "$1" = "-r" ] && shift || USERCO="--user"
+[ "$1" = "--nohome" ] && shift && KORLOGINHOME="none"
 COMMANDTO="/bin/bash"
 
 # FIXME: only for local
@@ -88,7 +89,7 @@ fi
 
 echo
 echo "############"
-mount_linux $SYS $KORLOGINHOME || continue
+mount_linux $SYS $KORLOGINHOME || fatal
 
 export HOSTNAME=$SYS
 export PS1="[\u@$SYS \W]\$"

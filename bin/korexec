@@ -58,6 +58,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 
     run_in_chroot --interactive $dist "$*"
 
+    STATUSBUILD='done' # don't ignore BOOTSTRAP
     end_umount $dist
 
 #    RES=$?
