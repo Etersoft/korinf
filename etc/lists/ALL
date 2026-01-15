@@ -13,11 +13,13 @@
 . Fedora
 . ROSA
 . AlterOS
+. MSVSphere
 #. Mandriva
 
 . Debian
 
-. OSNovaLinux
+. OSnovaLinux
+. Uncom
 
 #. SUSE
 

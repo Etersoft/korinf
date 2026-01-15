@@ -15,3 +15,9 @@ x86_64/Debian/11
 
 # LTS until 06.2028
 x86_64/Debian/12
+
+# LTS until 06.2030
+x86_64/Debian/13
+
+# Debian/12
+x86_64/LMDE/6

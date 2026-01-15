@@ -1,8 +1,8 @@
 # Список для проверки собираемости
-Debian/11
-Ubuntu/20.04
-x86_64/RockyLinux/8
-x86_64/Ubuntu/20.04
-x86_64/ALTLinux/p10
 ALTLinux/Sisyphus
-x86_64/ALTLinux/Sisyphus
+#Debian/11
+Ubuntu/22.04
+#RockyLinux/8
+AlterOS/7
+RedOS/7.3
+ALTLinux/p10
