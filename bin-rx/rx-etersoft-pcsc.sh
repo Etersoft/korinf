@@ -10,4 +10,6 @@ kormod korinf
 
 export KORINFMODULE=rx
 
+MAINFILES="rx-etersoft-pcsc[-_][0-9] rxclient-pcsc[-_][0-9]"
+
 build_project /var/ftp/pvt/Etersoft/RX@Etersoft rx-etersoft-pcsc "" $@

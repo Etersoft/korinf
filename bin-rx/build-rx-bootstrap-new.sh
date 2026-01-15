@@ -1,22 +1,35 @@
 #!/bin/sh
 
 # Using:
-#  script [--force|--init|--check] System/Version [target version]
+#  script [--nostop] [--force|--init|--check] System/Version [target version]
 # --force -- force rebuild from any state
 # --check -- print check list
 # --init  -- install build requires before build
 # --noinst  -- don't install after build
+# --nostop  -- don't stop on errors
+
+NOSTOP=''
 
 STATE=''
-case "$1" in
-    --force|--init|--check|--noinst)
-        STATE="$1"
-        shift
-        ;;
-    -*)
-        echo "Error: unknown arg $1. Run with System/Version as arg"
-        exit 1
-esac
+while [ -n "$1" ] ; do
+    case "$1" in
+        --nostop)
+            NOSTOP=1
+            shift
+            ;;
+        --force|--init|--check|--noinst)
+            STATE="$1"
+            shift
+            ;;
+        -*)
+            echo "Error: unknown arg $1. Run with System/Version as arg"
+            exit 1
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
 
 . ./functions
 
@@ -36,7 +49,10 @@ dosh()
     local i j
     for i in "$@" ; do
         for j in $cmd ; do
-            ./$i.sh $DISTR $ver $j || exit
+            echo
+            echo
+            echo "> ./$i.sh $DISTR $ver $j"
+            ./$i.sh $DISTR $ver $j || { [ -z "$NOSTOP" ] && exit ; }
         done
     done
     return 0
@@ -46,6 +62,7 @@ do_check()
 {
     local i
     for i in "$@" ; do
+        echo
         ./$i.sh $DISTR $ver -q -c
     done
     return 0
@@ -90,7 +107,7 @@ do_build()
     esac
 }
 
-do_bootstrap nx-libs prunner nxssh rx-etersoft
+do_bootstrap nx-libs prunner nxssh rx-etersoft rxclient
 do_build rxclient rx-etersoft-pcsc
 
 [ "$STATE" = "--check" ] && echo "Legend: MIS - missed, OBS - obsoleted build, ABF - autobuild failed, FIL - manual build failed"
