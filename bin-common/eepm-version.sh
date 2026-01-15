@@ -6,7 +6,10 @@
 . `dirname $0`/../share/eterbuild/korinf/common
 kormod korinf
 
-MAINFILES="eepm[-_][0-9]"
+#MAINFILES="eepm[-_][0-9]"
 #EXTRAFILES="eepm-[a-z]*[-_][0-9]"
 
-build_project /var/ftp/pub/Etersoft/EPM/$1 eepm "" all
+distr="all"
+[ -n "$2" ] && distr="$2"
+
+build_project /var/ftp/pub/Etersoft/EPM/$1 eepm "" $distr "$3"
