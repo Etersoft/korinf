@@ -2,9 +2,9 @@ FROM x86-64-astralinux-orel:2.12
 
 # TODO: install epm
 # RPM specific
-RUN apt-get update
 # enable i386
 RUN DEBIAN_FRONTEND=noninteractive dpkg --add-architecture i386
+RUN apt-get update
 # rpm-build
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libtool automake autoconf gzip bzip2 pkg-config cpio patch gcc coreutils grep make rpm gawk
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libc6-dev

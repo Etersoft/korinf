@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+FROM i386/debian:bookworm-slim
 
 # TODO: install epm
 # RPM specific
