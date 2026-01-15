@@ -1,0 +1,14 @@
+# Список для проверки собираемости
+x86_64/ALTLinux/Sisyphus
+x86_64/ALTLinux/p8
+x86_64/AstraLinuxSE/1.8
+x86_64/AstraLinuxSE/1.7
+x86_64/ALTLinux/p10
+x86_64/ALTLinux/p11
+#x86_64/Debian/11
+x86_64/Ubuntu/22.04
+#x86_64/RockyLinux/8
+#x86_64/AlterOS/7
+x86_64/RedOS/7.3
+x86_64/RedOS/8.0
+x86_64/MSVSphere/9
