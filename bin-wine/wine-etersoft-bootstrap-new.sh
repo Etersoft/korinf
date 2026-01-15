@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Using:
 #  script [--nostop] [--force|--init|--check] System/Version [target version]
@@ -30,6 +30,9 @@ while [ -n "$1" ] ; do
             ;;
     esac
 done
+
+DIRNAME="$(dirname $0)"
+cd $DIRNAME
 
 . ./functions
 
@@ -108,12 +111,6 @@ do_build()
 }
 
 case "$ver" in
-    1*|2*)
-        # x86_64
-        do_bootstrap wine-etersoft
-        do_build wine-etersoft-local wine-etersoft-network wine-etersoft-sql
-        #wine-grdwine
-        ;;
     7.13)
         if echo "$DISTR" | grep -q "x86_64/" ; then
             # x86_64
@@ -126,7 +123,14 @@ case "$ver" in
         do_bootstrap wine-gecko wine-mono winetricks wine32-etersoft
         do_build wine32-grdwine
         ;;
-    7*|8*)
+    9*wow64*)
+        if echo "$DISTR" | grep -q "x86_64/" ; then
+            # x86_64
+            do_bootstrap eepm wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks wine-etersoft
+            do_build wine-etersoft-local wine-etersoft-network wine-etersoft-grdwine
+        fi
+        ;;
+    7*|8*|9*|10*)
         if echo "$DISTR" | grep -q "x86_64/" ; then
             # x86_64
             do_bootstrap eepm wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks wine-etersoft
@@ -137,6 +141,19 @@ case "$ver" in
         DISTR="$(echo "$DISTR" | sed -e "s|x86_64/|i586/|")"
         do_bootstrap eepm wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks wine32-etersoft
         do_build wine32-etersoft-grdwine
+        ;;
+    11*)
+        if echo "$DISTR" | grep -q "x86_64/" ; then
+            # x86_64
+            do_bootstrap eepm wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks wine-etersoft
+            do_build wine-etersoft-local wine-etersoft-network wine-etersoft-grdwine
+        fi
+        ;;
+    1*|2*)
+        # x86_64
+        do_bootstrap wine-etersoft
+        do_build wine-etersoft-local wine-etersoft-network wine-etersoft-sql
+        #wine-grdwine
         ;;
     *)
         fatal "Unknown version $ver"

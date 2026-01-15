@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 . `dirname $0`/config
 
@@ -30,11 +30,24 @@ case $ver in
     7*)
         ver=7-unstable
         ;;
-    8.0*|8-testing)
+    8.0*)
         ver=7-unstable
         ;;
-    8.12*|8-unstable)
+    8.1*|8-testing)
         ver=8.12
+        ;;
+    8.2*|8-unstable)
+        ver=8.12
+        #ver=8.20
+        ;;
+    9.*|9-testing|9-unstable)
+        ver=9.0
+        ;;
+    9*wow64*)
+        ver=9.0-wow64
+        ;;
+    10*)
+        ver=10.0
         ;;
 esac
 export KORINFMODULE=wine-$ver

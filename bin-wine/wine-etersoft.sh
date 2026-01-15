@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # 2005, 2006, 2007, 2008 (c) Etersoft http://etersoft.ru
 # Author: Vitaly Lipatov <lav@etersoft.ru>
 # GNU Public License version 3
@@ -15,17 +15,17 @@ NAME=wine-etersoft
 set_ver "$@"
 
 case "$ver" in
-    1*|2*)
-        MAINFILES="$NAME[-_][0-9] $NAME-gl"
-        EXTRAFILES="$NAME-twain lib$NAME-devel"
-        ;;
     5*|6*)
         MAINFILES="$NAME[-_][0-9] $NAME-full[-_][0-9] $NAME-programs[-_][0-9] lib$NAME[-_][0-9] lib$NAME-gl"
         EXTRAFILES="lib$NAME-twain lib$NAME-devel"
         ;;
-    7*|8*)
+    7*|8*|9*|10*)
         MAINFILES="$NAME[-_][0-9] $NAME-common[-_][0-9] $NAME-full[-_][0-9] $NAME-programs[-_][0-9]"
         EXTRAFILES="$NAME-devel $NAME-ping[-_][0-9]"
+        ;;
+    1*|2*)
+        MAINFILES="$NAME[-_][0-9] $NAME-gl"
+        EXTRAFILES="$NAME-twain lib$NAME-devel"
         ;;
      *)
         fatal "Unknown ver $ver"
