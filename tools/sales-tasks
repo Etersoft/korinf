@@ -15,7 +15,7 @@ Commands:
   stat [filters]         - Show statistics table
   errors [filters]       - Group by error type (failed component)
   restart [filters]      - Restart failed tasks matching filters
-  show <task-file>       - Show task details
+  show <task-file>       - Show task details (or use filters to show first match)
 
 Filters:
   --dist DIST           - Filter by distribution (e.g. x86_64/Ubuntu/24.04)
@@ -186,6 +186,10 @@ list_tasks() {
     local files=$(filter_tasks "$dist_filter" "$product_filter" "$version_filter" "$sort_order" "$limit")
     [ -z "$files" ] && echo "No failed tasks found" && return 0
 
+    printf "%-25s %-15s %s\n" "DIST" "VERSION" "PRODUCT"
+    printf "%-25s %-15s %s\n" "----" "-------" "-------"
+    echo ""
+
     for f in $files; do
         local basename=$(basename "$f" .task.failed)
         local dist=$(get_field "$f" "DIST")
@@ -201,6 +205,18 @@ list_tasks() {
 # Show task details
 show_task() {
     local file="$1"
+    local dist_filter="$2"
+    local product_filter="$3"
+    local version_filter="$4"
+
+    # If filters provided, find first matching task
+    if [ -n "$dist_filter" ] || [ -n "$product_filter" ] || [ -n "$version_filter" ]; then
+        file=$(filter_tasks "$dist_filter" "$product_filter" "$version_filter" "newest" "1")
+        if [ -z "$file" ]; then
+            echo "No matching tasks found"
+            return 1
+        fi
+    fi
 
     if [ ! -f "$file" ]; then
         file="$SALES_DIR/$file"
@@ -312,7 +328,7 @@ case "$COMMAND" in
         restart_tasks "$DIST_FILTER" "$PRODUCT_FILTER" "$VERSION_FILTER" "$SORT_ORDER" "$LIMIT"
         ;;
     show|info)
-        show_task "$TASK_FILE"
+        show_task "$TASK_FILE" "$DIST_FILTER" "$PRODUCT_FILTER" "$VERSION_FILTER"
         ;;
     help|--help|-h)
         print_help
