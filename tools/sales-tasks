@@ -1,0 +1,275 @@
+#!/bin/bash
+# Sales tasks management tool
+# (c) 2026 Etersoft
+# Authors: Vitaly Lipatov <lav@etersoft.ru>
+#          Claude Sonnet 4.5 <noreply@anthropic.com>
+
+SALES_DIR="${SALES_DIR:-$HOME/sales}"
+
+print_help() {
+    cat <<EOF
+Usage: sales-tasks [command] [options]
+
+Commands:
+  list [filters]         - List failed tasks with filters
+  stat [filters]         - Show statistics table
+  restart [filters]      - Restart failed tasks matching filters
+  show <task-file>       - Show task details
+
+Filters:
+  --dist DIST           - Filter by distribution (e.g. x86_64/Ubuntu/24.04)
+  --product PRODUCT     - Filter by product substring (e.g. "WINE@Etersoft")
+  --version VERSION     - Filter by project version (e.g. 10-testing)
+  --count N             - Limit results to N tasks (default: all)
+  --newest              - Sort by newest first (default)
+  --oldest              - Sort by oldest first
+
+Examples:
+  sales-tasks stat
+  sales-tasks stat --dist Ubuntu/24.04
+  sales-tasks list --product WINE --version 10-testing
+  sales-tasks restart --dist RedOS/7.3 --version 10-testing
+  sales-tasks restart --count 5 --newest
+
+Environment:
+  SALES_DIR             - Directory with tasks (default: \$HOME/sales)
+EOF
+}
+
+# Parse task file and extract field
+get_field() {
+    local file="$1"
+    local field="$2"
+    grep "^$field=" "$file" 2>/dev/null | head -1 | sed "s/^$field=//;s/\"//g"
+}
+
+# Get last error from task
+get_error() {
+    local file="$1"
+    tail -1 "$file" | sed 's/^# build FAILED at [^(]* (//' | sed 's/)$//'
+}
+
+# Filter tasks by criteria
+filter_tasks() {
+    local dist_filter="$1"
+    local product_filter="$2"
+    local version_filter="$3"
+    local sort_order="$4"
+    local limit="$5"
+
+    local sort_flag="-t"
+    [ "$sort_order" = "oldest" ] && sort_flag=""
+
+    local files=$(ls $sort_flag "$SALES_DIR"/*.task.failed 2>/dev/null)
+    [ -z "$files" ] && return 0
+
+    local matched=()
+    for f in $files; do
+        local dist=$(get_field "$f" "DIST")
+        local product=$(get_field "$f" "PRODUCT")
+        local version=$(get_field "$f" "PROJECTVERSION")
+
+        # Apply filters
+        if [ -n "$dist_filter" ] && ! echo "$dist" | grep -q "$dist_filter"; then
+            continue
+        fi
+        if [ -n "$product_filter" ] && ! echo "$product" | grep -q "$product_filter"; then
+            continue
+        fi
+        if [ -n "$version_filter" ] && [ "$version" != "$version_filter" ]; then
+            continue
+        fi
+
+        matched+=("$f")
+    done
+
+    # Apply limit
+    if [ -n "$limit" ] && [ "$limit" -gt 0 ]; then
+        matched=("${matched[@]:0:$limit}")
+    fi
+
+    printf '%s\n' "${matched[@]}"
+}
+
+# Show statistics table
+show_stat() {
+    local dist_filter="$1"
+    local product_filter="$2"
+    local version_filter="$3"
+
+    local files=$(filter_tasks "$dist_filter" "$product_filter" "$version_filter" "newest" "")
+    [ -z "$files" ] && echo "No failed tasks found" && return 0
+
+    echo "Failed tasks statistics:"
+    echo ""
+
+    # Count by distribution
+    echo "By Distribution:"
+    for f in $files; do
+        get_field "$f" "DIST"
+    done | sort | uniq -c | sort -rn | awk '{printf "  %4d  %s\n", $1, $2}'
+
+    echo ""
+    echo "By Product:"
+    for f in $files; do
+        get_field "$f" "PRODUCT"
+    done | sort | uniq -c | sort -rn | awk '{printf "  %4d  %s\n", $1, substr($0, index($0,$2))}'
+
+    echo ""
+    echo "By Version:"
+    for f in $files; do
+        get_field "$f" "PROJECTVERSION"
+    done | sort | uniq -c | sort -rn | awk '{printf "  %4d  %s\n", $1, $2}'
+
+    echo ""
+    local total=$(echo "$files" | wc -l)
+    echo "Total failed tasks: $total"
+}
+
+# List tasks with details
+list_tasks() {
+    local dist_filter="$1"
+    local product_filter="$2"
+    local version_filter="$3"
+    local sort_order="$4"
+    local limit="$5"
+
+    local files=$(filter_tasks "$dist_filter" "$product_filter" "$version_filter" "$sort_order" "$limit")
+    [ -z "$files" ] && echo "No failed tasks found" && return 0
+
+    printf "%-40s %-25s %-20s %-15s\n" "TASK" "DIST" "PRODUCT" "VERSION"
+    printf "%-40s %-25s %-20s %-15s\n" "----" "----" "-------" "-------"
+
+    for f in $files; do
+        local basename=$(basename "$f" .task.failed)
+        local dist=$(get_field "$f" "DIST")
+        local product=$(get_field "$f" "PRODUCT" | cut -d'(' -f1 | sed 's/ *$//')
+        local version=$(get_field "$f" "PROJECTVERSION")
+
+        printf "%-40s %-25s %-20s %-15s\n" "$basename" "$dist" "$product" "$version"
+    done
+}
+
+# Show task details
+show_task() {
+    local file="$1"
+
+    if [ ! -f "$file" ]; then
+        file="$SALES_DIR/$file"
+    fi
+
+    if [ ! -f "$file" ]; then
+        echo "Error: Task file not found: $file"
+        return 1
+    fi
+
+    echo "=== $(basename "$file") ==="
+    echo ""
+    echo "Distribution: $(get_field "$file" "DIST")"
+    echo "Product:      $(get_field "$file" "PRODUCT")"
+    echo "Version:      $(get_field "$file" "PROJECTVERSION")"
+    echo "License:      $(get_field "$file" "ETERREGNUM")"
+    echo "Owner:        $(get_field "$file" "OWNER")"
+    echo ""
+    echo "Error history:"
+    grep "^# build FAILED" "$file" | tail -5
+}
+
+# Restart tasks
+restart_tasks() {
+    local dist_filter="$1"
+    local product_filter="$2"
+    local version_filter="$3"
+    local sort_order="$4"
+    local limit="$5"
+
+    local files=$(filter_tasks "$dist_filter" "$product_filter" "$version_filter" "$sort_order" "$limit")
+    [ -z "$files" ] && echo "No failed tasks found" && return 0
+
+    local count=0
+    for f in $files; do
+        local newname="${f%.failed}"
+        echo "Restarting: $(basename "$f")"
+        mv "$f" "$newname"
+        ((count++))
+    done
+
+    echo ""
+    echo "Restarted $count task(s)"
+}
+
+# Main
+COMMAND="${1:-stat}"
+shift
+
+# Parse options
+DIST_FILTER=""
+PRODUCT_FILTER=""
+VERSION_FILTER=""
+SORT_ORDER="newest"
+LIMIT=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --dist)
+            DIST_FILTER="$2"
+            shift 2
+            ;;
+        --product)
+            PRODUCT_FILTER="$2"
+            shift 2
+            ;;
+        --version)
+            VERSION_FILTER="$2"
+            shift 2
+            ;;
+        --newest)
+            SORT_ORDER="newest"
+            shift
+            ;;
+        --oldest)
+            SORT_ORDER="oldest"
+            shift
+            ;;
+        --count)
+            LIMIT="$2"
+            shift 2
+            ;;
+        --help|-h)
+            print_help
+            exit 0
+            ;;
+        *)
+            # For show command, this is the task file
+            if [ "$COMMAND" = "show" ]; then
+                TASK_FILE="$1"
+            fi
+            shift
+            ;;
+    esac
+done
+
+# Execute command
+case "$COMMAND" in
+    list)
+        list_tasks "$DIST_FILTER" "$PRODUCT_FILTER" "$VERSION_FILTER" "$SORT_ORDER" "$LIMIT"
+        ;;
+    stat|stats|statistics)
+        show_stat "$DIST_FILTER" "$PRODUCT_FILTER" "$VERSION_FILTER"
+        ;;
+    restart|rerun)
+        restart_tasks "$DIST_FILTER" "$PRODUCT_FILTER" "$VERSION_FILTER" "$SORT_ORDER" "$LIMIT"
+        ;;
+    show|info)
+        show_task "$TASK_FILE"
+        ;;
+    help|--help|-h)
+        print_help
+        ;;
+    *)
+        echo "Unknown command: $COMMAND"
+        echo ""
+        print_help
+        exit 1
+        ;;
+esac
