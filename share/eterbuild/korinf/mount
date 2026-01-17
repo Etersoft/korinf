@@ -441,7 +441,11 @@ run_in_chroot()
 		local arch
 		arch=''
 		[ "$BUILDARCH" = "i586" ] && arch="i386"
-		[ -n "$INTERACTIVE" ] && INTERACTIVE="-ti" || INTERACTIVE="-i"
+		if [ -n "$INTERACTIVE" ] && [ -t 0 ]; then
+			INTERACTIVE="-ti"
+		else
+			INTERACTIVE="-i"
+		fi
 		echo "Run command in docker build system:" >&2
 		if [ -z "$LOUSER" ] || [ "$LOUSER" = "root" ] ; then
 			# to get needed privilegies
