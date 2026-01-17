@@ -47,7 +47,7 @@ get_field() {
 # Get last error from task
 get_error() {
     local file="$1"
-    tail -1 "$file" | sed 's/^# build FAILED at [^(]* (//' | sed 's/)$//'
+    tail -1 "$file" | sed 's/^# build FAILED at [^(]* (//' | sed 's/)$//' | sed 's/^Error: //'
 }
 
 # Extract failed component from error message
@@ -186,16 +186,15 @@ list_tasks() {
     local files=$(filter_tasks "$dist_filter" "$product_filter" "$version_filter" "$sort_order" "$limit")
     [ -z "$files" ] && echo "No failed tasks found" && return 0
 
-    printf "%-40s %-25s %-20s %-15s\n" "TASK" "DIST" "PRODUCT" "VERSION"
-    printf "%-40s %-25s %-20s %-15s\n" "----" "----" "-------" "-------"
-
     for f in $files; do
         local basename=$(basename "$f" .task.failed)
         local dist=$(get_field "$f" "DIST")
         local product=$(get_field "$f" "PRODUCT" | cut -d'(' -f1 | sed 's/ *$//')
         local version=$(get_field "$f" "PROJECTVERSION")
+        local error=$(get_error "$f")
 
-        printf "%-40s %-25s %-20s %-15s\n" "$basename" "$dist" "$product" "$version"
+        printf "%-25s %-15s %s\n" "$dist" "$version" "$product"
+        printf "  Error: %s\n\n" "$error"
     done
 }
 
