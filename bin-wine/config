@@ -1,2 +1,2 @@
-#DEFAULTVERSION=10-unstable
-DEFAULTVERSION=$(readlink /var/ftp/pub/Etersoft/WINE@Etersoft/last)
+#DEFAULTVERSION=$(readlink /var/ftp/pub/Etersoft/WINE@Etersoft/last)
+DEFAULTVERSION=11-unstable
