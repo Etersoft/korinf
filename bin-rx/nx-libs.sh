@@ -34,6 +34,10 @@ UNSTABLEEXTRA="nx-libs-devel[-_][0-9].[0-9].[0-9][0-9].[0-9][0-9].[0-9].[0-9][-_
 
 # Все остальные 4-е цифры
 # Simplified pattern to support versions like 3.5.99.27
+#MAINFILES="nx-libs[-_][0-9].[0-9].[0-9][0-9].[0-9][0-9].[0-9][-_]
+#	   nxproxy[-_][0-9].[0-9].[0-9][0-9].[0-9][0-9].[0-9][-_]
+#	   nxagent[-_][0-9].[0-9].[0-9][0-9].[0-9][0-9].[0-9][-_]"
+#EXTRAFILES="nx-libs-devel[-_][0-9].[0-9].[0-9][0-9].[0-9][0-9].[0-9][-_]"
 MAINFILES="nx-libs[-_][0-9] nxproxy[-_][0-9] nxagent[-_][0-9]"
 EXTRAFILES="nx-libs-devel[-_][0-9]"
 
