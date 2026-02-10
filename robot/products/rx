@@ -99,7 +99,7 @@ build_rx()
 
 		else
 			COMPONENTSCRIPTDIR="bin-rx"
-			CHECKCOMP="rxclient rx-etersoft nx-libs nxssh prunner rx-etersoft-pcsc rx-etersoft-kdrive rxkdriveclient" #rx-etersoft-usbip"
+			CHECKCOMP="rxclient rx-etersoft nx-libs nxssh prunner rx-etersoft-pcsc rx-etersoft-pcsc-driver rx-etersoft-kdrive rxkdriveclient" #rx-etersoft-usbip"
 			PACKAGELIST="nx-libs nxagent nxproxy nxssh prunner rx-etersoft rxclient rx-etersoft-pcsc rxclient-pcsc rx-etersoft-pcsc-driver rx-etersoft-kdrive rxkdriveclient" #rx-etersoft-usbip"
 
                         if [ "$DIST" = "SLES/11" ] || [ "$DIST" = "SLED/11" ] ; then
