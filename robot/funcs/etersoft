@@ -25,6 +25,7 @@ get_product_type()
 {
 	local TYPE
 	local PRODUCT="$1"
+
 	case "$PRODUCT" in
 		*Network\ Lite*)
 			TYPE="NetworkLite"
@@ -49,6 +50,9 @@ get_product_type()
 			;;
 		*Enterprise*)
 			# use instead Enterprise
+			TYPE="Network"
+			;;
+		"WINE@Etersoft (")
 			TYPE="Network"
 			;;
 		*)
