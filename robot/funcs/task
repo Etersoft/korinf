@@ -80,6 +80,7 @@ load_task()
 
 	# hack: ALT bug https://bugs.etersoft.ru/show_bug.cgi?id=15347
 	[ "$DATE_END" = '01/01/1970' ] && DATE_END='01/05/2036'
+	[ "$DATE_END" = '' ] && DATE_END='01/05/2036'
 	PKGTYPE="$(epm print info -p $DIST)"
 
 	grep -q "# buil. FAILED" "$TASK" && export FORCEBUILD=1
