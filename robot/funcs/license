@@ -40,7 +40,8 @@ create_license()
 	#[ -n "$FULLNAME" || fatal "RESPONSIBLE is empty"
 	[ -n "$TYPE_LICENSE" ] || fatal "TYPE_LICENSE is empty"
 	[ -n "$DATE_START" ] || fatal "DATE_START is empty"
-	[ -n "$DATE_END" ] || fatal "DATE_END is empty"
+	# allow empty (unended)
+	#[ -n "$DATE_END" ] || fatal "DATE_END is empty"
 
 	EMAIL_RESPONSIBLE=
 	[ -n "$EMAIL_RESPONSIBLE" ] && EMAIL_RESPONSIBLE="()"
@@ -57,6 +58,7 @@ TYPE_LICENSE=$TYPE_LICENSE
 NAME_LICENSE=$NAME_LICENSE
 DATE_START=$DATE_START
 DATE_END=$DATE_END
+SERVICE_END=$SERVICE_END
 EOF
 
 if [ -n "$COUNT_LICENSE" ] && [ ! "$COUNT_LICENSE" = "0" ] ; then
