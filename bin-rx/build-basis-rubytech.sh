@@ -19,7 +19,8 @@
 
 B_TARGET=stable
 B_ARCH=x86_64
-B_DISTR_LIST="ALTLinux/p11 ALTLinux/p10 RedOS/8.0 RedOS/7.3 AstraLinuxSE/1.8 AstraLinuxSE/1.7"
+#B_DISTR_LIST="ALTLinux/p11 ALTLinux/p10 RedOS/8.0 RedOS/7.3 AstraLinuxSE/1.8 AstraLinuxSE/1.7"
+B_DISTR_LIST="RedOS/8.0 RedOS/7.3"
 
 show_help(){
 	echo -e "\nArgs:\n"
