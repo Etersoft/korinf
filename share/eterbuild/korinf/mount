@@ -134,6 +134,11 @@ run_docker_container()
 
 	DOCKERHOST="$(get_dockerhost "$dist")"
 
+	if [ -n "$DOCKERHOST" ] ; then
+		export DOCKER_HOST="ssh://builder@$DOCKERHOST"
+		export DOCKER_API_VERSION=1.41
+	fi
+
 	#dockerimage=$(get_docker_image $dist)
 
 	# akv:
@@ -176,6 +181,10 @@ run_docker_container()
 			mkdir -p $BUILDERHOME/tmp/
 			echo "$FUNCNAME():: BUILDERHOME $BUILDERHOME" >&2
 			MOUNTBUILDERSTRING="--mount type=bind,source=$BUILDERHOME,target=/home/$INTUSER"
+			# Create the same path on remote host for bind mount
+			if [ -n "$DOCKERHOST" ] ; then
+				ssh builder@$DOCKERHOST "mkdir -p $BUILDERHOME/tmp/"
+			fi
 		fi
 	fi
 
@@ -354,11 +363,20 @@ end_umount()
 				if [ -z "$ADEBUG" ] ; then
 					run_in_chroot --user $dist "rm -rf /home/$INTUSER/* ; true"
 					rm -rf $BUILDROOT
+					# Clean up remote temp dir if remote docker
+					if [ -n "$DOCKERHOST" ] ; then
+						ssh builder@$DOCKERHOST "rm -rf $BUILDROOT"
+					fi
 				fi
 			else
 				[ -z "$ADEBUG" ] || echo "Skip umount due empty BUILDROOT"
 			fi
 			stop_docker_container $dist
+			if [ -n "$DOCKERHOST" ] ; then
+				unset DOCKER_HOST
+				unset DOCKER_API_VERSION
+				DOCKERHOST=
+			fi
 			[ -z "$BUILTRPM" ] || rm -rfv $BUILTRPM
 			return 0
 			;;

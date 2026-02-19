@@ -296,11 +296,17 @@ get_dockerhost()
         #    rhost="$(echo "$rhost" | sed -e 's|:.*||')"
         #fi
 
-        # osnovawae:docker
+        # osnovawae:docker → return "osnovawae", plain "docker" → return ""
         if rhas "$rhost" ":" ; then
             local lhost="$(echo "$rhost" | sed -e 's|:.*||')"
             local dhost="$(echo "$rhost" | sed -e 's|.*:||')"
-            [ "$(hostname -s)" = "$lhost" ] || rhost="$lhost"
+            if [ "$(hostname -s)" = "$lhost" ] ; then
+                rhost=""
+            else
+                rhost="$lhost"
+            fi
+        else
+            rhost=""
         fi
 
         echo "$rhost"

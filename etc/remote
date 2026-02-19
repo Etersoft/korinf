@@ -18,6 +18,9 @@ Fedora             docker fedora:@VERSION@
 
 #x86_64/OSNovaLinux/2.7 osnovawae:docker x86-64-osnova:2.7
 
+x86_64/OSnovaLinux  osnovawae:docker
+OSnovaLinux         osnovawae:docker
+
 Debian/7            local
 x86_64/Ubuntu/12.04 local
 SLED/11             local
