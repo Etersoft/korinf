@@ -59,6 +59,8 @@ x86_64/LinuxMint/22 x86_64/Ubuntu/24.04
 LMDE/6 Debian/12
 x86_64/LMDE/6 x86_64/Debian/12
 
+x86_64/Deepin/25 x86_64/Debian/12
+
 x86_64/ArchLinux/CUR x86_64/ArchLinux/rolling
 #x86_64/ArchLinux/CUR x86_64/ArchLinux/2013.2
 Gentoo/CUR Gentoo/13.0
