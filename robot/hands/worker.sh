@@ -58,6 +58,15 @@ else
 	TASKCOMMAND="--real"
 fi
 
+# Restore interrupted tasks older than 1 hour
+for TASKTORUN in $(list_tasks task.interrupted) ; do
+	if [ -n "$(find "$TASKTORUN" -mmin +60)" ] ; then
+		echo "Restoring interrupted task $TASKTORUN (older than 1 hour)"
+		TASKFILE=${TASKTORUN%.interrupted}
+		mv -f "$TASKTORUN" "$TASKFILE"
+	fi
+done
+
 # Remove stalled task.run
 for TASKTORUN in $(list_tasks task.run) ; do
 	TASKPID=$(cat $TASKTORUN)
