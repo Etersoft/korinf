@@ -101,7 +101,7 @@ prepare_wine_etersoft()
 	check_and_refresh_component bin-wine $PUBLOCAL/WINE wine-etersoft
 	check_and_refresh_component bin-wine $PVTLOCAL wine-etersoft-${PRODUCT_name}
 
-	if rhas "$PROJECTVERSION" "^([56789]|10)[-.]" ; then
+	if rhas "$PROJECTVERSION" "^([56789]|1[0-9])[-.]" ; then
 		check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINEPRODUCT-gecko
 		check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINEPRODUCT-mono
 		check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINEPRODUCT-grdwine
@@ -115,9 +115,9 @@ car_32bit_comp()
 	return 0
 }
 	NOFATAL=''
-	rhas "$PROJECTVERSION" "^10[-.]" && NOFATAL=1
+	rhas "$PROJECTVERSION" "^(1[0-9])[-.]" && NOFATAL=1
 	DIST32=''
-	if rhas "$PROJECTVERSION" "^([789]|10)[-.]" && rhas "$DIST" "^x86_64" && ! rhas "$PROJECTVERSION" "wow64" ; then
+	if rhas "$PROJECTVERSION" "^([789]|1[0-9])[-.]" && rhas "$DIST" "^x86_64" && ! rhas "$PROJECTVERSION" "wow64" ; then
 		DIST32=$(echo "$DIST" | sed -e"s|x86_64/||")
 		#
 		#( DIST=$DIST32 check_and_refresh_component bin-wine $PVTLOCAL wine-etersoft-${PRODUCT_name} ) || fatal "Can't build 32 bit part"
@@ -131,7 +131,7 @@ car_32bit_comp()
 	# use epm play aksusbd
 	#check_and_refresh_component bin-hasp $PUBLOCAL/HASP haspd
 
-	if rhas "$PROJECTVERSION" "^([789]|10)[-.]" ; then
+	if rhas "$PROJECTVERSION" "^([789]|1[0-9])[-.]" ; then
 		check_and_refresh_component bin-wine $PUBLOCAL/WINE eepm
 		PUB6FILES=`find -L $PUBLOCAL/WINE/$DIST -maxdepth 1 -type f -name "eepm[_-]*"`
 	#else
@@ -227,7 +227,7 @@ car_32bit_comp()
 		#[ "$TYPE" = "SchoolDIS" ] || assert_present_package $FTPDIR fonts-ttf-liberation
 	fi
 
-	if rhas "$PROJECTVERSION" "^([789]|10)[-.]" ; then
+	if rhas "$PROJECTVERSION" "^([789]|1[0-9])[-.]" ; then
 		assert_present_package $FTPDIR eepm
 
 		assert_present_package $FTPDIR $WINEPRODUCT-gecko
