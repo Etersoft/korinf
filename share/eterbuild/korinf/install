@@ -86,7 +86,7 @@ install_build_requires()
 	# coreutils-single
 
 	if rhas "$BUILDNAME" "wine" && ! rhas "$BUILDNAME" "local" && ! rhas "$BUILDNAME" "network" ; then
-		buildsystempkgs="$buildsystempkgs clang llvm lld"
+		buildsystempkgs="$buildsystempkgs clang llvm lld flex"
 	fi
 
 	# hack to prepare Debian based system
