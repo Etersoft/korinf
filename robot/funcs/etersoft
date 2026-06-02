@@ -52,7 +52,7 @@ get_product_type()
 			# use instead Enterprise
 			TYPE="Network"
 			;;
-		"WINE@Etersoft (")
+		"WINE@Etersoft"|"WINE@Etersoft (")
 			TYPE="Network"
 			;;
 		*)
