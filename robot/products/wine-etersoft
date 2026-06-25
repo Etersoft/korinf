@@ -267,6 +267,11 @@ car_32bit_comp()
 		sed -e "s|^URLRPM=|URLRPM=$DDIR|" <$DOCS/wine-etersoft-install.sh >$FTPDIR/wine-etersoft-install.sh || fatal "install script"
 	fi
 
+	# база winetricks (без манифеста), отгружается только если есть
+	if [ -s $DOCS/eget-winetricks.db ] ; then
+		cp -f $DOCS/eget-winetricks.db $FTPDIR/eget-winetricks.db || fatal "eget-winetricks.db copying"
+	fi
+
 	# контрольные суммы для файлов
 	cd $FTPDIR/ || fatal "cd"
 	md5sum *.* >$FTPDIR/wine-etersoft-install.md5 || fatal "file list"
