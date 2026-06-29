@@ -90,9 +90,11 @@ build_crypto()
 	fi
 
 	# exports FTPDIR
-	#LICENSEFILE=rx-etersoft.lic
-	#LICENSEDIR="/etc/rx-etersoft"
-	#create_license_dir
+	# CRYPTO@Etersoft не имеет своего файла лицензии (GPL-обвязка), но для
+	# обработки license-only запросов (пустой DIST) генерируем подписанный .lic
+	# по аналогии с WINE. Ключ пока используется от WINE@Etersoft (своего ключа CRYPTO нет).
+	LICENSEFILE=crypto-etersoft.lic
+	LICENSEDIR="/etc/crypto-etersoft"
 	create_ftp_dir
 
 	# Для отправки писем обязательно нужна локаль!
@@ -100,6 +102,7 @@ build_crypto()
 	TMPMAIL=`mktemp`
 
 	if [ -n "$LICENSEONLY" ] ; then
+		create_license_dir
 		prepare_license_mail $TMPMAIL support@etersoft.ru || fatal "Can't prepare letter"
 	else
 		for i in $CHECKCOMP ; do
