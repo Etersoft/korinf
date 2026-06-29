@@ -49,13 +49,13 @@ dosh()
 {
     local cmd="$1"
     shift
-    local i j
+    local i j rc
     for i in "$@" ; do
         for j in $cmd ; do
             echo
             echo
             echo "> ./$i.sh $DISTR $ver $j"
-            ./$i.sh $DISTR $ver $j || { [ -z "$NOSTOP" ] && exit ; }
+            ./$i.sh $DISTR $ver $j || { rc=$?; [ -n "$NOSTOP" ] || exit $rc ; }
         done
     done
     return 0
