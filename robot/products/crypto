@@ -113,7 +113,10 @@ build_crypto()
 			if [ -n "$DIST32" ] && rhas "$i" "^wine-etersoft" ; then
 				local lwine32="${i/wine-etersoft/wine32-etersoft}"
 				[ "$PKGTYPE" = "deb" ] && lwine32="${lwine32/_/-}"
-				( DIST=$DIST32 check_and_refresh_component $COMPONENTSCRIPTDIR $LOCALDIR $i '' $lwine32 )
+				# use wine32- build script for 32-bit: spec yields wine32-* binary on %ix86,
+				# and only the wine32- script has matching MAINFILES (wine32-etersoft-cpcsp[-_]proxy...)
+				local lscript32="${i/wine-etersoft/wine32-etersoft}"
+				( DIST=$DIST32 check_and_refresh_component $COMPONENTSCRIPTDIR $LOCALDIR $lscript32 '' $lwine32 )
 				assert_present_package $LOCALDIR/$DIST32 $lwine32
 			fi
 		done
