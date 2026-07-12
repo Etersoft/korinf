@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if products %}
+<div class="filters">
+  <strong>Продукт:</strong>
+  {% if current_product %}<a href="/">(все)</a> ·{% endif %}
+  {% for p in products %}
+    {% if p == current_product %}<b>{{ p }}</b>{% else %}<a href="/?product={{ p }}">{{ p }}</a>{% endif %}
+    {% if not loop.last %} · {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if not groups %}
+  <p class="empty">Активных задач и завершённых за последние 48 часов нет.</p>
+{% endif %}
+
+{% for product, by_status in groups.items() %}
+<section class="product">
+  <h2>{{ product }} <small>({{ by_status.values() | map('length') | sum }})</small></h2>
+  {% for st in status_order %}
+    {% set lst = by_status.get(st) %}
+    {% if lst %}
+    <h3 class="status status-{{ st }}">{{ st }} ({{ lst | length }})</h3>
+    <table>
+      <thead><tr>
+        <th>Рег. номер</th><th>Версия</th><th>Дистр</th>
+        <th>Тип лиц.</th><th>Создана</th><th>Примечание</th><th></th>
+      </tr></thead>
+      <tbody>
+      {% for t in lst %}
+        <tr class="row-{{ st }}">
+          <td><a href="/task/{{ t.taskid }}">{{ t.fields.get('ETERREGNUM', '') }}</a></td>
+          <td>{{ t.fields.get('PROJECTVERSION', '') }}</td>
+          <td>{{ t.fields.get('DIST', '') }}</td>
+          <td>{{ t.fields.get('TYPE_LICENSE', '') }}</td>
+          <td>{{ t.created_at | ts2str }}</td>
+          <td class="note">
+            {% if st in ('failed', 'broken', 'removed') and t.failures %}
+              {{ t.failures[-1][1] or t.failures[-1][0] }}
+            {% elif st == 'done' and t.done_at %}
+              готова: {{ t.done_at }}
+            {% elif st == 'running_stale' %}
+              .task.run есть, но PID мёртв
+            {% endif %}
+          </td>
+          <td>
+            {% if st in ('failed', 'broken', 'removed', 'interrupted') %}
+              <form method="post" action="/task/{{ t.taskid }}/restart" class="inline"
+                    onsubmit="return confirm('Перезапустить {{ t.taskid }}?')">
+                <button type="submit" class="btn-restart">перезапустить</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  {% endfor %}
+</section>
+{% endfor %}
+
+{% endblock %}

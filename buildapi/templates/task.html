@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}{{ task.fields.get('COMPONENTNAME', task.taskid) }} — korinf{% endblock %}
+{% block content %}
+
+<p><a href="/">← назад к очереди</a></p>
+<h1>{{ task.fields.get('COMPONENTNAME', task.taskid) }}</h1>
+<p>
+  taskid: <code>{{ task.taskid }}</code> ·
+  статус: <span class="status status-{{ task.status }}">{{ task.status }}</span>
+</p>
+
+{% if task.status in ('failed', 'broken', 'removed', 'interrupted') %}
+<form method="post" action="/task/{{ task.taskid }}/restart"
+      onsubmit="return confirm('Перезапустить задачу?')">
+  <button type="submit" class="btn-restart">Перезапустить задачу</button>
+</form>
+{% endif %}
+
+<h2>Параметры</h2>
+<table class="kv">
+  {% for k in ['ETERREGNUM', 'PRODUCT', 'COMPONENTNAME', 'PROJECTVERSION',
+               'RELEASECANDIDAT', 'DIST', 'DOWNLOADDIR', 'TYPE_LICENSE',
+               'NAME_LICENSE', 'COUNT_LICENSE', 'OWNER', 'FULLNAME', 'MAILTO',
+               'DATE_START', 'DATE_END', 'SERVICE_END'] %}
+    {% if task.fields.get(k) is not none and task.fields.get(k) != '' %}
+    <tr><th>{{ k }}</th><td>{{ task.fields[k] }}</td></tr>
+    {% endif %}
+  {% endfor %}
+  <tr><th>создана</th><td>{{ task.created_at | ts2str }}</td></tr>
+  <tr><th>путь</th><td><code>{{ task.path }}</code></td></tr>
+</table>
+
+{% if task.failures %}
+<h2>История неудач ({{ task.failures | length }})</h2>
+<ul class="failures">
+  {% for at, err in task.failures %}
+    <li><b>{{ at }}</b> — {{ err or '(без описания)' }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+{% if task.done_at %}<p class="status status-done">Завершена: {{ task.done_at }}</p>{% endif %}
+
+{% endblock %}

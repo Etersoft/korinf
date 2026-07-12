@@ -1,0 +1,16 @@
+[Unit]
+Description=Korinf build queue API + web (FastAPI/uvicorn)
+After=network.target
+
+[Service]
+Type=simple
+User=builder
+Group=builder
+WorkingDirectory=/srv/builder/Projects/korinf/buildapi
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/bin/python3 -m uvicorn main:app --host 0.0.0.0 --port 8080 --workers 1
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

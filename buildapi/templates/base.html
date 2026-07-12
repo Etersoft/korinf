@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>{% block title %}Очередь сборок korinf{% endblock %}</title>
+<link rel="stylesheet" href="/static/style.css">
+{% if has_running %}
+<meta http-equiv="refresh" content="30">
+{% endif %}
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-brand">korinf · очередь сборок</a>
+  {% if queue_stopped %}
+    <span class="badge badge-stopped">⏸ ОЧЕРЕДЬ ОСТАНОВЛЕНА</span>
+    <form method="post" action="/queue/start" class="inline">
+      <button type="submit">Запустить очередь</button>
+    </form>
+  {% else %}
+    <form method="post" action="/queue/stop" class="inline">
+      <button type="submit" class="btn-stop">Остановить очередь</button>
+    </form>
+  {% endif %}
+  {% if has_running %}<span class="hint">↻ автообновление 30с (идёт сборка)</span>{% endif %}
+</nav>
+<main>
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>
