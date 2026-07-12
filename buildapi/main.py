@@ -8,10 +8,11 @@ import datetime as dt
 from pathlib import Path
 from urllib.parse import quote
 
-from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi import FastAPI, Depends, HTTPException, Request, Query
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.security import APIKeyHeader
 
 import taskreader as tr
 
@@ -42,7 +43,16 @@ CFG = load_config()
 SALES, DONE, OLD = CFG['SALES_DIR'], CFG['DONE_DIR'], CFG['OLD_TASKS_DIR']
 STOP_PATH = os.path.join(SALES, 'STOP')
 
-app = FastAPI(title='korinf buildapi')
+app = FastAPI(
+    title='korinf buildapi',
+    version='1.0.0',
+    description='Очередь сборок korinf (задачи из `~/sales`).\n\n'
+                '**Аутентификация:** все `/api/*` требуют заголовок `X-API-Key` '
+                '(значение — в `/srv/builder/Projects/korinf/buildapi/config`). '
+                'Нажмите кнопку **Authorize** и вставьте ключ.\n\n'
+                '**Web-интерфейс** (без ключа, для браузера): `/` — список по продуктам, '
+                '`/task/{taskid}` — детали.',
+)
 templates = Jinja2Templates(directory=str(BASE_DIR / 'templates'))
 app.mount('/static', StaticFiles(directory=str(BASE_DIR / 'static')), name='static')
 
@@ -50,8 +60,11 @@ templates.env.filters['ts2str'] = lambda v: (
     dt.datetime.fromtimestamp(v).strftime('%Y-%m-%d %H:%M') if v else '')
 
 
-def require_api_key(request: Request):
-    key = request.headers.get('X-API-Key', '')
+api_key_scheme = APIKeyHeader(name='X-API-Key', auto_error=False,
+                              description='API-ключ из buildapi/config (кнопка Authorize справа)')
+
+
+def require_api_key(key: str = Depends(api_key_scheme)):
     if not CFG['API_KEY'] or key != CFG['API_KEY']:
         raise HTTPException(status_code=401, detail='invalid or missing X-API-Key')
 
@@ -112,8 +125,14 @@ def _do_restart(taskid: str) -> dict:
 
 
 # ===================== API (с ключом) =====================
-@app.get('/api/summary', dependencies=[Depends(require_api_key)])
-def api_summary():
+_STATUSES = 'queued | running | running_stale | failed | broken | removed | interrupted | done'
+
+
+@app.get('/api/summary',
+         summary='Сводка по очереди сборок',
+         description='Количество задач по статусам и продуктам + `queue_stopped` '
+                     '(есть ли файл STOP в ~/sales — ставит робота на паузу).')
+def api_summary(_: None = Depends(require_api_key)):
     tasks = all_tasks()
     by_status, by_product = {}, {}
     for t in tasks:
@@ -123,8 +142,13 @@ def api_summary():
             'by_status': by_status, 'by_product': by_product}
 
 
-@app.get('/api/tasks', dependencies=[Depends(require_api_key)])
-def api_tasks(status: str = None, product: str = None):
+@app.get('/api/tasks',
+         summary='Список задач (с фильтрами)',
+         description='Активная очередь из ~/sales (`.task`/`.task.run`/`.task.failed`/...) '
+                     'и недавние выполненные из ~/done за последние 48ч.')
+def api_tasks(_: None = Depends(require_api_key),
+              status: str = Query(None, description='Фильтр по статусу: ' + _STATUSES),
+              product: str = Query(None, description='Фильтр по группе продукта, напр. `WINE@Etersoft`')):
     tasks = all_tasks()
     if status:
         tasks = [t for t in tasks if t.status == status]
@@ -133,29 +157,40 @@ def api_tasks(status: str = None, product: str = None):
     return [_task_json(t) for t in tasks]
 
 
-@app.get('/api/task/{taskid}', dependencies=[Depends(require_api_key)])
-def api_task(taskid: str):
+@app.get('/api/task/{taskid}',
+         summary='Детали одной задачи',
+         description='Все поля задачи (`fields`), история неудач (`failures` с датой и текстом Error) и `done_at`. '
+                     '`taskid` — имя файла без расширения: `YYYYMMDDhhmmss.<REGNUM>.<rand10>`.')
+def api_task(taskid: str, _: None = Depends(require_api_key)):
     t = tr.find_task(taskid, SALES, OLD, DONE)
     if not t:
         raise HTTPException(404, 'task not found')
     return _task_json(t)
 
 
-@app.post('/api/task/{taskid}/restart', dependencies=[Depends(require_api_key)])
-def api_restart(taskid: str):
+@app.post('/api/task/{taskid}/restart',
+          summary='Перезапустить провалившуюся задачу',
+          description='`.task.failed` → `.task` (робот подхватит на следующем цикле, ~30с). '
+                      'Если файл лежит в `old-tasks/`, он копируется в корень ~/sales '
+                      '(робот читает только корень). Возвращает путь нового `.task`.')
+def api_restart(taskid: str, _: None = Depends(require_api_key)):
     return _do_restart(taskid)
 
 
-@app.post('/api/queue/stop', dependencies=[Depends(require_api_key)])
-def api_queue_stop():
+@app.post('/api/queue/stop',
+          summary='Остановить очередь (пауза робота)',
+          description='Создаёт `~/sales/STOP` — робот встанет на паузу на следующей итерации.')
+def api_queue_stop(_: None = Depends(require_api_key)):
     created = not os.path.exists(STOP_PATH)
     if created:
         Path(STOP_PATH).touch()
     return {'queue_stopped': True, 'created': created}
 
 
-@app.post('/api/queue/start', dependencies=[Depends(require_api_key)])
-def api_queue_start():
+@app.post('/api/queue/start',
+          summary='Запустить очередь',
+          description='Удаляет `~/sales/STOP`.')
+def api_queue_start(_: None = Depends(require_api_key)):
     removed = os.path.exists(STOP_PATH)
     if removed:
         try:
@@ -165,12 +200,12 @@ def api_queue_start():
     return {'queue_stopped': False, 'removed': removed}
 
 
-# ===================== Web (без ключа) =====================
+# ===================== Web (без ключа, не входит в схему API) =====================
 STATUS_ORDER = ['running', 'running_stale', 'queued', 'failed',
                 'broken', 'removed', 'interrupted', 'done']
 
 
-@app.get('/', response_class=HTMLResponse)
+@app.get('/', response_class=HTMLResponse, include_in_schema=False)
 def web_index(request: Request, product: str = None):
     tasks = all_tasks()
     products = sorted({t.product for t in tasks})
@@ -190,7 +225,7 @@ def web_index(request: Request, product: str = None):
     })
 
 
-@app.get('/task/{taskid}', response_class=HTMLResponse)
+@app.get('/task/{taskid}', response_class=HTMLResponse, include_in_schema=False)
 def web_task(request: Request, taskid: str):
     t = tr.find_task(taskid, SALES, OLD, DONE)
     if not t:
@@ -201,20 +236,20 @@ def web_task(request: Request, taskid: str):
     })
 
 
-@app.post('/task/{taskid}/restart')
+@app.post('/task/{taskid}/restart', include_in_schema=False)
 def web_restart(taskid: str):
     _do_restart(taskid)
     return RedirectResponse(url=f'/task/{quote(taskid)}', status_code=303)
 
 
-@app.post('/queue/stop')
+@app.post('/queue/stop', include_in_schema=False)
 def web_queue_stop():
     if not os.path.exists(STOP_PATH):
         Path(STOP_PATH).touch()
     return RedirectResponse(url='/', status_code=303)
 
 
-@app.post('/queue/start')
+@app.post('/queue/start', include_in_schema=False)
 def web_queue_start():
     if os.path.exists(STOP_PATH):
         os.remove(STOP_PATH)
