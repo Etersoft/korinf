@@ -3,7 +3,6 @@
 Запуск: python3 main.py  (или через systemd: uvicorn main:app --host 0.0.0.0 --port 8080)
 """
 import os
-import shutil
 import pathlib
 import datetime as dt
 from enum import Enum
@@ -26,7 +25,6 @@ def load_config() -> dict:
         'API_KEY': '', 'HOST': '0.0.0.0', 'PORT': '8080',
         'SALES_DIR': '/srv/builder/sales',
         'DONE_DIR': '/srv/builder/done',
-        'OLD_TASKS_DIR': '/srv/builder/sales/old-tasks',
         'DONE_HOURS': '48',
     }
     p = BASE_DIR / 'config'
@@ -42,7 +40,7 @@ def load_config() -> dict:
 
 
 CFG = load_config()
-SALES, DONE, OLD = CFG['SALES_DIR'], CFG['DONE_DIR'], CFG['OLD_TASKS_DIR']
+SALES, DONE = CFG['SALES_DIR'], CFG['DONE_DIR']
 STOP_PATH = os.path.join(SALES, 'STOP')
 
 app = FastAPI(
@@ -130,7 +128,7 @@ def require_api_key(key: str = Security(api_key_scheme)):
 
 
 def all_tasks():
-    return tr.scan_sales(SALES, OLD) + tr.scan_done(DONE, CFG['DONE_HOURS'])
+    return tr.scan_sales(SALES) + tr.scan_done(DONE, CFG['DONE_HOURS'])
 
 
 def queue_stopped() -> bool:
@@ -153,28 +151,13 @@ def _task_json(t: tr.Task) -> dict:
 
 
 def _do_restart(taskid: str) -> dict:
-    """Перезапуск: <base>.task.failed -> <base>.task.
-
-    Если .task.failed лежит в old-tasks/, копируем его в корень sales/
-    (робот читает только корень), затем атомарно переименовываем в .task.
-    """
+    """Перезапуск: <base>.task.failed -> <base>.task в корне ~/sales
+    (атомарный rename; робот подхватит на следующем цикле)."""
     if not tr.RE_FILENAME.match(taskid + '.task'):
         raise HTTPException(400, 'bad taskid')
-    src = None
-    for d in (SALES, OLD):
-        cand = os.path.join(d, taskid + '.task.failed')
-        if os.path.exists(cand):
-            src = cand
-            break
-    if not src:
-        raise HTTPException(404, 'no .task.failed for this taskid')
-    if os.path.commonpath([os.path.abspath(src), os.path.abspath(OLD)]) == os.path.abspath(OLD):
-        dst_failed = os.path.join(SALES, taskid + '.task.failed')
-        try:
-            shutil.copy2(src, dst_failed)
-        except OSError as e:
-            raise HTTPException(500, f'cannot copy from old-tasks: {e}')
-        src = dst_failed
+    src = os.path.join(SALES, taskid + '.task.failed')
+    if not os.path.exists(src):
+        raise HTTPException(404, 'no .task.failed in ~/sales for this taskid')
     dst = src[:-len('.failed')]
     try:
         os.rename(src, dst)
@@ -222,7 +205,7 @@ def api_tasks(_: None = Depends(require_api_key),
 def api_task(taskid: str = Path(..., description='Имя файла без расширения: '
                                                  '`YYYYMMDDhhmmss.<REGNUM>.<rand10>`'),
              _: None = Depends(require_api_key)):
-    t = tr.find_task(taskid, SALES, OLD, DONE)
+    t = tr.find_task(taskid, SALES, DONE)
     if not t:
         raise HTTPException(404, 'task not found')
     return _task_json(t)
@@ -231,9 +214,8 @@ def api_task(taskid: str = Path(..., description='Имя файла без ра�
 @app.post('/api/task/{taskid}/restart',
           response_model=RestartOut, tags=['Tasks'], operation_id='restart_task',
           summary='Перезапустить провалившуюся задачу',
-          description='`.task.failed` → `.task` (робот подхватит на следующем цикле, ~30с). '
-                      'Если файл лежит в `old-tasks/`, он копируется в корень ~/sales '
-                      '(робот читает только корень). Возвращает путь нового `.task`.')
+          description='`.task.failed` → `.task` в корне ~/sales '
+                      '(робот подхватит на следующем цикле, ~30с). Возвращает путь нового `.task`.')
 def api_restart(taskid: str = Path(..., description='Имя файла задачи без расширения'),
                 _: None = Depends(require_api_key)):
     return _do_restart(taskid)
@@ -291,7 +273,7 @@ def web_index(request: Request, product: str = None):
 
 @app.get('/task/{taskid}', response_class=HTMLResponse, include_in_schema=False)
 def web_task(request: Request, taskid: str):
-    t = tr.find_task(taskid, SALES, OLD, DONE)
+    t = tr.find_task(taskid, SALES, DONE)
     if not t:
         raise HTTPException(404, 'task not found')
     return templates.TemplateResponse(request, 'task.html', {

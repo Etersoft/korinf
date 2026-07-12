@@ -188,23 +188,23 @@ def _build_task(taskid: str, roles: dict, parse_content=True) -> Task:
     return t
 
 
-def scan_sales(sales_dir: str, old_tasks_dir: str):
-    """Скан очереди: корень sales + old-tasks/ (оба плоско), группировка по base."""
+def scan_sales(sales_dir: str):
+    """Скан очереди: ТОЛЬКО корень sales (без подкаталогов вроде old-tasks/),
+    группировка файлов одного base в один Task."""
     by_base = {}
-    for d in (sales_dir, old_tasks_dir):
-        try:
-            with os.scandir(d) as it:
-                for e in it:
-                    if not e.is_file():
-                        continue
-                    base, role = split_base_ext(e.name)
-                    if role is None:
-                        continue
-                    by_base.setdefault(base, {})[role] = e.path
-        except FileNotFoundError:
-            continue
-        except OSError:
-            continue
+    try:
+        with os.scandir(sales_dir) as it:
+            for e in it:
+                if not e.is_file():
+                    continue
+                base, role = split_base_ext(e.name)
+                if role is None:
+                    continue
+                by_base.setdefault(base, {})[role] = e.path
+    except FileNotFoundError:
+        pass
+    except OSError:
+        pass
     return [_build_task(b, roles) for b, roles in by_base.items()]
 
 
@@ -231,20 +231,19 @@ def scan_done(done_dir: str, hours: int = 48):
     return out
 
 
-def find_task(taskid: str, sales_dir: str, old_tasks_dir: str, done_dir: str):
-    """Найти задачу по taskid во всех трёх местах (для страницы деталей)."""
+def find_task(taskid: str, sales_dir: str, done_dir: str):
+    """Найти задачу по taskid в корне sales и в ~/done (для страницы деталей)."""
     roles = {}
-    for d in (sales_dir, old_tasks_dir):
-        try:
-            with os.scandir(d) as it:
-                for e in it:
-                    if not e.is_file():
-                        continue
-                    b, role = split_base_ext(e.name)
-                    if b == taskid and role:
-                        roles[role] = e.path
-        except (FileNotFoundError, OSError):
-            continue
+    try:
+        with os.scandir(sales_dir) as it:
+            for e in it:
+                if not e.is_file():
+                    continue
+                b, role = split_base_ext(e.name)
+                if b == taskid and role:
+                    roles[role] = e.path
+    except (FileNotFoundError, OSError):
+        pass
     p = os.path.join(done_dir, taskid + '.done')
     if os.path.exists(p):
         roles['done'] = p
