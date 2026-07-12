@@ -4,19 +4,21 @@
 """
 import os
 import shutil
+import pathlib
 import datetime as dt
-from pathlib import Path
-from urllib.parse import quote
+from enum import Enum
+from typing import Any
 
-from fastapi import FastAPI, Depends, HTTPException, Request, Query
+from fastapi import FastAPI, Depends, HTTPException, Request, Query, Security, Path
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.security import APIKeyHeader
+from pydantic import BaseModel
 
 import taskreader as tr
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = pathlib.Path(__file__).resolve().parent
 
 
 def load_config() -> dict:
@@ -45,7 +47,7 @@ STOP_PATH = os.path.join(SALES, 'STOP')
 
 app = FastAPI(
     title='korinf buildapi',
-    version='1.0.0',
+    version='1.1.0',
     description='Очередь сборок korinf (задачи из `~/sales`).\n\n'
                 '**Аутентификация:** все `/api/*` требуют заголовок `X-API-Key` '
                 '(значение — в `/srv/builder/Projects/korinf/buildapi/config`). '
@@ -60,11 +62,69 @@ templates.env.filters['ts2str'] = lambda v: (
     dt.datetime.fromtimestamp(v).strftime('%Y-%m-%d %H:%M') if v else '')
 
 
+# ---------- типы ответов ----------
+class TaskStatus(str, Enum):
+    queued = 'queued'
+    running = 'running'
+    running_stale = 'running_stale'
+    failed = 'failed'
+    broken = 'broken'
+    removed = 'removed'
+    interrupted = 'interrupted'
+    done = 'done'
+
+
+class Failure(BaseModel):
+    at: str | None = None
+    error: str | None = None
+
+
+class TaskOut(BaseModel):
+    taskid: str
+    status: str
+    product: str = ''
+    regnum: str = ''
+    version: str = ''
+    dist: str = ''
+    componentname: str = ''
+    fields: dict[str, Any] = {}
+    failures: list[Failure] = []
+    last_error: str | None = None
+    done_at: str | None = None
+    created_at: float | None = None
+    path: str | None = None
+    mtime: float | None = None
+
+
+class SummaryOut(BaseModel):
+    queue_stopped: bool
+    total: int
+    by_status: dict[str, int]
+    by_product: dict[str, int]
+
+
+class RestartOut(BaseModel):
+    restarted: bool
+    taskid: str
+    new_path: str
+
+
+class QueueStopOut(BaseModel):
+    queue_stopped: bool
+    created: bool
+
+
+class QueueStartOut(BaseModel):
+    queue_stopped: bool
+    removed: bool
+
+
+# ---------- авторизация ----------
 api_key_scheme = APIKeyHeader(name='X-API-Key', auto_error=False,
                               description='API-ключ из buildapi/config (кнопка Authorize справа)')
 
 
-def require_api_key(key: str = Depends(api_key_scheme)):
+def require_api_key(key: str = Security(api_key_scheme)):
     if not CFG['API_KEY'] or key != CFG['API_KEY']:
         raise HTTPException(status_code=401, detail='invalid or missing X-API-Key')
 
@@ -108,7 +168,6 @@ def _do_restart(taskid: str) -> dict:
             break
     if not src:
         raise HTTPException(404, 'no .task.failed for this taskid')
-    # файл из архива — копируем в корень (оригинал оставляем в old-tasks как архив)
     if os.path.commonpath([os.path.abspath(src), os.path.abspath(OLD)]) == os.path.abspath(OLD):
         dst_failed = os.path.join(SALES, taskid + '.task.failed')
         try:
@@ -125,10 +184,8 @@ def _do_restart(taskid: str) -> dict:
 
 
 # ===================== API (с ключом) =====================
-_STATUSES = 'queued | running | running_stale | failed | broken | removed | interrupted | done'
-
-
 @app.get('/api/summary',
+         response_model=SummaryOut, tags=['Summary'], operation_id='get_summary',
          summary='Сводка по очереди сборок',
          description='Количество задач по статусам и продуктам + `queue_stopped` '
                      '(есть ли файл STOP в ~/sales — ставит робота на паузу).')
@@ -143,25 +200,28 @@ def api_summary(_: None = Depends(require_api_key)):
 
 
 @app.get('/api/tasks',
+         response_model=list[TaskOut], tags=['Tasks'], operation_id='list_tasks',
          summary='Список задач (с фильтрами)',
          description='Активная очередь из ~/sales (`.task`/`.task.run`/`.task.failed`/...) '
                      'и недавние выполненные из ~/done за последние 48ч.')
 def api_tasks(_: None = Depends(require_api_key),
-              status: str = Query(None, description='Фильтр по статусу: ' + _STATUSES),
+              status: TaskStatus = Query(None, description='Фильтр по статусу'),
               product: str = Query(None, description='Фильтр по группе продукта, напр. `WINE@Etersoft`')):
     tasks = all_tasks()
     if status:
-        tasks = [t for t in tasks if t.status == status]
+        tasks = [t for t in tasks if t.status == status.value]
     if product:
         tasks = [t for t in tasks if t.product == product]
     return [_task_json(t) for t in tasks]
 
 
 @app.get('/api/task/{taskid}',
+         response_model=TaskOut, tags=['Tasks'], operation_id='get_task',
          summary='Детали одной задачи',
-         description='Все поля задачи (`fields`), история неудач (`failures` с датой и текстом Error) и `done_at`. '
-                     '`taskid` — имя файла без расширения: `YYYYMMDDhhmmss.<REGNUM>.<rand10>`.')
-def api_task(taskid: str, _: None = Depends(require_api_key)):
+         description='Все поля задачи (`fields`), история неудач (`failures` с датой и текстом Error) и `done_at`.')
+def api_task(taskid: str = Path(..., description='Имя файла без расширения: '
+                                                 '`YYYYMMDDhhmmss.<REGNUM>.<rand10>`'),
+             _: None = Depends(require_api_key)):
     t = tr.find_task(taskid, SALES, OLD, DONE)
     if not t:
         raise HTTPException(404, 'task not found')
@@ -169,25 +229,29 @@ def api_task(taskid: str, _: None = Depends(require_api_key)):
 
 
 @app.post('/api/task/{taskid}/restart',
+          response_model=RestartOut, tags=['Tasks'], operation_id='restart_task',
           summary='Перезапустить провалившуюся задачу',
           description='`.task.failed` → `.task` (робот подхватит на следующем цикле, ~30с). '
                       'Если файл лежит в `old-tasks/`, он копируется в корень ~/sales '
                       '(робот читает только корень). Возвращает путь нового `.task`.')
-def api_restart(taskid: str, _: None = Depends(require_api_key)):
+def api_restart(taskid: str = Path(..., description='Имя файла задачи без расширения'),
+                _: None = Depends(require_api_key)):
     return _do_restart(taskid)
 
 
 @app.post('/api/queue/stop',
+          response_model=QueueStopOut, tags=['Queue'], operation_id='stop_queue',
           summary='Остановить очередь (пауза робота)',
           description='Создаёт `~/sales/STOP` — робот встанет на паузу на следующей итерации.')
 def api_queue_stop(_: None = Depends(require_api_key)):
     created = not os.path.exists(STOP_PATH)
     if created:
-        Path(STOP_PATH).touch()
+        pathlib.Path(STOP_PATH).touch()
     return {'queue_stopped': True, 'created': created}
 
 
 @app.post('/api/queue/start',
+          response_model=QueueStartOut, tags=['Queue'], operation_id='start_queue',
           summary='Запустить очередь',
           description='Удаляет `~/sales/STOP`.')
 def api_queue_start(_: None = Depends(require_api_key)):
@@ -239,13 +303,13 @@ def web_task(request: Request, taskid: str):
 @app.post('/task/{taskid}/restart', include_in_schema=False)
 def web_restart(taskid: str):
     _do_restart(taskid)
-    return RedirectResponse(url=f'/task/{quote(taskid)}', status_code=303)
+    return RedirectResponse(url=f'/task/{taskid}', status_code=303)
 
 
 @app.post('/queue/stop', include_in_schema=False)
 def web_queue_stop():
     if not os.path.exists(STOP_PATH):
-        Path(STOP_PATH).touch()
+        pathlib.Path(STOP_PATH).touch()
     return RedirectResponse(url='/', status_code=303)
 
 
