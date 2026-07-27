@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
-{% block title %}{{ task.fields.get('COMPONENTNAME', task.taskid) }} — korinf{% endblock %}
+{% block title %}{{ task.fields.get('PACKAGE') or task.fields.get('COMPONENTNAME') or task.taskid }} — korinf{% endblock %}
 {% block content %}
 
 <p><a href="/">← назад к очереди</a></p>
-<h1>{{ task.fields.get('COMPONENTNAME', task.taskid) }}</h1>
+<h1>{{ task.fields.get('PACKAGE') or task.fields.get('COMPONENTNAME') or task.taskid }}</h1>
 <p>
   taskid: <code>{{ task.taskid }}</code> ·
   статус: <span class="status status-{{ task.status }}">{{ task.status }}</span>
@@ -18,7 +18,8 @@
 
 <h2>Параметры</h2>
 <table class="kv">
-  {% for k in ['ETERREGNUM', 'PRODUCT', 'COMPONENTNAME', 'PROJECTVERSION',
+  {% for k in ['PACKAGE', 'TASKTYPE', 'TARGETDIR', 'FORCE',
+               'ETERREGNUM', 'PRODUCT', 'COMPONENTNAME', 'PROJECTVERSION',
                'RELEASECANDIDAT', 'DIST', 'DOWNLOADDIR', 'TYPE_LICENSE',
                'NAME_LICENSE', 'COUNT_LICENSE', 'OWNER', 'FULLNAME', 'MAILTO',
                'DATE_START', 'DATE_END', 'SERVICE_END'] %}

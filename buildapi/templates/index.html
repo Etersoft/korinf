@@ -31,7 +31,7 @@
       <tbody>
       {% for t in lst %}
         <tr class="row-{{ st }}">
-          <td><a href="/task/{{ t.taskid }}">{{ t.fields.get('ETERREGNUM', '') }}</a></td>
+          <td><a href="/task/{{ t.taskid }}">{{ t.fields.get('PACKAGE', '') or t.fields.get('ETERREGNUM', '') }}</a></td>
           <td>{{ t.fields.get('PROJECTVERSION', '') }}</td>
           <td>{{ t.fields.get('DIST', '') }}</td>
           <td>{{ t.fields.get('TYPE_LICENSE', '') }}</td>

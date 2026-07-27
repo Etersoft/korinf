@@ -43,6 +43,7 @@ EXT_ROLES = {
 
 KNOWN_FIELDS = [
     'PRODUCT', 'COMPONENTNAME', 'ETERREGNUM', 'DIST', 'DOWNLOADDIR',
+    'PACKAGE', 'TASKTYPE', 'TARGETDIR', 'FORCE',
     'MAILTO', 'FULLNAME', 'PROJECTVERSION', 'RELEASECANDIDAT',
     'TYPE_LICENSE', 'NAME_LICENSE', 'COUNT_LICENSE', 'OWNER',
     'DATE_START', 'DATE_END', 'SERVICE_END',
@@ -175,8 +176,7 @@ def _build_task(taskid: str, roles: dict, parse_content=True) -> Task:
         or roles.get('interrupted') or roles.get('task') or roles.get('done')
         or roles.get('run')
     )
-    t = Task(taskid=taskid, status=status, path=main or '',
-             created_at=filename_timestamp(taskid))
+    t = Task(taskid=taskid, status=status, path=main or '')
     if main:
         try:
             t.mtime = os.path.getmtime(main)
@@ -184,7 +184,10 @@ def _build_task(taskid: str, roles: dict, parse_content=True) -> Task:
             pass
         if parse_content and os.path.exists(main):
             t.fields, t.failures, t.done_at = parse_file(main)
-            t.product = product_group(t.fields.get('COMPONENTNAME', ''))
+            # generic build tasks (PACKAGE=) group by the package name
+            t.product = t.fields.get('PACKAGE') or product_group(t.fields.get('COMPONENTNAME', ''))
+    # created_at from filename; fall back to mtime for non-standard names
+    t.created_at = filename_timestamp(taskid) or t.mtime or None
     return t
 
 

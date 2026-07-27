@@ -85,6 +85,7 @@ class TaskOut(BaseModel):
     version: str = ''
     dist: str = ''
     componentname: str = ''
+    package: str = ''
     fields: dict[str, Any] = {}
     failures: list[Failure] = []
     last_error: str | None = None
@@ -142,6 +143,7 @@ def _task_json(t: tr.Task) -> dict:
         'version': t.fields.get('PROJECTVERSION', ''),
         'dist': t.fields.get('DIST', ''),
         'componentname': t.fields.get('COMPONENTNAME', ''),
+        'package': t.fields.get('PACKAGE', ''),
         'fields': t.fields,
         'failures': [{'at': a, 'error': e} for a, e in t.failures],
         'last_error': t.failures[-1][1] if t.failures else None,
