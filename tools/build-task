@@ -1,0 +1,145 @@
+#!/bin/bash
+# Build task management tool — create/list generic package build .task (PACKAGE=)
+#
+# A .task with a PACKAGE= field is built by the robot (worker.sh ->
+# buildtask.sh -> robot/funcs/genericbuild -> bin/korinf) for the requested
+# target system or list. Build-only: no license, no email.
+#
+# (c) 2026 Etersoft
+# Authors: Vitaly Lipatov <lav@etersoft.ru>
+
+SALES_DIR="${SALES_DIR:-$HOME/sales}"
+
+print_help() {
+    cat <<EOF
+Usage: build-task <command> [options]
+
+Create or inspect generic package build tasks (.task with a PACKAGE= field).
+The robot builds the package via bin/korinf for the requested system/list.
+
+Commands:
+  new <package> <dist> [targetdir] [--force]
+                          - Create a build .task in $SALES_DIR
+  list                    - List build tasks (PACKAGE=) with status
+  help                    - This help
+
+package:   package name to build, e.g. eepm, lavtomate-mcp
+dist:      target system or list selector:
+             all | ALL | x86_64/ALL | x86_64/build | x86_64/ALTLinux
+             | x86_64/Ubuntu/24.04   (concrete target)
+targetdir: optional absolute path for built packages (default \$BUILDFARMDIR)
+--force:   force rebuild all (-F); default rebuilds failed/missing (-f)
+
+Examples:
+  build-task new eepm x86_64/ALTLinux
+  build-task new lavtomate-mcp all --force
+  build-task new eepm x86_64/build /var/ftp/pub/Korinf
+  build-task list
+
+Environment:
+  SALES_DIR  - tasks directory (default \$HOME/sales)
+EOF
+}
+
+# Extract one KEY=VALUE field from a task file (strips outer quotes).
+# args: file field
+get_field() {
+    local file="$1" field="$2" val
+    val=$(grep "^[[:space:]]*$field=" "$file" 2>/dev/null | head -1 | sed "s|^[[:space:]]*$field=||")
+    case "$val" in
+        \"*\") val="${val#\"}"; val="${val%\"}" ;;
+        \'*\') val="${val#\'}"; val="${val%\'}" ;;
+    esac
+    printf '%s' "$val"
+}
+
+# 10-char lowercase-alnum random token (matches sales-task filename style)
+rand10() {
+    local chars="abcdefghijklmnopqrstuvwxyz0123456789" s="" i
+    for i in $(seq 10); do
+        s="$s${chars:$((RANDOM % 36)):1}"
+    done
+    printf '%s' "$s"
+}
+
+# Derive queue status from a task filename extension.
+# arg: full path
+status_of() {
+    local f="$1"
+    case "$f" in
+        *.task.failed)     echo failed ;;
+        *.task.broken)     echo broken ;;
+        *.task.removed)    echo removed ;;
+        *.task.interrupted) echo interrupted ;;
+        *.done)            echo done ;;
+        *.task)
+            if [ -e "${f}.run" ]; then echo running; else echo queued; fi ;;
+        *)                 echo "?" ;;
+    esac
+}
+
+cmd_new() {
+    local force=0 args=() a
+    for a in "$@"; do
+        case "$a" in
+            --force|-F) force=1 ;;
+            *) args+=("$a") ;;
+        esac
+    done
+    local package="${args[0]}" dist="${args[1]}" targetdir="${args[2]}"
+
+    [ -n "$package" ] || { echo "Error: package name is required" >&2; exit 1; }
+    printf '%s' "$package" | grep -qE '^[A-Za-z0-9._+-]+$' \
+        || { echo "Error: invalid package '$package' (allowed: A-Z a-z 0-9 . _ + -)" >&2; exit 1; }
+    [ -n "$dist" ] || dist=all
+    if [ -n "$targetdir" ]; then
+        case "$targetdir" in
+            /*) ;;
+            *) echo "Error: targetdir must be an absolute path" >&2; exit 1 ;;
+        esac
+    fi
+
+    [ -d "$SALES_DIR" ] || mkdir -p "$SALES_DIR" || { echo "Error: cannot create $SALES_DIR" >&2; exit 1; }
+
+    # Standards-compliant name: matches RE_FILENAME in buildapi (B01D-0000 is hex)
+    local taskid="$(date +%Y%m%d%H%M%S).B01D-0000.$(rand10)"
+    local file="$SALES_DIR/${taskid}.task"
+    {
+        echo "PACKAGE=$package"
+        echo "DIST=$dist"
+        echo "TASKTYPE=build"
+        [ -n "$targetdir" ] && echo "TARGETDIR=$targetdir"
+        [ "$force" = "1" ] && echo "FORCE=1"
+    } > "$file"
+
+    echo "Created build task: $file"
+    echo "Robot will build '$package' for '$dist' on the next cycle (~30s)."
+}
+
+cmd_list() {
+    [ -d "$SALES_DIR" ] || { echo "No sales dir: $SALES_DIR"; exit 0; }
+    printf '%-26s %-12s %-18s %-22s %s\n' TASKID STATUS PACKAGE DIST FILE
+    local f base tid status pkg dist found=0
+    for f in "$SALES_DIR"/*.task "$SALES_DIR"/*.task.failed \
+             "$SALES_DIR"/*.task.broken "$SALES_DIR"/*.task.interrupted \
+             "$SALES_DIR"/*.done ; do
+        [ -e "$f" ] || continue
+        grep -q '^[[:space:]]*PACKAGE=' "$f" 2>/dev/null || continue
+        found=1
+        base="$(basename "$f")"
+        tid="${base%.task.failed}"; tid="${tid%.task.broken}"
+        tid="${tid%.task.interrupted}"; tid="${tid%.task}"; tid="${tid%.done}"
+        status=$(status_of "$f")
+        pkg=$(get_field "$f" PACKAGE)
+        dist=$(get_field "$f" DIST)
+        printf '%-26s %-12s %-18s %-22s %s\n' "$tid" "$status" "$pkg" "$dist" "$base"
+    done
+    [ "$found" = "1" ] || echo "(no build tasks with PACKAGE= in $SALES_DIR)"
+}
+
+case "${1:-help}" in
+    new) shift; cmd_new "$@" ;;
+    list) cmd_list ;;
+    help|-h|--help) print_help ;;
+    *) echo "Unknown command: $1" >&2; echo; print_help; exit 1 ;;
+esac
