@@ -1,0 +1,6 @@
+PACKAGE=eepm
+DIST=x86_64/ALTLinux
+TASKTYPE=build
+# optional fields:
+#TARGETDIR=/var/ftp/pub/Korinf
+#FORCE=1

@@ -14,4 +14,5 @@ cp tasks/test-wine-etersoft-local.task ./try.task
 #cp tasks/test-wine-etersoft-enterprise-license-only.task ./try.task
 #cp tasks/test-wine.task ./try.task
 #cp tasks/test-selta.task ./try.task
+#cp tasks/test-build.task ./try.task
 $AROBOTDIR/hands/buildtask.sh --debug try.task
