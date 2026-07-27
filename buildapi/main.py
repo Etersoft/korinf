@@ -3,6 +3,9 @@
 Запуск: python3 main.py  (или через systemd: uvicorn main:app --host 0.0.0.0 --port 8080)
 """
 import os
+import re
+import random
+import string
 import pathlib
 import datetime as dt
 from enum import Enum
@@ -116,6 +119,29 @@ class QueueStopOut(BaseModel):
 class QueueStartOut(BaseModel):
     queue_stopped: bool
     removed: bool
+
+
+class BuildIn(BaseModel):
+    package: str
+    dist: str = 'all'
+    targetdir: str | None = None
+    force: bool = False
+
+
+class BuildOut(BaseModel):
+    taskid: str
+    new_path: str
+
+
+# package name must be safe for the shell argv built in robot/funcs/genericbuild
+RE_PACKAGE = re.compile(r'^[A-Za-z0-9._+-]+$')
+
+
+def _gen_build_taskid() -> str:
+    """Standards-compliant name: matches RE_FILENAME (B01D-0000 is hex) so created_at parses."""
+    ts = dt.datetime.now().strftime('%Y%m%d%H%M%S')
+    rand = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+    return f'{ts}.B01D-0000.{rand}'
 
 
 # ---------- авторизация ----------
@@ -246,6 +272,34 @@ def api_queue_start(_: None = Depends(require_api_key)):
         except OSError as e:
             raise HTTPException(500, f'cannot remove STOP: {e}')
     return {'queue_stopped': False, 'removed': removed}
+
+
+@app.post('/api/build',
+          response_model=BuildOut, tags=['Build'], operation_id='enqueue_build',
+          summary='Поставить в очередь сборку произвольного пакета',
+          description='Создаёт в `~/sales` `.task` с полями `PACKAGE`/`DIST` — робот соберёт '
+                      'указанный пакет (`eepm`, `lavtomate-mcp`, …) для запрошенной системы или '
+                      'списка (`all`, `ALL`, `x86_64/build`, `x86_64/ALTLinux`, …) через '
+                      '`bin/korinf`. Имя файла соответствует схеме, поэтому задача сразу видна '
+                      'в `/api/tasks`. Робот подхватит её на следующем цикле (~30с).')
+def api_enqueue_build(body: BuildIn, _: None = Depends(require_api_key)):
+    if not RE_PACKAGE.match(body.package):
+        raise HTTPException(400, 'invalid package name (allowed: A-Z a-z 0-9 . _ + -)')
+    if body.targetdir and not body.targetdir.startswith('/'):
+        raise HTTPException(400, 'targetdir must be an absolute path')
+    taskid = _gen_build_taskid()
+    lines = [f'PACKAGE={body.package}', f'DIST={body.dist}', 'TASKTYPE=build']
+    if body.targetdir:
+        lines.append(f'TARGETDIR={body.targetdir}')
+    if body.force:
+        lines.append('FORCE=1')
+    path = os.path.join(SALES, taskid + '.task')
+    try:
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(lines) + '\n')
+    except OSError as e:
+        raise HTTPException(500, f'cannot write task: {e}')
+    return {'taskid': taskid, 'new_path': path}
 
 
 # ===================== Web (без ключа, не входит в схему API) =====================
