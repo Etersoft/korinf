@@ -47,6 +47,7 @@ umask 0002
 . $AROBOTDIR/funcs/etersoft
 . $AROBOTDIR/funcs/mail
 . $AROBOTDIR/funcs/build
+. $AROBOTDIR/funcs/genericbuild
 
 
 # Local path to remote user home
@@ -63,6 +64,14 @@ fi
 if [ "$REALRUN" = "--debug" ] ; then
 	shift
 	DEBUG=1
+fi
+
+# Generic package build task (PACKAGE=...): build an arbitrary package via bin/korinf
+# for the requested system/list. Build-only, no license/email. Handled before load_task,
+# which requires PROJECTVERSION and sources the whole task file.
+if grep -qE '^[[:space:]]*PACKAGE=' "$1" 2>/dev/null ; then
+	run_generic_build_task "$1"
+	exit $?
 fi
 
 load_task "$1"

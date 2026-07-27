@@ -1,0 +1,135 @@
+#!/bin/sh -x
+##
+#  Korinf project
+#
+#  Generic package build from a .task with PACKAGE= field
+#
+#  Builds an arbitrary package (eepm, lavtomate-mcp, ...) for a requested
+#  target system or list (all/ALL/x86_64/build/x86_64/ALTLinux/...) via
+#  bin/korinf. Build-only: no license, no customer email.
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009, 2013, 2026
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009, 2013, 2026
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+# Read one KEY=VALUE field from a task file without sourcing it.
+# Strips a single pair of matching outer quotes (" or ').
+# args: file field
+get_field()
+{
+	local file="$1" field="$2" val
+	val=$(grep "^[[:space:]]*$field=" "$file" 2>/dev/null | head -1 | sed "s|^[[:space:]]*$field=||")
+	case "$val" in
+		\"*\") val="${val#\"}"; val="${val%\"}" ;;
+		\'*\') val="${val#\'}"; val="${val%\'}" ;;
+	esac
+	printf '%s' "$val"
+}
+
+# --- inline state markers ---
+# Intentionally do NOT use funcs/message fatal (overridden to send email via mutt,
+# reading $MAILTO/$FULLNAME which a build task does not have) nor funcs/task
+# do_broken/do_removed (they produce .broken/.removed which buildapi cannot restart).
+# A build failure -> .task.failed (restartable by tools/arobot-retouch.sh and buildapi).
+
+# arg: error text
+mark_broken()
+{
+	echo >>"$TASK"
+	echo "# task broken at $(date) (Error: $1)" >>"$TASK"
+	flock "$TASK" mv -f "$TASK" "${TASK}.broken"
+}
+
+# arg: korinf exit code
+mark_build_failed()
+{
+	local rc="$1"
+	echo >>"$TASK"
+	echo "# build FAILED at $(date) (Error: korinf $PACKAGE $DIST exit $rc)" >>"$TASK"
+	flock "$TASK" mv -f "$TASK" "${TASK}.failed"
+}
+
+mark_done()
+{
+	local DONEDIR="$HOME/done"
+	mkdir -p "$DONEDIR"
+	echo >>"$TASK"
+	echo "# task done at $(date)" >>"$TASK"
+	mv -f "$TASK" "$DONEDIR/$(basename "$TASK" .task).done"
+}
+
+# Build a generic package described by PACKAGE=/DIST= in the task file.
+# arg: task file path
+run_generic_build_task()
+{
+	TASK="$1"
+	[ -e "$TASK" ] || { echo "FATAL: task $TASK not found" >&2 ; exit 1 ; }
+
+	PACKAGE=$(get_field "$TASK" PACKAGE)
+	DIST=$(get_field "$TASK" DIST)
+	TARGETDIR=$(get_field "$TASK" TARGETDIR)
+	FORCE=$(get_field "$TASK" FORCE)
+
+	# PACKAGE must be non-empty and safe for argv
+	if [ -z "$PACKAGE" ] ; then
+		mark_broken "Empty PACKAGE in build task"
+		exit 1
+	fi
+	if ! printf '%s' "$PACKAGE" | grep -qE '^[A-Za-z0-9._+-]+$' ; then
+		mark_broken "Invalid PACKAGE '$PACKAGE' (allowed: A-Z a-z 0-9 . _ + -)"
+		exit 1
+	fi
+
+	[ -n "$DIST" ] || DIST=all
+	# DIST is a list selector or concrete target: all/ALL/x86_64/build/x86_64/ALTLinux/...
+	if ! printf '%s' "$DIST" | grep -qE '^[A-Za-z0-9/_.+-]+$' ; then
+		mark_broken "Invalid DIST '$DIST'"
+		exit 1
+	fi
+
+	# TARGETDIR, if set, must be an absolute path (bin/korinf detects it by is_absolute_path)
+	if [ -n "$TARGETDIR" ] ; then
+		case "$TARGETDIR" in
+			/*) ;;
+			*) mark_broken "TARGETDIR must be an absolute path" ; exit 1 ;;
+		esac
+	fi
+
+	local KORINF="$AROBOTDIR/../bin/korinf"
+	local OPTS
+	if [ "$FORCE" = "1" ] ; then
+		OPTS="-F"
+	else
+		OPTS="-f"
+	fi
+
+	# Invoke korinf directly (no eval): empty positionals break bin/korinf's parser,
+	# so add TARGETDIR only when set. PACKAGE/DIST are validated above.
+	echo "Generic build: $KORINF $OPTS $PACKAGE $DIST ${TARGETDIR}"
+	if [ -n "$TARGETDIR" ] ; then
+		"$KORINF" $OPTS "$PACKAGE" "$DIST" "$TARGETDIR"
+	else
+		"$KORINF" $OPTS "$PACKAGE" "$DIST"
+	fi
+	local rc=$?
+
+	if [ "$rc" = "0" ] ; then
+		mark_done
+	else
+		mark_build_failed "$rc"
+		exit 1
+	fi
+}
