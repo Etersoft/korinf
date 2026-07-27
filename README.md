@@ -197,6 +197,45 @@ DATE_END='21/11/2040'               # Дата окончания
 # build FAILED at Чт 25 дек 2025 12:53:48 MSK (Error: описание ошибки)
 ```
 
+### Сборка произвольного пакета (PACKAGE=)
+
+Задача с полем `PACKAGE=` — это не торговый заказ, а запрос на **сборку пакета с произвольным именем** (`eepm`, `lavtomate-mcp`, …) под заказанную систему или список. Робот собирает его через `bin/korinf`, без лицензии и без e-mail. Маркер такого задания — непустое `PACKAGE=` (у торговых задач его нет).
+
+```bash
+PACKAGE=eepm                      # имя пакета (или package.spec)
+DIST=x86_64/ALTLinux              # система или список (см. ниже)
+# необязательно:
+# TARGETDIR=/var/ftp/pub/Korinf    # куда складывать (по умолчанию $BUILDFARMDIR)
+# FORCE=1                          # принудительно пересобрать все (-F); иначе -f
+# TASKTYPE=build                   # явный маркер (необязателен)
+```
+
+**`DIST` — система или список** (раскрывается через `set_rebuildlist` → `etc/lists/`):
+
+| Значение | Что собирает |
+|----------|--------------|
+| `all` | все системы из `distro.list`/`lists/ALL` |
+| `ALL` | все из `etc/lists/ALL` |
+| `x86_64/ALL` | все x86_64 |
+| `x86_64/build` | подборка `etc/lists/x86_64/build` |
+| `x86_64/ALTLinux` | все версии ALTLinux x86_64 (`etc/lists/x86_64/ALTLinux`) |
+| `x86_64/Ubuntu/24.04` | конкретный таргет |
+
+**Создать задачу:**
+```bash
+# утилитой
+./tools/build-task new eepm x86_64/ALTLinux
+./tools/build-task new lavtomate-mcp all --force
+./tools/build-task list
+
+# или через API (нужен X-API-Key из buildapi/config)
+curl -X POST http://builder:8080/api/build \
+  -H "X-API-Key: $KEY" -H "Content-Type: application/json" \
+  -d '{"package":"eepm","dist":"x86_64/ALTLinux"}'
+```
+
+**Поведение:** успех → `~/done/<base>.done`; провал → `<base>.task.failed` с маркером `# build FAILED at ... (Error: korinf <пакет> <система> exit N)` (перезапускается через `tools/arobot-retouch.sh` или buildapi `POST /api/task/{id}/restart`). Состояние видно в buildapi (веб `/` и `/api/tasks`), пакет группируется по имени.
+
 ### Типичные ошибки Robot
 
 - `Package wine-etersoft should be rebuilt` - основной пакет не собран
