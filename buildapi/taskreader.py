@@ -27,6 +27,7 @@ RE_FILENAME = re.compile(
 RE_KV = re.compile(r'^([A-Z_][A-Z0-9_]*)=(.*)$')
 RE_FAILED = re.compile(r'^# build FAILED at (.+?) \(Error:\s*(.+)\)\s*$')
 RE_FAILED_NOERR = re.compile(r'^# build FAILED at (.+?)\s*$')
+RE_BROKEN = re.compile(r'^# task broken at (.+?) \(Error:\s*(.+)\)\s*$')
 RE_DONE = re.compile(r'^# task done at (.+?)\s*$')
 RE_PRODUCT_GROUP = re.compile(r'^([^@\s]+@Etersoft)')
 
@@ -78,6 +79,10 @@ def parse_text(text: str):
             m = RE_FAILED_NOERR.match(line)
             if m:
                 failures.append((m.group(1), None))
+                continue
+            m = RE_BROKEN.match(line)
+            if m:
+                failures.append((m.group(1), m.group(2)))
                 continue
             m = RE_DONE.match(line)
             if m:
@@ -176,7 +181,8 @@ def _build_task(taskid: str, roles: dict, parse_content=True) -> Task:
         or roles.get('interrupted') or roles.get('task') or roles.get('done')
         or roles.get('run')
     )
-    t = Task(taskid=taskid, status=status, path=main or '')
+    t = Task(taskid=taskid, status=status, path=main or '',
+             created_at=filename_timestamp(taskid))
     if main:
         try:
             t.mtime = os.path.getmtime(main)
@@ -186,8 +192,6 @@ def _build_task(taskid: str, roles: dict, parse_content=True) -> Task:
             t.fields, t.failures, t.done_at = parse_file(main)
             # generic build tasks (PACKAGE=) group by the package name
             t.product = t.fields.get('PACKAGE') or product_group(t.fields.get('COMPONENTNAME', ''))
-    # created_at from filename; fall back to mtime for non-standard names
-    t.created_at = filename_timestamp(taskid) or t.mtime or None
     return t
 
 

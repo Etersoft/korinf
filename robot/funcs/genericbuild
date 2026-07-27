@@ -83,19 +83,21 @@ run_generic_build_task()
 	TARGETDIR=$(get_field "$TASK" TARGETDIR)
 	FORCE=$(get_field "$TASK" FORCE)
 
-	# PACKAGE must be non-empty and safe for argv
+	# PACKAGE must be non-empty and safe for argv (must not start with '-',
+	# otherwise bin/korinf parses it as an option)
 	if [ -z "$PACKAGE" ] ; then
 		mark_broken "Empty PACKAGE in build task"
 		exit 1
 	fi
-	if ! printf '%s' "$PACKAGE" | grep -qE '^[A-Za-z0-9._+-]+$' ; then
-		mark_broken "Invalid PACKAGE '$PACKAGE' (allowed: A-Z a-z 0-9 . _ + -)"
+	if ! printf '%s' "$PACKAGE" | grep -qE '^[A-Za-z0-9_][A-Za-z0-9._+-]*$' ; then
+		mark_broken "Invalid PACKAGE '$PACKAGE' (allowed: A-Z a-z 0-9 . _ + -, must not start with -)"
 		exit 1
 	fi
 
 	[ -n "$DIST" ] || DIST=all
 	# DIST is a list selector or concrete target: all/ALL/x86_64/build/x86_64/ALTLinux/...
-	if ! printf '%s' "$DIST" | grep -qE '^[A-Za-z0-9/_.+-]+$' ; then
+	# must not start with '/' (bin/korinf treats an absolute path as TARGETDIR)
+	if ! printf '%s' "$DIST" | grep -qE '^[A-Za-z0-9][A-Za-z0-9/_.+-]*$' ; then
 		mark_broken "Invalid DIST '$DIST'"
 		exit 1
 	fi

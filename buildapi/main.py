@@ -134,11 +134,14 @@ class BuildOut(BaseModel):
 
 
 # package name must be safe for the shell argv built in robot/funcs/genericbuild
-RE_PACKAGE = re.compile(r'^[A-Za-z0-9._+-]+$')
+# (must not start with '-': bin/korinf would parse it as an option)
+RE_PACKAGE = re.compile(r'^[A-Za-z0-9_][A-Za-z0-9._+-]*$')
+# target system/list selector: all/ALL/x86_64/build/x86_64/ALTLinux/x86_64/Ubuntu/24.04
+RE_DIST = re.compile(r'^[A-Za-z0-9][A-Za-z0-9/_.+-]*$')
 
 
 def _gen_build_taskid() -> str:
-    """Standards-compliant name: matches RE_FILENAME (B01D-0000 is hex) so created_at parses."""
+    """RE_FILENAME-shaped name (B01D-0000 is valid hex) so _do_restart accepts the taskid."""
     ts = dt.datetime.now().strftime('%Y%m%d%H%M%S')
     rand = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
     return f'{ts}.B01D-0000.{rand}'
@@ -284,20 +287,30 @@ def api_queue_start(_: None = Depends(require_api_key)):
                       'в `/api/tasks`. Робот подхватит её на следующем цикле (~30с).')
 def api_enqueue_build(body: BuildIn, _: None = Depends(require_api_key)):
     if not RE_PACKAGE.match(body.package):
-        raise HTTPException(400, 'invalid package name (allowed: A-Z a-z 0-9 . _ + -)')
+        raise HTTPException(400, 'invalid package name (A-Z a-z 0-9 . _ + -, must not start with -)')
+    if not RE_DIST.match(body.dist):
+        raise HTTPException(400, 'invalid dist (use all/ALL/x86_64/build/x86_64/ALTLinux/x86_64/Ubuntu/24.04)')
     if body.targetdir and not body.targetdir.startswith('/'):
         raise HTTPException(400, 'targetdir must be an absolute path')
     taskid = _gen_build_taskid()
-    lines = [f'PACKAGE={body.package}', f'DIST={body.dist}', 'TASKTYPE=build']
+    # double-quoted values match the convention tools/arobot-retouch.sh greps for (DIST="...")
+    lines = [f'PACKAGE="{body.package}"', f'DIST="{body.dist}"', 'TASKTYPE=build']
     if body.targetdir:
-        lines.append(f'TARGETDIR={body.targetdir}')
+        lines.append(f'TARGETDIR="{body.targetdir}"')
     if body.force:
         lines.append('FORCE=1')
+    # write atomically (tmp + rename) so the worker never observes a partial/empty file
     path = os.path.join(SALES, taskid + '.task')
+    tmp = path + '.tmp'
     try:
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(tmp, 'w', encoding='utf-8') as f:
             f.write('\n'.join(lines) + '\n')
+        os.replace(tmp, path)
     except OSError as e:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
         raise HTTPException(500, f'cannot write task: {e}')
     return {'taskid': taskid, 'new_path': path}
 
