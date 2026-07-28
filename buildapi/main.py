@@ -292,6 +292,8 @@ def api_enqueue_build(body: BuildIn, _: None = Depends(require_api_key)):
         raise HTTPException(400, 'invalid dist (use all/ALL/x86_64/build/x86_64/ALTLinux/x86_64/Ubuntu/24.04)')
     if body.targetdir and not body.targetdir.startswith('/'):
         raise HTTPException(400, 'targetdir must be an absolute path')
+    if body.targetdir and ' ' in body.targetdir:
+        raise HTTPException(400, 'targetdir must not contain spaces (bin/korinf re-splits args)')
     taskid = _gen_build_taskid()
     # double-quoted values match the convention tools/arobot-retouch.sh greps for (DIST="...")
     lines = [f'PACKAGE="{body.package}"', f'DIST="{body.dist}"', 'TASKTYPE=build']

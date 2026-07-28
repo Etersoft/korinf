@@ -6,6 +6,9 @@
 
 SALES_DIR="${SALES_DIR:-$HOME/sales}"
 
+# shared .task field reader (get_field)
+. "$(dirname "$(readlink -f "$0")")/../share/eterbuild/korinf/taskfield"
+
 print_help() {
     cat <<EOF
 Usage: sales-tasks [command] [options]
@@ -35,13 +38,6 @@ Examples:
 Environment:
   SALES_DIR             - Directory with tasks (default: \$HOME/sales)
 EOF
-}
-
-# Parse task file and extract field
-get_field() {
-    local file="$1"
-    local field="$2"
-    grep "^$field=" "$file" 2>/dev/null | head -1 | sed "s/^$field=//;s/\"//g"
 }
 
 # Get last error from task

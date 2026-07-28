@@ -25,19 +25,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-# Read one KEY=VALUE field from a task file without sourcing it.
-# Strips a single pair of matching outer quotes (" or ').
-# args: file field
-get_field()
-{
-	local file="$1" field="$2" val
-	val=$(grep "^[[:space:]]*$field=" "$file" 2>/dev/null | head -1 | sed "s|^[[:space:]]*$field=||")
-	case "$val" in
-		\"*\") val="${val#\"}"; val="${val%\"}" ;;
-		\'*\') val="${val#\'}"; val="${val%\'}" ;;
-	esac
-	printf '%s' "$val"
-}
+# get_field() is sourced from share/eterbuild/korinf/taskfield (via buildtask.sh).
 
 # --- inline state markers ---
 # Intentionally do NOT use funcs/message fatal (overridden to send email via mutt,
@@ -68,7 +56,7 @@ mark_done()
 	mkdir -p "$DONEDIR"
 	echo >>"$TASK"
 	echo "# task done at $(date)" >>"$TASK"
-	mv -f "$TASK" "$DONEDIR/$(basename "$TASK" .task).done"
+	flock "$TASK" mv -f "$TASK" "$DONEDIR/$(basename "$TASK" .task).done"
 }
 
 # Build a generic package described by PACKAGE=/DIST= in the task file.
@@ -102,12 +90,17 @@ run_generic_build_task()
 		exit 1
 	fi
 
-	# TARGETDIR, if set, must be an absolute path (bin/korinf detects it by is_absolute_path)
+	# TARGETDIR, if set, must be an absolute path (bin/korinf detects it by is_absolute_path).
+	# Spaces are rejected: bin/korinf re-splits positionals via `set -- $ARGS`.
 	if [ -n "$TARGETDIR" ] ; then
 		case "$TARGETDIR" in
 			/*) ;;
 			*) mark_broken "TARGETDIR must be an absolute path" ; exit 1 ;;
 		esac
+		if printf '%s' "$TARGETDIR" | grep -q ' ' ; then
+			mark_broken "TARGETDIR must not contain spaces ('$TARGETDIR')"
+			exit 1
+		fi
 	fi
 
 	local KORINF="$AROBOTDIR/../bin/korinf"
@@ -120,7 +113,6 @@ run_generic_build_task()
 
 	# Invoke korinf directly (no eval): empty positionals break bin/korinf's parser,
 	# so add TARGETDIR only when set. PACKAGE/DIST are validated above.
-	echo "Generic build: $KORINF $OPTS $PACKAGE $DIST ${TARGETDIR}"
 	if [ -n "$TARGETDIR" ] ; then
 		"$KORINF" $OPTS "$PACKAGE" "$DIST" "$TARGETDIR"
 	else

@@ -32,6 +32,7 @@ AROBOTDIR=`dirname $0`/..
 # load common functions, compatible with local and installed script
 TOPDIR=../../
 . $AROBOTDIR/../share/eterbuild/korinf/common
+. $AROBOTDIR/../share/eterbuild/korinf/taskfield
 
 kormod messages/fio
 

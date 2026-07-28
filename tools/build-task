@@ -10,6 +10,9 @@
 
 SALES_DIR="${SALES_DIR:-$HOME/sales}"
 
+# shared .task field reader (get_field)
+. "$(dirname "$(readlink -f "$0")")/../share/eterbuild/korinf/taskfield"
+
 print_help() {
     cat <<EOF
 Usage: build-task <command> [options]
@@ -39,18 +42,6 @@ Examples:
 Environment:
   SALES_DIR  - tasks directory (default \$HOME/sales)
 EOF
-}
-
-# Extract one KEY=VALUE field from a task file (strips outer quotes).
-# args: file field
-get_field() {
-    local file="$1" field="$2" val
-    val=$(grep "^[[:space:]]*$field=" "$file" 2>/dev/null | head -1 | sed "s|^[[:space:]]*$field=||")
-    case "$val" in
-        \"*\") val="${val#\"}"; val="${val%\"}" ;;
-        \'*\') val="${val#\'}"; val="${val%\'}" ;;
-    esac
-    printf '%s' "$val"
 }
 
 # 10-char lowercase-alnum random token (matches sales-task filename style)

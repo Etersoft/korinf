@@ -1,0 +1,22 @@
+##
+#  Korinf project
+#
+#  Shared .task field reader — sourced by robot/hands/buildtask.sh
+#  (and so by robot/funcs/genericbuild), tools/build-task and tools/sales-tasks.
+#
+#  Extracts one KEY=VALUE field from a task file WITHOUT sourcing it
+#  (task files are untrusted text), tolerating leading whitespace and
+#  stripping a single pair of matching outer quotes (" or ').
+#
+#  args: file field   ->  prints the value (empty if absent)
+##
+get_field()
+{
+	local file="$1" field="$2" val
+	val=$(grep "^[[:space:]]*$field=" "$file" 2>/dev/null | head -1 | sed "s|^[[:space:]]*$field=||")
+	case "$val" in
+		\"*\") val="${val#\"}"; val="${val%\"}" ;;
+		\'*\') val="${val#\'}"; val="${val%\'}" ;;
+	esac
+	printf '%s' "$val"
+}
