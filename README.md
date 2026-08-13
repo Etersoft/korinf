@@ -231,7 +231,7 @@ DIST=x86_64/ALTLinux              # система или список (см. н
 ./tools/build-task list
 
 # или через API (нужен X-API-Key из buildapi/config)
-curl -X POST http://builder:8080/api/build \
+curl -X POST http://builder64.office.etersoft.ru:5503/api/build \
   -H "X-API-Key: $KEY" -H "Content-Type: application/json" \
   -d '{"package":"eepm","dist":"x86_64/ALTLinux"}'
 ```

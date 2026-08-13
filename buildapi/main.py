@@ -1,6 +1,6 @@
 """korinf buildapi — HTTP API (по ключу) + web-интерфейс очереди ~/sales.
 
-Запуск: python3 main.py  (или через systemd: uvicorn main:app --host 0.0.0.0 --port 8080)
+Запуск: python3 main.py  (или через systemd: uvicorn main:app --host 0.0.0.0 --port 5503)
 """
 import os
 import re
@@ -25,7 +25,7 @@ BASE_DIR = pathlib.Path(__file__).resolve().parent
 
 def load_config() -> dict:
     cfg = {
-        'API_KEY': '', 'HOST': '0.0.0.0', 'PORT': '8080',
+        'API_KEY': '', 'HOST': '0.0.0.0', 'PORT': '5503',
         'SALES_DIR': '/srv/builder/sales',
         'DONE_DIR': '/srv/builder/done',
         'DONE_HOURS': '48',
