@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block title %}Queue log — korinf{% endblock %}
+{% block content %}
+<p><a href=/>← назад к очереди</a></p>
+<h1>Queue log <small>последние {{ line_count }} строк</small></h1>
+<pre class=queue-log>{{ log }}</pre>
+{% endblock %}

@@ -45,6 +45,8 @@ def load_config() -> dict:
 CFG = load_config()
 SALES, DONE = CFG['SALES_DIR'], CFG['DONE_DIR']
 STOP_PATH = os.path.join(SALES, 'STOP')
+QUEUE_LOG_PATH = '/var/log/queuebuild.log'
+QUEUE_LOG_LINES = 300
 
 app = FastAPI(
     title='korinf buildapi',
@@ -339,6 +341,20 @@ def web_index(request: Request, product: str = None):
         'products': products, 'current_product': product,
         'status_order': STATUS_ORDER,
         'has_running': any(t.status in ('running', 'running_stale') for t in tasks),
+    })
+
+
+@app.get('/queue-log', response_class=HTMLResponse, include_in_schema=False)
+def web_queue_log(request: Request):
+    try:
+        with open(QUEUE_LOG_PATH, encoding='utf-8', errors='replace') as f:
+            lines = f.readlines()[-QUEUE_LOG_LINES:]
+        log = ''.join(lines)
+    except OSError as e:
+        log = f'Unable to read queue log: {e}'
+    return templates.TemplateResponse(request, 'queue_log.html', {
+        'log': log, 'line_count': len(log.splitlines()),
+        'queue_stopped': queue_stopped(), 'has_running': False,
     })
 
 

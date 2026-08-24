@@ -40,3 +40,4 @@ table.kv th { background: #f3f4f6; text-align: right; width: 180px; font-size: 1
 ul.failures { background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; padding: 12px 24px; }
 .empty { color: #6b7280; padding: 24px; text-align: center; }
 code { background: #f3f4f6; padding: 1px 4px; border-radius: 3px; font-size: 12px; }
+.queue-log { max-height: 75vh; overflow: auto; white-space: pre-wrap; background: #17191c; color: #e6edf3; padding: 12px; border-radius: 4px; }
