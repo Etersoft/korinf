@@ -47,7 +47,18 @@ EXTRAFILES="nx-libs-devel[-_][0-9]"
 
 # Check for unstable
 last_arg="$(echo "$@" | cut -d" " -f$#)"
-[ "$last_arg" = "unstable" ] && { MAINFILES=$UNSTABLE; EXTRAFILES=$UNSTABLEEXTRA;}
+#[ "$last_arg" = "unstable" ] && { MAINFILES=$UNSTABLE; EXTRAFILES=$UNSTABLEEXTRA;}
 #echo "MAINFILES: $MAINFILES"
+
+# ---------------------------------------------------
+# А может awk?
+# 1 Сортируем все src.rpm пакеты по убыванию и берём первую строку
+# 2 awk: Получаем имя пакета методом деления строки по имени пакета
+# 3 awk: У результата убираем "alt[0-9]+src.rpm" в конце файла
+NXVER=$(ls /var/ftp/pvt/Etersoft/RX@Etersoft/$last_arg/sources/nx-libs* -1 -r | head -n 1 | awk -F"nx-libs-" '{gsub(/alt[0-9]+.src.rpm/, ""); print $2}') # == "3.5.99.27.3-"
+MAINFILES="nx-libs[-_]$NXVER nxproxy[-_]$NXVER nxagent[-_]$NXVER"
+EXTRAFILES="nx-libs-devel[-_]$NXVER"
+echo "MAINFILES: $MAINFILES"
+echo "EXTRAFILES: $EXTRAFILES"
 
 build_project /var/ftp/pvt/Etersoft/RX@Etersoft nx-libs "" $@

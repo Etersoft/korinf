@@ -97,10 +97,36 @@ build_rx()
 			CHECKCOMP="rxclient rx-etersoft nx-libs nxssh prunner rx-etersoft-pcsc" #rx-etersoft-usbip"
 			PACKAGELIST="nx-libs nxagent nxproxy nxssh prunner rx-etersoft rxclient rx-etersoft-pcsc" #rx-etersoft-usbip"
 
+		elif [ "$PROJECTVERSION" = "1.8" -o "$PROJECTVERSION" = "1.9" ] ; then
+			COMPONENTSCRIPTDIR="bin-rx"
+			CHECKCOMP="rxclient rx-etersoft nx-libs nxssh prunner
+				   rx-etersoft-pcsc rx-etersoft-pcsc-driver
+				   rx-etersoft-kdrive rxkdriveclient" #rx-etersoft-usbip"
+			PACKAGELIST="nx-libs nxagent nxproxy nxssh prunner rx-etersoft rxclient
+				     rx-etersoft-pcsc rxclient-pcsc rx-etersoft-pcsc-driver
+				     rx-etersoft-kdrive rxkdriveclient" #rx-etersoft-usbip"
 		else
 			COMPONENTSCRIPTDIR="bin-rx"
-			CHECKCOMP="rxclient rx-etersoft nx-libs nxssh prunner rx-etersoft-pcsc rx-etersoft-pcsc-driver rx-etersoft-kdrive rxkdriveclient" #rx-etersoft-usbip"
-			PACKAGELIST="nx-libs nxagent nxproxy nxssh prunner rx-etersoft rxclient rx-etersoft-pcsc rxclient-pcsc rx-etersoft-pcsc-driver rx-etersoft-kdrive rxkdriveclient" #rx-etersoft-usbip"
+			CHECKCOMP="rxclient rx-etersoft nx-libs nxssh prunner
+				   rx-etersoft-pcsc rx-etersoft-pcsc-driver
+				   rx-etersoft-kdrive rxkdriveclient
+				   rxclip" #rx-etersoft-usbip"
+			PACKAGELIST="nx-libs nxagent nxproxy nxssh prunner rx-etersoft rxclient
+				     rx-etersoft-pcsc rxclient-pcsc rx-etersoft-pcsc-driver
+				     rx-etersoft-kdrive rxkdriveclient
+				     rxclip-common rxclip-client rxclip-server" #rx-etersoft-usbip"
+
+                        if [ "$DIST" = "ALTLinux/c9f2" ] ||
+			   [ "$DIST" = "x86_64/ALTLinux/c9f2" ] ||
+			   [ "$DIST" = "x86_64/AstraLinuxSE/1.7" ] ; then
+				# Can't build rxclip because of only python2 cython module in ALTLinux/c9f2
+				CHECKCOMP="rxclient rx-etersoft nx-libs nxssh prunner
+					   rx-etersoft-pcsc rx-etersoft-pcsc-driver
+					   rx-etersoft-kdrive rxkdriveclient " #rx-etersoft-usbip"
+				PACKAGELIST="nx-libs nxagent nxproxy nxssh prunner rx-etersoft rxclient
+					     rx-etersoft-pcsc rxclient-pcsc rx-etersoft-pcsc-driver
+					     rx-etersoft-kdrive rxkdriveclient" #rx-etersoft-usbip"
+			fi
 
                         if [ "$DIST" = "SLES/11" ] || [ "$DIST" = "SLED/11" ] ; then
                                 # checking for wxLogStream... configure: error:
@@ -129,6 +155,9 @@ build_rx()
 
 	if [ -n "$LICENSEONLY" ] ; then
 		prepare_license_mail $TMPMAIL support@etersoft.ru || fatal "Can't prepare letter"
+		cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Лицензия для продукта $COMPONENTNAME $PROJECTVERSION" || fatal "Can't send"
+		rm -f $TMPMAIL
+		return 0
 	else
 		for i in $CHECKCOMP ; do
 			check_and_refresh_component $COMPONENTSCRIPTDIR $LOCALDIR $i
