@@ -49,6 +49,9 @@ case $ver in
     10*)
         ver=10.0
         ;;
+    11.12*|11-unstable)
+        ver=11.12
+        ;;
     11*)
         ver=11.0
         ;;

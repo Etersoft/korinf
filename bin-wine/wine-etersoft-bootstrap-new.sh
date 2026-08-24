@@ -148,6 +148,11 @@ case "$ver" in
             do_bootstrap eepm wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks wine-etersoft
             do_build wine-etersoft-local wine-etersoft-network wine-etersoft-grdwine
         fi
+
+        # x86
+        DISTR="$(echo "$DISTR" | sed -e "s|x86_64/|i586/|")"
+        do_bootstrap eepm wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks wine32-etersoft
+        do_build wine32-etersoft-grdwine
         ;;
     1*|2*)
         # x86_64
@@ -159,4 +164,6 @@ case "$ver" in
         fatal "Unknown version $ver"
 esac
 
-[ "$STATE" = "--check" ] && echo "Legend: MIS - missed, OBS - obsoleted build, ABF - autobuild failed, FIL - manual build failed"
+if [ "$STATE" = "--check" ] ; then
+    echo "Legend: MIS - missed, OBS - obsoleted build, ABF - autobuild failed, FIL - manual build failed"
+fi
