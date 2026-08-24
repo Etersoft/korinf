@@ -54,8 +54,10 @@ install_built_packages()
 	local INSTALLCOMMAND
 	INSTALLCOMMAND=$(DISTRNAMEOVERRIDE=$DISTRNAME/$DISTRVERSION $EPMCMD --auto --show-command-only install) || { warning "Can't get install command" ; return 1 ; }
 	[ -n "$INSTALLCOMMAND" ] || { warning "Got empty install command" ; return 1 ; }
+	# Install only the first (base) package to avoid broken deps from subpackages (like eepm-repack)
+	local BOOTSTRAPFILES="${EXPMAINFILES%% *}"
 	# CHECKME: why we need yes here
-	run_in_chroot $dist "cd $INTBUILT && yes | $INSTALLCOMMAND ${EXPMAINFILES} ${EXPEXTRAFILES}" #|| set_build_failed
+	run_in_chroot $dist "cd $INTBUILT && yes | $INSTALLCOMMAND ${BOOTSTRAPFILES}" #|| set_build_failed
 	if [ "$BUILDNAME" = "eepm" ] ; then
 		run_in_chroot $dist "epm -h >/dev/null" || set_build_failed
 	fi
@@ -86,7 +88,7 @@ install_build_requires()
 	# coreutils-single
 
 	if rhas "$BUILDNAME" "wine" && ! rhas "$BUILDNAME" "local" && ! rhas "$BUILDNAME" "network" ; then
-		buildsystempkgs="$buildsystempkgs clang llvm lld flex"
+		buildsystempkgs="$buildsystempkgs clang llvm lld flex bison"
 	fi
 
 	# hack to prepare Debian based system
@@ -173,7 +175,39 @@ EOF
 	else
 		# TODO: Appeared the backslashed quotes are required if package names contain parentheses
 		# safe input for eepm
+		# Per-distro build-env fixes (applied before install requires):
+		# deb: allow apt release-info change — some repos change Origin metadata (e.g. OSnovaLinux onyx3)
+		if [ "$PKGFORMAT" = "deb" ] ; then
+			run_in_chroot $dist "echo 'Acquire::AllowReleaseInfoChange \"true\";' >/etc/apt/apt.conf.d/99korinf-allowrelinfo" </dev/null 2>/dev/null
+		fi
+		# AstraLinuxSE: container's epm (3.64.64) defaults --no-remove for install (epm-install:285),
+		# which blocks removals of stale conflicting packages (libjack-jackd2-0 etc.). Comment that default out.
+		[ "$DISTRNAME" = "AstraLinuxSE" ] && run_in_chroot $dist "sed -i '285s/^/#/' /usr/share/eepm/epm-install" </dev/null 2>/dev/null
+		# ROSA: rpm IMA plugin can't apply signatures inside container (EPERM on fsm_file_prepare) — disable it
+		[ "$DISTRNAME" = "ROSA" ] && run_in_chroot $dist "echo '%__transaction_ima %{nil}' >/etc/rpm/macros.korinf" </dev/null 2>/dev/null
 		run_in_chroot $dist "epm --auto update" </dev/null || return
+		# RedOS 7.3: upgrade old binutils 2.30 -> 2.40 (2.30's `as` rejects --gdwarf-5 emitted by gcc 11)
+		if [ "$DISTRNAME" = "RedOS" ] && [ "$DISTRVERSION" = "7.3" ] ; then
+			run_in_chroot $dist "epm --auto upgrade binutils" </dev/null 2>/dev/null
+		fi
+		# ROSA: align stale fontconfig/gtk4 to repo versions — lib64*-devel (newer) conflicts on
+		# /usr/share/doc/<pkg>/README.md with the older installed main package.
+		# Also upgrade gcc/binutils: gcc 14.2's bundled `as` is linked against binutils 2.37 while
+		# the module has binutils 2.43 (libopcodes-2.37.so missing) -> "C compiler cannot create executables".
+		if [ "$DISTRNAME" = "ROSA" ] ; then
+			run_in_chroot $dist "epm --auto upgrade fontconfig gtk4 gcc binutils" </dev/null 2>/dev/null
+		fi
+		# OSnovaLinux: stale module, t64 transition (libssl3->libssl3t64 and more) never done.
+		# Run dist-upgrade directly via apt-get (allows removal) to do the whole transition.
+		# NOTE: not used for AstraLinuxSE — its module is so stale that a full dist-upgrade
+		# upgrades core packages and kills the container; epm install there allows removal anyway.
+		if [ "$DISTRNAME" = "OSnovaLinux" ] ; then
+			run_in_chroot $dist "apt-get -y dist-upgrade" </dev/null 2>/dev/null
+		fi
+		# Heal broken apt state before installing build requires.
+		# e.g. eepm-full gets unpacked-but-not-configured (its Depends aria2/fzf/pigz are not pulled
+		# during install_built_packages), which breaks all subsequent apt installs (clang/llvm/lld).
+		run_in_chroot $dist "epm --auto fix" </dev/null || warning "epm fix failure (install requires)"
 
 		run_in_chroot $dist "epm --auto --verbose --skip-installed install $reqsbr" </dev/null
 		RES=$?
