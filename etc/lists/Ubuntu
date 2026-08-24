@@ -44,9 +44,11 @@ Ubuntu/22.04
 Ubuntu/24.04
 #LinuxMint/22
 
-Ubuntu/24.10
+# EOL 07.2025, moved to old-releases
+#Ubuntu/24.10
 Ubuntu/25.04
 Ubuntu/25.10
+Ubuntu/26.04
 
 LinuxMint/20
 LinuxMint/21

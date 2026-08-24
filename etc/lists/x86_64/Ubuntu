@@ -47,12 +47,14 @@ x86_64/Ubuntu/22.04
 x86_64/Ubuntu/24.04
 #x86_64/LinuxMint/22
 
-x86_64/Ubuntu/24.10
+# EOL 07.2025, moved to old-releases
+#x86_64/Ubuntu/24.10
 
 x86_64/Ubuntu/25.04
 x86_64/Ubuntu/25.10
 #x86_64/LinuxMint/23
 
+x86_64/Ubuntu/26.04
 
 x86_64/LinuxMint/20
 x86_64/LinuxMint/21

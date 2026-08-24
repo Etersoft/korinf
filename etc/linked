@@ -65,6 +65,9 @@ x86_64/ArchLinux/CUR x86_64/ArchLinux/rolling
 #x86_64/ArchLinux/CUR x86_64/ArchLinux/2013.2
 Gentoo/CUR Gentoo/13.0
 x86_64/Gentoo/CUR x86_64/Gentoo/13.0
+x86_64/ManjaroLinux/rolling x86_64/ArchLinux/rolling
+x86_64/CachyOSLinux/rolling x86_64/ArchLinux/rolling
+x86_64/EndeavourOS/rolling x86_64/ArchLinux/rolling
 
 AstraLinux/orel AstraLinuxCE/2.12
 AstraLinuxCE/2.12.44 AstraLinuxCE/2.12
