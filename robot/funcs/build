@@ -41,6 +41,8 @@ check_if_updated()
 	[ -n "$BINBUILDNAME" ] || BINBUILDNAME="$BUILDNAME"
 	
 	# FIXMEP get_..._package always returns true
+	DESTDIR=$PRODPATH/$DIST
+	clear_restart_build_status
 	local SRCRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME)
 	test -r "$SRCRPM" || fatal "Source package for $BUILDNAME is not found"
 	local BINPKG=$(get_bin_package "$PRODPATH/$DIST" $BINBUILDNAME)

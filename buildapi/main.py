@@ -193,9 +193,15 @@ def _do_restart(taskid: str) -> dict:
         raise HTTPException(404, 'no .task.failed in ~/sales for this taskid')
     dst = src[:-len('.failed')]
     try:
+        # The worker knows the actual package paths, including distro symlinks.
+        # Clear stale failure markers there before checking/building each package.
+        fields, _, _ = tr.parse_file(src)
+        if fields.get('CLEAR_FAILED_ON_RESTART') != '1':
+            with open(src, 'a', encoding='utf-8') as task:
+                task.write('\nCLEAR_FAILED_ON_RESTART=1\n')
         os.rename(src, dst)
     except OSError as e:
-        raise HTTPException(500, f'rename failed: {e}')
+        raise HTTPException(500, f'restart failed: {e}')
     return {'restarted': True, 'taskid': taskid, 'new_path': dst}
 
 

@@ -112,6 +112,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 
 	# Initialize LOGDIR and LOGFILE variables
 	init_dist_log "$dist"
+	clear_restart_build_status
 
 	if [ -n "$FORCEREBUILDPACKAGE" ] ; then
 		loginfo "forced build package $BUILDNAME"

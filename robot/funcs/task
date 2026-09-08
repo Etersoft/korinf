@@ -64,7 +64,9 @@ load_task()
 	DIST=
 	PROJECTVERSION=
 	LICENSEONLY=
+	CLEAR_FAILED_ON_RESTART=
 	. $TASK
+	export CLEAR_FAILED_ON_RESTART
 
 	# Check for product version
 	[ -z "$PROJECTVERSION" ] && { do_broken "Empty PROJECTVERSION" ; }

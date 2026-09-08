@@ -70,6 +70,7 @@ run_generic_build_task()
 	DIST=$(get_field "$TASK" DIST)
 	TARGETDIR=$(get_field "$TASK" TARGETDIR)
 	FORCE=$(get_field "$TASK" FORCE)
+	export CLEAR_FAILED_ON_RESTART=$(get_field "$TASK" CLEAR_FAILED_ON_RESTART)
 
 	# PACKAGE must be non-empty and safe for argv (must not start with '-',
 	# otherwise bin/korinf parses it as an option)

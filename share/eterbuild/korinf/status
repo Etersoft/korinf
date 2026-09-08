@@ -58,3 +58,11 @@ clear_build_status()
 	rm -fv "$DESTLOGDIR/$BUILDNAME.autobuild.failed"
 	return 0
 }
+
+# Only an explicit queue restart requests this; ordinary builds keep the guard.
+clear_restart_build_status()
+{
+	[ "$CLEAR_FAILED_ON_RESTART" = "1" ] || return 0
+	set_destlogdir
+	rm -f "$DESTLOGDIR/$BUILDNAME.build.failed" "$DESTLOGDIR/$BUILDNAME.autobuild.failed" || fatal "Can't clear build status for $DESTLOGDIR/$BUILDNAME"
+}
