@@ -2,25 +2,29 @@
 # Returns the newest package from the pkg list (without extension.src.rpm)
 last_rpm ()
 {
-  local i LR
-  local lastrpm
-  local pkgver
-  lastrpm="____NOT_FOUND______"
-  # for obsoleted systems
-  if ! which rpmevrcmp >/dev/null 2>/dev/null ; then
-	lastrpm=$(xargs -n1 echo " " | sort | tail -n1)
-	# hack against src.rpm
-	basename $lastrpm .src.rpm
-	exit
-  fi
+  local i LR lastrpm pkgver pkginfo version lastversion
+  lastrpm=""
   for i in $(cat); do
-	pkgver=$(rpmquery --package --queryformat "%{name}-%{version}-%{release}" "$i")
-	LR=$(rpmevrcmp "$pkgver" "$lastrpm")
-	if [ "$LR" -gt 0 ]; then
-		lastrpm="$pkgver"
-	fi
+    pkginfo=$(rpmquery --package --queryformat "%{name} %{version}-%{release}" "$i") || return 1
+    version=${pkginfo#* }
+    pkgver="${pkginfo%% *}-$version"
+    if [ -z "$lastrpm" ]; then
+      lastrpm="$pkgver"
+      lastversion="$version"
+      continue
+    fi
+    if command -v rpmevrcmp >/dev/null 2>&1; then
+      LR=$(rpmevrcmp "$version" "$lastversion") || return 1
+    else
+      LR=$(epm print compare version "$version" "$lastversion") || return 1
+    fi
+    case "$LR" in
+      1) lastrpm="$pkgver"; lastversion="$version" ;;
+      0|-1) ;;
+      *) echo "Invalid version comparison result: $LR" >&2; return 1 ;;
+    esac
   done
-  echo $lastrpm
+  echo "${lastrpm:-____NOT_FOUND______}"
 }
 
 last_rpm
