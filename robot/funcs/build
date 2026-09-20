@@ -75,7 +75,10 @@ check_if_updated()
 	is_autobuild_failed || return 1
 
 	# skip build
-	[ -z "$NOFATAL" ] || return 0
+	# Let callers distinguish an optional component that is unavailable from
+	# an up-to-date component.  Returning success here used to make stale
+	# packages eligible for delivery.
+	[ -z "$NOFATAL" ] || return 2
 
 	fatal "Package $BINBUILDNAME should be rebuilt from $SRCRPM, but previous autobuild was failed"
 	#fi
@@ -99,7 +102,10 @@ check_and_refresh_component()
 	local BINBUILDNAME=$5
 	[ -n "$BINBUILDNAME" ] || BINBUILDNAME=$BUILDNAME
 
-	check_if_updated $BUILDNAME $SOURCEPATH $PRODPATH $BINBUILDNAME && return 0
+	check_if_updated $BUILDNAME $SOURCEPATH $PRODPATH $BINBUILDNAME
+	local RC=$?
+	[ "$RC" = 0 ] && return 0
+	[ "$RC" = 2 ] && return 1
 
         # FIXME: hack
         if [ -z "$PRVERSION" ] ; then
@@ -131,7 +137,10 @@ check_and_refresh_package()
 	local BINBUILDNAME=$3
 	[ -n "$BINBUILDNAME" ] || BINBUILDNAME=$BUILDNAME
 
-	check_if_updated $BUILDNAME $SOURCEPATH $PRODPATH $BINBUILDNAME && return 0
+	check_if_updated $BUILDNAME $SOURCEPATH $PRODPATH $BINBUILDNAME
+	local RC=$?
+	[ "$RC" = 0 ] && return 0
+	[ "$RC" = 2 ] && return 1
 
 	$AROBOTDIR/../bin/korinf -f $BUILDNAME $DIST $PRODPATH && return 0
 

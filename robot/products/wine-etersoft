@@ -114,16 +114,33 @@ car_32bit_comp()
 	check_and_refresh_component bin-wine $PUBLOCAL/WINE $WINEPRODUCT-grdwine '' $WINEPRODUCT32-grdwine || return 1
 	return 0
 }
+
+allow_without_wine32()
+{
+	local LIST=$AROBOTDIR/../etc/wine-optional-32
+	local SYSTEM="${1#x86_64/}"
+	local DISTRNAME="${SYSTEM%%/*}"
+
+	[ -r "$LIST" ] || return 1
+	grep -Fqx "$SYSTEM" "$LIST" || grep -Fqx "$DISTRNAME" "$LIST"
+}
+
 	NOFATAL=''
-	rhas "$PROJECTVERSION" "^(1[0-9])[-.]" && NOFATAL=1
 	DIST32=''
 	if rhas "$PROJECTVERSION" "^([789]|1[0-9])[-.]" && rhas "$DIST" "^x86_64" && ! rhas "$PROJECTVERSION" "wow64" ; then
 		DIST32=$(echo "$DIST" | sed -e"s|x86_64/||")
+		allow_without_wine32 "$DIST32" && NOFATAL=1
 		#
 		#( DIST=$DIST32 check_and_refresh_component bin-wine $PVTLOCAL wine-etersoft-${PRODUCT_name} ) || fatal "Can't build 32 bit part"
 		if ! ( DIST=$DIST32 car_32bit_comp ) ; then
-			[ -z "$NOFATAL" ] && fatal "Can't build 32 bit part"
+			if [ -n "$NOFATAL" ] ; then
+				warning "Skip unavailable 32 bit packages for $DIST32"
+				DIST32=''
+			else
+				fatal "Can't build 32 bit part"
+			fi
 		fi
+		NOFATAL=''
 	fi
 
 	#[ "$TYPE" = "School" ] || check_and_refresh_component bin-wine $PUBLOCAL/fonts fonts-ttf-ms
@@ -205,7 +222,7 @@ car_32bit_comp()
 	# Ещё раз проверяем наличие обязательных пакетов
 	# Check package files
 	assert_present_package $FTPDIR wine-etersoft
-	if rhas "$PROJECTVERSION" "^[56789][-.]" ; then
+	if [ -n "$DIST32" ] ; then
 		assert_present_package $FTPDIR wine32-etersoft
 		assert_present_package $FTPDIR $WINEPRODUCT32-grdwine
 	fi

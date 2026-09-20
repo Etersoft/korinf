@@ -1,0 +1,17 @@
+# Systems where a WINE@Etersoft delivery may be published without wine32.
+# Use DISTRO/VERSION for an exact match or DISTRO for all its versions.
+AlterOS/9
+Debian/11
+Debian/12
+Fedora/41
+LinuxMint/21
+MSVSphere/9
+OSnovaLinux/3.0
+RedOS/8.0
+RockyLinux/8
+RockyLinux/9
+Ubuntu/22.04
+Ubuntu/24.04
+Ubuntu/25.04
+Ubuntu/25.10
+Uncom/2.5
