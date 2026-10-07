@@ -150,4 +150,123 @@ class Orders(unittest.TestCase):
 
 
 
+class ProductOrders(unittest.TestCase):
+    """RX@Etersoft and CRYPTO@Etersoft orders on temporary trees."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        r = self.root = Path(self.temp.name)
+        for name in ('sales', 'done', 'downloads', 'wine/pub', 'wine/pvt'):
+            (r / name).mkdir(parents=True)
+        for product, version, label in (('RX@Etersoft', '1.10', 'Стабильная'), ('CRYPTO@Etersoft', '0.5', 'Стабильная')):
+            (r / 'pub' / product / version).mkdir(parents=True)
+            (r / 'pub' / product / version / 'distro.list').write_text('x86_64/ALTLinux/p10\tAlt\nALTLinux/p10\n')
+            (r / 'pvt' / product / version).mkdir(parents=True)
+            (r / 'pub' / product / 'version.list').write_text(f'# версии\n{label}:\t{version}\t*\nБета-версия:\tunstable\n')
+        (r / 'done/20260917200448.CAB8-E604.8hxufzhzld.done').write_text(
+            "PRODUCT='RX@Etersoft (лицензия на 1 пользователя)'\nCOMPONENTNAME='RX@Etersoft'\nETERREGNUM='CAB8-E604'\n"
+            "MAILTO='tester@etersoft.ru'\nFULLNAME='Тестировщик'\nTYPE_LICENSE='Corporate'\nDIST='x86_64/ALTLinux/Sisyphus'\n"
+            "DOWNLOADDIR='RX@Etersoft/1.9'\nPROJECTVERSION='1.9'\n# task done at today\n")
+        self.patches = [patch.object(main, 'SALES', str(r / 'sales')), patch.object(main, 'DONE', str(r / 'done')),
+                        patch.dict(main.CFG, {'API_KEY': 'secret'}),
+                        patch.object(orders, 'PUB', r / 'wine/pub'), patch.object(orders, 'PVT', r / 'wine/pvt'),
+                        patch.object(orders, 'ETERSOFT_PUB', r / 'pub'), patch.object(orders, 'ETERSOFT_PVT', r / 'pvt'),
+                        patch.object(orders, 'DOWNLOAD_ROOT', r / 'downloads'), patch.object(orders, 'STATE', r / 'state')]
+        for p in self.patches:
+            p.start()
+        orders._cache.clear()
+        self.client = TestClient(main.app)
+        self.headers = {'X-API-Key': 'secret'}
+
+    def tearDown(self):
+        for p in reversed(self.patches):
+            p.stop()
+        self.temp.cleanup()
+
+    def order(self, product='RX@Etersoft', version='1.10', principal='tester@ETERSOFT.RU'):
+        return self.client.post('/api/wine/orders', headers=self.headers,
+                                json=dict(principal=principal, version=version, dist='x86_64/ALTLinux/p10', product=product))
+
+    def test_catalog(self):
+        r = self.client.get('/api/orders/versions', headers=self.headers).json()
+        self.assertEqual(r, [dict(product='RX@Etersoft', version='1.10', label='Стабильная', default=True),
+                             dict(product='CRYPTO@Etersoft', version='0.5', label='Стабильная', default=True)])
+        d = self.client.get('/api/wine/distributions', headers=self.headers,
+                            params=dict(principal='tester@ETERSOFT.RU', version='1.10', product='RX@Etersoft'))
+        self.assertEqual(d.json(), ['x86_64/ALTLinux/p10'])
+        bad = self.client.get('/api/wine/distributions', headers=self.headers,
+                              params=dict(principal='tester@ETERSOFT.RU', version='1.10', product='SELTA@Etersoft'))
+        self.assertEqual(bad.status_code, 400)
+
+    def test_enqueue(self):
+        r = self.order()
+        self.assertEqual(r.status_code, 200, r.text)
+        data = r.json()
+        self.assertEqual((data['product'], data['version'], data['status']), ('RX@Etersoft', '1.10', 'queued'))
+        fields, _, _ = tr.parse_file(r.json() and str(self.root / 'sales' / (data['taskid'] + '.task')))
+        self.assertEqual(fields['COMPONENTNAME'], 'RX@Etersoft')
+        self.assertEqual(fields['DOWNLOADDIR'], 'RX@Etersoft/1.10')
+        self.assertEqual((fields['PROJECTVERSION'], fields['DIST'], fields['ETERREGNUM']), ('1.10', 'x86_64/ALTLinux/p10', 'CAB8-E604'))
+        self.assertEqual(self.order().json()['taskid'], data['taskid'])
+        history = self.client.get('/api/wine/orders', headers=self.headers, params=dict(principal='tester@ETERSOFT.RU')).json()
+        self.assertEqual([h['product'] for h in history], ['RX@Etersoft'])
+
+    def test_profile_of_the_same_product(self):
+        self.assertEqual(self.order(product='CRYPTO@Etersoft', version='0.5').status_code, 404)
+        self.assertEqual(self.order(version='1.9').status_code, 400)
+        self.assertEqual(list((self.root / 'sales').glob('*.task')), [])
+
+    def ready(self, product, version, files):
+        taskid = self.order(product, version).json()['taskid']
+        task = self.root / 'sales' / (taskid + '.task')
+        rel = 'CAB8-abc/' + version
+        task.write_text(task.read_text() + f'WEB_DOWNLOAD_REL="{rel}"\n# task done at today\n')
+        done = self.root / 'done' / (taskid + '.done')
+        task.rename(done)
+        directory = self.root / 'downloads' / product / 'CAB8-abc' / version
+        directory.mkdir(parents=True)
+        for name in files + ['.order-' + taskid + '.ready']:
+            (directory / name).touch()
+        return self.client.get('/api/wine/orders', headers=self.headers, params=dict(principal='tester@ETERSOFT.RU')).json()[0]
+
+    def test_rx_ready(self):
+        status = self.ready('RX@Etersoft', '1.10', ['rx-etersoft.lic'])
+        self.assertEqual(status['status'], 'ready')
+        self.assertEqual(status['download_url'], 'https://download.etersoft.ru/pub/download/RX%40Etersoft/CAB8-abc/1.10/')
+        self.assertIsNone(status['install_url'])
+
+    def test_rx_without_license_is_not_ready(self):
+        self.assertEqual(self.ready('RX@Etersoft', '1.10', [])['status'], 'expired')
+
+    def test_crypto_ready(self):
+        (self.root / 'done/20260917200449.CAB8-E604.8hxufzhzle.done').write_text(
+            "PRODUCT='CRYPTO@Etersoft'\nCOMPONENTNAME='CRYPTO@Etersoft'\nETERREGNUM='CAB8-E604'\n"
+            "MAILTO='tester@etersoft.ru'\nFULLNAME='Тестировщик'\nTYPE_LICENSE='Corporate'\n# task done at today\n")
+        status = self.ready('CRYPTO@Etersoft', '0.5', [])
+        self.assertEqual((status['status'], status['product']), ('ready', 'CRYPTO@Etersoft'))
+
+
+class RobotOrderHooks(unittest.TestCase):
+    def run_hooks(self, task_text):
+        with tempfile.TemporaryDirectory() as tmp:
+            task = Path(tmp) / '20261008120000.CAB8-E604.abcdefghij.task'
+            task.write_text(task_text)
+            delivery = Path(tmp) / 'delivery'
+            delivery.mkdir()
+            script = (f'fatal() {{ echo "$*"; exit 1; }}; . {ROOT}/robot/products/common; TASK={task}; '
+                      f'WEB_ORDER_ID=$(sed -n "s/^WEB_ORDER_ID=//p" {task}); '
+                      f'order_delivery "CAB8-xyz/1.10"; order_ready {delivery}')
+            subprocess.run(['bash', '-c', script], check=True)
+            return task.read_text(), sorted(p.name for p in delivery.iterdir())
+
+    def test_order_task(self):
+        text, files = self.run_hooks('WEB_ORDER_ID=20261008120000.CAB8-E604.abcdefghij\n')
+        self.assertIn('WEB_DOWNLOAD_REL="CAB8-xyz/1.10"', text)
+        self.assertEqual(files, ['.order-20261008120000.CAB8-E604.abcdefghij.ready'])
+
+    def test_other_task_untouched(self):
+        text, files = self.run_hooks('COMPONENTNAME="RX@Etersoft"\n')
+        self.assertNotIn('WEB_DOWNLOAD_REL', text)
+        self.assertEqual(files, [])
+
+
 if __name__ == '__main__': unittest.main()

@@ -1,4 +1,5 @@
-"""Personal Wine delivery orders. Identity is supplied by the authenticated API gateway."""
+"""Personal delivery orders of WINE@Etersoft, RX@Etersoft and CRYPTO@Etersoft.
+Identity is supplied by the authenticated API gateway."""
 import datetime as dt
 import fcntl
 import json
@@ -19,9 +20,32 @@ PVT = Path('/var/ftp/pvt/Etersoft/WINE@Etersoft')
 DOWNLOADS = Path('/var/ftp/pub/download/WINE@Etersoft')
 STATE = ROOT / 'buildapi/order-state'
 DOWNLOAD_URL = 'https://download.etersoft.ru/W@E/'
+# The other products: <root>/<product>, delivered to DOWNLOAD_ROOT/<product>
+ETERSOFT_PUB = Path('/var/ftp/pub/Etersoft')
+ETERSOFT_PVT = Path('/var/ftp/pvt/Etersoft')
+DOWNLOAD_ROOT = Path('/var/ftp/pub/download')
+PRODUCT_URL = 'https://download.etersoft.ru/pub/download/'
+WINE = 'WINE@Etersoft'
+PRODUCTS = (WINE, 'RX@Etersoft', 'CRYPTO@Etersoft')
+# files a delivery needs besides the order's readiness marker
+REQUIRED = {WINE: ['wine-etersoft.lic', 'wine-etersoft-install.sh', 'wine-etersoft-install.sha256'],
+            'RX@Etersoft': ['rx-etersoft.lic'], 'CRYPTO@Etersoft': []}
 SAFE = re.compile(r'[A-Za-z0-9][A-Za-z0-9_.+-]*\Z')
 _cache = {}
 _cache_lock = threading.Lock()
+
+
+def check_product(product):
+    if product not in PRODUCTS:
+        raise HTTPException(400, 'Неизвестный продукт')
+    return product
+
+
+def roots(product):
+    """pub, pvt and delivery roots of a product."""
+    if check_product(product) == WINE:
+        return PUB, PVT, DOWNLOADS
+    return ETERSOFT_PUB / product, ETERSOFT_PVT / product, DOWNLOAD_ROOT / product
 
 
 def identity(principal):
@@ -42,10 +66,10 @@ def product_type(component):
     raise HTTPException(409, 'Неизвестный тип продукта в старом заказе')
 
 
-def profile(principal, done):
+def profile(principal, done, product=WINE):
     email = identity(principal)
     # Newest orders first; cache only a matching personal profile, never all customers.
-    key = (str(done), email)
+    key = (str(done), email, product)
     with _cache_lock:
         cached = _cache.get(key)
         if cached and time.monotonic() - cached[0] < 60:
@@ -57,39 +81,54 @@ def profile(principal, done):
             continue
         if not finished or fields.get('MAILTO', '').lower() != email:
             continue
-        if not fields.get('COMPONENTNAME', '').startswith('WINE@Etersoft'):
+        if not fields.get('COMPONENTNAME', '').startswith(product):
             continue
         if not re.fullmatch(r'[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}', fields.get('ETERREGNUM', '')):
             continue
         if not all(fields.get(k) for k in ('PRODUCT', 'TYPE_LICENSE', 'FULLNAME')):
             continue
-        product_type(fields['COMPONENTNAME'])
+        if product == WINE:
+            product_type(fields['COMPONENTNAME'])
         with _cache_lock:
             _cache[key] = (time.monotonic(), fields)
         return dict(fields)
-    raise HTTPException(404, 'В done не найден выполненный заказ WINE@Etersoft на вашу почту')
+    raise HTTPException(404, f'В done не найден выполненный заказ {product} на вашу почту')
 
 
-def versions():
+def versions(product=WINE):
+    """Versions of a product's version.list that can be delivered."""
+    pub, pvt, _ = roots(product)
     result = []
-    for raw in (PUB / 'version.list').read_text().splitlines():
+    try:
+        lines = (pub / 'version.list').read_text().splitlines()
+    except OSError:
+        return result
+    for raw in lines:
         if not raw.strip() or raw.lstrip().startswith('#'):
             continue
         parts = re.split(r'\t+| {2,}', raw.strip())
         if len(parts) < 2:
             continue
         version = parts[1]
-        if SAFE.fullmatch(version) and (PUB / version / 'WINE').is_dir() and (PVT / version).is_dir():
+        if not SAFE.fullmatch(version) or not (pvt / version).is_dir():
+            continue
+        if (pub / version / 'WINE').is_dir() if product == WINE else (pub / version / 'distro.list').is_file():
             result.append({'version': version, 'label': parts[0].rstrip(':'), 'default': '*' in parts[2:]})
     return result
 
 
-def distributions(version, kind):
-    if version not in {v['version'] for v in versions()}:
-        raise HTTPException(400, 'Неизвестная версия WINE@Etersoft')
+def all_versions():
+    """Every product's versions for one choice: [{'product', 'version', 'label', 'default'}]."""
+    return [dict(v, product=p) for p in PRODUCTS for v in versions(p)]
+
+
+def distributions(version, kind, product=WINE):
+    if version not in {v['version'] for v in versions(product)}:
+        raise HTTPException(400, f'Неизвестная версия {product}')
+    pub, _, _ = roots(product)
     result = set()
     # The version's supported targets include systems awaiting their first build.
-    for raw in (PUB / version / 'distro.list').read_text().splitlines():
+    for raw in (pub / version / 'distro.list').read_text().splitlines():
         line = raw.split('#', 1)[0].strip()
         if not line:
             continue
@@ -120,19 +159,23 @@ def _task(taskid, sales, done):
 
 def status(record, sales, done):
     task = _task(record['taskid'], sales, done)
+    product = record.get('product', WINE)
     result = {k: record[k] for k in ('taskid', 'version', 'dist', 'created_at')}
+    result['product'] = product
     result.update(status=task.status if task else 'unknown', download_url=None, install_url=None)
     rel = task.fields.get('WEB_DOWNLOAD_REL', '') if task else ''
     parts = rel.split('/')
     if rel and all(SAFE.fullmatch(p) for p in parts):
-        directory = DOWNLOADS.joinpath(*parts)
-        if directory.resolve().is_relative_to(DOWNLOADS.resolve()):
+        downloads = roots(product)[2]
+        directory = downloads.joinpath(*parts)
+        if directory.resolve().is_relative_to(downloads.resolve()):
             ready = directory / ('.order-' + record['taskid'] + '.ready')
-            required = ['wine-etersoft.lic', 'wine-etersoft-install.sh', 'wine-etersoft-install.sha256']
-            if ready.is_file() and all((directory / name).is_file() for name in required):
+            if ready.is_file() and all((directory / name).is_file() for name in REQUIRED[product]):
                 result['status'] = 'ready'
-                result['download_url'] = DOWNLOAD_URL + quote(rel, safe='/') + '/'
-                result['install_url'] = result['download_url'] + 'wine-etersoft-install.sh'
+                base = DOWNLOAD_URL if product == WINE else PRODUCT_URL + quote(product) + '/'
+                result['download_url'] = base + quote(rel, safe='/') + '/'
+                if product == WINE:
+                    result['install_url'] = result['download_url'] + 'wine-etersoft-install.sh'
             elif task.status == 'done':
                 result['status'] = 'expired'
     if task and task.status == 'done' and not rel:
@@ -158,17 +201,20 @@ def shell_value(value):
     return '"' + ''.join('\\' + c if c in '\\$`"' else c for c in value) + '"'
 
 
-def enqueue(principal, version, dist, sales, done):
+def enqueue(principal, version, dist, sales, done, product=WINE):
     email = identity(principal)
-    fields = profile(principal, done)
-    if dist not in distributions(version, product_type(fields['COMPONENTNAME'])):
+    check_product(product)
+    fields = profile(principal, done, product)
+    kind = product_type(fields['COMPONENTNAME']) if product == WINE else None
+    if dist not in distributions(version, kind, product):
         raise HTTPException(400, 'Дистрибутив недоступен для этой версии')
     folder = STATE / email
     folder.mkdir(parents=True, exist_ok=True, mode=0o700)
     with (folder / '.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         for previous in history(principal, sales, done):
-            if previous['version'] == version and previous['dist'] == dist and previous['status'] in ('queued', 'running', 'running_stale'):
+            if previous['product'] == product and previous['version'] == version and previous['dist'] == dist \
+                    and previous['status'] in ('queued', 'running', 'running_stale'):
                 return previous
         taskid = dt.datetime.now().strftime('%Y%m%d%H%M%S') + '.' + fields['ETERREGNUM'] + '.' + secrets.token_hex(5)
         keep = ('PRODUCT', 'COMPONENTNAME', 'ETERREGNUM', 'MAILTO', 'FULLNAME',
@@ -177,8 +223,11 @@ def enqueue(principal, version, dist, sales, done):
         fields.update(PROJECTVERSION=version, DIST=dist, CLEAR_FAILED_ON_RESTART='1',
                       RELEASECANDIDAT='1' if 'testing' in version or 'unstable' in version else '0',
                       WEB_ORDER_USER=email, WEB_ORDER_ID=taskid)
+        if product != WINE:
+            # the robot takes the version directory of these products from DOWNLOADDIR
+            fields['DOWNLOADDIR'] = f'{product}/{version}'
         content = ''.join(k + '=' + shell_value(v) + '\n' for k, v in fields.items())
-        record = dict(taskid=taskid, user=email, version=version, dist=dist, created_at=time.time())
+        record = dict(taskid=taskid, user=email, product=product, version=version, dist=dist, created_at=time.time())
         record_path = folder / (taskid + '.json')
         queued = Path(sales) / (taskid + '.task')
         temporary = queued.with_suffix('.tmp')

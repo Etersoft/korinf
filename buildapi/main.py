@@ -410,6 +410,7 @@ class WineOrderIn(BaseModel):
     principal: str
     version: str
     dist: str
+    product: str = orders.WINE
 
 
 @app.get('/api/wine/versions', tags=['Wine orders'], dependencies=[Depends(require_api_key)])
@@ -417,10 +418,18 @@ def wine_versions():
     return orders.versions()
 
 
+@app.get('/api/orders/versions', tags=['Wine orders'], dependencies=[Depends(require_api_key)],
+         summary='Версии всех продуктов для заказа (WINE@Etersoft, RX@Etersoft, CRYPTO@Etersoft)')
+def order_versions():
+    return orders.all_versions()
+
+
 @app.get('/api/wine/distributions', tags=['Wine orders'], dependencies=[Depends(require_api_key)])
-def wine_distributions(version: str, principal: str):
-    profile = orders.profile(principal, DONE)
-    return orders.distributions(version, orders.product_type(profile['COMPONENTNAME']))
+def wine_distributions(version: str, principal: str, product: str = orders.WINE):
+    orders.check_product(product)
+    profile = orders.profile(principal, DONE, product)
+    kind = orders.product_type(profile['COMPONENTNAME']) if product == orders.WINE else None
+    return orders.distributions(version, kind, product)
 
 
 @app.get('/api/wine/orders', tags=['Wine orders'], dependencies=[Depends(require_api_key)])
@@ -431,7 +440,7 @@ def wine_orders(principal: str):
 @app.post('/api/wine/orders', tags=['Wine orders'], dependencies=[Depends(require_api_key)],
           description='Trusted Kerberos gateway supplies principal; never take it from an unauthenticated browser.')
 def wine_order(body: WineOrderIn):
-    return orders.enqueue(body.principal, body.version, body.dist, SALES, DONE)
+    return orders.enqueue(body.principal, body.version, body.dist, SALES, DONE, body.product)
 
 
 class WineBuildIn(BaseModel):

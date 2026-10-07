@@ -124,6 +124,14 @@ API (all require X-API-Key):
   trusted gateway assertion: API-key holders must never forward a browser-supplied
   identity without authentication.
 
+Other products: RX@Etersoft and CRYPTO@Etersoft are ordered the same way with
+`product` (POST body, `?product=` of distributions); GET /api/orders/versions lists
+the versions of every product from its version.list for one choice. The profile
+is the newest completed order of the same product; the task gets
+DOWNLOADDIR=<product>/<version>. The robot (products/rx, products/crypto) records
+the delivery directory and the readiness marker of an order like products/wine-etersoft;
+the download is https://download.etersoft.ru/pub/download/<product>/<directory>/.
+
 The newest completed Wine order in /srv/builder/done addressed exactly to
 login@etersoft.ru supplies registration and license fields. No matching order
 returns 404. Task fields are reconstructed as data, never sourced by the API.
