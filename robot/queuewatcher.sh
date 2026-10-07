@@ -103,7 +103,9 @@ while true ; do
 		sleep 60
 		continue
 	fi
-	timeout 30m $AROBOT/hands/worker.sh $TASKDIR 2>&1
+	# no time limit here: the worker limits each task (a limit of the whole
+	# run cut long builds, they were interrupted and restarted in a loop)
+	$AROBOT/hands/worker.sh $TASKDIR 2>&1
 	test -n "$FLAGNOW" && break
 	sleep 30
 done

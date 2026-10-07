@@ -42,6 +42,8 @@ list_tasks()
 }
 
 TASKDIR="$1"
+TASKTIMEOUT=${KORINF_TASK_TIMEOUT:-6h}
+BUILDTASK=${KORINF_BUILDTASK:-$AROBOT/hands/buildtask.sh}
 [ -d "$TASKDIR" ] || fatal "missed param: $TASKDIR"
 shift
 echo -n "Observe in $TASKDIR at "
@@ -102,7 +104,15 @@ for TASKTORUN in $(list_tasks task) ; do
 	
 	flock $TASKTORUN test -e "$TASKTORUN.run" && continue
 	echo $$ >$TASKTORUN.run
-	$AROBOT/hands/buildtask.sh $TASKCOMMAND $TASKTORUN 2>&1
+	# A time limit per task: a hung build must not block the queue, a long
+	# one (a full WINE@Etersoft system build takes hours) must not be cut.
+	# A task over the limit fails (restartable) instead of being retried.
+	timeout $TASKTIMEOUT $BUILDTASK $TASKCOMMAND $TASKTORUN 2>&1
+	if [ "$?" = "124" ] && [ -e "$TASKTORUN" ] ; then
+		echo >>"$TASKTORUN"
+		echo "# build FAILED at $(date) (Error: timeout $TASKTIMEOUT)" >>"$TASKTORUN"
+		mv -f "$TASKTORUN" "$TASKTORUN.failed"
+	fi
 	rm -f "$TASKTORUN.run"
 	
 done
