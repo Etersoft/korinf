@@ -93,3 +93,21 @@ $THANKTEXT
 Etersoft, 2026
 EOF
 }
+
+
+# Personal orders API (buildapi orders.py): an order task records its delivery
+# directory (relative to the product's download root) and marks it ready after
+# its files are in place. Other tasks are not touched.
+# arg: delivery directory relative to the download root
+order_delivery()
+{
+	[ -n "$WEB_ORDER_ID" ] && [ "$WEB_ORDER_ID" = "$(basename "$TASK" .task)" ] || return 0
+	printf '\nWEB_DOWNLOAD_REL="%s"\n' "$1" >> "$TASK"
+}
+
+# arg: delivery directory
+order_ready()
+{
+	[ -n "$WEB_ORDER_ID" ] && [ "$WEB_ORDER_ID" = "$(basename "$TASK" .task)" ] || return 0
+	touch "$1/.order-$WEB_ORDER_ID.ready" || fatal "Can't mark delivery ready"
+}

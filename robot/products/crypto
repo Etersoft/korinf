@@ -151,6 +151,10 @@ build_crypto()
 			LOCALDIR=$FTPDIR
 		fi
 
+		# a personal order (orders API): its delivery directory is ready
+		order_delivery "$TARGETDIRNAME/$PROJECTVERSION"
+		order_ready "$FTPDIR"
+
 		prepare_component_mail $TMPMAIL || fatal "Can't prepare letter"
 	fi
 
