@@ -46,7 +46,9 @@ EXTRAFILES="nx-libs-devel[-_][0-9]"
 #EXTRAFILES="nx-libs-devel[-_][0-9]"
 
 # Check for unstable
-last_arg="$(echo "$@" | cut -d" " -f$#)"
+# the product version: the second argument that is not an option
+# (System/Version Version [-b|-f|-c ...]), not the last one
+last_arg="$(for a in "$@" ; do case "$a" in -*) ;; *) echo "$a" ;; esac ; done | sed -n 2p)"
 #[ "$last_arg" = "unstable" ] && { MAINFILES=$UNSTABLE; EXTRAFILES=$UNSTABLEEXTRA;}
 #echo "MAINFILES: $MAINFILES"
 

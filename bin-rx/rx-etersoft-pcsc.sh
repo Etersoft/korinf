@@ -18,7 +18,9 @@ MAINFILES="rx-etersoft-pcsc[-_][0-9] rxclient-pcsc[-_][0-9]"
 #removed 'rx-etersoft-pcsc-driver-1.10.0-alt1.x86_64.rpm'
 
 # Get product version from last arg
-PRODUCT_VER="$(echo "$@" | cut -d" " -f$#)"
+# the product version: the second argument that is not an option
+# (System/Version Version [-b|-f|-c ...]), not the last one
+PRODUCT_VER="$(for a in "$@" ; do case "$a" in -*) ;; *) echo "$a" ;; esac ; done | sed -n 2p)"
 
 PCSCVER=$(ls /var/ftp/pvt/Etersoft/RX@Etersoft/$PRODUCT_VER/sources/rx-etersoft-pcsc-[0-9]* -1 -r | head -n 1 | awk -F"rx-etersoft-pcsc-" '{gsub(/alt[0-9]+.src.rpm/, ""); print $2}')
 MAINFILES="rx-etersoft-pcsc[-_][$PCSCVER] rxclient-pcsc[-_][$PCSCVER]"
