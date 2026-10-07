@@ -12,13 +12,17 @@ from enum import Enum
 from typing import Any
 
 from fastapi import FastAPI, Depends, HTTPException, Request, Query, Security, Path
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
 
 import taskreader as tr
+import orders
+import repair
+import buildlogs
+import repair_engines
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 
@@ -50,7 +54,7 @@ QUEUE_LOG_LINES = 300
 
 app = FastAPI(
     title='korinf buildapi',
-    version='1.1.0',
+    version='1.3.0',
     description='Очередь сборок korinf (задачи из `~/sales`).\n\n'
                 '**Аутентификация:** все `/api/*` требуют заголовок `X-API-Key` '
                 '(значение — в `/srv/builder/Projects/korinf/buildapi/config`). '
@@ -59,6 +63,7 @@ app = FastAPI(
                 '`/task/{taskid}` — детали.',
 )
 templates = Jinja2Templates(directory=str(BASE_DIR / 'templates'))
+templates.env.globals['repair_engines'] = repair_engines.ENGINES
 app.mount('/static', StaticFiles(directory=str(BASE_DIR / 'static')), name='static')
 
 templates.env.filters['ts2str'] = lambda v: (
@@ -128,6 +133,15 @@ class BuildIn(BaseModel):
     dist: str = 'all'
     targetdir: str | None = None
     force: bool = False
+
+
+class RebuildIn(BaseModel):
+    package: str
+    arch: str = 'all'
+
+
+class RepairIn(BaseModel):
+    engine: str = repair_engines.DEFAULT
 
 
 class BuildOut(BaseModel):
@@ -292,7 +306,9 @@ def api_queue_start(_: None = Depends(require_api_key)):
                       'указанный пакет (`eepm`, `lavtomate-mcp`, …) для запрошенной системы или '
                       'списка (`all`, `ALL`, `x86_64/build`, `x86_64/ALTLinux`, …) через '
                       '`bin/korinf`. Имя файла соответствует схеме, поэтому задача сразу видна '
-                      'в `/api/tasks`. Робот подхватит её на следующем цикле (~30с).')
+                      'в `/api/tasks`. Старые отметки провала пакета очищаются перед сборкой '
+                      'по умолчанию; force=true дополнительно требует пересборку. '
+                      'Робот подхватит её на следующем цикле (~30с).')
 def api_enqueue_build(body: BuildIn, _: None = Depends(require_api_key)):
     if not RE_PACKAGE.match(body.package):
         raise HTTPException(400, 'invalid package name (A-Z a-z 0-9 . _ + -, must not start with -)')
@@ -309,6 +325,7 @@ def api_enqueue_build(body: BuildIn, _: None = Depends(require_api_key)):
         lines.append(f'TARGETDIR="{body.targetdir}"')
     if body.force:
         lines.append('FORCE=1')
+    lines.append('CLEAR_FAILED_ON_RESTART=1')
     # write atomically (tmp + rename) so the worker never observes a partial/empty file
     path = os.path.join(SALES, taskid + '.task')
     tmp = path + '.tmp'
@@ -323,6 +340,97 @@ def api_enqueue_build(body: BuildIn, _: None = Depends(require_api_key)):
             pass
         raise HTTPException(500, f'cannot write task: {e}')
     return {'taskid': taskid, 'new_path': path}
+
+
+@app.post('/api/rebuild', response_model=BuildOut, tags=['Build'],
+          operation_id='rebuild_package', summary='Пересобрать общий пакет для архитектуры или all',
+          description='Принудительная пересборка пакета (например eepm). arch=all — цели '
+                      'пакета из distro.list; отдельная архитектура — её список build. '
+                      'Статус задания доступен через /api/task/{taskid}. Требуется X-API-Key.')
+def api_rebuild(body: RebuildIn, _: None = Depends(require_api_key)):
+    if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_-]*', body.arch):
+        raise HTTPException(400, 'invalid architecture')
+    if body.arch != 'all' and not (BASE_DIR.parent / 'etc/lists' / body.arch / 'build').is_file():
+        raise HTTPException(400, 'architecture has no configured build list')
+    dist = 'all' if body.arch == 'all' else f'{body.arch}/build'
+    return api_enqueue_build(BuildIn(package=body.package, dist=dist, force=True))
+
+
+def _start_repair(taskid, engine=repair_engines.DEFAULT):
+    if not repair.TASK_ID.fullmatch(taskid):
+        raise HTTPException(400, 'bad taskid')
+    task = tr.find_task(taskid, SALES, DONE)
+    if not task:
+        raise HTTPException(404, 'task not found')
+    try:
+        return repair.start(task, BASE_DIR.parent, engine=engine)
+    except repair.RepairError as exc:
+        raise HTTPException(exc.status, str(exc))
+
+
+@app.post('/api/task/{taskid}/repair', tags=['Repair'], status_code=202,
+          summary='Исправить сборку через MiMo или Codex',
+          description='JSON: {"engine":"mimo"} или {"engine":"codex"}. По умолчанию MiMo.')
+def api_repair(taskid: str, body: RepairIn | None = None, _: None = Depends(require_api_key)):
+    return _start_repair(taskid, body.engine if body else repair_engines.DEFAULT)
+
+
+@app.get('/api/task/{taskid}/repair', tags=['Repair'], summary='Статус и отчёт ремонта')
+def api_repair_status(taskid: str, _: None = Depends(require_api_key)):
+    result = repair.status(taskid)
+    if not result:
+        raise HTTPException(404, 'repair not found')
+    return result
+
+
+def _repair_log(taskid):
+    try:
+        result = repair.progress(taskid)
+    except repair.RepairError as exc:
+        raise HTTPException(exc.status, str(exc))
+    except OSError:
+        raise HTTPException(503, 'Журнал временно недоступен')
+    if not result:
+        raise HTTPException(404, 'repair not found')
+    return JSONResponse(result, headers={'Cache-Control': 'no-store'})
+
+
+@app.get('/api/task/{taskid}/repair/log', tags=['Repair'], summary='Живой журнал ремонта')
+def api_repair_log(taskid: str, _: None = Depends(require_api_key)):
+    return _repair_log(taskid)
+
+
+@app.get('/task/{taskid}/repair/log', include_in_schema=False)
+def web_repair_log(taskid: str):
+    return _repair_log(taskid)
+
+
+class WineOrderIn(BaseModel):
+    principal: str
+    version: str
+    dist: str
+
+
+@app.get('/api/wine/versions', tags=['Wine orders'], dependencies=[Depends(require_api_key)])
+def wine_versions():
+    return orders.versions()
+
+
+@app.get('/api/wine/distributions', tags=['Wine orders'], dependencies=[Depends(require_api_key)])
+def wine_distributions(version: str, principal: str):
+    profile = orders.profile(principal, DONE)
+    return orders.distributions(version, orders.product_type(profile['COMPONENTNAME']))
+
+
+@app.get('/api/wine/orders', tags=['Wine orders'], dependencies=[Depends(require_api_key)])
+def wine_orders(principal: str):
+    return orders.history(principal, SALES, DONE)
+
+
+@app.post('/api/wine/orders', tags=['Wine orders'], dependencies=[Depends(require_api_key)],
+          description='Trusted Kerberos gateway supplies principal; never take it from an unauthenticated browser.')
+def wine_order(body: WineOrderIn):
+    return orders.enqueue(body.principal, body.version, body.dist, SALES, DONE)
 
 
 # ===================== Web (без ключа, не входит в схему API) =====================
@@ -342,10 +450,13 @@ def web_index(request: Request, product: str = None):
     for g in groups.values():
         for s in g:
             g[s].sort(key=lambda x: x.created_at or 0)
+    repairs = {t.taskid: repair.status(t.taskid) for t in tasks}
     return templates.TemplateResponse(request, 'index.html', {
         'groups': groups, 'queue_stopped': queue_stopped(),
         'products': products, 'current_product': product,
         'status_order': STATUS_ORDER,
+        'repairs': repairs,
+        'has_repair': any(r and r['status'] in repair.ACTIVE for r in repairs.values()),
         'has_running': any(t.status in ('running', 'running_stale') for t in tasks),
     })
 
@@ -369,8 +480,12 @@ def web_task(request: Request, taskid: str):
     t = tr.find_task(taskid, SALES, DONE)
     if not t:
         raise HTTPException(404, 'task not found')
+    result = repair.status(taskid)
     return templates.TemplateResponse(request, 'task.html', {
         'task': t, 'queue_stopped': queue_stopped(),
+        'repair': result, 'has_repair': bool(result and result['status'] in repair.ACTIVE),
+        'live_repair': bool(result),
+        'build_logs': buildlogs.discover(t),
         'has_running': t.status in ('running', 'running_stale'),
     })
 
@@ -379,6 +494,58 @@ def web_task(request: Request, taskid: str):
 def web_restart(taskid: str):
     _do_restart(taskid)
     return RedirectResponse(url=f'/task/{taskid}', status_code=303)
+
+
+def _task_logs(taskid):
+    if not repair.TASK_ID.fullmatch(taskid):
+        raise HTTPException(400, 'bad taskid')
+    task = tr.find_task(taskid, SALES, DONE)
+    if not task:
+        raise HTTPException(404, 'task not found')
+    return buildlogs.discover(task)
+
+
+@app.get('/api/task/{taskid}/logs', tags=['Tasks'], summary='Логи составляющих задания')
+def api_task_logs(taskid: str, _: None = Depends(require_api_key)):
+    return _task_logs(taskid)
+
+
+@app.get('/task/{taskid}/logs/{logid}', response_class=HTMLResponse, include_in_schema=False)
+def web_build_log(request: Request, taskid: str, logid: str):
+    entry = next((row for row in _task_logs(taskid) if row['id'] == logid), None)
+    if not entry:
+        raise HTTPException(404, 'build log not found')
+    try:
+        content = buildlogs.read_tail(entry['path'])
+    except (OSError, EOFError, ValueError) as exc:
+        raise HTTPException(422, f'cannot read build log: {exc}')
+    return templates.TemplateResponse(request, 'build_log.html', {
+        'entry': entry, 'log': content, 'taskid': taskid,
+        'queue_stopped': queue_stopped(), 'has_running': False,
+    })
+
+
+@app.post('/task/{taskid}/repair', include_in_schema=False)
+async def web_repair(request: Request, taskid: str):
+    # Browser forms are same-origin; reject cross-site attempts to start a paid job.
+    from urllib.parse import urlsplit, parse_qs
+    origin = request.headers.get('origin')
+    if (origin and urlsplit(origin).netloc != request.headers.get('host')) or \
+            request.headers.get('sec-fetch-site') == 'cross-site':
+        raise HTTPException(403, 'cross-origin repair is not allowed')
+    try:
+        try:
+            form = parse_qs((await request.body()).decode('utf-8'), max_num_fields=4)
+        except (ValueError, UnicodeDecodeError):
+            raise HTTPException(400, 'Некорректная форма')
+        engine = form.get('engine', [repair_engines.DEFAULT])[0]
+        _start_repair(taskid, engine)
+    except HTTPException as exc:
+        return templates.TemplateResponse(request, 'repair_error.html', {
+            'taskid': taskid, 'message': exc.detail, 'queue_stopped': queue_stopped(),
+            'has_running': False,
+        }, status_code=exc.status_code)
+    return RedirectResponse(url=f'/task/{taskid}#repair', status_code=303)
 
 
 @app.post('/queue/stop', include_in_schema=False)

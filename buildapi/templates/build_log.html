@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}{{ entry.component }} — лог сборки{% endblock %}
+{% block content %}
+<p><a href="/task/{{ taskid }}">← к заданию</a></p>
+<h1>{{ entry.component }} · {{ entry.target }}</h1>
+<p>Обновлён: {{ entry.mtime | ts2str }} · <code>{{ entry.path }}</code></p>
+<p>Последний общий лог пакета; он мог быть обновлён другой сборкой.</p>
+<pre class="queue-log">{{ log }}</pre>
+{% endblock %}

@@ -1,0 +1,5 @@
+<label class="repair-picker">Чем чинить
+  <select name="engine" class="repair-engine" aria-label="Исполнитель ремонта">
+    {% for key, label in repair_engines.items() %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+  </select>
+</label>

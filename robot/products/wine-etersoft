@@ -673,7 +673,17 @@ build_wine_etersoft()
 
 	export FTPDIR=$TARGETDIR/$TYPE-$PROJECTVERSION/$DIST
 
+	# Record the random delivery directory for the personal orders API.
+	if [ -n "$WEB_ORDER_ID" ] && [ "$WEB_ORDER_ID" = "$(basename "$TASK" .task)" ]; then
+		printf '\nWEB_DOWNLOAD_REL="%s"\n' "$TARGETDIRNAME/$TYPE-$PROJECTVERSION/$DIST" >> "$TASK"
+	fi
+
 	prepare_wine_etersoft
+
+	# A directory exists while files are still being copied; publish readiness last.
+	if [ -n "$WEB_ORDER_ID" ] && [ "$WEB_ORDER_ID" = "$(basename "$TASK" .task)" ]; then
+		touch "$FTPDIR/.order-$WEB_ORDER_ID.ready" || fatal "Can't mark delivery ready"
+	fi
 
 	TMPMAIL=$(make_temp_file)
 	if echo "$PROJECTVERSION" | grep "^[123456][-.]" ; then
@@ -686,4 +696,3 @@ build_wine_etersoft()
 	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Сборка $COMPONENTNAME для ${TEXTDIST}" || fatal "Can't send"
 	rm -f $TMPMAIL
 }
-

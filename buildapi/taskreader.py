@@ -43,6 +43,7 @@ EXT_ROLES = {
 }
 
 KNOWN_FIELDS = [
+    'WEB_ORDER_USER', 'WEB_ORDER_ID', 'WEB_DOWNLOAD_REL',
     'PRODUCT', 'COMPONENTNAME', 'ETERREGNUM', 'DIST', 'DOWNLOADDIR',
     'PACKAGE', 'TASKTYPE', 'TARGETDIR', 'FORCE', 'CLEAR_FAILED_ON_RESTART',
     'MAILTO', 'FULLNAME', 'PROJECTVERSION', 'RELEASECANDIDAT',
@@ -52,9 +53,11 @@ KNOWN_FIELDS = [
 
 
 def _unquote(v: str) -> str:
-    """Снять парные outer-кавычки. Bareword — как есть."""
-    if len(v) >= 2 and v[0] == v[-1] and v[0] in ('"', "'"):
+    """Decode literal shell quoting without evaluating expansions or commands."""
+    if len(v) >= 2 and v[0] == v[-1] == "'":
         return v[1:-1]
+    if len(v) >= 2 and v[0] == v[-1] == '"':
+        return re.sub(r'\\([$`"\\])', lambda m: m.group(1), v[1:-1])
     return v
 
 

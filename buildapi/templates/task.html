@@ -11,9 +11,51 @@
 
 {% if task.status in ('failed', 'broken', 'removed', 'interrupted') %}
 <form method="post" action="/task/{{ task.taskid }}/restart"
+      class="inline"
       onsubmit="return confirm('Перезапустить задачу?')">
   <button type="submit" class="btn-restart">Перезапустить задачу</button>
 </form>
+<form method="post" action="/task/{{ task.taskid }}/repair" class="inline">
+  {% include 'repair_select.html' %}
+  <button type="submit" class="btn-repair" {% if has_repair %}disabled{% endif %}>
+    {% if has_repair %}Ремонт выполняется…{% else %}Починить сборку{% endif %}
+  </button>
+</form>
+<p class="repair-hint">Исполнитель изучит логи и попробует исправить рецепт. Неоднозначные изменения оставит для проверки. Повторный запуск сборки — кнопкой «Перезапустить».</p>
+{% endif %}
+
+{% if repair %}
+<section id="repair" class="repair-result" data-log-url="/task/{{ task.taskid }}/repair/log">
+  <h2>Исправление сборки · <span id="repair-engine-name">{{ repair_engines.get(repair.get('engine', 'codex'), 'Codex') }}</span></h2>
+  <p id="repair-status" aria-live="polite">{{ repair.message }}</p>
+  <p id="repair-connection" class="repair-hint" role="status">Загрузка журнала…</p>
+  <label><input id="repair-follow" type="checkbox" checked> Следить за концом лога</label>
+  <pre id="repair-log" class="queue-log" tabindex="0" aria-label="Журнал ремонта">Ожидание вывода исполнителя…</pre>
+  <h3 id="repair-report-heading" {% if not repair.report %}hidden{% endif %}>Итоговый отчёт</h3>
+  <pre id="repair-report" class="repair-report" {% if not repair.report %}hidden{% endif %}>{{ repair.report }}</pre>
+  <details id="repair-patch-details" {% if not repair.patch %}hidden{% endif %}>
+    <summary id="repair-patch-title">Изменения{% if not repair.applied %} (не применены){% endif %}</summary>
+    <pre id="repair-patch" class="repair-report">{{ repair.patch }}</pre>
+  </details>
+  <noscript><p>Для обновления журнала включите JavaScript. <a href="/task/{{ task.taskid }}/repair/log">Открыть журнал в JSON</a>.</p></noscript>
+</section>
+{% endif %}
+
+<h2>Логи составляющих</h2>
+<p class="repair-hint">Последние доступные логи пакетов. Они общие для сборок: сверяйте дату с историей задания.</p>
+{% if build_logs %}
+<table>
+  <thead><tr><th>Составляющая</th><th>Цель</th><th>Обновлён</th><th>Лог</th></tr></thead>
+  <tbody>{% for item in build_logs %}
+    <tr>
+      <td>{% if item.failed %}<span class="status-failed">Ошибка · </span>{% endif %}{{ item.component }}</td>
+      <td>{{ item.target }}</td><td>{{ item.mtime | ts2str }}</td>
+      <td><a href="/task/{{ task.taskid }}/logs/{{ item.id }}">{{ item.filename }}</a></td>
+    </tr>
+  {% endfor %}</tbody>
+</table>
+{% else %}
+<p>Логи составляющих не найдены. <a href="/queue-log">Открыть общий лог очереди</a>.</p>
 {% endif %}
 
 <h2>Параметры</h2>

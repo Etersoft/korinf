@@ -2,9 +2,11 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<meta name="color-scheme" content="light dark">
+<script src="/static/repair.js" defer></script>
 <title>{% block title %}Очередь сборок korinf{% endblock %}</title>
-<link rel="stylesheet" href="/static/style.css">
-{% if has_running %}
+<link rel="stylesheet" href="/static/style.css?v=20260909-browser-theme">
+{% if (has_running or has_repair) and not live_repair %}
 <meta http-equiv="refresh" content="30">
 {% endif %}
 </head>
@@ -23,6 +25,7 @@
     </form>
   {% endif %}
   {% if has_running %}<span class="hint">↻ автообновление 30с (идёт сборка)</span>{% endif %}
+  {% if has_repair %}<span class="hint">{% if live_repair %}Журнал ремонта обновляется каждые 2с{% else %}↻ автообновление 30с (идёт ремонт){% endif %}</span>{% endif %}
 </nav>
 <main>
 {% block content %}{% endblock %}

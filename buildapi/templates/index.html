@@ -51,6 +51,14 @@
                     onsubmit="return confirm('Перезапустить {{ t.taskid }}?')">
                 <button type="submit" class="btn-restart">перезапустить</button>
               </form>
+              {% set r = repairs.get(t.taskid) %}
+              <form method="post" action="/task/{{ t.taskid }}/repair" class="inline">
+                {% include 'repair_select.html' %}
+                <button type="submit" class="btn-repair" {% if r and r.status in ('starting', 'running') %}disabled{% endif %}>
+                  {% if r and r.status in ('starting', 'running') %}Ремонт выполняется…{% else %}Починить сборку{% endif %}
+                </button>
+              </form>
+              {% if r %}<a href="/task/{{ t.taskid }}#repair">Журнал и отчёт</a>{% endif %}
             {% endif %}
           </td>
         </tr>
