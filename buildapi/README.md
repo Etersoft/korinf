@@ -24,6 +24,24 @@ including when `force` is omitted or false. Explicit `force: true` additionally
 requests a forced rebuild. Use `dist` for a specific distro or another Korinf
 list, e.g. `x86_64/ALL`.
 
+## WINE@Etersoft system build with stages
+
+`POST /api/wine/build`, JSON `{"version": "11-testing", "dist": "x86_64/ALTLinux/p10", "force": false}`
+enqueues a `TASKTYPE=winebuild` task: the robot runs
+`bin-wine/wine-etersoft-bootstrap-new.sh --nostop [--force] <dist> <version>`
+(robot/funcs/winebuild). `version` is a WINE@Etersoft directory with a
+`distro.list`, `dist` must be one of its systems (`GET /api/wine/systems?version=`).
+The robot builds tasks one at a time; if the same version and system is already
+queued or building, its task is returned with `existing: true`.
+
+The task output is in `~/sales/winebuild/<taskid>.log`
+(`GET /api/task/{taskid}/log?tail=N`, web `/task/{taskid}/log`), the stages in
+`<taskid>.progress`: `GET /api/task/{taskid}/progress` returns every component
+(package, dist, start, duration, ok/skipped/failed, korinf steps) and the
+current one. A failed component or a non-zero exit makes the task failed
+(restartable). The task page shows the stages; component logs include the
+i586 companion of an x86_64 system.
+
 ## Conservative repair and live log
 
 The “Починить сборку” button appears next to restart on failed task rows and
@@ -79,6 +97,8 @@ browser localStorage. System mode follows OS changes automatically.
 ## Validation
 
 ```sh
+python3 tests/test_winebuild.py
+python3 tests/test_winebuild_api.py
 python3 tests/test_buildapi_features.py
 python3 tests/test_repair_progress.py
 python3 tests/test_buildapi_restart.py

@@ -41,6 +41,24 @@
 </section>
 {% endif %}
 
+{% if progress %}
+<h2>Этапы сборки</h2>
+<p>Начата {{ progress.started | ts2str }}{% if progress.finished %}, закончена {{ progress.finished | ts2str }}
+  ({{ (progress.finished - progress.started) // 60 }} мин, код {{ progress.rc }}){% elif progress.current %}, сейчас: <b>{{ progress.current }}</b>{% endif %}.
+  <a href="/task/{{ task.taskid }}/log">Лог задания</a></p>
+<table>
+  <thead><tr><th>Составляющая</th><th>Система</th><th>Начало</th><th>Длительность</th><th>Результат</th><th>Шаги</th></tr></thead>
+  <tbody>{% for s in progress.stages %}
+    <tr>
+      <td>{{ s.package }}</td><td>{{ s.dist }}</td><td>{{ s.started | ts2str }}</td>
+      <td>{% if s.duration is not none %}{{ s.duration // 60 }} мин {{ s.duration % 60 }} с{% else %}идёт…{% endif %}</td>
+      <td class="{% if s.result == 'failed' %}status-failed{% elif s.result == 'ok' %}status-done{% endif %}">{{ s.result or '' }}</td>
+      <td>{% for st in s.steps %}<div class="{% if st.status == 'FAILED' %}status-failed{% endif %}">{{ st.status }} · {{ st.text }}</div>{% endfor %}</td>
+    </tr>
+  {% endfor %}</tbody>
+</table>
+{% endif %}
+
 <h2>Логи составляющих</h2>
 <p class="repair-hint">Последние доступные логи пакетов. Они общие для сборок: сверяйте дату с историей задания.</p>
 {% if build_logs %}

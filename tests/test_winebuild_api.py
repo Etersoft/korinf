@@ -1,0 +1,159 @@
+"""winebuild API on temporary queue and FTP directories: nothing real is enqueued."""
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'buildapi'))
+import buildlogs
+import main
+import taskreader as tr
+import winebuild
+from fastapi.testclient import TestClient
+
+PROGRESS = """\
+start\t1000
+stage\t1000\teepm\tx86_64/ALTLinux/p10
+step\t1001\tSKIP\teepm is up-to-date
+result\t1001\teepm\tskipped
+stage\t1001\twine-etersoft\tx86_64/ALTLinux/p10
+step\t1600\tDONE\tbuild in hasher p10 (599 s)
+result\t1700\twine-etersoft\tok
+stage\t1700\twine32-etersoft\ti586/ALTLinux/p10
+"""
+
+
+class WineBuildApi(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        root = Path(self.temp.name)
+        self.sales = root / 'sales'
+        self.sales.mkdir()
+        self.done = root / 'done'
+        self.done.mkdir()
+        pub = root / 'pub'
+        (pub / '11-testing').mkdir(parents=True)
+        (pub / '11-testing' / 'distro.list').write_text(
+            'x86_64/ALTLinux/p10\tAlt p10\n#x86_64/Fedora/35\told\n\nXimperLinux/Deferred\tXimper\n')
+        self.patches = [patch.object(main, 'SALES', str(self.sales)),
+                        patch.object(main, 'DONE', str(self.done)),
+                        patch.dict(main.CFG, {'API_KEY': 'test-secret'}),
+                        patch.object(winebuild, 'WINE_PUB', pub),
+                        patch.object(buildlogs, 'PUB', root / 'ftp' / 'pub'),
+                        patch.object(buildlogs, 'PVT', root / 'ftp' / 'pvt'),
+                        patch.object(buildlogs, 'LIVE', root / 'live')]
+        self.root = root
+        for p in self.patches:
+            p.start()
+        self.client = TestClient(main.app)
+        self.headers = {'X-API-Key': 'test-secret'}
+
+    def tearDown(self):
+        for p in reversed(self.patches):
+            p.stop()
+        self.temp.cleanup()
+
+    def build(self, **body):
+        body = {'version': '11-testing', 'dist': 'x86_64/ALTLinux/p10', **body}
+        return self.client.post('/api/wine/build', headers=self.headers, json=body)
+
+    def test_enqueue(self):
+        r = self.build()
+        self.assertEqual(r.status_code, 200, r.text)
+        data = r.json()
+        self.assertFalse(data['existing'])
+        fields, _, _ = tr.parse_file(self.sales / (data['taskid'] + '.task'))
+        self.assertEqual(fields['TASKTYPE'], 'winebuild')
+        self.assertEqual(fields['PROJECTVERSION'], '11-testing')
+        self.assertEqual(fields['DIST'], 'x86_64/ALTLinux/p10')
+        self.assertEqual(fields['CLEAR_FAILED_ON_RESTART'], '1')
+        self.assertNotIn('FORCE', fields)
+        task = self.client.get('/api/task/' + data['taskid'], headers=self.headers).json()
+        self.assertEqual((task['product'], task['version'], task['status']), ('WINE@Etersoft', '11-testing', 'queued'))
+
+    def test_force(self):
+        data = self.build(force=True).json()
+        fields, _, _ = tr.parse_file(self.sales / (data['taskid'] + '.task'))
+        self.assertEqual(fields['FORCE'], '1')
+
+    def test_same_active_task_is_returned(self):
+        first = self.build().json()
+        second = self.build(force=True).json()
+        self.assertEqual((second['taskid'], second['existing']), (first['taskid'], True))
+        self.assertEqual(len(list(self.sales.glob('*.task'))), 1)
+        other = self.build(dist='XimperLinux/Deferred').json()
+        self.assertNotEqual(other['taskid'], first['taskid'])
+
+    def test_finished_task_is_not_reused(self):
+        first = self.build().json()
+        path = self.sales / (first['taskid'] + '.task')
+        path.rename(str(path) + '.failed')
+        second = self.build().json()
+        self.assertFalse(second['existing'])
+        self.assertNotEqual(second['taskid'], first['taskid'])
+
+    def test_validation(self):
+        self.assertEqual(self.build(dist='x86_64/Fedora/35').status_code, 400)
+        self.assertEqual(self.build(dist='all').status_code, 400)
+        self.assertEqual(self.build(version='12-testing').status_code, 404)
+        self.assertEqual(self.build(version='../11-testing').status_code, 400)
+        self.assertEqual(list(self.sales.glob('*.task')), [])
+
+    def test_api_key_required(self):
+        r = self.client.post('/api/wine/build', json={'version': '11-testing', 'dist': 'x86_64/ALTLinux/p10'})
+        self.assertEqual(r.status_code, 401)
+        self.assertEqual(list(self.sales.glob('*.task')), [])
+
+    def test_systems(self):
+        r = self.client.get('/api/wine/systems?version=11-testing', headers=self.headers)
+        self.assertEqual(r.json(), ['x86_64/ALTLinux/p10', 'XimperLinux/Deferred'])
+
+    def test_progress_and_log(self):
+        taskid = self.build().json()['taskid']
+        self.assertEqual(self.client.get(f'/api/task/{taskid}/progress', headers=self.headers).status_code, 404)
+        (self.sales / 'winebuild').mkdir()
+        (self.sales / 'winebuild' / (taskid + '.progress')).write_text(PROGRESS)
+        (self.sales / 'winebuild' / (taskid + '.log')).write_text('line 1\n\x1b[1mline 2\x1b[0m\n')
+        p = self.client.get(f'/api/task/{taskid}/progress', headers=self.headers).json()
+        self.assertEqual((p['started'], p['finished'], p['current']), (1000, None, 'wine32-etersoft'))
+        self.assertEqual([(s['package'], s['result'], s['duration']) for s in p['stages']],
+                         [('eepm', 'skipped', 1), ('wine-etersoft', 'ok', 699), ('wine32-etersoft', None, None)])
+        self.assertEqual(p['stages'][1]['steps'], [{'at': 1600, 'status': 'DONE', 'text': 'build in hasher p10 (599 s)'}])
+        log = self.client.get(f'/api/task/{taskid}/log?tail=11', headers=self.headers)
+        self.assertEqual(log.text, '[…]\nline 2\n')
+        self.assertEqual(self.client.get(f'/task/{taskid}/log').text, 'line 1\nline 2\n')
+        page = self.client.get(f'/task/{taskid}').text
+        self.assertIn('Этапы сборки', page)
+        self.assertIn('wine32-etersoft', page)
+
+    def test_finished_progress(self):
+        taskid = self.build().json()['taskid']
+        (self.sales / 'winebuild').mkdir()
+        (self.sales / 'winebuild' / (taskid + '.progress')).write_text(
+            PROGRESS + 'result\t1800\twine32-etersoft\tfailed\nend\t1800\t0\n')
+        p = self.client.get(f'/api/task/{taskid}/progress', headers=self.headers).json()
+        self.assertEqual((p['finished'], p['rc'], p['current']), (1800, 0, None))
+        self.assertEqual(p['stages'][-1]['result'], 'failed')
+
+    def test_component_logs_include_i586_companion(self):
+        taskid = self.build().json()['taskid']
+        wine = self.root / 'ftp' / 'pub' / 'Etersoft' / 'WINE@Etersoft' / '11-testing' / 'WINE'
+        for dist, name in (('x86_64/ALTLinux/p10', 'wine-etersoft'), ('ALTLinux/p10', 'wine32-etersoft'),
+                           ('ALTLinux/p11', 'wine32-etersoft')):
+            (wine / dist / 'log').mkdir(parents=True)
+            (wine / dist / 'log' / (name + '.log')).write_text('log')
+        (wine / 'ALTLinux/p10/log/wine32-etersoft.build.failed').touch()
+        logs = self.client.get(f'/api/task/{taskid}/logs', headers=self.headers).json()
+        self.assertEqual([(r['component'], r['target'], r['failed']) for r in logs],
+                         [('wine32-etersoft', 'WINE/ALTLinux/p10', True),
+                          ('wine-etersoft', 'WINE/x86_64/ALTLinux/p10', False)])
+
+    def test_bad_taskid(self):
+        self.assertEqual(self.client.get('/api/task/..%2Fx/progress', headers=self.headers).status_code, 404)
+        self.assertEqual(self.client.get('/api/task/bad/log', headers=self.headers).status_code, 400)
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1,5 +1,6 @@
 """Discover only build logs below known artifact roots, never arbitrary paths."""
 import bz2
+import copy
 import gzip
 import hashlib
 import lzma
@@ -13,6 +14,20 @@ NAME = re.compile(r'(.+?)(?:\.(?:config|install))?\.log(?:\.(?:xz|bz2|gz))?$')
 
 
 def discover(task):
+    records = _discover(task)
+    # A WINE@Etersoft system build (winebuild) of x86_64/<D>/<V> also builds
+    # the 32-bit packages of its i586 companion <D>/<V>.
+    dist = task.fields.get('DIST', '')
+    if task.fields.get('TASKTYPE') == 'winebuild' and dist.startswith('x86_64/'):
+        companion = copy.copy(task)
+        companion.fields = dict(task.fields, DIST=dist.removeprefix('x86_64/'))
+        known = {r['id'] for r in records}
+        records += [r for r in _discover(companion) if r['id'] not in known]
+        records.sort(key=lambda r: (not r['failed'], -r['mtime']))
+    return records[:200]
+
+
+def _discover(task):
     package = task.fields.get('PACKAGE', '')
     roots = [(PUB / 'Korinf', bool(package))]
     product = task.fields.get('COMPONENTNAME', '').split(' ')[0]

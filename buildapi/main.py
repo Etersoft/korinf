@@ -12,7 +12,7 @@ from enum import Enum
 from typing import Any
 
 from fastapi import FastAPI, Depends, HTTPException, Request, Query, Security, Path
-from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
+from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.security import APIKeyHeader
@@ -23,6 +23,7 @@ import orders
 import repair
 import buildlogs
 import repair_engines
+import winebuild
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 
@@ -433,6 +434,66 @@ def wine_order(body: WineOrderIn):
     return orders.enqueue(body.principal, body.version, body.dist, SALES, DONE)
 
 
+class WineBuildIn(BaseModel):
+    version: str
+    dist: str
+    force: bool = False
+
+
+class WineBuildOut(BaseModel):
+    taskid: str
+    new_path: str
+    existing: bool
+
+
+def _winebuild(function, *args):
+    try:
+        return function(*args)
+    except winebuild.WineBuildError as exc:
+        raise HTTPException(exc.status, str(exc))
+
+
+@app.post('/api/wine/build', response_model=WineBuildOut, tags=['Wine build'],
+          operation_id='enqueue_wine_build', summary='Собрать WINE@Etersoft для системы версии',
+          description='Ставит в очередь задачу TASKTYPE=winebuild: робот выполнит '
+                      '`wine-etersoft-bootstrap-new.sh [--force] <dist> <version>` (version — каталог '
+                      'WINE@Etersoft, напр. `11-testing`; dist — система из его distro.list). '
+                      'Задачи выполняются по одной; если такая же задача уже в очереди или '
+                      'собирается, возвращается она (`existing: true`). Этапы — '
+                      '`/api/task/{taskid}/progress`, лог — `/api/task/{taskid}/log`.')
+def api_wine_build(body: WineBuildIn, _: None = Depends(require_api_key)):
+    return _winebuild(winebuild.enqueue, body.version, body.dist, body.force, SALES, _gen_build_taskid())
+
+
+@app.get('/api/wine/systems', tags=['Wine build'], summary='Системы версии WINE@Etersoft из её distro.list')
+def api_wine_systems(version: str, _: None = Depends(require_api_key)):
+    return _winebuild(winebuild.systems, version)
+
+
+@app.get('/api/task/{taskid}/progress', tags=['Wine build'], summary='Этапы сборки winebuild-задачи',
+         description='Составляющие (package, dist) со временем начала, длительностью, '
+                     'результатом ok/skipped/failed и шагами; `current` — идущая составляющая.')
+def api_task_progress(taskid: str, _: None = Depends(require_api_key)):
+    result = _winebuild(winebuild.progress, SALES, taskid)
+    if result is None:
+        raise HTTPException(404, 'no progress for this task (not a winebuild task or not started)')
+    return result
+
+
+def _task_log(taskid, tail):
+    text = _winebuild(winebuild.log_tail, SALES, taskid, tail)
+    if text is None:
+        raise HTTPException(404, 'no log for this task')
+    return PlainTextResponse(text, headers={'Cache-Control': 'no-store'})
+
+
+@app.get('/api/task/{taskid}/log', tags=['Wine build'], summary='Конец лога winebuild-задачи',
+         response_class=PlainTextResponse)
+def api_task_log(taskid: str, tail: int = Query(winebuild.LOG_TAIL, ge=1, le=1024 * 1024),
+                 _: None = Depends(require_api_key)):
+    return _task_log(taskid, tail)
+
+
 # ===================== Web (без ключа, не входит в схему API) =====================
 STATUS_ORDER = ['running', 'running_stale', 'queued', 'failed',
                 'broken', 'removed', 'interrupted', 'done']
@@ -486,8 +547,14 @@ def web_task(request: Request, taskid: str):
         'repair': result, 'has_repair': bool(result and result['status'] in repair.ACTIVE),
         'live_repair': bool(result),
         'build_logs': buildlogs.discover(t),
+        'progress': winebuild.progress(SALES, taskid) if winebuild.is_winebuild(t) else None,
         'has_running': t.status in ('running', 'running_stale'),
     })
+
+
+@app.get('/task/{taskid}/log', response_class=PlainTextResponse, include_in_schema=False)
+def web_task_log(taskid: str):
+    return _task_log(taskid, 1024 * 1024)
 
 
 @app.post('/task/{taskid}/restart', include_in_schema=False)
