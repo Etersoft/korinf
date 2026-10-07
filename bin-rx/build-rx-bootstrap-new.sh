@@ -108,6 +108,6 @@ do_build()
 }
 
 do_bootstrap nx-libs prunner nxssh rx-etersoft rxclient
-do_build rxclient rx-etersoft-pcsc
+do_build rxclient rx-etersoft-pcsc rx-etersoft-pcsc-driver kdriveclient rx-etersoft-kdrive
 
 [ "$STATE" = "--check" ] && echo "Legend: MIS - missed, OBS - obsoleted build, ABF - autobuild failed, FIL - manual build failed"
