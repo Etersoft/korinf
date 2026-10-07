@@ -102,8 +102,8 @@ fi
 	# build source package
 	if [ -n "$MAKESPKG" ] ; then
 		BUILTRPM=$RPMDIR/SRPMS
-		if [ "$BINARYREPO" = "Sisyphus" ] ; then
-			BUILDCOMMAND="$RPMBS -s -w"
+		if [ "$MENV" = "sisyphus" ] || [ "$MENV" = "deferred" ] ; then
+			BUILDCOMMAND="$RPMBS -s -w -b $BINARYREPO"
 		else
 			BUILDCOMMAND="$RPMBP -w -b $BINARYREPO"
 		fi
@@ -112,8 +112,8 @@ fi
 	fi
 
 	# build binary packages
-	if [ "$BINARYREPO" = "Sisyphus" ] ; then
-		BUILDCOMMAND="$RPMBSH -w"
+	if [ "$MENV" = "sisyphus" ] || [ "$MENV" = "deferred" ] ; then
+		BUILDCOMMAND="$RPMBSH -w -b $BINARYREPO"
 	else
 		BUILDCOMMAND="$RPMBPH -w -b $BINARYREPO"
 	fi

@@ -4,6 +4,7 @@
 #x86_64 systems (with prefix x86_64)
 
 . x86_64/ALTLinux
+. x86_64/XimperLinux
 
 . x86_64/Ubuntu
 

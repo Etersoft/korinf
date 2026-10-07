@@ -189,6 +189,12 @@ parse_dist_name()
 		BUILDARCH=x86_64
 		TARGETARCH=i586
 	fi
+	# XimperLinux uses ALT packages and hasher with the Deferred repository.
+	# Keep the original dist for output directories and logs.
+	if [ "$DISTRNAME" = "XimperLinux" ] && [ "$DISTRVERSION" = "Deferred" ] ; then
+		DISTRNAME=ALTLinux
+		DISTRVERSION=deferred
+	fi
 	# if parse error
 	[ "$DISTRNAME" = "$DISTRVERSION" ] && DISTRNAME="" && DISTRVERSION=""
 	export DISTRNAME DISTRVERSION BUILDARCH TARGETARCH
