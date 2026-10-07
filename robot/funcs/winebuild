@@ -1,0 +1,154 @@
+#!/bin/sh
+##
+#  Korinf project
+#
+#  WINE@Etersoft build of one system for a project version from a .task with
+#  TASKTYPE=winebuild (buildapi POST /api/wine/build writes it):
+#    TASKTYPE=winebuild
+#    COMPONENTNAME="WINE@Etersoft"
+#    PROJECTVERSION="11-testing"
+#    DIST="x86_64/ALTLinux/p10"
+#    [FORCE=1] [CLEAR_FAILED_ON_RESTART=1]
+#
+#  Runs bin-wine/wine-etersoft-bootstrap-new.sh for the system. Its output
+#  goes to <sales>/winebuild/<taskid>.log, the stages with times to
+#  <sales>/winebuild/<taskid>.progress (tab separated, read by buildapi):
+#    start   <ts>
+#    stage   <ts> <package> <dist>
+#    step    <ts> DONE|SKIP|FAILED <text>
+#    result  <ts> <package> ok|skipped|failed
+#    end     <ts> <rc>
+#
+#  Copyright (c) Etersoft <http://etersoft.ru> 2026
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2026
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+# get_field() is sourced from share/eterbuild/korinf/taskfield (via buildtask.sh),
+# mark_broken() and mark_done() from funcs/genericbuild.
+
+WINEBUILD_BOOTSTRAP=${WINEBUILD_BOOTSTRAP:-$AROBOTDIR/../bin-wine/wine-etersoft-bootstrap-new.sh}
+
+# Pass the bootstrap output through, write the stage events to the progress file.
+# korinf prints a stage as '> ./<package>.sh <dist> <version> <opts>' and its
+# steps as '* [hh:mm:ss] <step> ... (N secs) [ DONE ]' ([ SKIP ], [FAILED]);
+# the status may come on a later line, after the build output.
+# arg: progress file
+winebuild_progress()
+{
+	gawk -v progress="$1" '
+	function event(text) {
+		print text >> progress
+		fflush(progress)
+	}
+	function close_stage() {
+		if (package == "")
+			return
+		result = failed ? "failed" : (done ? "ok" : "skipped")
+		event("result\t" systime() "\t" package "\t" result)
+		package = ""
+	}
+	function step(status, text) {
+		event("step\t" systime() "\t" status "\t" text)
+		if (status == "FAILED")
+			failed = 1
+		else if (status == "DONE")
+			done = 1
+		pending = ""
+	}
+	{
+		print
+		fflush()
+	}
+	/^> \.\/[^ ]+\.sh [^ ]+/ {
+		close_stage()
+		package = $2
+		sub(/^\.\//, "", package)
+		sub(/\.sh$/, "", package)
+		failed = done = 0
+		pending = ""
+		event("stage\t" systime() "\t" package "\t" $3)
+		next
+	}
+	match($0, /^ *\* \[[0-9:]+\] (.*) \.\.\.(.*)$/, m) {
+		pending = m[1]
+		if (match(m[2], /(\(([0-9]+) secs\) )?\[ *(DONE|SKIP|FAILED|OK) *\] *$/, s))
+			step(s[3], pending (s[2] != "" ? " (" s[2] " s)" : ""))
+		next
+	}
+	pending != "" && match($0, /(\(([0-9]+) secs\) )?\[ *(DONE|SKIP|FAILED|OK) *\] *$/, s) {
+		step(s[3], pending (s[2] != "" ? " (" s[2] " s)" : ""))
+	}
+	END {
+		close_stage()
+	}'
+}
+
+# arg: error text
+winebuild_mark_failed()
+{
+	echo >>"$TASK"
+	echo "# build FAILED at $(date) (Error: $1)" >>"$TASK"
+	flock "$TASK" mv -f "$TASK" "${TASK}.failed"
+}
+
+# arg: task file path
+run_wine_build_task()
+{
+	TASK="$1"
+	[ -e "$TASK" ] || { echo "FATAL: task $TASK not found" >&2 ; exit 1 ; }
+
+	local VERSION DIST FORCE taskid dir log progress opts rc failed
+	VERSION=$(get_field "$TASK" PROJECTVERSION)
+	DIST=$(get_field "$TASK" DIST)
+	FORCE=$(get_field "$TASK" FORCE)
+	export CLEAR_FAILED_ON_RESTART=$(get_field "$TASK" CLEAR_FAILED_ON_RESTART)
+
+	if ! printf '%s' "$VERSION" | grep -qE '^[0-9][A-Za-z0-9.-]*$' ; then
+		mark_broken "Invalid PROJECTVERSION '$VERSION'"
+		exit 1
+	fi
+	if ! printf '%s' "$DIST" | grep -qE '^[A-Za-z0-9][A-Za-z0-9_.+-]*(/[A-Za-z0-9_.+-]+)+$' ; then
+		mark_broken "Invalid DIST '$DIST' (a system like x86_64/ALTLinux/p10)"
+		exit 1
+	fi
+
+	taskid=$(basename "$TASK" .task)
+	dir=$(dirname "$TASK")/winebuild
+	mkdir -p "$dir" || { mark_broken "Can't create $dir" ; exit 1 ; }
+	log=$dir/$taskid.log
+	progress=$dir/$taskid.progress
+
+	# a restarted task starts its log and stages anew
+	printf 'start\t%s\n' "$(date +%s)" >"$progress"
+	: >"$log"
+
+	opts=--nostop
+	[ "$FORCE" = "1" ] && opts="$opts --force"
+
+	# --nostop: build every package, the result is decided by the stages
+	{ "$WINEBUILD_BOOTSTRAP" $opts "$DIST" "$VERSION" 2>&1 ; echo $? >"$dir/$taskid.rc" ; } |
+		winebuild_progress "$progress" >>"$log"
+	rc=$(cat "$dir/$taskid.rc" 2>/dev/null)
+	rm -f "$dir/$taskid.rc"
+	printf 'end\t%s\t%s\n' "$(date +%s)" "${rc:-1}" >>"$progress"
+
+	failed=$(awk -F'\t' '$1 == "result" && $4 == "failed" { printf "%s%s", sep, $3 ; sep = ", " }' "$progress")
+	if [ "${rc:-1}" != "0" ] || [ -n "$failed" ] ; then
+		winebuild_mark_failed "winebuild $VERSION $DIST: ${failed:+failed $failed, }exit ${rc:-1}"
+		exit 1
+	fi
+	mark_done
+}

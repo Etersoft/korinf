@@ -49,6 +49,7 @@ umask 0002
 . $AROBOTDIR/funcs/mail
 . $AROBOTDIR/funcs/build
 . $AROBOTDIR/funcs/genericbuild
+. $AROBOTDIR/funcs/winebuild
 
 
 # Local path to remote user home
@@ -65,6 +66,13 @@ fi
 if [ "$REALRUN" = "--debug" ] ; then
 	shift
 	DEBUG=1
+fi
+
+# WINE@Etersoft build of one system for a project version (TASKTYPE=winebuild):
+# bin-wine/wine-etersoft-bootstrap-new.sh with stage progress, no license/email.
+if grep -qE '^[[:space:]]*TASKTYPE=["'"'"']?winebuild' "$1" 2>/dev/null ; then
+	run_wine_build_task "$1"
+	exit $?
 fi
 
 # Generic package build task (PACKAGE=...): build an arbitrary package via bin/korinf
