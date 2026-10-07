@@ -34,13 +34,17 @@ class WineBuildApi(unittest.TestCase):
         self.done = root / 'done'
         self.done.mkdir()
         pub = root / 'pub'
-        (pub / '11-testing').mkdir(parents=True)
-        (pub / '11-testing' / 'distro.list').write_text(
+        wine = pub / 'WINE@Etersoft' / '11-testing'
+        wine.mkdir(parents=True)
+        (wine / 'distro.list').write_text(
             'x86_64/ALTLinux/p10\tAlt p10\n#x86_64/Fedora/35\told\n\nXimperLinux/Deferred\tXimper\n')
+        for product, version in (('RX@Etersoft', '1.10'), ('RX@Etersoft', 'unstable'), ('CRYPTO@Etersoft', '0.5-9')):
+            (pub / product / version).mkdir(parents=True)
+            (pub / product / version / 'distro.list').write_text('x86_64/ALTLinux/p10\tAlt p10\n')
         self.patches = [patch.object(main, 'SALES', str(self.sales)),
                         patch.object(main, 'DONE', str(self.done)),
                         patch.dict(main.CFG, {'API_KEY': 'test-secret'}),
-                        patch.object(winebuild, 'WINE_PUB', pub),
+                        patch.object(winebuild, 'ETERSOFT_PUB', pub),
                         patch.object(buildlogs, 'PUB', root / 'ftp' / 'pub'),
                         patch.object(buildlogs, 'PVT', root / 'ftp' / 'pvt'),
                         patch.object(buildlogs, 'LIVE', root / 'live')]
@@ -149,6 +153,34 @@ class WineBuildApi(unittest.TestCase):
         self.assertEqual([(r['component'], r['target'], r['failed']) for r in logs],
                          [('wine32-etersoft', 'WINE/ALTLinux/p10', True),
                           ('wine-etersoft', 'WINE/x86_64/ALTLinux/p10', False)])
+
+    def product_build(self, **body):
+        body = {'product': 'RX@Etersoft', 'version': '1.10', 'dist': 'x86_64/ALTLinux/p10', **body}
+        return self.client.post('/api/product/build', headers=self.headers, json=body)
+
+    def test_product_build(self):
+        for product, version in (('RX@Etersoft', '1.10'), ('RX@Etersoft', 'unstable'), ('CRYPTO@Etersoft', '0.5-9')):
+            with self.subTest(product=product, version=version):
+                r = self.product_build(product=product, version=version)
+                self.assertEqual(r.status_code, 200, r.text)
+                fields, _, _ = tr.parse_file(self.sales / (r.json()['taskid'] + '.task'))
+                self.assertEqual((fields['COMPONENTNAME'], fields['PROJECTVERSION']), (product, version))
+                task = self.client.get('/api/task/' + r.json()['taskid'], headers=self.headers).json()
+                self.assertEqual(task['product'], product)
+
+    def test_products_have_their_own_tasks(self):
+        rx = self.product_build().json()
+        self.assertTrue(self.product_build().json()['existing'])
+        wine = self.build().json()
+        self.assertFalse(wine['existing'])
+        self.assertNotEqual(wine['taskid'], rx['taskid'])
+
+    def test_product_validation(self):
+        self.assertEqual(self.product_build(product='SELTA@Etersoft').status_code, 400)
+        self.assertEqual(self.product_build(version='1.9').status_code, 404)
+        self.assertEqual(self.product_build(version='..').status_code, 400)
+        r = self.client.get('/api/product/systems?product=RX@Etersoft&version=1.10', headers=self.headers)
+        self.assertEqual(r.json(), ['x86_64/ALTLinux/p10'])
 
     def test_bad_taskid(self):
         self.assertEqual(self.client.get('/api/task/..%2Fx/progress', headers=self.headers).status_code, 404)

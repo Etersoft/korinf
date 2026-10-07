@@ -2,15 +2,17 @@
 ##
 #  Korinf project
 #
-#  WINE@Etersoft build of one system for a project version from a .task with
-#  TASKTYPE=winebuild (buildapi POST /api/wine/build writes it):
+#  Product build of one system for a project version from a .task with
+#  TASKTYPE=winebuild (buildapi POST /api/product/build writes it):
 #    TASKTYPE=winebuild
-#    COMPONENTNAME="WINE@Etersoft"
-#    PROJECTVERSION="11-testing"
+#    COMPONENTNAME="WINE@Etersoft"     (RX@Etersoft, CRYPTO@Etersoft)
+#    PROJECTVERSION="11-testing"       (1.10, unstable, 0.5-9)
 #    DIST="x86_64/ALTLinux/p10"
 #    [FORCE=1] [CLEAR_FAILED_ON_RESTART=1]
 #
-#  Runs bin-wine/wine-etersoft-bootstrap-new.sh for the system. Its output
+#  Runs the product's bootstrap script for the system (winebuild_bootstrap):
+#  bin-wine/wine-etersoft-bootstrap-new.sh, bin-rx/build-rx-bootstrap-new.sh,
+#  bin-crypto/crypto-bootstrap-new.sh. Its output
 #  goes to <sales>/winebuild/<taskid>.log, the stages with times to
 #  <sales>/winebuild/<taskid>.progress (tab separated, read by buildapi):
 #    start   <ts>
@@ -39,7 +41,17 @@
 # get_field() is sourced from share/eterbuild/korinf/taskfield (via buildtask.sh),
 # mark_broken() and mark_done() from funcs/genericbuild.
 
-WINEBUILD_BOOTSTRAP=${WINEBUILD_BOOTSTRAP:-$AROBOTDIR/../bin-wine/wine-etersoft-bootstrap-new.sh}
+# The bootstrap script of a product (WINEBUILD_BOOTSTRAP overrides it, for tests)
+# arg: product (COMPONENTNAME)
+winebuild_bootstrap()
+{
+	[ -n "$WINEBUILD_BOOTSTRAP" ] && echo "$WINEBUILD_BOOTSTRAP" && return
+	case "$1" in
+		WINE@Etersoft)   echo "$AROBOTDIR/../bin-wine/wine-etersoft-bootstrap-new.sh" ;;
+		RX@Etersoft)     echo "$AROBOTDIR/../bin-rx/build-rx-bootstrap-new.sh" ;;
+		CRYPTO@Etersoft) echo "$AROBOTDIR/../bin-crypto/crypto-bootstrap-new.sh" ;;
+	esac
+}
 
 # Pass the bootstrap output through, write the stage events to the progress file.
 # korinf prints a stage as '> ./<package>.sh <dist> <version> <opts>' and its
@@ -110,13 +122,19 @@ run_wine_build_task()
 	TASK="$1"
 	[ -e "$TASK" ] || { echo "FATAL: task $TASK not found" >&2 ; exit 1 ; }
 
-	local VERSION DIST FORCE taskid dir log progress opts rc failed
+	local PRODUCT VERSION DIST FORCE taskid dir log progress opts rc failed bootstrap
+	PRODUCT=$(get_field "$TASK" COMPONENTNAME)
 	VERSION=$(get_field "$TASK" PROJECTVERSION)
 	DIST=$(get_field "$TASK" DIST)
 	FORCE=$(get_field "$TASK" FORCE)
 	export CLEAR_FAILED_ON_RESTART=$(get_field "$TASK" CLEAR_FAILED_ON_RESTART)
 
-	if ! printf '%s' "$VERSION" | grep -qE '^[0-9][A-Za-z0-9.-]*$' ; then
+	bootstrap=$(winebuild_bootstrap "${PRODUCT:-WINE@Etersoft}")
+	if [ -z "$bootstrap" ] ; then
+		mark_broken "No system build for product '$PRODUCT'"
+		exit 1
+	fi
+	if ! printf '%s' "$VERSION" | grep -qE '^[A-Za-z0-9][A-Za-z0-9.-]*$' ; then
 		mark_broken "Invalid PROJECTVERSION '$VERSION'"
 		exit 1
 	fi
@@ -138,8 +156,9 @@ run_wine_build_task()
 	opts=--nostop
 	[ "$FORCE" = "1" ] && opts="$opts --force"
 
-	# --nostop: build every package, the result is decided by the stages
-	{ "$WINEBUILD_BOOTSTRAP" $opts "$DIST" "$VERSION" 2>&1 ; echo $? >"$dir/$taskid.rc" ; } |
+	# --nostop: build every package, the result is decided by the stages;
+	# a bootstrap script sources ./functions: run it from its directory
+	{ ( cd "$(dirname "$bootstrap")" && "./$(basename "$bootstrap")" $opts "$DIST" "$VERSION" ) 2>&1 ; echo $? >"$dir/$taskid.rc" ; } |
 		winebuild_progress "$progress" >>"$log"
 	rc=$(cat "$dir/$taskid.rc" 2>/dev/null)
 	rm -f "$dir/$taskid.rc"
@@ -147,7 +166,7 @@ run_wine_build_task()
 
 	failed=$(awk -F'\t' '$1 == "result" && $4 == "failed" { printf "%s%s", sep, $3 ; sep = ", " }' "$progress")
 	if [ "${rc:-1}" != "0" ] || [ -n "$failed" ] ; then
-		winebuild_mark_failed "winebuild $VERSION $DIST: ${failed:+failed $failed, }exit ${rc:-1}"
+		winebuild_mark_failed "build ${PRODUCT:-WINE@Etersoft} $VERSION $DIST: ${failed:+failed $failed, }exit ${rc:-1}"
 		exit 1
 	fi
 	mark_done

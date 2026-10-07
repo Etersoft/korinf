@@ -1,4 +1,5 @@
-"""WINE@Etersoft build of one system for a project version (TASKTYPE=winebuild).
+"""Product build of one system for a project version (TASKTYPE=winebuild):
+WINE@Etersoft, RX@Etersoft, CRYPTO@Etersoft.
 
 The robot (robot/funcs/winebuild) runs wine-etersoft-bootstrap-new.sh for the
 task and writes <sales>/winebuild/<taskid>.log and <taskid>.progress; this
@@ -10,9 +11,11 @@ import re
 
 import taskreader as tr
 
-# Project versions with their distro.list: WINE@Etersoft/<version>/distro.list
-WINE_PUB = Path('/var/ftp/pub/Etersoft/WINE@Etersoft')
-RE_VERSION = re.compile(r'^[0-9][A-Za-z0-9.-]*$')
+# Project versions with their distro.list: <product>/<version>/distro.list
+ETERSOFT_PUB = Path('/var/ftp/pub/Etersoft')
+PRODUCTS = ('WINE@Etersoft', 'RX@Etersoft', 'CRYPTO@Etersoft')
+DEFAULT_PRODUCT = 'WINE@Etersoft'
+RE_VERSION = re.compile(r'^[A-Za-z0-9][A-Za-z0-9.-]*$')
 RE_SYSTEM = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_.+-]*(/[A-Za-z0-9_.+-]+)+$')
 ACTIVE = ('queued', 'running', 'running_stale', 'interrupted')
 LOG_TAIL = 64 * 1024
@@ -24,15 +27,17 @@ class WineBuildError(Exception):
         self.status = status
 
 
-def systems(version):
-    """Systems of a project version: the first field of its distro.list lines."""
-    if not RE_VERSION.fullmatch(version or ''):
-        raise WineBuildError(400, 'invalid version (e.g. 11-testing)')
-    path = WINE_PUB / version / 'distro.list'
+def systems(version, product=DEFAULT_PRODUCT):
+    """Systems of a product version: the first field of its distro.list lines."""
+    if product not in PRODUCTS:
+        raise WineBuildError(400, f'unknown product (one of {", ".join(PRODUCTS)})')
+    if not RE_VERSION.fullmatch(version or '') or version in ('.', '..'):
+        raise WineBuildError(400, 'invalid version (e.g. 11-testing, 1.10, unstable)')
+    path = ETERSOFT_PUB / product / version / 'distro.list'
     try:
         text = path.read_text(encoding='utf-8', errors='replace')
     except OSError:
-        raise WineBuildError(404, f'no distro.list for WINE@Etersoft {version}')
+        raise WineBuildError(404, f'no distro.list for {product} {version}')
     result = []
     for line in text.splitlines():
         line = line.strip()
@@ -48,26 +53,27 @@ def is_winebuild(task):
     return task.fields.get('TASKTYPE') == 'winebuild'
 
 
-def find_active(sales, version, dist):
-    """A queued/running winebuild task for the same version and system."""
+def find_active(sales, version, dist, product=DEFAULT_PRODUCT):
+    """A queued/running build task for the same product, version and system."""
     for task in tr.scan_sales(sales):
         if is_winebuild(task) and task.status in ACTIVE and \
+                task.fields.get('COMPONENTNAME', DEFAULT_PRODUCT) == product and \
                 task.fields.get('PROJECTVERSION') == version and task.fields.get('DIST') == dist:
             return task
     return None
 
 
-def enqueue(version, dist, force, sales, taskid):
-    """Write a winebuild task, or return the same active one: the robot builds
+def enqueue(version, dist, force, sales, taskid, product=DEFAULT_PRODUCT):
+    """Write a system build task, or return the same active one: the robot builds
     tasks one by one, a second identical task would only build twice."""
-    if dist not in systems(version):
+    if dist not in systems(version, product):
         raise WineBuildError(400, f'{dist} is not in distro.list of {version}')
     if not RE_SYSTEM.fullmatch(dist):
         raise WineBuildError(400, 'invalid system')
-    existing = find_active(sales, version, dist)
+    existing = find_active(sales, version, dist, product)
     if existing:
         return {'taskid': existing.taskid, 'new_path': existing.path, 'existing': True}
-    lines = ['TASKTYPE=winebuild', 'COMPONENTNAME="WINE@Etersoft"',
+    lines = ['TASKTYPE=winebuild', f'COMPONENTNAME="{product}"',
              f'PROJECTVERSION="{version}"', f'DIST="{dist}"', 'CLEAR_FAILED_ON_RESTART=1']
     if force:
         lines.append('FORCE=1')

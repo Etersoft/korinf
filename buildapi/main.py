@@ -440,6 +440,10 @@ class WineBuildIn(BaseModel):
     force: bool = False
 
 
+class ProductBuildIn(WineBuildIn):
+    product: str = winebuild.DEFAULT_PRODUCT
+
+
 class WineBuildOut(BaseModel):
     taskid: str
     new_path: str
@@ -465,9 +469,25 @@ def api_wine_build(body: WineBuildIn, _: None = Depends(require_api_key)):
     return _winebuild(winebuild.enqueue, body.version, body.dist, body.force, SALES, _gen_build_taskid())
 
 
+@app.post('/api/product/build', response_model=WineBuildOut, tags=['Wine build'],
+          operation_id='enqueue_product_build', summary='Собрать продукт для системы версии',
+          description='Как /api/wine/build для продукта: WINE@Etersoft, RX@Etersoft или CRYPTO@Etersoft '
+                      '(version — каталог продукта с distro.list, напр. `1.10`, `unstable`, `0.5`). '
+                      'Робот выполняет сценарий сборки системы продукта.')
+def api_product_build(body: ProductBuildIn, _: None = Depends(require_api_key)):
+    return _winebuild(winebuild.enqueue, body.version, body.dist, body.force, SALES, _gen_build_taskid(),
+                      body.product)
+
+
 @app.get('/api/wine/systems', tags=['Wine build'], summary='Системы версии WINE@Etersoft из её distro.list')
 def api_wine_systems(version: str, _: None = Depends(require_api_key)):
     return _winebuild(winebuild.systems, version)
+
+
+@app.get('/api/product/systems', tags=['Wine build'], summary='Системы версии продукта из её distro.list')
+def api_product_systems(version: str, product: str = winebuild.DEFAULT_PRODUCT,
+                        _: None = Depends(require_api_key)):
+    return _winebuild(winebuild.systems, version, product)
 
 
 @app.get('/api/task/{taskid}/progress', tags=['Wine build'], summary='Этапы сборки winebuild-задачи',

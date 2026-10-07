@@ -45,7 +45,7 @@ class WineBuild(unittest.TestCase):
         task.write_text(task_text)
         fake = self.root / 'bootstrap.sh'
         (self.root / 'output').write_text(output)
-        fake.write_text(f'#!/bin/sh\necho "$@" > {self.root}/args\ncat {self.root}/output\nexit {rc}\n')
+        fake.write_text(f'#!/bin/sh\necho "$@" > {self.root}/args\npwd > {self.root}/cwd\ncat {self.root}/output\nexit {rc}\n')
         fake.chmod(0o755)
         script = f"""
             AROBOTDIR={ROOT}/robot
@@ -89,7 +89,7 @@ class WineBuild(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         failed = self.sales / (TASKID + '.task.failed')
         self.assertTrue(failed.exists())
-        self.assertIn('(Error: winebuild 11-testing x86_64/ALTLinux/p10: failed wine-etersoft, exit 0)',
+        self.assertIn('(Error: build WINE@Etersoft 11-testing x86_64/ALTLinux/p10: failed wine-etersoft, exit 0)',
                       failed.read_text())
         self.assertEqual([e[2:] for e in self.progress() if e[0] == 'result'],
                          [['wine-etersoft', 'failed'], ['wine-etersoft-local', 'skipped']])
@@ -112,6 +112,50 @@ class WineBuild(unittest.TestCase):
         events = self.progress()
         self.assertEqual(sum(1 for e in events if e[0] == 'start'), 1)
         self.assertNotIn(['wine-etersoft', 'failed'], [e[2:] for e in events if e[0] == 'result'])
+
+    def test_runs_in_the_script_directory(self):
+        self.run_task(self.task(), SUCCESS)
+        self.assertEqual((self.root / 'cwd').read_text().strip(), str(self.root))
+
+    def test_product_bootstrap(self):
+        for product, script in (('WINE@Etersoft', 'bin-wine/wine-etersoft-bootstrap-new.sh'),
+                                ('RX@Etersoft', 'bin-rx/build-rx-bootstrap-new.sh'),
+                                ('CRYPTO@Etersoft', 'bin-crypto/crypto-bootstrap-new.sh')):
+            with self.subTest(product=product):
+                out = subprocess.run(['bash', '-c', f'AROBOTDIR={ROOT}/robot; . {ROOT}/robot/funcs/winebuild; '
+                                      f'winebuild_bootstrap {product}'],
+                                     env={k: v for k, v in os.environ.items() if k != 'WINEBUILD_BOOTSTRAP'},
+                                     capture_output=True, text=True).stdout.strip()
+                self.assertEqual(os.path.realpath(out), str(ROOT / script))
+                self.assertTrue(os.access(out, os.X_OK))
+
+    def test_unknown_product(self):
+        task = self.task().replace('WINE@Etersoft', 'SELTA@Etersoft')
+        env_free = self.run_task_env(task)
+        self.assertNotEqual(env_free.returncode, 0)
+        self.assertTrue((self.sales / (TASKID + '.task.broken')).exists())
+
+    def run_task_env(self, task_text):
+        """run_task without the WINEBUILD_BOOTSTRAP override"""
+        task = self.sales / (TASKID + '.task')
+        task.write_text(task_text)
+        script = f"""
+            AROBOTDIR={ROOT}/robot
+            . {ROOT}/share/eterbuild/korinf/taskfield
+            . {ROOT}/robot/funcs/genericbuild
+            . {ROOT}/robot/funcs/winebuild
+            run_wine_build_task {task}
+        """
+        env = {k: v for k, v in os.environ.items() if k != 'WINEBUILD_BOOTSTRAP'}
+        env['HOME'] = str(self.home)
+        return subprocess.run(['bash', '-c', script], env=env, capture_output=True, text=True)
+
+    def test_product_versions(self):
+        for version in ('1.10', 'unstable', '0.5-9'):
+            with self.subTest(version=version):
+                result = self.run_task(self.task(version=version), SUCCESS)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                os.rename(self.home / 'done' / (TASKID + '.done'), self.home / 'done' / (version + '.done'))
 
     def test_invalid_fields(self):
         for version, dist in (('11-testing', 'all'), ('11-testing', '-x/y'), ('../x', 'x86_64/ALTLinux/p10')):
