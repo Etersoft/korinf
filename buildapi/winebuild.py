@@ -19,6 +19,8 @@ RE_VERSION = re.compile(r'^[A-Za-z0-9][A-Za-z0-9.-]*$')
 RE_SYSTEM = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_.+-]*(/[A-Za-z0-9_.+-]+)+$')
 ACTIVE = ('queued', 'running', 'running_stale', 'interrupted')
 LOG_TAIL = 64 * 1024
+# korinf writes the log of the package being built to <LIVE_LOG>/<dist>/<package>.log
+LIVE_LOG = Path('/srv/builder/Projects/korinf/log')
 
 
 class WineBuildError(Exception):
@@ -152,3 +154,36 @@ def log_tail(sales, taskid, limit=LOG_TAIL):
     text = data.decode('utf-8', errors='replace')
     text = re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', text)
     return ('[…]\n' if size > limit else '') + text
+
+
+def live_log(sales, taskid, limit=LOG_TAIL):
+    """The live korinf log of the package a running system build builds now:
+    {'package', 'dist', 'path', 'mtime', 'log'}, None if no stage is running."""
+    current = progress(sales, taskid)
+    if not current or current['finished'] or not current['stages'] or current['stages'][-1]['result']:
+        return None
+    stage = current['stages'][-1]
+    dist = stage['dist'].removeprefix('i586/')
+    if not RE_SYSTEM.fullmatch(dist) and not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.+-]*/[A-Za-z0-9_.+-]+', dist):
+        return None
+    directory = LIVE_LOG / dist
+    # wine32-* of an i586 companion log as wine-*
+    names = [stage['package'], stage['package'].replace('wine32-', 'wine-', 1)]
+    path = next((directory / (n + '.log') for n in names if (directory / (n + '.log')).is_file()), None)
+    if path is None:
+        # another name (kdriveclient builds rxkdriveclient): the newest log of the stage
+        try:
+            fresh = [p for p in directory.glob('*.log') if p.stat().st_mtime >= stage['started']]
+        except OSError:
+            fresh = []
+        path = max(fresh, key=lambda p: p.stat().st_mtime) if fresh else None
+    if path is None or not path.resolve().is_relative_to(LIVE_LOG.resolve()):
+        return {'package': stage['package'], 'dist': stage['dist'], 'path': None, 'mtime': None, 'log': ''}
+    with open(path, 'rb') as f:
+        f.seek(0, 2)
+        size = f.tell()
+        f.seek(max(0, size - limit))
+        text = f.read(limit).decode('utf-8', errors='replace')
+    text = re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', text)
+    return {'package': stage['package'], 'dist': stage['dist'], 'path': str(path), 'mtime': path.stat().st_mtime,
+            'log': ('[…]\n' if size > limit else '') + text}

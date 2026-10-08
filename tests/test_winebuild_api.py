@@ -182,6 +182,33 @@ class WineBuildApi(unittest.TestCase):
         r = self.client.get('/api/product/systems?product=RX@Etersoft&version=1.10', headers=self.headers)
         self.assertEqual(r.json(), ['x86_64/ALTLinux/p10'])
 
+    def test_live_log(self):
+        taskid = self.build().json()['taskid']
+        url = f'/api/task/{taskid}/live-log'
+        self.assertEqual(self.client.get(url, headers=self.headers).status_code, 404)
+        (self.sales / 'winebuild').mkdir()
+        progress = self.sales / 'winebuild' / (taskid + '.progress')
+        live = self.root / 'live'
+        with patch.object(winebuild, 'LIVE_LOG', live):
+            # x86_64 stage
+            progress.write_text('start\t1000\nstage\t1000\twine-etersoft\tx86_64/ALTLinux/p10\n')
+            (live / 'x86_64/ALTLinux/p10').mkdir(parents=True)
+            (live / 'x86_64/ALTLinux/p10/wine-etersoft.log').write_text('compiling dlls\n')
+            r = self.client.get(url, headers=self.headers).json()
+            self.assertEqual((r['package'], r['dist'], r['log']), ('wine-etersoft', 'x86_64/ALTLinux/p10', 'compiling dlls\n'))
+            # the i586 companion: wine32-etersoft logs as wine-etersoft in ALTLinux/p10
+            progress.write_text('start\t1000\nstage\t1000\twine32-etersoft\ti586/ALTLinux/p10\n')
+            (live / 'ALTLinux/p10').mkdir(parents=True)
+            (live / 'ALTLinux/p10/wine-etersoft.log').write_text('i586 build\n')
+            self.assertEqual(self.client.get(url, headers=self.headers).json()['log'], 'i586 build\n')
+            # another log name: the newest log of the stage
+            progress.write_text('start\t1000\nstage\t1000\tkdriveclient\tx86_64/ALTLinux/p10\n')
+            (live / 'x86_64/ALTLinux/p10/rxkdriveclient.log').write_text('kdrive\n')
+            self.assertEqual(self.client.get(url, headers=self.headers).json()['log'], 'kdrive\n')
+            # the stage is over: nothing is live
+            progress.write_text(progress.read_text() + 'result\t1100\tkdriveclient\tok\n')
+            self.assertEqual(self.client.get(url, headers=self.headers).status_code, 404)
+
     def test_bad_taskid(self):
         self.assertEqual(self.client.get('/api/task/..%2Fx/progress', headers=self.headers).status_code, 404)
         self.assertEqual(self.client.get('/api/task/bad/log', headers=self.headers).status_code, 400)

@@ -516,6 +516,17 @@ def _task_log(taskid, tail):
     return PlainTextResponse(text, headers={'Cache-Control': 'no-store'})
 
 
+@app.get('/api/task/{taskid}/live-log', tags=['Wine build'], summary='Живой лог пакета, который собирается сейчас',
+         description='Для идущей задачи сборки системы: конец лога korinf/log/<dist>/<package>.log текущего этапа '
+                     '(package, dist, path, mtime, log); 404, если этап не идёт.')
+def api_task_live_log(taskid: str, tail: int = Query(winebuild.LOG_TAIL, ge=1, le=1024 * 1024),
+                      _: None = Depends(require_api_key)):
+    result = _winebuild(winebuild.live_log, SALES, taskid, tail)
+    if result is None:
+        raise HTTPException(404, 'no stage of this task is running')
+    return JSONResponse(result, headers={'Cache-Control': 'no-store'})
+
+
 @app.get('/api/task/{taskid}/log', tags=['Wine build'], summary='Конец лога winebuild-задачи',
          response_class=PlainTextResponse)
 def api_task_log(taskid: str, tail: int = Query(winebuild.LOG_TAIL, ge=1, le=1024 * 1024),
