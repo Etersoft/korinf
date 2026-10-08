@@ -99,7 +99,9 @@ install_build_requires()
 
 	# TODO: convert reqs only here due alt macros?
 	# FIXME: get BR inside container!
-	if [ -z "$BOOTSTRAP" ] ; then
+	# Ordinary bootstrap packages still need their source BuildRequires.
+	# Only the initial epm/build-tool bootstrap uses the base tool set alone.
+	if [ -z "$INITIALBOOTSTRAP" ] ; then
 		reqs="$($EPMCMD req "$TARGETSRPM" | grep -v "[<=>]" | xargs -n 1000 echo)"
 		# Зависимости можно получить только из спека, придётся устанавливать src.rpm и разбирать спек (получать зависимости от пересборанного пакета?)
 		#reqs="$(run_in_chroot $dist "epm req /home/$INTUSER/tmp/$(basename $TARGETSRPM)" </dev/null | grep -v "[<=>]" | xargs -n 1000 echo)"

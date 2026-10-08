@@ -156,7 +156,12 @@ run_wine_build_task()
 	: >"$log"
 
 	opts=--nostop
-	[ "$FORCE" = "1" ] && opts="$opts --force"
+	if [ "$FORCE" = "1" ] ; then
+		opts="$opts --force"
+	elif [ "${PRODUCT:-WINE@Etersoft}" = "WINE@Etersoft" ] ; then
+		# Wine module images can lack package-specific BuildRequires.
+		opts="$opts --init"
+	fi
 
 	# --nostop: build every package, the result is decided by the stages;
 	# a bootstrap script sources ./functions: run it from its directory

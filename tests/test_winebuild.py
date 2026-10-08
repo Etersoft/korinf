@@ -69,7 +69,7 @@ class WineBuild(unittest.TestCase):
         result = self.run_task(self.task(), SUCCESS)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue((self.home / 'done' / (TASKID + '.done')).exists())
-        self.assertEqual((self.root / 'args').read_text().split(), ['--nostop', 'x86_64/ALTLinux/p10', '11-testing'])
+        self.assertEqual((self.root / 'args').read_text().split(), ['--nostop', '--init', 'x86_64/ALTLinux/p10', '11-testing'])
         events = self.progress()
         self.assertEqual(events[0][0], 'start')
         self.assertEqual([e[2:] for e in events if e[0] == 'stage'],
