@@ -8,8 +8,9 @@ User=builder
 Group=builder
 WorkingDirectory=/srv/builder/Projects/korinf/buildapi
 Environment=PYTHONUNBUFFERED=1
-# :: listens on IPv4 too (net.ipv6.bindv6only=0): builder64.office.etersoft.ru may resolve to ::1 there
-ExecStart=/bin/python3 -m uvicorn main:app --host :: --port 5503 --workers 1
+# "" listens on IPv4 and IPv6 (asyncio sets IPV6_V6ONLY on a :: socket):
+# builder64.office.etersoft.ru may resolve to ::1 there
+ExecStart=/bin/python3 -m uvicorn main:app --host "" --port 5503 --workers 1
 Restart=always
 RestartSec=5
 
