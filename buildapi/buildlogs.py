@@ -7,6 +7,9 @@ import lzma
 from pathlib import Path
 import re
 
+import products
+import systembuild
+
 PUB = Path('/var/ftp/pub')
 PVT = Path('/var/ftp/pvt')
 LIVE = Path('/srv/builder/Projects/korinf/log')
@@ -15,10 +18,11 @@ NAME = re.compile(r'(.+?)(?:\.(?:config|install))?\.log(?:\.(?:xz|bz2|gz))?$')
 
 def discover(task):
     records = _discover(task)
-    # A WINE@Etersoft system build (winebuild) of x86_64/<D>/<V> also builds
-    # the 32-bit packages of its i586 companion <D>/<V>.
+    # A system build of x86_64/<D>/<V> of a product with i586=1 (robot/products.list)
+    # also builds the 32-bit packages of its i586 companion <D>/<V>.
     dist = task.fields.get('DIST', '')
-    if task.fields.get('TASKTYPE') == 'winebuild' and dist.startswith('x86_64/'):
+    settings = products.get(task.fields.get('COMPONENTNAME') or systembuild.LEGACY_PRODUCT)
+    if systembuild.is_system_build(task) and settings and settings['i586'] and dist.startswith('x86_64/'):
         companion = copy.copy(task)
         companion.fields = dict(task.fields, DIST=dist.removeprefix('x86_64/'))
         known = {r['id'] for r in records}

@@ -24,14 +24,23 @@ including when `force` is omitted or false. Explicit `force: true` additionally
 requests a forced rebuild. Use `dist` for a specific distro or another Korinf
 list, e.g. `x86_64/ALL`.
 
-## WINE@Etersoft system build with stages
+## Products
 
-`POST /api/wine/build`, JSON `{"version": "11-testing", "dist": "x86_64/ALTLinux/p10", "force": false}`
-enqueues a `TASKTYPE=winebuild` task: the robot runs
-`bin-wine/wine-etersoft-bootstrap-new.sh --nostop [--force] <dist> <version>`
-(robot/funcs/winebuild). `version` is a WINE@Etersoft directory with a
-`distro.list`, `dist` must be one of its systems (`GET /api/wine/systems?version=`).
-The robot builds tasks one at a time; if the same version and system is already
+The products of the system builds and personal orders are in
+`robot/products.list`, one line each: the build script (`bootstrap`), whether
+the build installs BuildRequires first (`init=1`), builds an i586 companion
+(`i586=1`), the delivery files, URL and install script. A new product is a new
+line there, not code. `GET /api/products` lists them.
+
+## System build with stages
+
+`POST /api/product/build`, JSON `{"product": "WINE@Etersoft", "version": "11-testing", "dist": "x86_64/ALTLinux/p10", "force": false}`
+enqueues a `TASKTYPE=winebuild` task (the name stays for every product): the
+robot runs the product's script, e.g.
+`bin-wine/wine-etersoft-bootstrap-new.sh --nostop [--force|--init] <dist> <version>`
+(robot/funcs/winebuild). `version` is a product directory with a `distro.list`,
+`dist` must be one of its systems (`GET /api/product/systems?product=&version=`).
+The robot builds tasks one at a time; if the same product, version and system is already
 queued or building, its task is returned with `existing: true`.
 
 The task output is in `~/sales/winebuild/<taskid>.log`
@@ -40,7 +49,10 @@ The task output is in `~/sales/winebuild/<taskid>.log`
 (package, dist, start, duration, ok/skipped/failed, korinf steps) and the
 current one. A failed component or a non-zero exit makes the task failed
 (restartable). The task page shows the stages; component logs include the
-i586 companion of an x86_64 system.
+i586 companion of an x86_64 system for a product with `i586=1`.
+
+The `/api/wine/*` paths are deprecated aliases of the product ones with
+`product=WINE@Etersoft`.
 
 ## Conservative repair and live log
 
@@ -104,7 +116,7 @@ browser localStorage. System mode follows OS changes automatically.
 
 ```sh
 python3 tests/test_winebuild.py
-python3 tests/test_winebuild_api.py
+python3 tests/test_systembuild_api.py
 python3 tests/test_buildapi_features.py
 python3 tests/test_repair_progress.py
 python3 tests/test_buildapi_restart.py
@@ -113,7 +125,7 @@ python3 tests/test_buildapi_restart.py
 The feature tests use temporary queues, repositories and fake Codex/MiMo processes;
 they do not start production builds or require a paid model call.
 
-## Personal Wine delivery orders
+## Personal delivery orders
 
 The single user entry point is http://builder64.office.etersoft.ru:5502/orders.
 Wine UI authenticates users with Kerberos (ETERSOFT.RU), supplies their principal
@@ -121,24 +133,24 @@ to Korinf server-side and keeps the API key out of the browser. All authenticate
 employees can order their own builds; release-management permissions are separate.
 POST requests in the UI require the page's session CSRF token.
 
-API (all require X-API-Key):
-- GET /api/wine/versions — labels/default from the FTP version.list.
-- GET /api/wine/distributions?version=...&principal=... — x86_64 targets from the version's distro.list, including systems awaiting
-  their first build, for the user's product.
-- GET /api/wine/orders?principal=... — personal orders placed through this API.
-- POST /api/wine/orders — JSON principal, version, dist. The principal is a
+API (all require X-API-Key), for every product of robot/products.list:
+- GET /api/orders/versions — the versions of every product from its version.list
+  (labels, default) for one choice.
+- GET /api/orders/distributions?product=...&version=...&principal=... — x86_64
+  targets from the version's distro.list, including systems awaiting their first build.
+- GET /api/orders?principal=... — personal orders placed through this API.
+- POST /api/orders — JSON principal, product, version, dist. The principal is a
   trusted gateway assertion: API-key holders must never forward a browser-supplied
   identity without authentication.
 
-Other products: RX@Etersoft and CRYPTO@Etersoft are ordered the same way with
-`product` (POST body, `?product=` of distributions); GET /api/orders/versions lists
-the versions of every product from its version.list for one choice. The profile
-is the newest completed order of the same product; the task gets
-DOWNLOADDIR=<product>/<version>. The robot (products/rx, products/crypto) records
-the delivery directory and the readiness marker of an order like products/wine-etersoft;
-the download is https://download.etersoft.ru/pub/download/<product>/<directory>/.
+The profile is the newest completed order of the same product (a product with
+`license_types=1` must name a known license type). With `downloaddir=1` the task
+gets DOWNLOADDIR=<product>/<version>. The robot (products/wine-etersoft,
+products/rx, products/crypto) records the delivery directory and the readiness
+marker of an order; the download is the product's `download_url` (by default
+https://download.etersoft.ru/pub/download/<product>/<directory>/).
 
-The newest completed Wine order in /srv/builder/done addressed exactly to
+The newest completed order of the product in /srv/builder/done addressed exactly to
 login@etersoft.ru supplies registration and license fields. No matching order
 returns 404. Task fields are reconstructed as data, never sourced by the API.
 New tasks request clearing previous failures and follow normal robot email delivery.
@@ -146,8 +158,9 @@ Identical queued/running requests are deduplicated.
 
 Private order metadata is in buildapi/order-state/<email>/, excluded from git.
 The worker records WEB_DOWNLOAD_REL in the task and writes a task-specific
-.order-<taskid>.ready marker after preparing files. The API requires this marker,
-license, installer and SHA256 manifest before returning download links.
+.order-<taskid>.ready marker after preparing files. The API requires this marker and
+the product's `required` files (WINE@Etersoft: license, installer and SHA256
+manifest) before returning download links.
 Completed orders whose files disappeared are expired. Order history starts with
 this API; legacy tasks have no reliable association with random download folders.
 

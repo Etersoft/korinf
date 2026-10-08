@@ -10,9 +10,8 @@
 #    DIST="x86_64/ALTLinux/p10"
 #    [FORCE=1] [CLEAR_FAILED_ON_RESTART=1]
 #
-#  Runs the product's bootstrap script for the system (winebuild_bootstrap):
-#  bin-wine/wine-etersoft-bootstrap-new.sh, bin-rx/build-rx-bootstrap-new.sh,
-#  bin-crypto/crypto-bootstrap-new.sh. Its output
+#  Runs the product's bootstrap script for the system (robot/products.list,
+#  winebuild_bootstrap), e.g. bin-wine/wine-etersoft-bootstrap-new.sh. Its output
 #  goes to <sales>/winebuild/<taskid>.log, the stages with times to
 #  <sales>/winebuild/<taskid>.progress (tab separated, read by buildapi):
 #    start   <ts>
@@ -41,16 +40,24 @@
 # get_field() is sourced from share/eterbuild/korinf/taskfield (via buildtask.sh),
 # mark_broken() and mark_done() from funcs/genericbuild.
 
+# A setting of a product in robot/products.list (empty if there is none)
+# args: product (COMPONENTNAME), key
+winebuild_product()
+{
+	awk -v product="$1" -v key="$2" '
+		{ sub(/#.*/, "") }
+		$1 == product { for (i = 2; i <= NF; i++) if (index($i, key "=") == 1) { print substr($i, length(key) + 2) ; exit } }
+	' "${WINEBUILD_PRODUCTS:-$AROBOTDIR/products.list}" 2>/dev/null
+}
+
 # The bootstrap script of a product (WINEBUILD_BOOTSTRAP overrides it, for tests)
 # arg: product (COMPONENTNAME)
 winebuild_bootstrap()
 {
+	local script
 	[ -n "$WINEBUILD_BOOTSTRAP" ] && echo "$WINEBUILD_BOOTSTRAP" && return
-	case "$1" in
-		WINE@Etersoft)   echo "$AROBOTDIR/../bin-wine/wine-etersoft-bootstrap-new.sh" ;;
-		RX@Etersoft)     echo "$AROBOTDIR/../bin-rx/build-rx-bootstrap-new.sh" ;;
-		CRYPTO@Etersoft) echo "$AROBOTDIR/../bin-crypto/crypto-bootstrap-new.sh" ;;
-	esac
+	script=$(winebuild_product "$1" bootstrap)
+	[ -n "$script" ] && echo "$AROBOTDIR/../$script"
 }
 
 # Pass the bootstrap output through, write the stage events to the progress file.
@@ -158,8 +165,8 @@ run_wine_build_task()
 	opts=--nostop
 	if [ "$FORCE" = "1" ] ; then
 		opts="$opts --force"
-	elif [ "${PRODUCT:-WINE@Etersoft}" = "WINE@Etersoft" ] ; then
-		# Wine module images can lack package-specific BuildRequires.
+	elif [ "$(winebuild_product "${PRODUCT:-WINE@Etersoft}" init)" = "1" ] ; then
+		# the build images can lack package-specific BuildRequires
 		opts="$opts --init"
 	fi
 

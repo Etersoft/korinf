@@ -31,8 +31,12 @@ class Orders(unittest.TestCase):
         self.sample.write_text('PRODUCT="WINE@Etersoft"\nCOMPONENTNAME="WINE@Etersoft Enterprise"\nETERREGNUM="ABCD-1234"\nMAILTO="tester@etersoft.ru"\nFULLNAME="Тестировщик"\nTYPE_LICENSE="Corporate"\nCOUNT_LICENSE="1"\n# task done at today\n')
         self.patches = [patch.object(main, 'SALES', str(self.root / 'sales')), patch.object(main, 'DONE', str(self.root / 'done')),
             patch.dict(main.CFG, {'API_KEY': 'secret'}), patch.object(orders, 'ROOT', self.root / 'repo'),
-            patch.object(orders, 'PUB', self.root / 'pub'), patch.object(orders, 'PVT', self.root / 'pvt'),
-            patch.object(orders, 'DOWNLOADS', self.root / 'downloads'), patch.object(orders, 'STATE', self.root / 'state')]
+            patch.object(orders, 'ETERSOFT_PUB', self.root / 'etersoft/pub'), patch.object(orders, 'ETERSOFT_PVT', self.root / 'etersoft/pvt'),
+            patch.object(orders, 'DOWNLOAD_ROOT', self.root / 'etersoft/download'), patch.object(orders, 'STATE', self.root / 'state')]
+        # WINE@Etersoft is a product as the others: <root>/WINE@Etersoft
+        for name, target in (('pub', 'pub'), ('pvt', 'pvt'), ('download', 'downloads')):
+            (self.root / 'etersoft' / name).mkdir(parents=True)
+            (self.root / 'etersoft' / name / 'WINE@Etersoft').symlink_to(self.root / target)
         for p in self.patches: p.start()
         orders._cache.clear()
         self.client = TestClient(main.app)
@@ -155,7 +159,7 @@ class ProductOrders(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         r = self.root = Path(self.temp.name)
-        for name in ('sales', 'done', 'downloads', 'wine/pub', 'wine/pvt'):
+        for name in ('sales', 'done', 'downloads'):
             (r / name).mkdir(parents=True)
         for product, version, label in (('RX@Etersoft', '1.10', 'Стабильная'), ('CRYPTO@Etersoft', '0.5', 'Стабильная')):
             (r / 'pub' / product / version).mkdir(parents=True)
@@ -168,7 +172,6 @@ class ProductOrders(unittest.TestCase):
             "DOWNLOADDIR='RX@Etersoft/1.9'\nPROJECTVERSION='1.9'\n# task done at today\n")
         self.patches = [patch.object(main, 'SALES', str(r / 'sales')), patch.object(main, 'DONE', str(r / 'done')),
                         patch.dict(main.CFG, {'API_KEY': 'secret'}),
-                        patch.object(orders, 'PUB', r / 'wine/pub'), patch.object(orders, 'PVT', r / 'wine/pvt'),
                         patch.object(orders, 'ETERSOFT_PUB', r / 'pub'), patch.object(orders, 'ETERSOFT_PVT', r / 'pvt'),
                         patch.object(orders, 'DOWNLOAD_ROOT', r / 'downloads'), patch.object(orders, 'STATE', r / 'state')]
         for p in self.patches:
@@ -182,18 +185,19 @@ class ProductOrders(unittest.TestCase):
             p.stop()
         self.temp.cleanup()
 
+    # the product paths; class Orders runs the deprecated /api/wine/ ones
     def order(self, product='RX@Etersoft', version='1.10', principal='tester@ETERSOFT.RU'):
-        return self.client.post('/api/wine/orders', headers=self.headers,
+        return self.client.post('/api/orders', headers=self.headers,
                                 json=dict(principal=principal, version=version, dist='x86_64/ALTLinux/p10', product=product))
 
     def test_catalog(self):
         r = self.client.get('/api/orders/versions', headers=self.headers).json()
         self.assertEqual(r, [dict(product='RX@Etersoft', version='1.10', label='Стабильная', default=True),
                              dict(product='CRYPTO@Etersoft', version='0.5', label='Стабильная', default=True)])
-        d = self.client.get('/api/wine/distributions', headers=self.headers,
+        d = self.client.get('/api/orders/distributions', headers=self.headers,
                             params=dict(principal='tester@ETERSOFT.RU', version='1.10', product='RX@Etersoft'))
         self.assertEqual(d.json(), ['x86_64/ALTLinux/p10'])
-        bad = self.client.get('/api/wine/distributions', headers=self.headers,
+        bad = self.client.get('/api/orders/distributions', headers=self.headers,
                               params=dict(principal='tester@ETERSOFT.RU', version='1.10', product='SELTA@Etersoft'))
         self.assertEqual(bad.status_code, 400)
 
@@ -207,7 +211,7 @@ class ProductOrders(unittest.TestCase):
         self.assertEqual(fields['DOWNLOADDIR'], 'RX@Etersoft/1.10')
         self.assertEqual((fields['PROJECTVERSION'], fields['DIST'], fields['ETERREGNUM']), ('1.10', 'x86_64/ALTLinux/p10', 'CAB8-E604'))
         self.assertEqual(self.order().json()['taskid'], data['taskid'])
-        history = self.client.get('/api/wine/orders', headers=self.headers, params=dict(principal='tester@ETERSOFT.RU')).json()
+        history = self.client.get('/api/orders', headers=self.headers, params=dict(principal='tester@ETERSOFT.RU')).json()
         self.assertEqual([h['product'] for h in history], ['RX@Etersoft'])
 
     def test_profile_of_the_same_product(self):
@@ -226,7 +230,7 @@ class ProductOrders(unittest.TestCase):
         directory.mkdir(parents=True)
         for name in files + ['.order-' + taskid + '.ready']:
             (directory / name).touch()
-        return self.client.get('/api/wine/orders', headers=self.headers, params=dict(principal='tester@ETERSOFT.RU')).json()[0]
+        return self.client.get('/api/orders', headers=self.headers, params=dict(principal='tester@ETERSOFT.RU')).json()[0]
 
     def test_rx_ready(self):
         status = self.ready('RX@Etersoft', '1.10', ['rx-etersoft.lic'])

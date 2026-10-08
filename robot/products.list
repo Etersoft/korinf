@@ -1,0 +1,18 @@
+# Products built by system (TASKTYPE=winebuild) and ordered by people (personal orders):
+# read by robot/funcs/winebuild and buildapi/products.py. One line per product:
+#   <product> key=value ...   (values without spaces, lists separated by commas)
+# Keys:
+#   bootstrap      the system build script, relative to the korinf directory (required);
+#                  run as <script> [--force|--init] --nostop <dist> <version>
+#   init=1         install the package BuildRequires first (--init): the build images can lack them
+#   i586=1         a build of x86_64/<D>/<V> also builds the 32-bit packages of its i586 companion <D>/<V>
+#   log_alias      <from>:<to> - the live log of a package <from>* is <to>* (wine32-etersoft -> wine-etersoft)
+#   download_url   the URL of the personal deliveries, {product} is the product name
+#                  (default https://download.etersoft.ru/pub/download/{product}/)
+#   required       files a delivery needs besides its readiness marker
+#   install        the install script of a delivery, given as install_url
+#   license_types=1  orders name a license type in COMPONENTNAME (Local, Network...): an unknown one is refused
+#   downloaddir=1  an order gives the robot the version directory as DOWNLOADDIR=<product>/<version>
+WINE@Etersoft   bootstrap=bin-wine/wine-etersoft-bootstrap-new.sh init=1 i586=1 log_alias=wine32-:wine- download_url=https://download.etersoft.ru/W@E/ required=wine-etersoft.lic,wine-etersoft-install.sh,wine-etersoft-install.sha256 install=wine-etersoft-install.sh license_types=1
+RX@Etersoft     bootstrap=bin-rx/build-rx-bootstrap-new.sh required=rx-etersoft.lic downloaddir=1
+CRYPTO@Etersoft bootstrap=bin-crypto/crypto-bootstrap-new.sh i586=1 downloaddir=1

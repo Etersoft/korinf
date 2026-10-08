@@ -1,4 +1,4 @@
-"""winebuild API on temporary queue and FTP directories: nothing real is enqueued."""
+"""System build API on temporary queue and FTP directories: nothing real is enqueued."""
 from pathlib import Path
 import sys
 import tempfile
@@ -9,8 +9,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'buildapi'))
 import buildlogs
 import main
+import products
 import taskreader as tr
-import winebuild
+import systembuild
 from fastapi.testclient import TestClient
 
 PROGRESS = """\
@@ -25,7 +26,7 @@ stage\t1700\twine32-etersoft\ti586/ALTLinux/p10
 """
 
 
-class WineBuildApi(unittest.TestCase):
+class SystemBuildApi(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         root = Path(self.temp.name)
@@ -44,7 +45,7 @@ class WineBuildApi(unittest.TestCase):
         self.patches = [patch.object(main, 'SALES', str(self.sales)),
                         patch.object(main, 'DONE', str(self.done)),
                         patch.dict(main.CFG, {'API_KEY': 'test-secret'}),
-                        patch.object(winebuild, 'ETERSOFT_PUB', pub),
+                        patch.object(systembuild, 'ETERSOFT_PUB', pub),
                         patch.object(buildlogs, 'PUB', root / 'ftp' / 'pub'),
                         patch.object(buildlogs, 'PVT', root / 'ftp' / 'pvt'),
                         patch.object(buildlogs, 'LIVE', root / 'live')]
@@ -191,7 +192,7 @@ class WineBuildApi(unittest.TestCase):
         (self.sales / 'winebuild').mkdir()
         progress = self.sales / 'winebuild' / (taskid + '.progress')
         live = self.root / 'live'
-        with patch.object(winebuild, 'LIVE_LOG', live):
+        with patch.object(systembuild, 'LIVE_LOG', live):
             # x86_64 stage
             progress.write_text('start\t1000\nstage\t1000\twine-etersoft\tx86_64/ALTLinux/p10\n')
             (live / 'x86_64/ALTLinux/p10').mkdir(parents=True)
@@ -211,9 +212,57 @@ class WineBuildApi(unittest.TestCase):
             progress.write_text(progress.read_text() + 'result\t1100\tkdriveclient\tok\n')
             self.assertEqual(self.client.get(url, headers=self.headers).status_code, 404)
 
+    def test_product_is_required(self):
+        r = self.client.post('/api/product/build', headers=self.headers,
+                             json={'version': '11-testing', 'dist': 'x86_64/ALTLinux/p10'})
+        self.assertEqual(r.status_code, 422)
+        self.assertEqual(self.client.get('/api/product/systems?version=1.10', headers=self.headers).status_code, 422)
+
+    def test_products(self):
+        r = self.client.get('/api/products', headers=self.headers).json()
+        self.assertEqual([p['product'] for p in r], ['WINE@Etersoft', 'RX@Etersoft', 'CRYPTO@Etersoft'])
+        self.assertEqual({p['product']: p['i586'] for p in r},
+                         {'WINE@Etersoft': True, 'RX@Etersoft': False, 'CRYPTO@Etersoft': True})
+        self.assertEqual(self.client.get('/api/products').status_code, 401)
+
+    def test_wine_paths_are_deprecated(self):
+        spec = self.client.get('/openapi.json').json()
+        for path, ops in spec['paths'].items():
+            for op in ops.values():
+                with self.subTest(path=path):
+                    self.assertEqual(op.get('deprecated', False), path.startswith('/api/wine/'))
+                    self.assertNotIn('Wine', ' '.join(op.get('tags', [])))
+
+    def test_companion_logs_follow_the_product(self):
+        task = tr.Task('T', 'running', '', {'TASKTYPE': 'winebuild', 'COMPONENTNAME': 'RX@Etersoft',
+                                            'DIST': 'x86_64/ALTLinux/p10'})
+        with patch.object(buildlogs, '_discover', side_effect=lambda t: [{'id': t.fields['DIST'], 'failed': False,
+                                                                           'mtime': 0}]) as discover:
+            self.assertEqual([r['id'] for r in buildlogs.discover(task)], ['x86_64/ALTLinux/p10'])
+            task.fields['COMPONENTNAME'] = 'CRYPTO@Etersoft'
+            self.assertEqual(sorted(r['id'] for r in buildlogs.discover(task)), ['ALTLinux/p10', 'x86_64/ALTLinux/p10'])
+        self.assertEqual(discover.call_count, 3)
+
+
     def test_bad_taskid(self):
         self.assertEqual(self.client.get('/api/task/..%2Fx/progress', headers=self.headers).status_code, 404)
         self.assertEqual(self.client.get('/api/task/bad/log', headers=self.headers).status_code, 400)
+
+
+class ProductsList(unittest.TestCase):
+    def test_parse(self):
+        p = products.parse('# comment\nA@E bootstrap=bin/a.sh i586=1 log_alias=a32-:a- required=x.lic,y.sh install=y.sh\n'
+                           'B@E   bootstrap=bin/b.sh   # tail comment\n')
+        self.assertEqual(list(p), ['A@E', 'B@E'])
+        self.assertEqual((p['A@E']['i586'], p['A@E']['init'], p['A@E']['log_alias'], p['A@E']['required']),
+                         (True, False, ('a32-', 'a-'), ['x.lic', 'y.sh']))
+        self.assertEqual((p['B@E']['required'], p['B@E']['install'], p['B@E']['download_url']),
+                         ([], None, products.DEFAULT_DOWNLOAD_URL))
+
+    def test_every_bootstrap_exists(self):
+        for name, p in products.PRODUCTS.items():
+            with self.subTest(product=name):
+                self.assertTrue((ROOT / p['bootstrap']).is_file())
 
 
 if __name__ == '__main__':

@@ -1,20 +1,23 @@
-"""Product build of one system for a project version (TASKTYPE=winebuild):
-WINE@Etersoft, RX@Etersoft, CRYPTO@Etersoft.
+"""System build of a product version: one system of its distro.list
+(the products are in robot/products.list).
 
-The robot (robot/funcs/winebuild) runs wine-etersoft-bootstrap-new.sh for the
+The robot (robot/funcs/winebuild) runs the product's bootstrap script for the
 task and writes <sales>/winebuild/<taskid>.log and <taskid>.progress; this
-module enqueues such tasks and reads their stages and log.
+module enqueues such tasks and reads their stages and log. The task type is
+TASKTYPE=winebuild for every product (the name stays for the queued tasks).
 """
 import os
 from pathlib import Path
 import re
 
+import products
 import taskreader as tr
 
 # Project versions with their distro.list: <product>/<version>/distro.list
 ETERSOFT_PUB = Path('/var/ftp/pub/Etersoft')
-PRODUCTS = ('WINE@Etersoft', 'RX@Etersoft', 'CRYPTO@Etersoft')
-DEFAULT_PRODUCT = 'WINE@Etersoft'
+TASKTYPE = 'winebuild'
+# the product of a task written before the tasks named it (COMPONENTNAME)
+LEGACY_PRODUCT = 'WINE@Etersoft'
 RE_VERSION = re.compile(r'^[A-Za-z0-9][A-Za-z0-9.-]*$')
 RE_SYSTEM = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_.+-]*(/[A-Za-z0-9_.+-]+)+$')
 ACTIVE = ('queued', 'running', 'running_stale', 'interrupted')
@@ -23,23 +26,28 @@ LOG_TAIL = 64 * 1024
 LIVE_LOG = Path('/srv/builder/Projects/korinf/log')
 
 
-class WineBuildError(Exception):
+class BuildError(Exception):
     def __init__(self, status, message):
         super().__init__(message)
         self.status = status
 
 
-def systems(version, product=DEFAULT_PRODUCT):
+def check_product(product):
+    if not products.get(product):
+        raise BuildError(400, f'unknown product (one of {", ".join(products.names())})')
+    return product
+
+
+def systems(version, product):
     """Systems of a product version: the first field of its distro.list lines."""
-    if product not in PRODUCTS:
-        raise WineBuildError(400, f'unknown product (one of {", ".join(PRODUCTS)})')
+    check_product(product)
     if not RE_VERSION.fullmatch(version or '') or version in ('.', '..'):
-        raise WineBuildError(400, 'invalid version (e.g. 11-testing, 1.10, unstable)')
+        raise BuildError(400, 'invalid version (e.g. 11-testing, 1.10, unstable)')
     path = ETERSOFT_PUB / product / version / 'distro.list'
     try:
         text = path.read_text(encoding='utf-8', errors='replace')
     except OSError:
-        raise WineBuildError(404, f'no distro.list for {product} {version}')
+        raise BuildError(404, f'no distro.list for {product} {version}')
     result = []
     for line in text.splitlines():
         line = line.strip()
@@ -51,31 +59,31 @@ def systems(version, product=DEFAULT_PRODUCT):
     return result
 
 
-def is_winebuild(task):
-    return task.fields.get('TASKTYPE') == 'winebuild'
+def is_system_build(task):
+    return task.fields.get('TASKTYPE') == TASKTYPE
 
 
-def find_active(sales, version, dist, product=DEFAULT_PRODUCT):
+def find_active(sales, version, dist, product):
     """A queued/running build task for the same product, version and system."""
     for task in tr.scan_sales(sales):
-        if is_winebuild(task) and task.status in ACTIVE and \
-                task.fields.get('COMPONENTNAME', DEFAULT_PRODUCT) == product and \
+        if is_system_build(task) and task.status in ACTIVE and \
+                task.fields.get('COMPONENTNAME', LEGACY_PRODUCT) == product and \
                 task.fields.get('PROJECTVERSION') == version and task.fields.get('DIST') == dist:
             return task
     return None
 
 
-def enqueue(version, dist, force, sales, taskid, product=DEFAULT_PRODUCT):
+def enqueue(version, dist, force, sales, taskid, product):
     """Write a system build task, or return the same active one: the robot builds
     tasks one by one, a second identical task would only build twice."""
     if dist not in systems(version, product):
-        raise WineBuildError(400, f'{dist} is not in distro.list of {version}')
+        raise BuildError(400, f'{dist} is not in distro.list of {version}')
     if not RE_SYSTEM.fullmatch(dist):
-        raise WineBuildError(400, 'invalid system')
+        raise BuildError(400, 'invalid system')
     existing = find_active(sales, version, dist, product)
     if existing:
         return {'taskid': existing.taskid, 'new_path': existing.path, 'existing': True}
-    lines = ['TASKTYPE=winebuild', f'COMPONENTNAME="{product}"',
+    lines = [f'TASKTYPE={TASKTYPE}', f'COMPONENTNAME="{product}"',
              f'PROJECTVERSION="{version}"', f'DIST="{dist}"', 'CLEAR_FAILED_ON_RESTART=1']
     if force:
         lines.append('FORCE=1')
@@ -90,19 +98,19 @@ def enqueue(version, dist, force, sales, taskid, product=DEFAULT_PRODUCT):
             os.remove(tmp)
         except OSError:
             pass
-        raise WineBuildError(500, f'cannot write task: {e}')
+        raise BuildError(500, f'cannot write task: {e}')
     return {'taskid': taskid, 'new_path': path, 'existing': False}
 
 
 def _paths(sales, taskid):
     if not tr.RE_FILENAME.match(taskid + '.task'):
-        raise WineBuildError(400, 'bad taskid')
+        raise BuildError(400, 'bad taskid')
     base = os.path.join(sales, 'winebuild', taskid)
     return base + '.progress', base + '.log'
 
 
 def progress(sales, taskid):
-    """Stages of a winebuild task from its progress file, None if it has not started:
+    """Stages of a system build task from its progress file, None if it has not started:
     {'started', 'finished', 'rc', 'current', 'stages': [{'package', 'dist', 'phase', 'started',
      'finished', 'duration', 'result', 'steps': [{'at', 'status', 'text'}]}]}; phase: 'init' (only
     the build requirements, --init), 'build' or None (an old progress file)"""
@@ -143,7 +151,7 @@ def progress(sales, taskid):
 
 
 def log_tail(sales, taskid, limit=LOG_TAIL):
-    """The end of a winebuild task log, None if there is no log."""
+    """The end of a system build task log, None if there is no log."""
     _, path = _paths(sales, taskid)
     try:
         with open(path, 'rb') as f:
@@ -169,8 +177,10 @@ def live_log(sales, taskid, limit=LOG_TAIL):
     if not RE_SYSTEM.fullmatch(dist) and not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.+-]*/[A-Za-z0-9_.+-]+', dist):
         return None
     directory = LIVE_LOG / dist
-    # wine32-* of an i586 companion log as wine-*
-    names = [stage['package'], stage['package'].replace('wine32-', 'wine-', 1)]
+    # a package logged under another name (wine32-etersoft of an i586 companion as wine-etersoft)
+    names = [stage['package']] + [stage['package'].replace(a, b, 1) for a, b in
+                                  (p['log_alias'] for p in products.PRODUCTS.values() if p['log_alias'])
+                                  if stage['package'].startswith(a)]
     path = next((directory / (n + '.log') for n in names if (directory / (n + '.log')).is_file()), None)
     if path is None:
         # another name (kdriveclient builds rxkdriveclient): the newest log of the stage

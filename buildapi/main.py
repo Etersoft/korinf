@@ -23,7 +23,8 @@ import orders
 import repair
 import buildlogs
 import repair_engines
-import winebuild
+import products
+import systembuild
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 
@@ -55,7 +56,7 @@ QUEUE_LOG_LINES = 300
 
 app = FastAPI(
     title='korinf buildapi',
-    version='1.3.0',
+    version='1.4.0',
     description='Очередь сборок korinf (задачи из `~/sales`).\n\n'
                 '**Аутентификация:** все `/api/*` требуют заголовок `X-API-Key` '
                 '(значение — в `/srv/builder/Projects/korinf/buildapi/config`). '
@@ -243,7 +244,7 @@ def api_summary(_: None = Depends(require_api_key)):
                      'и недавние выполненные из ~/done за последние 48ч.')
 def api_tasks(_: None = Depends(require_api_key),
               status: TaskStatus = Query(None, description='Фильтр по статусу'),
-              product: str = Query(None, description='Фильтр по группе продукта, напр. `WINE@Etersoft`')):
+              product: str = Query(None, description='Фильтр по группе продукта, напр. `RX@Etersoft`')):
     tasks = all_tasks()
     if status:
         tasks = [t for t in tasks if t.status == status.value]
@@ -406,41 +407,140 @@ def web_repair_log(taskid: str):
     return _repair_log(taskid)
 
 
-class WineOrderIn(BaseModel):
+# ---------- продукты: сборка систем и личные заказы (robot/products.list) ----------
+DEPRECATED = 'Deprecated'
+
+
+class ProductOut(BaseModel):
+    product: str
+    bootstrap: str
+    i586: bool
+    init: bool
+
+
+@app.get('/api/products', response_model=list[ProductOut], tags=['Products'],
+         dependencies=[Depends(require_api_key)], summary='Продукты сборки систем и заказов',
+         description='Продукты из `robot/products.list`: сценарий сборки системы (`bootstrap`), '
+                     'собирается ли 32-битный компаньон (`i586`), ставятся ли сначала сборочные зависимости (`init`).')
+def api_products():
+    return [{'product': name, 'bootstrap': p['bootstrap'], 'i586': p['i586'], 'init': p['init']}
+            for name, p in products.PRODUCTS.items()]
+
+
+class OrderIn(BaseModel):
     principal: str
+    product: str
     version: str
     dist: str
-    product: str = orders.WINE
 
 
-@app.get('/api/wine/versions', tags=['Wine orders'], dependencies=[Depends(require_api_key)])
-def wine_versions():
-    return orders.versions()
-
-
-@app.get('/api/orders/versions', tags=['Wine orders'], dependencies=[Depends(require_api_key)],
-         summary='Версии всех продуктов для заказа (WINE@Etersoft, RX@Etersoft, CRYPTO@Etersoft)')
+@app.get('/api/orders/versions', tags=['Orders'], dependencies=[Depends(require_api_key)],
+         summary='Версии всех продуктов для заказа')
 def order_versions():
     return orders.all_versions()
 
 
-@app.get('/api/wine/distributions', tags=['Wine orders'], dependencies=[Depends(require_api_key)])
-def wine_distributions(version: str, principal: str, product: str = orders.WINE):
+@app.get('/api/orders/distributions', tags=['Orders'], dependencies=[Depends(require_api_key)],
+         summary='Системы версии продукта, доступные для заказа',
+         description='Системы x86_64 из distro.list версии; нужен выполненный заказ продукта на почту principal.')
+def order_distributions(product: str, version: str, principal: str):
     orders.check_product(product)
-    profile = orders.profile(principal, DONE, product)
-    kind = orders.product_type(profile['COMPONENTNAME']) if product == orders.WINE else None
-    return orders.distributions(version, kind, product)
+    orders.profile(principal, DONE, product)
+    return orders.distributions(version, product)
 
 
-@app.get('/api/wine/orders', tags=['Wine orders'], dependencies=[Depends(require_api_key)])
-def wine_orders(principal: str):
+@app.get('/api/orders', tags=['Orders'], dependencies=[Depends(require_api_key)], summary='Мои заказы')
+def order_history(principal: str):
     return orders.history(principal, SALES, DONE)
 
 
-@app.post('/api/wine/orders', tags=['Wine orders'], dependencies=[Depends(require_api_key)],
+@app.post('/api/orders', tags=['Orders'], dependencies=[Depends(require_api_key)], summary='Заказать сборку',
           description='Trusted Kerberos gateway supplies principal; never take it from an unauthenticated browser.')
-def wine_order(body: WineOrderIn):
+def order_enqueue(body: OrderIn):
     return orders.enqueue(body.principal, body.version, body.dist, SALES, DONE, body.product)
+
+
+class SystemBuildIn(BaseModel):
+    product: str
+    version: str
+    dist: str
+    force: bool = False
+
+
+class SystemBuildOut(BaseModel):
+    taskid: str
+    new_path: str
+    existing: bool
+
+
+def _systembuild(function, *args):
+    try:
+        return function(*args)
+    except systembuild.BuildError as exc:
+        raise HTTPException(exc.status, str(exc))
+
+
+@app.post('/api/product/build', response_model=SystemBuildOut, tags=['System build'],
+          operation_id='enqueue_system_build', summary='Собрать продукт для системы версии',
+          description='Ставит в очередь сборку системы (TASKTYPE=winebuild): робот выполнит сценарий продукта '
+                      'из `robot/products.list` (`[--force] <dist> <version>`; version — каталог продукта с '
+                      'distro.list, напр. `11-testing`, `1.10`; dist — система из него). Задачи выполняются по '
+                      'одной; если такая же задача уже в очереди или собирается, возвращается она '
+                      '(`existing: true`). Этапы — `/api/task/{taskid}/progress`, лог — `/api/task/{taskid}/log`.')
+def api_product_build(body: SystemBuildIn, _: None = Depends(require_api_key)):
+    return _systembuild(systembuild.enqueue, body.version, body.dist, body.force, SALES, _gen_build_taskid(),
+                        body.product)
+
+
+@app.get('/api/product/systems', tags=['System build'], summary='Системы версии продукта из её distro.list')
+def api_product_systems(product: str, version: str, _: None = Depends(require_api_key)):
+    return _systembuild(systembuild.systems, version, product)
+
+
+@app.get('/api/task/{taskid}/progress', tags=['System build'], summary='Этапы сборки системы',
+         description='Составляющие (package, dist, phase) со временем начала, длительностью, '
+                     'результатом ok/skipped/failed и шагами; `current` — идущая составляющая.')
+def api_task_progress(taskid: str, _: None = Depends(require_api_key)):
+    result = _systembuild(systembuild.progress, SALES, taskid)
+    if result is None:
+        raise HTTPException(404, 'no progress for this task (not a system build or not started)')
+    return result
+
+
+def _task_log(taskid, tail):
+    text = _systembuild(systembuild.log_tail, SALES, taskid, tail)
+    if text is None:
+        raise HTTPException(404, 'no log for this task')
+    return PlainTextResponse(text, headers={'Cache-Control': 'no-store'})
+
+
+@app.get('/api/task/{taskid}/live-log', tags=['System build'], summary='Живой лог пакета, который собирается сейчас',
+         description='Для идущей сборки системы: конец лога korinf/log/<dist>/<package>.log текущего этапа '
+                     '(package, dist, path, mtime, log); 404, если этап не идёт.')
+def api_task_live_log(taskid: str, tail: int = Query(systembuild.LOG_TAIL, ge=1, le=1024 * 1024),
+                      _: None = Depends(require_api_key)):
+    result = _systembuild(systembuild.live_log, SALES, taskid, tail)
+    if result is None:
+        raise HTTPException(404, 'no stage of this task is running')
+    return JSONResponse(result, headers={'Cache-Control': 'no-store'})
+
+
+@app.get('/api/task/{taskid}/log', tags=['System build'], summary='Конец лога сборки системы',
+         response_class=PlainTextResponse)
+def api_task_log(taskid: str, tail: int = Query(systembuild.LOG_TAIL, ge=1, le=1024 * 1024),
+                 _: None = Depends(require_api_key)):
+    return _task_log(taskid, tail)
+
+
+# ---------- устаревшие пути WINE@Etersoft: те же методы с product=WINE@Etersoft ----------
+WINE = systembuild.LEGACY_PRODUCT
+
+
+class WineOrderIn(BaseModel):
+    principal: str
+    version: str
+    dist: str
+    product: str = WINE
 
 
 class WineBuildIn(BaseModel):
@@ -449,89 +549,39 @@ class WineBuildIn(BaseModel):
     force: bool = False
 
 
-class ProductBuildIn(WineBuildIn):
-    product: str = winebuild.DEFAULT_PRODUCT
+@app.get('/api/wine/versions', tags=[DEPRECATED], deprecated=True, dependencies=[Depends(require_api_key)],
+         summary='→ /api/orders/versions')
+def wine_versions():
+    return orders.versions(WINE)
 
 
-class WineBuildOut(BaseModel):
-    taskid: str
-    new_path: str
-    existing: bool
+@app.get('/api/wine/distributions', tags=[DEPRECATED], deprecated=True, dependencies=[Depends(require_api_key)],
+         summary='→ /api/orders/distributions')
+def wine_distributions(version: str, principal: str, product: str = WINE):
+    return order_distributions(product, version, principal)
 
 
-def _winebuild(function, *args):
-    try:
-        return function(*args)
-    except winebuild.WineBuildError as exc:
-        raise HTTPException(exc.status, str(exc))
+@app.get('/api/wine/orders', tags=[DEPRECATED], deprecated=True, dependencies=[Depends(require_api_key)],
+         summary='→ GET /api/orders')
+def wine_orders(principal: str):
+    return order_history(principal)
 
 
-@app.post('/api/wine/build', response_model=WineBuildOut, tags=['Wine build'],
-          operation_id='enqueue_wine_build', summary='Собрать WINE@Etersoft для системы версии',
-          description='Ставит в очередь задачу TASKTYPE=winebuild: робот выполнит '
-                      '`wine-etersoft-bootstrap-new.sh [--force] <dist> <version>` (version — каталог '
-                      'WINE@Etersoft, напр. `11-testing`; dist — система из его distro.list). '
-                      'Задачи выполняются по одной; если такая же задача уже в очереди или '
-                      'собирается, возвращается она (`existing: true`). Этапы — '
-                      '`/api/task/{taskid}/progress`, лог — `/api/task/{taskid}/log`.')
+@app.post('/api/wine/orders', tags=[DEPRECATED], deprecated=True, dependencies=[Depends(require_api_key)],
+          summary='→ POST /api/orders')
+def wine_order(body: WineOrderIn):
+    return orders.enqueue(body.principal, body.version, body.dist, SALES, DONE, body.product)
+
+
+@app.post('/api/wine/build', response_model=SystemBuildOut, tags=[DEPRECATED], deprecated=True,
+          summary='→ /api/product/build')
 def api_wine_build(body: WineBuildIn, _: None = Depends(require_api_key)):
-    return _winebuild(winebuild.enqueue, body.version, body.dist, body.force, SALES, _gen_build_taskid())
+    return _systembuild(systembuild.enqueue, body.version, body.dist, body.force, SALES, _gen_build_taskid(), WINE)
 
 
-@app.post('/api/product/build', response_model=WineBuildOut, tags=['Wine build'],
-          operation_id='enqueue_product_build', summary='Собрать продукт для системы версии',
-          description='Как /api/wine/build для продукта: WINE@Etersoft, RX@Etersoft или CRYPTO@Etersoft '
-                      '(version — каталог продукта с distro.list, напр. `1.10`, `unstable`, `0.5`). '
-                      'Робот выполняет сценарий сборки системы продукта.')
-def api_product_build(body: ProductBuildIn, _: None = Depends(require_api_key)):
-    return _winebuild(winebuild.enqueue, body.version, body.dist, body.force, SALES, _gen_build_taskid(),
-                      body.product)
-
-
-@app.get('/api/wine/systems', tags=['Wine build'], summary='Системы версии WINE@Etersoft из её distro.list')
+@app.get('/api/wine/systems', tags=[DEPRECATED], deprecated=True, summary='→ /api/product/systems')
 def api_wine_systems(version: str, _: None = Depends(require_api_key)):
-    return _winebuild(winebuild.systems, version)
-
-
-@app.get('/api/product/systems', tags=['Wine build'], summary='Системы версии продукта из её distro.list')
-def api_product_systems(version: str, product: str = winebuild.DEFAULT_PRODUCT,
-                        _: None = Depends(require_api_key)):
-    return _winebuild(winebuild.systems, version, product)
-
-
-@app.get('/api/task/{taskid}/progress', tags=['Wine build'], summary='Этапы сборки winebuild-задачи',
-         description='Составляющие (package, dist) со временем начала, длительностью, '
-                     'результатом ok/skipped/failed и шагами; `current` — идущая составляющая.')
-def api_task_progress(taskid: str, _: None = Depends(require_api_key)):
-    result = _winebuild(winebuild.progress, SALES, taskid)
-    if result is None:
-        raise HTTPException(404, 'no progress for this task (not a winebuild task or not started)')
-    return result
-
-
-def _task_log(taskid, tail):
-    text = _winebuild(winebuild.log_tail, SALES, taskid, tail)
-    if text is None:
-        raise HTTPException(404, 'no log for this task')
-    return PlainTextResponse(text, headers={'Cache-Control': 'no-store'})
-
-
-@app.get('/api/task/{taskid}/live-log', tags=['Wine build'], summary='Живой лог пакета, который собирается сейчас',
-         description='Для идущей задачи сборки системы: конец лога korinf/log/<dist>/<package>.log текущего этапа '
-                     '(package, dist, path, mtime, log); 404, если этап не идёт.')
-def api_task_live_log(taskid: str, tail: int = Query(winebuild.LOG_TAIL, ge=1, le=1024 * 1024),
-                      _: None = Depends(require_api_key)):
-    result = _winebuild(winebuild.live_log, SALES, taskid, tail)
-    if result is None:
-        raise HTTPException(404, 'no stage of this task is running')
-    return JSONResponse(result, headers={'Cache-Control': 'no-store'})
-
-
-@app.get('/api/task/{taskid}/log', tags=['Wine build'], summary='Конец лога winebuild-задачи',
-         response_class=PlainTextResponse)
-def api_task_log(taskid: str, tail: int = Query(winebuild.LOG_TAIL, ge=1, le=1024 * 1024),
-                 _: None = Depends(require_api_key)):
-    return _task_log(taskid, tail)
+    return _systembuild(systembuild.systems, version, WINE)
 
 
 # ===================== Web (без ключа, не входит в схему API) =====================
@@ -587,7 +637,7 @@ def web_task(request: Request, taskid: str):
         'repair': result, 'has_repair': bool(result and result['status'] in repair.ACTIVE),
         'live_repair': bool(result),
         'build_logs': buildlogs.discover(t),
-        'progress': winebuild.progress(SALES, taskid) if winebuild.is_winebuild(t) else None,
+        'progress': systembuild.progress(SALES, taskid) if systembuild.is_system_build(t) else None,
         'has_running': t.status in ('running', 'running_stale'),
     })
 
