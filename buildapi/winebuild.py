@@ -103,8 +103,9 @@ def _paths(sales, taskid):
 
 def progress(sales, taskid):
     """Stages of a winebuild task from its progress file, None if it has not started:
-    {'started', 'finished', 'rc', 'current', 'stages': [{'package', 'dist', 'started',
-     'finished', 'duration', 'result', 'steps': [{'at', 'status', 'text'}]}]}"""
+    {'started', 'finished', 'rc', 'current', 'stages': [{'package', 'dist', 'phase', 'started',
+     'finished', 'duration', 'result', 'steps': [{'at', 'status', 'text'}]}]}; phase: 'init' (only
+    the build requirements, --init), 'build' or None (an old progress file)"""
     path, _ = _paths(sales, taskid)
     try:
         with open(path, encoding='utf-8', errors='replace') as f:
@@ -123,7 +124,8 @@ def progress(sales, taskid):
         if kind == 'start':
             result['started'] = at
         elif kind == 'stage' and len(parts) >= 4:
-            stage = {'package': parts[2], 'dist': parts[3], 'started': at, 'finished': None,
+            stage = {'package': parts[2], 'dist': parts[3], 'phase': parts[4] if len(parts) > 4 else None,
+                     'started': at, 'finished': None,
                      'duration': None, 'result': None, 'steps': []}
             result['stages'].append(stage)
         elif kind == 'step' and stage is not None and len(parts) >= 4:

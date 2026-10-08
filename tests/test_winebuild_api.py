@@ -18,7 +18,7 @@ start\t1000
 stage\t1000\teepm\tx86_64/ALTLinux/p10
 step\t1001\tSKIP\teepm is up-to-date
 result\t1001\teepm\tskipped
-stage\t1001\twine-etersoft\tx86_64/ALTLinux/p10
+stage\t1001\twine-etersoft\tx86_64/ALTLinux/p10\tbuild
 step\t1600\tDONE\tbuild in hasher p10 (599 s)
 result\t1700\twine-etersoft\tok
 stage\t1700\twine32-etersoft\ti586/ALTLinux/p10
@@ -125,6 +125,8 @@ class WineBuildApi(unittest.TestCase):
         self.assertEqual([(s['package'], s['result'], s['duration']) for s in p['stages']],
                          [('eepm', 'skipped', 1), ('wine-etersoft', 'ok', 699), ('wine32-etersoft', None, None)])
         self.assertEqual(p['stages'][1]['steps'], [{'at': 1600, 'status': 'DONE', 'text': 'build in hasher p10 (599 s)'}])
+        # the phase of a stage (--init); an old progress file has none
+        self.assertEqual([s['phase'] for s in p['stages'][:2]], [None, 'build'])
         log = self.client.get(f'/api/task/{taskid}/log?tail=11', headers=self.headers)
         self.assertEqual(log.text, '[…]\nline 2\n')
         self.assertEqual(self.client.get(f'/task/{taskid}/log').text, 'line 1\nline 2\n')

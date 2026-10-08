@@ -73,8 +73,8 @@ class WineBuild(unittest.TestCase):
         events = self.progress()
         self.assertEqual(events[0][0], 'start')
         self.assertEqual([e[2:] for e in events if e[0] == 'stage'],
-                         [['eepm', 'x86_64/ALTLinux/p10'], ['wine-etersoft', 'x86_64/ALTLinux/p10'],
-                          ['wine32-etersoft', 'i586/ALTLinux/p10']])
+                         [['eepm', 'x86_64/ALTLinux/p10', 'build'], ['wine-etersoft', 'x86_64/ALTLinux/p10', 'build'],
+                          ['wine32-etersoft', 'i586/ALTLinux/p10', 'build']])
         self.assertEqual([e[2:] for e in events if e[0] == 'result'],
                          [['eepm', 'skipped'], ['wine-etersoft', 'ok'], ['wine32-etersoft', 'ok']])
         steps = [e[2:] for e in events if e[0] == 'step']
@@ -83,6 +83,18 @@ class WineBuild(unittest.TestCase):
         self.assertEqual(events[-1][2], '0')
         log = (self.sales / 'winebuild' / (TASKID + '.log')).read_text()
         self.assertIn('hasher output', log)
+
+    def test_phases(self):
+        # --init: each package first gets its build requirements (-i), then is built (-b)
+        output = ('> ./eepm.sh x86_64/ALTLinux/p10 11-testing -i\n'
+                  '    * [11:58:27] install build requires only ... (5 secs) [ DONE ]\n'
+                  '> ./eepm.sh x86_64/ALTLinux/p10 11-testing -b\n'
+                  '    * [11:58:28] eepm is up-to-date ... [ SKIP ]\n'
+                  '> ./eepm.sh x86_64/ALTLinux/p10 11-testing\n')
+        self.run_task(self.task(), output)
+        self.assertEqual([e[2:] for e in self.progress() if e[0] == 'stage'],
+                         [['eepm', 'x86_64/ALTLinux/p10', 'init'], ['eepm', 'x86_64/ALTLinux/p10', 'build'],
+                          ['eepm', 'x86_64/ALTLinux/p10']])
 
     def test_failed_stage(self):
         result = self.run_task(self.task(), FAILURE)
