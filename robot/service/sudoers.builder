@@ -1,0 +1,2 @@
+#%builder ALL=(root) NOPASSWD: /sbin/chroot [?/], /sbin/chroot /net/*, /bin/mount, /bin/mount -t proc proc*, /bin/umount, /bin/chmod, /bin/mkdir, /bin/chown builder*, /bin/su - builder*, /bin/su builder*, /bin/su - wine, /sbin/chroot /tmp/autobuild*, /sbin/fuser
+%builder ALL=(root) NOPASSWD: /sbin/chroot [!/], /sbin/chroot /net/*, /bin/mount, /bin/mount -t proc proc*, /bin/umount, /bin/chmod, /bin/mkdir, /bin/chown builder*, /bin/su - builder*, /bin/su builder*, /bin/su - wine*, /sbin/chroot /tmp/autobuild*, /sbin/fuser
