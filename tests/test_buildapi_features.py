@@ -195,7 +195,53 @@ class ApplyRecipe(unittest.TestCase):
         (self.root / 'other.task.run').touch()
         self.assertEqual(self.apply()[0], [])
 
-    def _background_worker(self, engine):
+    def test_dependency_rules_apply_with_backup(self):
+        name = 'share/eterbuild/pkgrepl/pkgrepl.debian.12'
+        source = self.repo / name
+        source.parent.mkdir(parents=True)
+        source.write_text('libavcodec62|libavcodec59\n')
+        repair.git(self.repo, 'add', name)
+        repair.git(self.repo, '-c', 'user.name=test', '-c', 'user.email=test@localhost', 'commit', '-m', 'rules')
+        deps = self.root / 'dependencies'
+        baseline = repair.dependency_snapshot(self.repo, deps)
+        (deps / name).write_text('libavcodec63|libavcodec59\n')
+        applied, _ = repair.apply_dependencies(self.repo, deps, baseline,
+            self.task, self.task.read_bytes(), self.result, self.root)
+        self.assertEqual(applied, ['etersoft-build-utils/' + name])
+        self.assertEqual(source.read_text(), 'libavcodec63|libavcodec59\n')
+        self.assertEqual((self.root / 'original-dependencies' / name).read_text(), 'libavcodec62|libavcodec59\n')
+
+    def test_dependency_rules_reject_bad_format_and_live_edits(self):
+        name = 'share/eterbuild/pkgrepl/pkgrepl.debian.12'
+        source = self.repo / name
+        source.parent.mkdir(parents=True)
+        source.write_text('libavcodec62|libavcodec59\n')
+        repair.git(self.repo, 'add', name)
+        repair.git(self.repo, '-c', 'user.name=test', '-c', 'user.email=test@localhost', 'commit', '-m', 'rules')
+        deps = self.root / 'dependencies'
+        baseline = repair.dependency_snapshot(self.repo, deps)
+        def apply():
+            return repair.apply_dependencies(self.repo, deps, baseline,
+                self.task, self.task.read_bytes(), self.result, self.root)[0]
+        (deps / name).write_text('libavcodec63|$(bad command)\n')
+        self.assertEqual(apply(), [])
+        (deps / name).write_text('libavcodec63|libavcodec59\nlibavcodec63|libavcodec59\n')
+        self.assertEqual(apply(), [])
+        (deps / name).write_text('libavcodec63|libavcodec59\n')
+        source.write_text('concurrent edit\n')
+        self.assertEqual(apply(), [])
+        self.assertEqual(source.read_text(), 'concurrent edit\n')
+
+    def _background_worker(self, engine, dependencies=False):
+        dep_name = 'share/eterbuild/pkgrepl/pkgrepl.debian.12'
+        if dependencies:
+            dep_repo = self.root / 'etersoft-build-utils'
+            dep_source = dep_repo / dep_name
+            dep_source.parent.mkdir(parents=True)
+            dep_source.write_text('libavcodec62|libavcodec59\n')
+            repair.git(dep_repo, 'init')
+            repair.git(dep_repo, 'add', '.')
+            repair.git(dep_repo, '-c', 'user.name=test', '-c', 'user.email=test@localhost', 'commit', '-m', 'rules')
         executable = self.root / 'codex'
         executable.write_text('''#!/usr/bin/env python3
 import json, pathlib, sys
@@ -204,7 +250,10 @@ prompt = sys.stdin.read()
 is_codex = '-C' in args
 assert 'workspace-write' in args if is_codex else '--pure' in args
 checkout = pathlib.Path(args[args.index('-C' if is_codex else '--dir') + 1])
-(checkout / 'bin-common/eepm.sh').write_text('#!/bin/bash\\necho fixed\\n')
+if (checkout / '.repair-pkgrepl').exists():
+    (checkout / '.repair-pkgrepl/share/eterbuild/pkgrepl/pkgrepl.debian.12').write_text('libavcodec63|libavcodec59\\n')
+else:
+    (checkout / 'bin-common/eepm.sh').write_text('#!/bin/bash\\necho fixed\\n')
 result = {
     'outcome': 'repaired', 'confidence': 'high', 'summary': 'Fixed test recipe',
     'checks': ['bash -n']
@@ -229,9 +278,20 @@ else:
                 break
             time.sleep(.05)
         self.assertEqual(result['status'], 'applied', result)
-        self.assertEqual(result['applied'], [self.name])
+        self.assertEqual(result['applied'], ['etersoft-build-utils/' + dep_name] if dependencies else [self.name])
         self.assertTrue(Path(task.path).exists())
-        self.assertIn('echo fixed', (self.repo / self.name).read_text())
+        if dependencies:
+            self.assertEqual(dep_source.read_text(), 'libavcodec63|libavcodec59\n')
+            self.assertIn('etersoft-build-utils', result['patch'])
+        else:
+            self.assertIn('echo fixed', (self.repo / self.name).read_text())
+
+    def test_dependency_worker_end_to_end(self):
+        self._background_worker('codex', dependencies=True)
+
+    @unittest.skipUnless(repair.shutil.which('bwrap'), 'requires bwrap')
+    def test_mimo_dependency_worker_end_to_end(self):
+        self._background_worker('mimo', dependencies=True)
 
     def test_background_worker_end_to_end(self):
         self._background_worker('codex')

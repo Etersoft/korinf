@@ -69,7 +69,13 @@ and exec rules, and runs in a workspace-write sandbox in a disposable clone.
 Relevant log excerpts and failure history are provided as untrusted evidence.
 It cannot edit live files from that sandbox. Only a high-confidence, checked
 change to one matching `bin-*/<package>.sh` recipe (at most 80 changed lines)
-can be applied by the worker, after a separate `bash -n` check. Existing local
+can be applied by the worker, after a separate `bash -n` check. Alternatively,
+the model can fix existing pkgrepl rules in `.repair-pkgrepl`, a disposable
+clone of the sibling `etersoft-build-utils` repository. The worker validates
+mapping syntax, duplicate keys and the change size (up to 32 files and 240 lines),
+backs up the originals and applies only those mapping files. Recipe and mapping
+edits in the same run require review. The live build-utils repository stays
+read-only to both model runners. Existing local
 edits, concurrent file/task changes and running builders prevent application.
 For product tasks the candidate recipes come from the failed components.
 Large or uncertain changes remain in the clone for review. There is no
