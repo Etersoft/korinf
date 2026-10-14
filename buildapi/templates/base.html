@@ -14,6 +14,9 @@
 <nav>
   <a href="/" class="nav-brand">korinf · очередь сборок</a>
   <a href="/queue-log">Queue log</a>
+  {% if request and request.app.routes|selectattr('path', 'equalto', '/source-updates/epm')|list %}
+  <a href="/source-updates/epm">Обновить epm</a>
+  {% endif %}
   {% if queue_stopped %}
     <span class="badge badge-stopped">⏸ ОЧЕРЕДЬ ОСТАНОВЛЕНА</span>
     <form method="post" action="/queue/start" class="inline">
