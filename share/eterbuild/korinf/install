@@ -74,6 +74,11 @@ install_build_requires()
 	assert_var BUILDERHOME
 	assert_var dist
 
+	# Prepare service handling before apt configures packages in Astra containers.
+	if [ "$DISTRNAME" = "AstraLinuxSE" ] && [ "$PKGFORMAT" = "deb" ]; then
+		run_in_chroot $dist "sh -s" < "$KORINFDIR/korinf/prepare-astra-container" || return
+	fi
+
 	# NOTE: possible side effect with redefined DISTRNAME, BUILDARCH, DISTRVERSION
 	#parse_dist_name $dist
 
@@ -211,13 +216,20 @@ EOF
 		# during install_built_packages), which breaks all subsequent apt installs (clang/llvm/lld).
 		run_in_chroot $dist "epm --auto fix" </dev/null || warning "epm fix failure (install requires)"
 
-		run_in_chroot $dist "epm --auto --verbose --skip-installed install $reqsbr" </dev/null
+		# Let the package manager update requested dependencies already installed.
+		# --skip-installed kept stale ia32-libs in Astra build images indefinitely.
+		run_in_chroot $dist "epm --auto --verbose install $reqsbr" </dev/null
 		RES=$?
-		[ "$RES" != "0" ] && [ "$DISTRNAME" != "AstraLinuxSE" ] && return $RES # AstraLinuxSE due pcsxd failed
+		[ "$RES" = "0" ] || return "$RES"
 
-		run_in_chroot $dist "epm --auto --verbose --skip-installed install $reqs" </dev/null #|| return
+		run_in_chroot $dist "epm --auto --verbose install $reqs" </dev/null
 		RES=$?
-		[ "$RES" != "0" ] && [ "$DISTRNAME" != "AstraLinuxSE" ] && return $RES # AstraLinuxSE due pcsxd failed
+		[ "$RES" = "0" ] || return "$RES"
+
+		# Installing dependencies may select a newer GCC; prepare its library paths too.
+		if [ "$DISTRNAME" = "AstraLinuxSE" ] && [ "$PKGFORMAT" = "deb" ]; then
+			run_in_chroot $dist "sh -s" < "$KORINFDIR/korinf/prepare-astra-container" || return
+		fi
 
 		if [ "$TARGETARCH" != "$BUILDARCH" ] && [ "$PKGFORMAT" = "rpm" ] ; then
 			case "$DISTRNAME" in

@@ -1,0 +1,36 @@
+#!/bin/sh
+# Run as root inside an Astra build container, without a running systemd.
+set -eu
+[ "$(cat /proc/1/comm)" != systemd ] || exit 0
+
+# Maintainer scripts must not start services during image preparation.
+if [ ! -e /usr/sbin/policy-rc.d ]; then
+    printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d
+    chmod 755 /usr/sbin/policy-rc.d
+fi
+# Some Astra maintainer scripts call systemctl directly.
+systemctl_path=$(command -v systemctl)
+if [ ! -e "$systemctl_path.korinf-original" ]; then
+    dpkg-divert --local --rename --add --divert "$systemctl_path.korinf-original" "$systemctl_path"
+fi
+cat > "$systemctl_path.korinf-new" <<'EOF'
+#!/bin/sh
+case "${0##*/}" in runlevel) echo 'N 5'; exit 0 ;; esac
+case "$1" in
+    start|stop|restart|try-restart|reload|force-reload|daemon-reload|daemon-reexec|enable|disable|preset|mask|unmask|reset-failed) exit 0 ;;
+    is-active|is-enabled|status) exit 3 ;;
+esac
+exec /usr/bin/systemctl.korinf-original "$@"
+EOF
+chmod 755 "$systemctl_path.korinf-new"
+mv "$systemctl_path.korinf-new" "$systemctl_path"
+
+# Astra keeps its 32-bit libraries outside GCC's default search directories.
+if command -v gcc >/dev/null 2>&1; then
+gcc_libdir=$(gcc -print-libgcc-file-name)
+gcc_specs=${gcc_libdir%/*}/specs
+if ! gcc -dumpspecs | grep -q 'm32:-L/usr/lib32/i386-linux-gnu'; then
+    gcc -dumpspecs | sed '/^\*link_libgcc:$/!b;n;s|^|%{m32:-L/usr/lib32/i386-linux-gnu -L/lib32/i386-linux-gnu} |' > "$gcc_specs.korinf-new"
+    mv "$gcc_specs.korinf-new" "$gcc_specs"
+fi
+fi
