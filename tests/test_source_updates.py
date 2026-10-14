@@ -47,11 +47,21 @@ class SourceUpdates(unittest.TestCase):
             right = tuple(map(int, b['evr'][1].split('.')))
             return (left > right) - (left < right)
         self.snapshot = {'commit': 'a' * 40, 'files': {'script': 'hash'}}
+        self.work = root / 'work'
+        self.db = self.work / 'eget-winetricks.db'
+        self.manifest = self.work / 'eget-winetricks.db.manifest'
+
         def fixture_build(source_path, source_sha256, branch, **kwargs):
+            self.docs_dir = kwargs.get('docs_dir')
+            self.work.mkdir(exist_ok=True)
+            self.db.write_text('new db\n')
+            self.manifest.write_text('manifest_complete=1\n')
             return {'path': str(self.generated), 'sha256': su.digest(self.generated),
                     'epm_version': '3.64.69', 'generator_commit': self.snapshot['commit'],
                     'generator_files': self.snapshot['files'], 'branch': branch,
-                    'source_sha256': source_sha256}
+                    'source_sha256': source_sha256, 'work_dir': str(self.work),
+                    'ipfs_db': {p.name: {'path': str(p), 'sha256': su.digest(p)}
+                                for p in (self.db, self.manifest)}}
         for patcher in (patch.object(su, 'SOURCE_ROOT', self.source),
                         patch.object(su, 'PRIVATE_ROOT', self.private),
                         patch.object(su, 'LOCK_FILE', root / 'update.lock'),
@@ -156,6 +166,40 @@ class SourceUpdates(unittest.TestCase):
         self.assertEqual(target.read_bytes(), self.generated.read_bytes())
         self.assertNotEqual(stable.stat().st_ino, target.stat().st_ino)
         self.assertEqual(result['results'][0]['installer']['status'], 'updated')
+
+    def test_ipfs_db_is_published_beside_the_installer_and_work_is_removed(self):
+        docs = self.private / '11-testing/docs'
+        stable = self.private / '11.6/docs/eget-winetricks.db'
+        stable.write_text('old db\n')
+        os.link(stable, docs / 'eget-winetricks.db')
+        plan = su.preview(['11-testing'])
+        self.assertEqual(plan['branches'][0]['installer']['ipfs_db']['current_sha256'],
+                         {'eget-winetricks.db': su.digest(stable), 'eget-winetricks.db.manifest': None})
+        self.assertIsNone(plan['branches'][0]['installer']['ipfs_db']['winetricks_current'])
+        result = su.apply(['11-testing'], plan['preview_token'])
+        self.assertEqual(self.docs_dir, docs)
+        self.assertEqual((docs / 'eget-winetricks.db').read_text(), 'new db\n')
+        self.assertEqual((docs / 'eget-winetricks.db.manifest').read_text(), 'manifest_complete=1\n')
+        self.assertEqual(stable.read_text(), 'old db\n')
+        self.assertEqual(result['results'][0]['installer']['ipfs_db'],
+                         {'eget-winetricks.db': 'updated', 'eget-winetricks.db.manifest': 'updated'})
+        self.assertFalse(self.work.exists())
+
+    def test_ipfs_db_current_for_its_winetricks_package(self):
+        docs = self.private / '11-testing/docs'
+        rpm = self.wine / 'winetricks.noarch.rpm'
+        rpm.write_bytes(b'winetricks')
+        manifest = docs / 'eget-winetricks.db.manifest'
+        manifest.write_text(f'winetricks_rpm={rpm}\nwinetricks_rpm_sha256={su.digest(rpm)}\nmanifest_complete=1\n')
+        self.assertTrue(su.ipfs_db_current(docs))
+        rpm.write_bytes(b'new winetricks')
+        self.assertFalse(su.ipfs_db_current(docs))
+
+    def test_changed_ipfs_db_invalidates_preview(self):
+        plan = su.preview(['11-testing'])
+        (self.private / '11-testing/docs/eget-winetricks.db').write_text('concurrent db')
+        with self.assertRaises(su.SourceUpdateError):
+            su.apply(['11-testing'], plan['preview_token'])
 
     def test_generator_failure_does_not_publish_source(self):
         plan = su.preview(['11-testing'])

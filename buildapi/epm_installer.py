@@ -10,7 +10,12 @@ import tempfile
 
 SCRIPT_DIR = 'installation script W@E'
 REQUIRED = ('comp_list.txt', *(SCRIPT_DIR + '/' + name for name in (
-    'make_wine_part.sh', 'common_func.sh', 'url-parser.sh', 'wine-etersoft-install-part.sh')))
+    'make_wine_part.sh', 'common_func.sh', 'url-parser.sh', 'wine-etersoft-install-part.sh',
+    'make-winetricks-ipfs-db.sh')))
+# The IPFS database of winetricks components and its manifest, published beside
+# the installer like shipment-to-sales.sh does: --cache of the installer uses them.
+IPFS_DB = 'eget-winetricks.db'
+IPFS_MANIFEST = IPFS_DB + '.manifest'
 
 
 def digest(path):
@@ -40,7 +45,8 @@ def snapshot_info(snapshot_dir=None):
 
 
 def build_installer(source_path, source_sha256, branch, *, snapshot_dir=None,
-                    work_root=None, we_path='/var/ftp/pub/Etersoft/WINE@Etersoft', timeout=600):
+                    work_root=None, we_path='/var/ftp/pub/Etersoft/WINE@Etersoft', timeout=600,
+                    docs_dir=None, db_timeout=3600):
     if not re.fullmatch(r'(?:[A-Za-z0-9][A-Za-z0-9.-]*-)?(?:testing|unstable)', branch):
         raise ValueError('Installer generation is limited to testing/unstable')
     source = Path(source_path).resolve()
@@ -83,6 +89,24 @@ def build_installer(source_path, source_sha256, branch, *, snapshot_dir=None,
     output = cwd / 'wine-etersoft-install.sh'
     if not output.is_file() or output.stat().st_size == 0:
         raise ValueError('Native generator did not create installer: ' + str(log_path))
+    # The published database is the starting point: an unchanged winetricks
+    # package skips the generation, a changed one updates only changed URLs.
+    for name in (IPFS_DB, IPFS_MANIFEST):
+        published = Path(docs_dir) / name if docs_dir else None
+        if published and published.is_file() and not published.is_symlink():
+            shutil.copyfile(published, cwd / name)
+    with log_path.open('a') as log:
+        try:
+            subprocess.run(['sh', './make-winetricks-ipfs-db.sh', '--no-check-certificate', '--build', branch,
+                            '--db', IPFS_DB, '--manifest', IPFS_MANIFEST, 'all'],
+                           cwd=cwd, env=env, stdout=log, stderr=subprocess.STDOUT,
+                           check=True, timeout=db_timeout)
+        except subprocess.SubprocessError as error:
+            raise ValueError('IPFS DB generation failed; log: ' + str(log_path)) from error
+    db, manifest = cwd / IPFS_DB, cwd / IPFS_MANIFEST
+    if not db.is_file() or not manifest.is_file() or \
+            'manifest_complete=1' not in manifest.read_text().splitlines():
+        raise ValueError('IPFS DB generator did not create a complete database: ' + str(log_path))
     text = output.read_text()
     versions = re.findall(r'^export EPMVERSION="([^"\n]+)"$', text, re.M)
     if versions != [version]:
@@ -93,6 +117,8 @@ def build_installer(source_path, source_sha256, branch, *, snapshot_dir=None,
     result = {'path': str(output), 'sha256': digest(output), 'epm_version': version,
               'source_sha256': source_sha256, 'source_name': source.name, 'branch': branch,
               'generator_commit': snapshot['commit'], 'generator_repo': snapshot['repo'],
-              'generator_files': snapshot['files'], 'work_dir': str(work), 'log_path': str(log_path)}
+              'generator_files': snapshot['files'], 'work_dir': str(work), 'log_path': str(log_path),
+              'ipfs_db': {name: {'path': str(cwd / name), 'sha256': digest(cwd / name)}
+                          for name in (IPFS_DB, IPFS_MANIFEST)}}
     (work / 'provenance.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
     return result

@@ -135,10 +135,51 @@ def installer_preview(name, version):
         snapshot = epm_installer.snapshot_info()
     except ValueError as error:
         raise SourceUpdateError(409, str(error)) from error
+    db = {}
+    for name in (epm_installer.IPFS_DB, epm_installer.IPFS_MANIFEST):
+        path = target.parent / name
+        if path.is_symlink() or (path.exists() and not path.is_file()):
+            raise SourceUpdateError(409, 'IPFS DB должна быть обычным файлом: ' + str(path))
+        db[name] = digest(path) if path.exists() else None
     return {'destination': str(target), 'epm_version': version,
             'current_sha256': digest(target) if target.exists() else None,
+            'ipfs_db': {'current_sha256': db, 'winetricks_current': ipfs_db_current(target.parent)},
             'generator_commit': snapshot['commit'], 'generator_files': snapshot['files'],
             'action': 'build-and-replace'}
+
+
+def ipfs_db_current(docs):
+    """Whether the published IPFS DB was made for the winetricks package it names
+    (then the generation is skipped); None without a manifest."""
+    try:
+        rows = dict(line.split('=', 1) for line in
+                    (docs / epm_installer.IPFS_MANIFEST).read_text().splitlines() if '=' in line)
+    except OSError:
+        return None
+    rpm = Path(rows.get('winetricks_rpm', ''))
+    return (rows.get('manifest_complete') == '1' and rpm.is_file()
+            and digest(rpm) == rows.get('winetricks_rpm_sha256'))
+
+
+def _replace_file(source, target, sha256, mode):
+    """Atomically replace the directory entry (a hard link to stable stays)."""
+    if target.exists() and digest(target) == sha256:
+        return 'unchanged'
+    fd, temporary = tempfile.mkstemp(prefix='.installer-update-', dir=target.parent)
+    try:
+        with os.fdopen(fd, 'wb') as output, Path(source).open('rb') as input_file:
+            shutil.copyfileobj(input_file, output)
+            output.flush()
+            os.fsync(output.fileno())
+        if digest(Path(temporary)) != sha256:
+            raise SourceUpdateError(409, 'Файл изменился после генерации: ' + target.name)
+        os.chmod(temporary, mode)
+        os.replace(temporary, target)
+        temporary = None
+        return 'updated'
+    finally:
+        if temporary:
+            Path(temporary).unlink(missing_ok=True)
 
 
 def preview(branches=None):
@@ -209,12 +250,23 @@ def _apply_locked(branches, preview_token):
     if blocked:
         raise SourceUpdateError(409, '; '.join(row['name'] + ': ' + row['message'] for row in blocked))
     source = Path(plan['source']['path'])
-    # Generate every selected installer before publishing any SRPM.
     staged = {}
+    try:
+        return _apply_staged(branches, preview_token, plan, selected, source, staged)
+    finally:
+        for built in staged.values():
+            if built.get('work_dir'):
+                shutil.rmtree(built['work_dir'], ignore_errors=True)
+
+
+def _apply_staged(branches, preview_token, plan, selected, source, staged):
+    # Generate every selected installer before publishing any SRPM.
     for row in selected:
         try:
             built = epm_installer.build_installer(source, plan['source']['sha256'], row['name'],
-                                                  we_path=str(WINE_ROOT))
+                                                  we_path=str(WINE_ROOT),
+                                                  docs_dir=installer_destination(row['name']).parent)
+            staged[row['name']] = built
             expected = row['installer']
             if (built['epm_version'] != plan['source']['version'] or
                 built['generator_commit'] != expected['generator_commit'] or
@@ -268,6 +320,11 @@ def _apply_locked(branches, preview_token):
                         raise SourceUpdateError(409, 'Конфликт файла при публикации')
                 result['status'] = 'copied'
                 result['message'] = 'Скопирован без изменения содержимого; SHA256 проверен'
+            # The database first: it fits the winetricks package, old or new installer.
+            result['installer']['ipfs_db'] = {}
+            for name, item in built.get('ipfs_db', {}).items():
+                result['installer']['ipfs_db'][name] = _replace_file(
+                    item['path'], target_installer.parent / name, item['sha256'], 0o664)
             # Replace directory entry, never truncate a file hard-linked to stable.
             if target_installer.exists() and digest(target_installer) == built['sha256']:
                 result['installer']['status'] = 'unchanged'

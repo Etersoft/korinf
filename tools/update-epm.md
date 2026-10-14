@@ -47,11 +47,19 @@ winebuilder (Release Manager работает от builder-robot).
 не используется. Проверяются SHA256 исходника и генератора, соответствие
 `EPMVERSION` версии RPM и синтаксис результата через `bash -n`.
 
+Рядом с установщиком публикуются `eget-winetricks.db` и `eget-winetricks.db.manifest`
+(как в `shipment-to-sales.sh`): `--cache` установщика загружает компоненты через
+эту базу IPFS. Генерация идёт `make-winetricks-ipfs-db.sh ... all` от опубликованной
+базы: если manifest сделан для того же пакета wine-etersoft-winetricks, она
+пропускается за секунды, иначе обновляются изменившиеся URL (загрузка компонентов
+и `ipfs add` через `EGET_IPFS_API`, может идти долго). База и manifest заменяются
+атомарно, как установщик. Рабочий каталог генерации удаляется после публикации.
+
 Генератор хранится как **экспорт**, не git clone, в
 `/srv/builder/Projects/wine-base-bottle-scripts`. Другой путь задаётся через
 `KORINF_INSTALLER_SNAPSHOT`. `SNAPSHOT.json` содержит upstream commit и SHA256
 неизменённых файлов. Текущий проверенный экспорт:
-`cc31b09b8ef97d0fef6990c718285b25a9dfae45` из
+`580a187728427b2330c65d462fa4b88905bd0e20` из
 `https://gitlab.eterfund.ru/wine/wine-base-bottle-scripts`.
 
 Все выбранные installer собираются до первой публикации. Параллельные apply
