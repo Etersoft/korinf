@@ -1,0 +1,3 @@
+# Systems where WINE@Etersoft 32-bit components must not be built or delivered.
+# Use DISTRO/VERSION for an exact match or DISTRO for all its versions.
+Uncom

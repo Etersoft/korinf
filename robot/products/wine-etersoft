@@ -129,18 +129,24 @@ allow_without_wine32()
 	DIST32=''
 	if rhas "$PROJECTVERSION" "^([789]|1[0-9])[-.]" && rhas "$DIST" "^x86_64" && ! rhas "$PROJECTVERSION" "wow64" ; then
 		DIST32=$(echo "$DIST" | sed -e"s|x86_64/||")
-		allow_without_wine32 "$DIST32" && NOFATAL=1
-		#
-		#( DIST=$DIST32 check_and_refresh_component bin-wine $PVTLOCAL wine-etersoft-${PRODUCT_name} ) || fatal "Can't build 32 bit part"
-		if ! ( DIST=$DIST32 car_32bit_comp ) ; then
-			if [ -n "$NOFATAL" ] ; then
-				warning "Skip unavailable 32 bit packages for $DIST32"
-				DIST32=''
-			else
-				fatal "Can't build 32 bit part"
+		if grep -Fqx "$DIST32" "$AROBOTDIR/../etc/wine-disabled-32" ||
+		   grep -Fqx "${DIST32%%/*}" "$AROBOTDIR/../etc/wine-disabled-32" ; then
+		    warning "Skip disabled 32 bit packages for $DIST32"
+		    DIST32=''
+		else
+			allow_without_wine32 "$DIST32" && NOFATAL=1
+			#
+			#( DIST=$DIST32 check_and_refresh_component bin-wine $PVTLOCAL wine-etersoft-${PRODUCT_name} ) || fatal "Can't build 32 bit part"
+			if ! ( DIST=$DIST32 car_32bit_comp ) ; then
+				if [ -n "$NOFATAL" ] ; then
+					warning "Skip unavailable 32 bit packages for $DIST32"
+					DIST32=''
+				else
+					fatal "Can't build 32 bit part"
+				fi
 			fi
+			NOFATAL=''
 		fi
-		NOFATAL=''
 	fi
 
 	#[ "$TYPE" = "School" ] || check_and_refresh_component bin-wine $PUBLOCAL/fonts fonts-ttf-ms

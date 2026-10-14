@@ -40,6 +40,15 @@ set_ver "$@"
 
 DISTR="$1"
 
+wine32_disabled()
+{
+    local system="${DISTR#x86_64/}"
+    system="${system#i586/}"
+    local list=../etc/wine-disabled-32
+    [ -r "$list" ] || return 1
+    grep -Fqx "$system" "$list" || grep -Fqx "${system%%/*}" "$list"
+}
+
 # TODO
 #if [ -n "$INIT" ] ; then
 #    ../bin/korinf $DISTR --remove
@@ -119,9 +128,13 @@ case "$ver" in
         fi
 
         # x86
-        DISTR="$(echo "$DISTR" | sed -e "s|x86_64/|i586/|")"
-        do_bootstrap wine-gecko wine-mono winetricks wine32-etersoft
-        do_build wine32-grdwine
+        if wine32_disabled ; then
+            echo "Skip disabled 32-bit WINE components for $DISTR"
+        else
+            DISTR="$(echo "$DISTR" | sed -e "s|x86_64/|i586/|")"
+            do_bootstrap wine-gecko wine-mono winetricks wine32-etersoft
+            do_build wine32-grdwine
+        fi
         ;;
     9*wow64*)
         if echo "$DISTR" | grep -q "x86_64/" ; then
@@ -138,9 +151,13 @@ case "$ver" in
         fi
 
         # x86
-        DISTR="$(echo "$DISTR" | sed -e "s|x86_64/|i586/|")"
-        do_bootstrap eepm wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks wine32-etersoft
-        do_build wine32-etersoft-grdwine
+        if wine32_disabled ; then
+            echo "Skip disabled 32-bit WINE components for $DISTR"
+        else
+            DISTR="$(echo "$DISTR" | sed -e "s|x86_64/|i586/|")"
+            do_bootstrap eepm wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks wine32-etersoft
+            do_build wine32-etersoft-grdwine
+        fi
         ;;
     11*)
         if echo "$DISTR" | grep -q "x86_64/" ; then
@@ -150,9 +167,13 @@ case "$ver" in
         fi
 
         # x86
-        DISTR="$(echo "$DISTR" | sed -e "s|x86_64/|i586/|")"
-        do_bootstrap eepm wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks wine32-etersoft
-        do_build wine32-etersoft-grdwine
+        if wine32_disabled ; then
+            echo "Skip disabled 32-bit WINE components for $DISTR"
+        else
+            DISTR="$(echo "$DISTR" | sed -e "s|x86_64/|i586/|")"
+            do_bootstrap eepm wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks wine32-etersoft
+            do_build wine32-etersoft-grdwine
+        fi
         ;;
     1*|2*)
         # x86_64
