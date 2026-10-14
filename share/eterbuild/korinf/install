@@ -216,13 +216,20 @@ EOF
 		# during install_built_packages), which breaks all subsequent apt installs (clang/llvm/lld).
 		run_in_chroot $dist "epm --auto fix" </dev/null || warning "epm fix failure (install requires)"
 
+		# Recommends are not BuildRequires: e.g. valgrind:i386 pulls gdb:i386
+		# and replaces the host Python/LLVM toolchain. Scope this to these calls.
+		local buildreq_env=''
+		if [ "$PKGFORMAT" = "deb" ]; then
+			buildreq_env='APTOPTIONS="$APTOPTIONS --no-install-recommends"'
+		fi
+
 		# Let the package manager update requested dependencies already installed.
 		# --skip-installed kept stale ia32-libs in Astra build images indefinitely.
-		run_in_chroot $dist "epm --auto --verbose install $reqsbr" </dev/null
+		run_in_chroot $dist "$buildreq_env epm --auto --verbose install $reqsbr" </dev/null
 		RES=$?
 		[ "$RES" = "0" ] || return "$RES"
 
-		run_in_chroot $dist "epm --auto --verbose install $reqs" </dev/null
+		run_in_chroot $dist "$buildreq_env epm --auto --verbose install $reqs" </dev/null
 		RES=$?
 		[ "$RES" = "0" ] || return "$RES"
 
