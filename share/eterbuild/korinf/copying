@@ -99,13 +99,46 @@ copying_sources()
 	true
 }
 
+# Select only binary RPMs produced from TARGETSRPM. A shared hasher repo may
+# also contain older versions and binaries whose names differ from BUILDNAME.
+select_current_rpms()
+{
+	local masks="$1" mask pkg name matched
+	local -a patterns
+	read -r -a patterns <<< "$masks"
+	for mask in "${patterns[@]}" ; do
+		matched=
+		for pkg in $BUILTBINPKGLIST ; do
+			[ -n "$pkg" ] || continue
+			name=${pkg##*/}
+			[[ "$name" == $mask ]] || continue
+			[ -f "$pkg" ] || { error "Current build package is missing: $pkg"; return 1; }
+			printf '%s\n' "$name"
+			matched=1
+		done
+		[ -n "$matched" ] || { error "No current build package matches $mask"; return 1; }
+	done
+}
+
 copying_packages()
 {
 	local RC=0
 	local i
+	local current_main current_extra current_debug
 
 	pushd $BUILTRPM >/dev/null || fatal "Can't cd to built rpm dir '$BUILTRPM'"
 	echo "Copying $PKGFORMAT packages from $BUILTRPM"
+
+	# Validate the current build before removing any published packages.
+	if [ "$PKGFORMAT" = rpm ] ; then
+		if [ -z "$BUILTBINPKGLIST" ] ||
+		   ! current_main=$(select_current_rpms "$EXPMAINFILES") ||
+		   ! current_extra=$(select_current_rpms "$EXPEXTRAFILES") ; then
+			error "Cannot select RPMs produced by $TARGETSRPM"
+			popd >/dev/null
+			return 1
+		fi
+	fi
 
 	# Check if the first package in the list is built
 	for i in $EXPMAINFILES ; do
@@ -118,6 +151,13 @@ copying_packages()
 
 	clean_copying_destination
 
+	# Keep the broad masks for destination cleanup, then narrow copying and
+	# final verification to the current source package's binary artifacts.
+	if [ "$PKGFORMAT" = rpm ] ; then
+		EXPMAINFILES="$current_main"
+		EXPEXTRAFILES="$current_extra"
+	fi
+
 	copying_packages_by_list "$DESTDIR" "$EXPMAINFILES" || RC=1
 	copying_packages_by_list "$DESTDIR/extra" "$EXPEXTRAFILES" || RC=1
 
@@ -125,7 +165,12 @@ copying_packages()
 	if [ "$ALLOWPUBLICDEBUG" = "1" ] ; then
 		mkdir_dest "$DESTDIR/extra"
 		echo "Copying all debug packages for $BUILTRPM from $(pwd) to $DESTDIR/extra"
-		for i in *debug*; do
+		if [ "$PKGFORMAT" = rpm ] ; then
+			current_debug="$BUILTBINPKGLIST"
+		else
+			current_debug=$(printf '%s\n' *debug*)
+		fi
+		for i in $current_debug; do
 			rhas "$i" "-debug(-|info|source)" || continue
 			[ -e "$i" ] || continue
 			cp -vf $i "$DESTDIR/extra/" || warning "Cannot copy debug package $i to extra"
