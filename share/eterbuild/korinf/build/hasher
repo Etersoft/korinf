@@ -38,6 +38,28 @@ rpm-dir file:$(dirname $rpath) $(basename $rpath) $COMPONENT"
 #	[ -z "$VERBOSE" ] || echo "base dir found, add aptrepo $ETERBUILD_APTREPO"
 }
 
+# Release may change during target conversion; source name and version must
+# still match the requested input. Never pick an arbitrary cached SRPM.
+select_hasher_srpm()
+{
+	local requested candidate identity selected source_name source_version
+	requested=$(rpm -qp --queryformat '%{NAME} %{VERSION}' "$BUILDSRPM") || return 1
+	source_name=${requested%% *}
+	source_version=${requested#* }
+	for candidate in "$HASHERDIR"/repo/SRPMS.hasher/"$source_name-$source_version"-*.src.rpm ; do
+		[ -f "$candidate" ] || continue
+		identity=$(rpm -qp --queryformat '%{NAME} %{VERSION}' "$candidate") || return 1
+		[ "$identity" = "$requested" ] || continue
+		if [ -n "$selected" ] ; then
+			error "Ambiguous source RPMs for $requested: $selected and $candidate"
+			return 1
+		fi
+		selected="$candidate"
+	done
+	[ -n "$selected" ] || { error "No built source RPM for $requested"; return 1; }
+	printf '%s\n' "$selected"
+}
+
 function build_in_hasher()
 {
 	assert_var DISTRVERSION BUILDARCH DESTDIR RPMDIR
@@ -122,7 +144,7 @@ fi
 		{ warning "Do not hashered" ; [ -n "$ADEBUG" ] && ( setarch $BUILDARCH $ETERBUILDBIN/loginhsh -c -b $BINARYREPO) ; return 1 ; }
 
 
-	TARGETSRPM=$(ls -1 $HASHERDIR/repo/SRPMS.hasher/${BUILDNAME}*.src.rpm | head -n1)
+	TARGETSRPM=$(select_hasher_srpm) || return 1
 
 	# Set and expand MAINFILELIST, EXTRAFILELIST
 	fill_filelist
