@@ -25,6 +25,7 @@ import buildlogs
 import repair_engines
 import products
 import systembuild
+import comments
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 
@@ -105,6 +106,7 @@ class TaskOut(BaseModel):
     created_at: float | None = None
     path: str | None = None
     mtime: float | None = None
+    comment: dict[str, Any] | None = None
 
 
 class SummaryOut(BaseModel):
@@ -144,6 +146,10 @@ class RebuildIn(BaseModel):
 
 class RepairIn(BaseModel):
     engine: str = repair_engines.DEFAULT
+
+
+class CommentIn(BaseModel):
+    text: str
 
 
 class BuildOut(BaseModel):
@@ -196,6 +202,7 @@ def _task_json(t: tr.Task) -> dict:
         'last_error': t.failures[-1][1] if t.failures else None,
         'done_at': t.done_at, 'created_at': t.created_at,
         'path': t.path, 'mtime': t.mtime,
+        'comment': comments.read(t.taskid),
     }
 
 
@@ -361,6 +368,8 @@ def api_rebuild(body: RebuildIn, _: None = Depends(require_api_key)):
 def _start_repair(taskid, engine=repair_engines.DEFAULT):
     if not repair.TASK_ID.fullmatch(taskid):
         raise HTTPException(400, 'bad taskid')
+    if comments.read(taskid):
+        raise HTTPException(409, 'Сборка уже проверена: есть комментарий. AI-починка запрещена.')
     task = tr.find_task(taskid, SALES, DONE)
     if not task:
         raise HTTPException(404, 'task not found')
@@ -585,6 +594,58 @@ def api_wine_systems(version: str, _: None = Depends(require_api_key)):
 
 
 # ===================== Web (без ключа, не входит в схему API) =====================
+def _comment_task(taskid):
+    if not repair.TASK_ID.fullmatch(taskid):
+        raise HTTPException(400, 'bad taskid')
+    task = tr.find_task(taskid, SALES, DONE)
+    if not task:
+        raise HTTPException(404, 'task not found')
+    return task
+
+
+def _write_comment(taskid, text):
+    task = _comment_task(taskid)
+    if task.status not in repair.FAILED:
+        raise HTTPException(409, 'Комментарии можно изменять только у проваленных задач')
+    if len(text) > 16000:
+        raise HTTPException(422, 'Комментарий превышает 16000 символов')
+    log = pathlib.Path(SALES) / 'winebuild' / (taskid + '.log')
+    log_at = log.stat().st_mtime if log.is_file() else None
+    if log_at is None:
+        logs = buildlogs.discover(task)
+        log_at = max((row['mtime'] for row in logs), default=None)
+    return comments.write(taskid, text, log_at=log_at)
+
+
+@app.get('/api/task/{taskid}/comment', tags=['Tasks'])
+def api_comment(taskid: str, _: None = Depends(require_api_key)):
+    _comment_task(taskid)
+    return comments.read(taskid)
+
+
+@app.put('/api/task/{taskid}/comment', tags=['Tasks'], summary='Записать комментарий проверки; пустой текст удаляет его')
+def api_write_comment(taskid: str, body: CommentIn, _: None = Depends(require_api_key)):
+    return _write_comment(taskid, body.text)
+
+
+@app.post('/task/{taskid}/comment', include_in_schema=False)
+async def web_write_comment(request: Request, taskid: str):
+    from urllib.parse import urlsplit, parse_qs
+    origin = request.headers.get('origin')
+    if (origin and urlsplit(origin).netloc != request.headers.get('host')) or \
+            request.headers.get('sec-fetch-site') == 'cross-site':
+        raise HTTPException(403, 'cross-origin comment is not allowed')
+    try:
+        form = parse_qs((await request.body()).decode('utf-8'),
+                        max_num_fields=2, keep_blank_values=True)
+    except (ValueError, UnicodeDecodeError):
+        raise HTTPException(400, 'Некорректная форма')
+    if 'text' not in form or len(form['text']) != 1:
+        raise HTTPException(400, 'Отсутствует текст комментария')
+    _write_comment(taskid, form['text'][0])
+    return RedirectResponse(url=f'/task/{taskid}#comment', status_code=303)
+
+
 STATUS_ORDER = ['running', 'running_stale', 'queued', 'failed',
                 'broken', 'removed', 'interrupted', 'done']
 
@@ -607,6 +668,7 @@ def web_index(request: Request, product: str = None):
         'products': products, 'current_product': product,
         'status_order': STATUS_ORDER,
         'repairs': repairs,
+        'comments': {t.taskid: comments.read(t.taskid) for t in tasks},
         'has_repair': any(r and r['status'] in repair.ACTIVE for r in repairs.values()),
         'has_running': any(t.status in ('running', 'running_stale') for t in tasks),
     })
@@ -634,6 +696,7 @@ def web_task(request: Request, taskid: str):
     result = repair.status(taskid)
     return templates.TemplateResponse(request, 'task.html', {
         'task': t, 'queue_stopped': queue_stopped(),
+        'comment': comments.read(taskid),
         'repair': result, 'has_repair': bool(result and result['status'] in repair.ACTIVE),
         'live_repair': bool(result),
         'build_logs': buildlogs.discover(t),

@@ -14,6 +14,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'buildapi'))
 import buildlogs
+import comments
 import main
 import repair
 import repair_engines
@@ -36,6 +37,7 @@ class Features(unittest.TestCase):
         self.task = tr.find_task(TASKID, str(self.sales), str(self.done))
         self.patches = [patch.object(main, 'SALES', str(self.sales)),
                         patch.object(main, 'DONE', str(self.done)),
+                        patch.object(comments, 'ROOT', self.root / 'comments'),
                         patch.dict(main.CFG, {'API_KEY': 'test-secret'}),
                         patch.object(buildlogs, 'PUB', self.root / 'pub'),
                         patch.object(buildlogs, 'PVT', self.root / 'pvt'),
@@ -66,6 +68,50 @@ class Features(unittest.TestCase):
                     self.assertEqual(fields['FORCE'], '1')
                 else:
                     self.assertNotIn('FORCE', fields)
+
+    def test_review_comment_blocks_ai_and_survives_restart(self):
+        url = f'/api/task/{TASKID}/comment'
+        self.assertEqual(self.client.put(url, json={'text': 'review'}).status_code, 401)
+        self.assertEqual(self.client.put('/api/task/../comment', headers=self.headers,
+                                         json={'text': 'review'}).status_code, 404)
+        self.assertEqual(self.client.put(url, headers=self.headers,
+                                         json={'text': 'x' * 16001}).status_code, 422)
+        text = 'Нет winegcc\n<script>alert(1)</script>'
+        log = self.sales / 'winebuild' / (TASKID + '.log')
+        log.parent.mkdir()
+        log.write_text('build failed')
+        response = self.client.put(url, headers=self.headers, json={'text': text})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['log_at'], log.stat().st_mtime)
+        self.assertEqual(self.client.get(url, headers=self.headers).json()['text'], text)
+        self.assertEqual(self.client.get(f'/api/task/{TASKID}', headers=self.headers).json()['comment']['text'], text)
+        with patch.object(repair, 'start') as start:
+            for engine in ('mimo', 'codex'):
+                response = self.client.post(f'/api/task/{TASKID}/repair', headers=self.headers,
+                                            json={'engine': engine})
+                self.assertEqual(response.status_code, 409)
+            self.assertEqual(self.client.post(f'/task/{TASKID}/repair').status_code, 409)
+            start.assert_not_called()
+        for url_web in ('/', f'/task/{TASKID}'):
+            html = self.client.get(url_web).text
+            self.assertIn('&lt;script&gt;', html)
+            self.assertNotIn('<script>alert(1)</script>', html)
+            self.assertRegex(html, r'class="btn-repair"[^>]*\sdisabled')
+            self.assertIn('Проверено ', html)
+            self.assertNotIn('по логу сборки от ', html)
+        self.assertEqual(self.client.get('/').text.count('class="repair-engine"'), 1)
+        self.assertEqual(self.client.post(f'/task/{TASKID}/comment', data={'text': 'changed'},
+                                         headers={'Origin': 'http://evil.invalid'}).status_code, 403)
+        self.assertEqual(comments.read(TASKID)['text'], text)
+        self.assertEqual(self.client.post(f'/task/{TASKID}/comment', data={'text': '  '}).status_code, 200)
+        self.assertIsNone(comments.read(TASKID))
+        with patch.object(repair, 'start', return_value={'status': 'starting'}) as start:
+            self.assertEqual(self.client.post(f'/api/task/{TASKID}/repair', headers=self.headers).status_code, 202)
+            start.assert_called_once()
+        self.client.put(url, headers=self.headers, json={'text': 'reviewed'})
+        self.assertEqual(self.client.post(f'/api/task/{TASKID}/restart', headers=self.headers).status_code, 200)
+        self.assertEqual(comments.read(TASKID)['text'], 'reviewed')
+        self.assertEqual(self.client.put(url, headers=self.headers, json={'text': 'edit'}).status_code, 409)
 
     def test_rebuild_auth_validation_and_task_fields(self):
         for endpoint in ('/api/rebuild', f'/api/task/{TASKID}/repair'):

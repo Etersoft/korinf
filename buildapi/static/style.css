@@ -68,3 +68,11 @@ button:disabled { opacity: .6; cursor: wait; }
 .repair-picker { display: inline-flex; gap: 5px; align-items: center; margin: 4px 3px; }
 .repair-picker select { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 3px; }
 #repair-log { height: 28rem; max-height: 60vh; }
+.review-comment { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text); margin-bottom: 8px; }
+#comment-text { display: block; box-sizing: border-box; width: 100%; margin-top: 6px; background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+button:disabled { cursor: not-allowed; }
+.actions { width: 1%; white-space: nowrap; }
+.status-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+td.actions button { padding: 3px 6px; min-width: 28px; }
+td.actions button:disabled { pointer-events: none; }
+td.actions .repair-journal { display: inline-block; padding: 3px 4px; }

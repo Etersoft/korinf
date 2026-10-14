@@ -12,3 +12,4 @@ buildapi/config
 buildapi/__pycache__/
 __pycache__/
 /buildapi/order-state/
+/buildapi/comment-state/

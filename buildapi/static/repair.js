@@ -4,14 +4,23 @@
   let preferred = 'mimo';
   try { preferred = localStorage.getItem('korinf-repair-engine') || preferred; } catch (_) {}
   if (!['mimo', 'codex'].includes(preferred)) preferred = 'mimo';
+  const forms = Array.from(document.querySelectorAll('form[action$="/repair"]'));
+  function choose(engine) {
+    preferred = engine;
+    selects.forEach(select => { select.value = engine; });
+    forms.forEach(form => { form.elements.engine.value = engine; });
+  }
+  choose(preferred);
   selects.forEach(function (select) {
-    select.value = preferred;
     select.addEventListener('change', function () {
-      selects.forEach(other => { other.value = select.value; });
+      choose(select.value);
       try { localStorage.setItem('korinf-repair-engine', select.value); } catch (_) {}
     });
-    select.form.addEventListener('submit', function () {
-      const button = select.form.querySelector('button[type="submit"]');
+  });
+  forms.forEach(function (form) {
+    form.addEventListener('submit', function () {
+      form.elements.engine.value = preferred;
+      const button = form.querySelector('button[type="submit"]');
       button.disabled = true;
       button.textContent = 'Запуск ремонта…';
     });
@@ -46,8 +55,9 @@
       document.getElementById('repair-patch-title').textContent =
         data.applied && data.applied.length ? 'Применённые изменения' : 'Изменения (не применены)';
       document.querySelectorAll('.btn-repair').forEach(button => {
-        button.disabled = active;
-        button.textContent = active ? 'Ремонт выполняется…' : 'Починить сборку';
+        const reviewed = button.dataset.reviewed === 'true';
+        button.disabled = active || reviewed;
+        button.textContent = reviewed ? 'Уже проверена' : (active ? 'Ремонт выполняется…' : 'Починить сборку');
       });
       connection.textContent = (active ? 'Журнал обновлён: ' : 'Ремонт завершён. Журнал сохранён: ') +
         new Date().toLocaleTimeString();

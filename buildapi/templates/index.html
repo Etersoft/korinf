@@ -22,11 +22,14 @@
   {% for st in status_order %}
     {% set lst = by_status.get(st) %}
     {% if lst %}
-    <h3 class="status status-{{ st }}">{{ st }} ({{ lst | length }})</h3>
+    <div class="status-heading">
+      <h3 class="status status-{{ st }}">{{ st }} ({{ lst | length }})</h3>
+      {% if st == 'failed' %}{% include 'repair_select.html' %}{% endif %}
+    </div>
     <table>
       <thead><tr>
         <th>Рег. номер</th><th>Версия</th><th>Дистр</th>
-        <th>Тип лиц.</th><th>Создана</th><th>Примечание</th><th></th>
+        <th>Тип лиц.</th><th>Создана</th><th>Примечание</th><th>Комментарий Кодекса</th><th class="actions">Действия</th>
       </tr></thead>
       <tbody>
       {% for t in lst %}
@@ -37,28 +40,30 @@
           <td>{{ t.fields.get('TYPE_LICENSE', '') }}</td>
           <td>{{ t.created_at | ts2str }}</td>
           <td class="note">
+            {% set c = comments.get(t.taskid) %}
             {% if st in ('failed', 'broken', 'removed') and t.failures %}
-              {{ t.failures[-1][1] or t.failures[-1][0] }}
+              <div>Провал: {{ t.failures[-1][0] }}</div>
+              {{ t.failures[-1][1] or '(без описания)' }}
             {% elif st == 'done' and t.done_at %}
               готова: {{ t.done_at }}
             {% elif st == 'running_stale' %}
               .task.run есть, но PID мёртв
             {% endif %}
           </td>
-          <td>
+          <td class="review-comment">{% if c %}<div class="repair-hint">Проверено {{ c.updated_at | ts2str }}</div>{{ c.text }}{% endif %}</td>
+          <td class="actions">
             {% if st in ('failed', 'broken', 'removed', 'interrupted') %}
               <form method="post" action="/task/{{ t.taskid }}/restart" class="inline"
                     onsubmit="return confirm('Перезапустить {{ t.taskid }}?')">
-                <button type="submit" class="btn-restart">перезапустить</button>
+                <button type="submit" class="btn-restart" title="Повторно запустить сборку" aria-label="Повторно запустить сборку">↻</button>
               </form>
               {% set r = repairs.get(t.taskid) %}
-              <form method="post" action="/task/{{ t.taskid }}/repair" class="inline">
-                {% include 'repair_select.html' %}
-                <button type="submit" class="btn-repair" {% if r and r.status in ('starting', 'running') %}disabled{% endif %}>
-                  {% if r and r.status in ('starting', 'running') %}Ремонт выполняется…{% else %}Починить сборку{% endif %}
-                </button>
+              {% set repair_hint = 'AI-починка запрещена: сборка проверена Кодексом при участии оператора' if c else ('AI-починка уже выполняется' if r and r.status in ('starting', 'running') else 'Починить сборку через выбранный AI') %}
+              <form method="post" action="/task/{{ t.taskid }}/repair" class="inline" title="{{ repair_hint }}">
+                <input type="hidden" name="engine" value="mimo">
+                <button type="submit" class="btn-repair" title="{{ repair_hint }}" aria-label="{{ repair_hint }}" {% if c or (r and r.status in ('starting', 'running')) %}disabled{% endif %}>AI</button>
               </form>
-              {% if r %}<a href="/task/{{ t.taskid }}#repair">Журнал и отчёт</a>{% endif %}
+              {% if r %}<a class="repair-journal" href="/task/{{ t.taskid }}#repair" title="Открыть журнал и отчёт AI-починки" aria-label="Открыть журнал и отчёт AI-починки">☰</a>{% endif %}
             {% endif %}
           </td>
         </tr>

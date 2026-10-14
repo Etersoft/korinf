@@ -13,15 +13,34 @@
 <form method="post" action="/task/{{ task.taskid }}/restart"
       class="inline"
       onsubmit="return confirm('Перезапустить задачу?')">
-  <button type="submit" class="btn-restart">Перезапустить задачу</button>
+  <button type="submit" class="btn-restart" title="Повторно запустить сборку; комментарий проверки сохранится">Перезапустить задачу</button>
 </form>
-<form method="post" action="/task/{{ task.taskid }}/repair" class="inline">
+{% set repair_hint = 'AI-починка запрещена: сборка проверена Кодексом при участии оператора' if comment else ('AI-починка уже выполняется' if has_repair else 'Изучить логи и попробовать исправить рецепт через выбранный AI') %}
+<form method="post" action="/task/{{ task.taskid }}/repair" class="inline" title="{{ repair_hint }}">
   {% include 'repair_select.html' %}
-  <button type="submit" class="btn-repair" {% if has_repair %}disabled{% endif %}>
-    {% if has_repair %}Ремонт выполняется…{% else %}Починить сборку{% endif %}
+  <button type="submit" class="btn-repair" title="{{ repair_hint }}" data-reviewed="{{ 'true' if comment else 'false' }}" {% if has_repair or comment %}disabled{% endif %}>
+    {% if comment %}Уже проверена{% elif has_repair %}Ремонт выполняется…{% else %}Починить сборку{% endif %}
   </button>
 </form>
 <p class="repair-hint">Исполнитель изучит логи и попробует исправить рецепт. Неоднозначные изменения оставит для проверки. Повторный запуск сборки — кнопкой «Перезапустить».</p>
+{% endif %}
+
+{% if comment or task.status in ('failed', 'broken', 'removed', 'interrupted') %}
+<section id="comment" class="repair-result">
+  <h2>Комментарий Кодекса</h2>
+  {% if comment %}
+  <p>Проверено {{ comment.updated_at | ts2str }}. AI-починка заблокирована.</p>
+  <div class="review-comment">{{ comment.text }}</div>
+  {% endif %}
+  {% if task.status in ('failed', 'broken', 'removed', 'interrupted') %}
+  <form method="post" action="/task/{{ task.taskid }}/comment">
+    <label for="comment-text">Результат проверки</label>
+    <textarea id="comment-text" name="text" rows="6" maxlength="16000">{{ comment.text if comment else '' }}</textarea>
+    <p class="repair-hint">Непустой комментарий запрещает AI-починку. Чтобы снять запрет, сохраните пустой комментарий. Комментарий сохраняется при перезапуске задачи.</p>
+    <button type="submit" title="Сохранить результат проверки; пустой комментарий снимает запрет AI-починки">Сохранить комментарий</button>
+  </form>
+  {% endif %}
+</section>
 {% endif %}
 
 {% if repair %}

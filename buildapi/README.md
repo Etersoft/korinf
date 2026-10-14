@@ -56,6 +56,17 @@ The `/api/wine/*` paths are deprecated aliases of the product ones with
 
 ## Conservative repair and live log
 
+Reviewed failures have a persistent comment in `buildapi/comment-state/<taskid>.json`.
+`GET /api/task/{taskid}/comment` reads it; `PUT` with JSON `{"text":"..."}`
+writes it (X-API-Key required). The task page also has an edit form; comments
+store the review time and the build log modification time. The review time
+is displayed above the comment text; the failure date is shown in the task note.
+are displayed there and in the queue. Only failed/broken/removed/interrupted
+tasks accept edits, up to 16000 characters. Empty text removes the comment.
+A nonempty comment disables AI repair in the UI and returns HTTP 409 from
+both repair POST routes, for either engine. Comments survive queue restarts
+and remain visible on completed tasks. They do not cancel a running repair.
+
 The “Починить сборку” button appears next to restart on failed task rows and
 task pages. Its dropdown selects MiMo (`xmimo`, default) or Codex; the browser
 remembers the selection. `POST /api/task/{taskid}/repair` accepts an optional JSON
