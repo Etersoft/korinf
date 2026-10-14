@@ -29,6 +29,10 @@ kormod convert filelist
 install_fake_packages()
 {
 	[ -z "$FAKEPKGS" ] && return 0
+	if [ "$PKGFORMAT" = "deb" ]; then
+		run_in_chroot $dist "sh -s -- $FAKEPKGS" < "$KORINFDIR/korinf/install-fake-deb-packages"
+		return $?
+	fi
 	run_in_chroot $dist "for p in $FAKEPKGS ; do epm -q \$p >/dev/null 2>&1 || epm create-fake --install --name=\$p \$p ; done" </dev/null || warning "Can't create fake packages"
 	return 0
 }
@@ -97,7 +101,7 @@ case $DISTRNAME in
 
 	logit "initialize home dir" init_home || return 1
 
-	install_fake_packages
+	install_fake_packages || return 1
 
 	logit "convert src.rpm to target $PKGVENDOR $TARGETARCH on $BUILDARCH" convert_srpm_to_target $dist || return 1
 
@@ -140,4 +144,3 @@ case $DISTRNAME in
 	;;
 esac
 }
-
