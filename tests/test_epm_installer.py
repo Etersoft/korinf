@@ -30,7 +30,7 @@ class Installer(unittest.TestCase):
         self.source = self.root / 'eepm-3.64.69-alt1.src.rpm'
         self.source.write_bytes(b'exact selected source')
 
-    def build(self, version='3.64.69', complete='1', docs_dir=None):
+    def run_fake(self, version='3.64.69', complete='1'):
         self.seen_seed = None
 
         def run(args, **kw):
@@ -50,9 +50,16 @@ class Installer(unittest.TestCase):
                 out = Path(kw['cwd']) / 'wine-etersoft-install.sh'
                 out.write_text(f'#!/bin/bash\nexport EPMVERSION="{version}"\n')
             return subprocess.CompletedProcess(args, 0, '', '')
-        with patch.object(ei.subprocess, 'run', side_effect=run):
+        return patch.object(ei.subprocess, 'run', side_effect=run)
+
+    def build(self, version='3.64.69'):
+        with self.run_fake(version):
             return ei.build_installer(self.source, ei.digest(self.source), '11-testing',
-                snapshot_dir=self.snapshot, work_root=self.root, docs_dir=docs_dir)
+                snapshot_dir=self.snapshot, work_root=self.root)
+
+    def build_db(self, docs, complete='1'):
+        with self.run_fake(complete=complete):
+            return ei.build_ipfs_db('11-testing', docs, snapshot_dir=self.snapshot, work_root=self.root)
 
     def test_exact_input_and_provenance_are_retained(self):
         result = self.build()
@@ -61,22 +68,32 @@ class Installer(unittest.TestCase):
         self.assertTrue((Path(result['work_dir']) / 'provenance.json').exists())
         self.assertEqual(self.source.read_bytes(), b'exact selected source')
 
+    def test_installer_does_not_touch_the_ipfs_db(self):
+        result = self.build()
+        self.assertIsNone(self.seen_seed)
+        self.assertNotIn('ipfs_db', result)
+
     def test_ipfs_db_starts_from_the_published_one(self):
         docs = self.root / 'docs'
         docs.mkdir()
         (docs / ei.IPFS_DB).write_text('published db\n')
-        result = self.build(docs_dir=docs)
+        result = self.build_db(docs)
         self.assertEqual(self.seen_seed, 'published db\n')
         self.assertEqual((docs / ei.IPFS_DB).read_text(), 'published db\n')
-        db = result['ipfs_db'][ei.IPFS_DB]
+        db = result['files'][ei.IPFS_DB]
         self.assertEqual(db['sha256'], ei.digest(db['path']))
-        self.assertIn(ei.IPFS_MANIFEST, result['ipfs_db'])
-        self.build()
+        self.assertIn(ei.IPFS_MANIFEST, result['files'])
+        (docs / ei.IPFS_DB).unlink()
+        self.build_db(docs)
         self.assertIsNone(self.seen_seed)
 
     def test_incomplete_ipfs_db_is_rejected(self):
+        docs = self.root / 'docs'
+        docs.mkdir()
         with self.assertRaisesRegex(ValueError, 'IPFS DB'):
-            self.build(complete='0')
+            self.build_db(docs, complete='0')
+        with self.assertRaises(ValueError):
+            ei.build_ipfs_db('11.6.13', docs, snapshot_dir=self.snapshot)
 
     def test_wrong_embedded_epm_version_is_rejected(self):
         with self.assertRaisesRegex(ValueError, 'EPMVERSION'):

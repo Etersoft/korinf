@@ -249,6 +249,12 @@ def _apply_locked(branches, preview_token):
     blocked = [row for row in selected if row['action'] == 'blocked']
     if blocked:
         raise SourceUpdateError(409, '; '.join(row['name'] + ': ' + row['message'] for row in blocked))
+    # --cache of the new installer needs the IPFS DB of the current winetricks;
+    # updating it may take long, so it is a separate step (update_ipfs_db).
+    stale = [row['name'] for row in selected if not row['installer']['ipfs_db']['winetricks_current']]
+    if stale:
+        raise SourceUpdateError(409, 'База IPFS не для текущего пакета winetricks, сначала обновите её: '
+                                + ', '.join(stale))
     source = Path(plan['source']['path'])
     staged = {}
     try:
@@ -264,8 +270,7 @@ def _apply_staged(branches, preview_token, plan, selected, source, staged):
     for row in selected:
         try:
             built = epm_installer.build_installer(source, plan['source']['sha256'], row['name'],
-                                                  we_path=str(WINE_ROOT),
-                                                  docs_dir=installer_destination(row['name']).parent)
+                                                  we_path=str(WINE_ROOT))
             staged[row['name']] = built
             expected = row['installer']
             if (built['epm_version'] != plan['source']['version'] or
@@ -320,11 +325,6 @@ def _apply_staged(branches, preview_token, plan, selected, source, staged):
                         raise SourceUpdateError(409, 'Конфликт файла при публикации')
                 result['status'] = 'copied'
                 result['message'] = 'Скопирован без изменения содержимого; SHA256 проверен'
-            # The database first: it fits the winetricks package, old or new installer.
-            result['installer']['ipfs_db'] = {}
-            for name, item in built.get('ipfs_db', {}).items():
-                result['installer']['ipfs_db'][name] = _replace_file(
-                    item['path'], target_installer.parent / name, item['sha256'], 0o664)
             # Replace directory entry, never truncate a file hard-linked to stable.
             if target_installer.exists() and digest(target_installer) == built['sha256']:
                 result['installer']['status'] = 'unchanged'
@@ -352,13 +352,49 @@ def _apply_staged(branches, preview_token, plan, selected, source, staged):
     return {'source': plan['source'], 'results': results}
 
 
+def update_ipfs_db(branch, log=None):
+    """Regenerate and publish the IPFS DB and its manifest beside the installer
+    of the branch (atomic replace, a hard link to stable stays)."""
+    if not BRANCH.fullmatch(branch) or branch not in branch_names():
+        raise SourceUpdateError(400, f'Обновление стабильной или неизвестной ветки запрещено: {branch}')
+    docs = installer_destination(branch).parent
+    with LOCK_FILE.open('a') as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise SourceUpdateError(409, 'Обновление epm или базы IPFS уже выполняется') from error
+        built = None
+        try:
+            built = epm_installer.build_ipfs_db(branch, docs, we_path=str(WINE_ROOT), log=log)
+            # the manifest last: it tells the db is complete
+            status = {name: _replace_file(built['files'][name]['path'], docs / name,
+                                          built['files'][name]['sha256'], 0o664)
+                      for name in (epm_installer.IPFS_DB, epm_installer.IPFS_MANIFEST)}
+        except ValueError as error:
+            raise SourceUpdateError(409, str(error)) from error
+        finally:
+            if built:
+                shutil.rmtree(built['work_dir'], ignore_errors=True)
+    return {'branch': branch, 'files': status, 'current': ipfs_db_current(docs)}
+
+
 def main():
     parser = argparse.ArgumentParser(description='Копировать готовый eepm.src.rpm из Korinf в testing/unstable WINE')
     parser.add_argument('branches', nargs='*', help='Например: 11-testing 11-unstable')
     parser.add_argument('--apply', action='store_true', help='Выполнить копирование; без флага только просмотр')
     parser.add_argument('--json', action='store_true')
+    parser.add_argument('--ipfs-db', action='store_true',
+                        help='Обновить базу IPFS компонентов winetricks одной ветки (может идти долго)')
     args = parser.parse_args()
     try:
+        if args.ipfs_db:
+            if len(args.branches) != 1:
+                parser.error('--ipfs-db: укажите одну ветку')
+            import sys
+            result = update_ipfs_db(args.branches[0], log=sys.stdout)
+            print(json.dumps(result, ensure_ascii=False, indent=2) if args.json else
+                  f"{result['branch']}: " + ', '.join(f'{n} {s}' for n, s in result['files'].items()))
+            return 0 if result['current'] else 1
         plan = preview(args.branches or None)
         selected = [r for r in plan['branches'] if r['selected']]
         result = apply([r['name'] for r in selected], plan['preview_token']) if args.apply else plan

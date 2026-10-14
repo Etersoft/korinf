@@ -11,6 +11,8 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'buildapi'))
 import source_updates as su
 
+ORIG_IPFS_DB_CURRENT = su.ipfs_db_current
+
 
 class SourceUpdates(unittest.TestCase):
     def setUp(self):
@@ -69,7 +71,8 @@ class SourceUpdates(unittest.TestCase):
                         patch.object(su.epm_installer, 'build_installer', side_effect=fixture_build),
                         patch.object(su, 'WINE_ROOT', self.wine),
                         patch.object(su, 'packages', side_effect=fixture_packages),
-                        patch.object(su, 'compare', side_effect=fixture_compare)):
+                        patch.object(su, 'compare', side_effect=fixture_compare),
+                        patch.object(su, 'ipfs_db_current', return_value=True)):
             patcher.start()
             self.addCleanup(patcher.stop)
 
@@ -167,23 +170,45 @@ class SourceUpdates(unittest.TestCase):
         self.assertNotEqual(stable.stat().st_ino, target.stat().st_ino)
         self.assertEqual(result['results'][0]['installer']['status'], 'updated')
 
-    def test_ipfs_db_is_published_beside_the_installer_and_work_is_removed(self):
+    def test_stale_ipfs_db_blocks_the_publication(self):
+        su.ipfs_db_current.return_value = False
+        plan = su.preview(['11-testing'])
+        self.assertFalse(plan['branches'][0]['installer']['ipfs_db']['winetricks_current'])
+        with self.assertRaisesRegex(su.SourceUpdateError, 'База IPFS'):
+            su.apply(['11-testing'], plan['preview_token'])
+        self.assertFalse((self.wine / '11-testing/sources' / self.pkg.name).exists())
+        self.assertEqual((self.private / '11-testing/docs/wine-etersoft-install.sh').read_text(), 'old installer')
+
+    def test_update_ipfs_db_publishes_beside_the_installer_and_removes_work(self):
         docs = self.private / '11-testing/docs'
         stable = self.private / '11.6/docs/eget-winetricks.db'
         stable.write_text('old db\n')
         os.link(stable, docs / 'eget-winetricks.db')
-        plan = su.preview(['11-testing'])
-        self.assertEqual(plan['branches'][0]['installer']['ipfs_db']['current_sha256'],
-                         {'eget-winetricks.db': su.digest(stable), 'eget-winetricks.db.manifest': None})
-        self.assertIsNone(plan['branches'][0]['installer']['ipfs_db']['winetricks_current'])
-        result = su.apply(['11-testing'], plan['preview_token'])
-        self.assertEqual(self.docs_dir, docs)
+
+        def fixture_db(branch, docs_dir, **kwargs):
+            self.assertEqual((branch, docs_dir), ('11-testing', docs))
+            self.work.mkdir(exist_ok=True)
+            self.db.write_text('new db\n')
+            self.manifest.write_text('manifest_complete=1\n')
+            return {'work_dir': str(self.work), 'files': {p.name: {'path': str(p), 'sha256': su.digest(p)}
+                                                          for p in (self.db, self.manifest)}}
+        with patch.object(su.epm_installer, 'build_ipfs_db', side_effect=fixture_db):
+            result = su.update_ipfs_db('11-testing')
+            self.assertEqual(result['files'], {'eget-winetricks.db': 'updated', 'eget-winetricks.db.manifest': 'updated'})
+            self.assertEqual(su.update_ipfs_db('11-testing')['files']['eget-winetricks.db'], 'unchanged')
         self.assertEqual((docs / 'eget-winetricks.db').read_text(), 'new db\n')
         self.assertEqual((docs / 'eget-winetricks.db.manifest').read_text(), 'manifest_complete=1\n')
         self.assertEqual(stable.read_text(), 'old db\n')
-        self.assertEqual(result['results'][0]['installer']['ipfs_db'],
-                         {'eget-winetricks.db': 'updated', 'eget-winetricks.db.manifest': 'updated'})
         self.assertFalse(self.work.exists())
+        for branch in ('11.6', '../11.6', '12-testing'):
+            with self.assertRaises(su.SourceUpdateError):
+                su.update_ipfs_db(branch)
+
+    def test_ipfs_db_preview_lists_published_files(self):
+        (self.private / '11-testing/docs/eget-winetricks.db').write_text('db')
+        db = su.preview(['11-testing'])['branches'][0]['installer']['ipfs_db']
+        self.assertEqual(db['current_sha256'], {'eget-winetricks.db': su.digest(self.private / '11-testing/docs/eget-winetricks.db'),
+                                                'eget-winetricks.db.manifest': None})
 
     def test_ipfs_db_current_for_its_winetricks_package(self):
         docs = self.private / '11-testing/docs'
@@ -191,9 +216,12 @@ class SourceUpdates(unittest.TestCase):
         rpm.write_bytes(b'winetricks')
         manifest = docs / 'eget-winetricks.db.manifest'
         manifest.write_text(f'winetricks_rpm={rpm}\nwinetricks_rpm_sha256={su.digest(rpm)}\nmanifest_complete=1\n')
-        self.assertTrue(su.ipfs_db_current(docs))
-        rpm.write_bytes(b'new winetricks')
-        self.assertFalse(su.ipfs_db_current(docs))
+        with patch.object(su, 'ipfs_db_current', ORIG_IPFS_DB_CURRENT):
+            self.assertTrue(su.ipfs_db_current(docs))
+            rpm.write_bytes(b'new winetricks')
+            self.assertFalse(su.ipfs_db_current(docs))
+            manifest.unlink()
+            self.assertIsNone(su.ipfs_db_current(docs))
 
     def test_changed_ipfs_db_invalidates_preview(self):
         plan = su.preview(['11-testing'])

@@ -47,13 +47,21 @@ winebuilder (Release Manager работает от builder-robot).
 не используется. Проверяются SHA256 исходника и генератора, соответствие
 `EPMVERSION` версии RPM и синтаксис результата через `bash -n`.
 
-Рядом с установщиком публикуются `eget-winetricks.db` и `eget-winetricks.db.manifest`
+Рядом с установщиком лежат `eget-winetricks.db` и `eget-winetricks.db.manifest`
 (как в `shipment-to-sales.sh`): `--cache` установщика загружает компоненты через
-эту базу IPFS. Генерация идёт `make-winetricks-ipfs-db.sh ... all` от опубликованной
-базы: если manifest сделан для того же пакета wine-etersoft-winetricks, она
-пропускается за секунды, иначе обновляются изменившиеся URL (загрузка компонентов
-и `ipfs add` через `EGET_IPFS_API`, может идти долго). База и manifest заменяются
-атомарно, как установщик. Рабочий каталог генерации удаляется после публикации.
+эту базу IPFS. Публикация epm требует базу для текущего пакета
+wine-etersoft-winetricks ветки (manifest), иначе отказывает. База обновляется
+отдельно, это может идти долго (загрузка компонентов и `ipfs add` через
+`EGET_IPFS_API`):
+
+```sh
+./tools/update-epm --ipfs-db 11-testing
+```
+
+`make-winetricks-ipfs-db.sh ... all` начинает от опубликованной базы: для того же
+пакета winetricks генерация пропускается, иначе обновляются изменившиеся URL.
+База и manifest заменяются атомарно (manifest последним), как установщик.
+Рабочие каталоги генерации удаляются.
 
 Генератор хранится как **экспорт**, не git clone, в
 `/srv/builder/Projects/wine-base-bottle-scripts`. Другой путь задаётся через
