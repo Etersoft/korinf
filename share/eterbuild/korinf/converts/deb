@@ -61,6 +61,12 @@ convert_debian()
 	assert_var TARGETBUILDNAME PACKAGEVERSION PACKAGERELEASE PKGVENDOR BUILDARCH PKGFORMAT
 	assert_var DISTRNAME DISTRVERSION
 
+	# Also protect builds invoked without dependency initialization (-i).
+	run_in_chroot $dist "dpkg --compare-versions \"\$(dpkg-query -W -f='\${Version}' cpio)\" ge 2.15" </dev/null || {
+		warning "cpio >= 2.15 is required for alien in $dist; update cpio and rerun with -i"
+		return 1
+	}
+
 	# TODO: can be noarch (check the result package)
 	prepare_convert
 
