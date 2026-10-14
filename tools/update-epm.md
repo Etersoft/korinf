@@ -31,10 +31,12 @@ eepm-yum и другие подпакеты не выбираются.
 Все выбранные ветки проверяются до начала копирования; ошибки файловой системы
 при выполнении возвращаются отдельно для каждой ветки (общей транзакции NFS нет).
 
-Web: `/source-updates/epm` (ссылка «Обновить epm» в навигации).
-Выберите ветки, обновите предпросмотр и нажмите кнопку копирования.
+Web: Release Manager, http://builder64.office.etersoft.ru:5502/epm-update (Kerberos):
+выберите ветки, обновите предпросмотр и нажмите «Обновить epm и установщик».
 Изменение исходника, назначения или выбранных веток требует нового просмотра.
-API GET/POST `/api/source-updates/epm` использует `X-API-Key`.
+API GET/POST `/api/source-updates/epm` buildapi использует `X-API-Key`.
+Lock `buildapi/source-update.lock` должен быть доступен на запись группе
+winebuilder (Release Manager работает от builder-robot).
 
 Тесты: `python3 -B -m unittest discover -s tests -p 'test_source_updates*.py'`.
 

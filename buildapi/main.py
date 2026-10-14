@@ -667,15 +667,6 @@ def _check_source_update_origin(request: Request):
             raise HTTPException(403, 'cross-origin source update is not allowed')
 
 
-def _epm_page(request, preview=None, result=None, message=None, status=200):
-    selected = [row for row in (preview or {}).get('branches', []) if row.get('selected')]
-    return templates.TemplateResponse(request, 'source_update_epm.html', {
-        'preview': preview, 'result': result, 'message': message,
-        'can_apply': bool(selected) and not any(row.get('action') == 'blocked' for row in selected),
-        'queue_stopped': queue_stopped(), 'has_running': False,
-    }, status_code=status, headers={'Cache-Control': 'no-store'})
-
-
 @app.get('/api/source-updates/epm', tags=['Sources'], dependencies=[Depends(require_api_key)],
          summary='Предпросмотр обновления epm и установщика testing/unstable')
 def api_epm_preview(branch: list[str] | None = Query(default=None)):
@@ -698,41 +689,6 @@ def api_epm_apply(request: Request, body: SourceUpdateIn):
         raise HTTPException(exc.status, str(exc))
     except OSError:
         raise HTTPException(503, 'Источники пакетов временно недоступны')
-
-
-@app.get('/source-updates/epm', response_class=HTMLResponse, include_in_schema=False)
-def web_epm_preview(request: Request, branch: list[str] | None = Query(default=None), selection: bool = False):
-    try:
-        return _epm_page(request, preview=source_updates.preview((branch or []) if selection else branch))
-    except source_updates.SourceUpdateError as exc:
-        return _epm_page(request, message=str(exc), status=exc.status)
-    except OSError:
-        return _epm_page(request, message='Источники пакетов временно недоступны', status=503)
-
-
-@app.post('/source-updates/epm', response_class=HTMLResponse, include_in_schema=False)
-async def web_epm_apply(request: Request):
-    from urllib.parse import parse_qs
-    from starlette.concurrency import run_in_threadpool
-    _check_source_update_origin(request)
-    raw = await request.body()
-    if len(raw) > 16384:
-        raise HTTPException(400, 'Слишком большая форма')
-    try:
-        form = parse_qs(raw.decode('utf-8'), max_num_fields=100, keep_blank_values=True)
-    except (ValueError, UnicodeDecodeError):
-        raise HTTPException(400, 'Некорректная форма')
-    if set(form) - {'branch', 'preview_token'} or len(form.get('preview_token', [])) != 1 or not form.get('branch'):
-        raise HTTPException(400, 'Нужны выбранные ветки и токен предпросмотра')
-    branches = form['branch']
-    try:
-        result = await run_in_threadpool(source_updates.apply, branches, form['preview_token'][0])
-        return _epm_page(request, result=result)
-    except source_updates.SourceUpdateError as exc:
-        # A changed source/target needs a fresh explicit preview before another POST.
-        return _epm_page(request, message=str(exc), status=exc.status)
-    except OSError:
-        return _epm_page(request, message='Источники пакетов временно недоступны; проверьте результат перед повторением', status=503)
 
 
 STATUS_ORDER = ['running', 'running_stale', 'queued', 'failed',
