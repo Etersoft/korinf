@@ -1,3 +1,66 @@
 # Systems where WINE@Etersoft 32-bit components must not be built or delivered.
 # Use DISTRO/VERSION for an exact match or DISTRO for all its versions.
+# Policy (operator, 2026-10-14): disable systems without successful 32-bit builds.
+# Evidence: no published wine32/main i586/i686/i386 package found across the
+# 76 available WINE release directories on FTP, including linked targets.
+# This is a build policy, not a claim that the OS cannot support 32-bit code.
+# Re-enable an entry after a successful explicit 32-bit build is verified.
+
+# ALTLinux/c9f1: no successful published 32-bit build found (2026-10-14).
+ALTLinux/c9f1
+
+# AlterOS/9: no successful published 32-bit build found (2026-10-14).
+# Existing WINE 11.6 log: configure: C compiler cannot create executables.
+AlterOS/9
+
+# ArchLinux/CUR: no successful published 32-bit build found (2026-10-14).
+ArchLinux/CUR
+
+# ArchLinux/rolling: no successful published 32-bit build found (2026-10-14).
+ArchLinux/rolling
+
+# CentOS/7: no successful published 32-bit build found (2026-10-14).
+# Also checked linked build target: x86_64/CentOS/7.
+CentOS/7
+
+# Debian/13: no successful published 32-bit build found (2026-10-14).
+Debian/13
+
+# Deepin/25: no successful published 32-bit build found (2026-10-14).
+Deepin/25
+
+# Fedora/43: no successful published 32-bit build found (2026-10-14).
+Fedora/43
+
+# Fedora/44: no successful published 32-bit build found (2026-10-14).
+Fedora/44
+
+# MOSDesktop/2021.1: no successful published 32-bit build found (2026-10-14).
+MOSDesktop/2021.1
+
+# MSVSphere/10: no successful published 32-bit build found (2026-10-14).
+MSVSphere/10
+
+# OSnovaLinux/2.11: no successful published 32-bit build found (2026-10-14).
+OSnovaLinux/2.11
+
+# OSnovaLinux/3.0: no successful published 32-bit build found (2026-10-14).
+OSnovaLinux/3.0
+
+# RHEL/7: no successful published 32-bit build found (2026-10-14).
+# Also checked linked build target: x86_64/CentOS/7.
+RHEL/7
+
+# RedOS/7.2: no successful published 32-bit build found (2026-10-14).
+RedOS/7.2
+
+# RockyLinux/10: no successful published 32-bit build found (2026-10-14).
+RockyLinux/10
+
+# Ubuntu/26.04: no successful published 32-bit build found (2026-10-14).
+Ubuntu/26.04
+
+# Uncom: disabled for all versions by operator request (2026-10-14).
+# 2.5: no successful published wine32; linux-libc-dev amd64/i386 conflict:
+# 5.15.0-66.73uncom1 vs 5.15.0-66.73 (etersoft bug 19665).
 Uncom
