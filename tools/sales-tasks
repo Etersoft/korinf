@@ -46,17 +46,6 @@ get_error() {
     tail -1 "$file" | sed 's/^# build FAILED at [^(]* (//' | sed 's/)$//' | sed 's/^Error: //'
 }
 
-# Extract failed component from error message
-get_failed_component() {
-    local file="$1"
-    local err=$(get_error "$file")
-    # Extract package name from error
-    echo "$err" | sed -n 's/.*Package \([^ ]*\) should be rebuilt.*/\1/p' | head -1
-    if [ -z "$(echo "$err" | sed -n 's/.*Package \([^ ]*\) should be rebuilt.*/\1/p')" ]; then
-        echo "$err" | sed -n "s/.*Can't rebuild \([^ ]*\) component.*/\1/p" | head -1
-    fi
-}
-
 # Filter tasks by criteria
 filter_tasks() {
     local dist_filter="$1"
@@ -115,18 +104,23 @@ show_stat() {
     echo "By Distribution:"
     for f in $files; do
         get_field "$f" "DIST"
+        printf '\n'
     done | sort | uniq -c | sort -rn | awk '{printf "  %4d  %s\n", $1, $2}'
 
     echo ""
     echo "By Product:"
     for f in $files; do
-        get_field "$f" "PRODUCT"
+        local product=$(get_field "$f" "PRODUCT")
+        [ -n "$product" ] || product=$(get_field "$f" "COMPONENTNAME")
+        [ -n "$product" ] || product=$(get_field "$f" "PACKAGE")
+        printf '%s\n' "${product:-unknown}"
     done | sort | uniq -c | sort -rn | awk '{printf "  %4d  %s\n", $1, substr($0, index($0,$2))}'
 
     echo ""
     echo "By Version:"
     for f in $files; do
         get_field "$f" "PROJECTVERSION"
+        printf '\n'
     done | sort | uniq -c | sort -rn | awk '{printf "  %4d  %s\n", $1, $2}'
 
     echo ""
@@ -134,41 +128,10 @@ show_stat() {
     echo "Total failed tasks: $total"
 }
 
-# Show errors grouped by failed component
+# Use the shared parser, including system-build component lists.
 show_errors() {
-    local dist_filter="$1"
-    local product_filter="$2"
-    local version_filter="$3"
-
-    local files=$(filter_tasks "$dist_filter" "$product_filter" "$version_filter" "newest" "")
-    [ -z "$files" ] && echo "No failed tasks found" && return 0
-
-    echo "Failed components (sorted by frequency):"
-    echo ""
-
-    for f in $files; do
-        local component=$(get_failed_component "$f")
-        [ -n "$component" ] && echo "$component"
-    done | sort | uniq -c | sort -rn | awk '{printf "  %4d  %s\n", $1, $2}'
-
-    echo ""
-    echo "Details by component:"
-    echo ""
-
-    local components=$(for f in $files; do get_failed_component "$f"; done | sort -u)
-    for comp in $components; do
-        [ -z "$comp" ] && continue
-        echo "=== $comp ==="
-        for f in $files; do
-            local c=$(get_failed_component "$f")
-            if [ "$c" = "$comp" ]; then
-                local dist=$(get_field "$f" "DIST")
-                local version=$(get_field "$f" "PROJECTVERSION")
-                printf "  %-25s  %s\n" "$dist" "$version"
-            fi
-        done
-        echo ""
-    done
+    "$(dirname "$(readlink -f "$0")")/build-doctor" triage \
+        --sales-dir "$SALES_DIR" --dist "$1" --product "$2" --version "$3"
 }
 
 # List tasks with details
