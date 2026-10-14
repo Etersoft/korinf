@@ -184,8 +184,7 @@ Wine UI: python3 webui/test_order_web.py
 ## Обновление epm в WINE
 
 Web-страница — в Release Manager: http://builder64.office.etersoft.ru:5502/epm-update (публикация под Kerberos,
-`allowed_users`); она вызывает тот же backend `source_updates`. Ссылка
-«Обновить epm» в навигации ведёт туда. Здесь своей web-формы нет: у web-части
+`allowed_users`); она вызывает тот же backend `source_updates`.  Здесь своей web-формы и пункта меню нет: у web-части
 buildapi нет аутентификации.
 
 API (оба метода требуют `X-API-Key`):

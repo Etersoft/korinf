@@ -38,8 +38,7 @@ class SourceUpdateWebTests(unittest.TestCase):
         self.assertIn(self.client.post('/source-updates/epm', data=dict(branch='10-testing', preview_token='b' * 64)).status_code,
                       (404, 405))
         self.apply.assert_not_called()
-        html = self.client.get('/').text
-        self.assertIn(':5502/epm-update', html)
+        self.assertNotIn('Обновить epm', self.client.get('/').text)
 
     def test_api_requires_key_for_read_and_write(self):
         url = '/api/source-updates/epm'

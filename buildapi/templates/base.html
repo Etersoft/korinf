@@ -14,7 +14,6 @@
 <nav>
   <a href="/" class="nav-brand">korinf · очередь сборок</a>
   <a href="/queue-log">Queue log</a>
-  <a href="http://builder64.office.etersoft.ru:5502/epm-update" title="Обновление epm и установщика в Release Manager (Kerberos)">Обновить epm</a>
   {% if queue_stopped %}
     <span class="badge badge-stopped">⏸ ОЧЕРЕДЬ ОСТАНОВЛЕНА</span>
     <form method="post" action="/queue/start" class="inline">
