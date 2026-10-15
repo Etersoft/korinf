@@ -6,13 +6,19 @@ trap 'rm -rf "$work"' EXIT HUP INT TERM
 for package do
     case "$package" in ''|*[!a-z0-9+.-]*) exit 1 ;; esac
     if [ "$(dpkg-query -W -f='${Status}' "$package" 2>/dev/null || :)" = 'install ok installed' ]; then
-        continue
+        # Migrate only our old placeholders; never replace a real package.
+        metadata=$(dpkg-query -W -f='${Version}|${Maintainer}|${Multi-Arch}' "$package")
+        case "$metadata" in
+            '0|Korinf <builder@etersoft.ru>|') ;;
+            *) continue ;;
+        esac
     fi
     mkdir -p "$work/$package/DEBIAN"
     cat > "$work/$package/DEBIAN/control" <<EOF
 Package: $package
 Version: 0
 Architecture: all
+Multi-Arch: foreign
 Maintainer: Korinf <builder@etersoft.ru>
 Description: Temporary bootstrap dependency for $package
  This empty package is replaced by the real component during bootstrap.
