@@ -4,10 +4,12 @@ set -eu
 [ "$(cat /proc/1/comm)" != systemd ] || exit 0
 
 # Maintainer scripts must not start services during image preparation.
-if [ ! -e /usr/sbin/policy-rc.d ]; then
-    printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d
-    chmod 755 /usr/sbin/policy-rc.d
+if [ -e /usr/sbin/policy-rc.d ] && [ ! -e /usr/sbin/policy-rc.d.korinf-original ]; then
+    cp -p /usr/sbin/policy-rc.d /usr/sbin/policy-rc.d.korinf-original
 fi
+# Existing images may have an allow-all policy; enforce the container policy.
+printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d
+chmod 755 /usr/sbin/policy-rc.d
 # Some Astra maintainer scripts call systemctl directly.
 systemctl_path=$(command -v systemctl)
 if [ ! -e "$systemctl_path.korinf-original" ]; then
