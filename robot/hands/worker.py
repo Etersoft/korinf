@@ -99,7 +99,7 @@ def run(sales, debug=False):
         if not recover(sales):
             print('Queue still owned by an earlier worker', flush=True)
             return
-        pending = sorted(sales.glob('*.task'))
+        pending = sorted(sales.glob('*.task'), reverse=True)
         seen = set(pending)
         active = {}
         timeout = os.environ.get('KORINF_TASK_TIMEOUT', '6h')
@@ -123,6 +123,7 @@ def run(sales, debug=False):
                 if not (sales / 'STOP').exists():
                     new = sorted(set(sales.glob('*.task')) - seen)
                     pending.extend(new)
+                    pending.sort(reverse=True)
                     seen.update(new)
                 if (sales / 'STOP').exists():
                     pending.clear()  # Drain running tasks without interrupting builds.
