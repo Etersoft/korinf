@@ -23,19 +23,6 @@
 
 kormod convert filelist
 
-# Install fake packages listed in FAKEPKGS if they are not already installed.
-# This allows metapackages (like wine-etersoft-full) to pass dependency checks
-# when their dependencies are built separately during bootstrap.
-install_fake_packages()
-{
-	[ -z "$FAKEPKGS" ] && return 0
-	if [ "$PKGFORMAT" = "deb" ]; then
-		run_in_chroot $dist "sh -s -- $FAKEPKGS" < "$KORINFDIR/korinf/install-fake-deb-packages"
-		return $?
-	fi
-	run_in_chroot $dist "sh -s -- '$FAKEPKGS'" < "$KORINFDIR/korinf/install-fake-rpm-packages"
-}
-
 build_dist_pkg()
 {
 # FIXME: more correctly use PKGVENDOR here
@@ -100,7 +87,11 @@ case $DISTRNAME in
 
 	logit "initialize home dir" init_home || return 1
 
-	install_fake_packages || return 1
+	if [ -n "$BUILD_IMAGE_METAPACKAGES$BUILD_IMAGE_PLACEHOLDERS" ]; then
+		case "$PKGFORMAT" in rpm|deb)
+			run_in_chroot $dist "sh -s -- '$PKGFORMAT' '$BUILD_IMAGE_METAPACKAGES' '$BUILD_IMAGE_PLACEHOLDERS'" < "$KORINFDIR/korinf/prepare-build-image" || return 1
+		;; esac
+	fi
 
 	logit "convert src.rpm to target $PKGVENDOR $TARGETARCH on $BUILDARCH" convert_srpm_to_target $dist || return 1
 
@@ -117,10 +108,6 @@ case $DISTRNAME in
 
 	logit "build RPM package" build_rpms $dist || return 1
 
-	# Only the built binaries tell us the exact runtime dependency versions.
-	if [ "$PKGFORMAT" = "rpm" ] && [ -n "$FAKEPKGS" ]; then
-		run_in_chroot $dist "cd $INTBUILT && sh -s -- '$FAKEPKGS' ${EXPMAINFILES} ${EXPEXTRAFILES}" < "$KORINFDIR/korinf/install-fake-rpm-packages" || return 1
-	fi
 
 	if [ "$PKGFORMAT" != "rpm" ] && [ -z "$MAKESPKG" ] ; then
 		logit "convert RPM to $PKGFORMAT ($PACKAGERELEASE$PKGVENDOR)" convert_rpm || return 1

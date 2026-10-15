@@ -1,0 +1,44 @@
+#!/bin/sh
+# Remove aggregate metapackages and recognised legacy placeholders only.
+set -eu
+format=$1
+metapackages=$2
+placeholders=$3
+set --
+for package in $metapackages $placeholders; do
+    case "$package" in ''|*[!a-zA-Z0-9+_.-]*) exit 1 ;; esac
+    case "$format" in
+        rpm)
+            metadata=$(rpm -q --qf '%{SUMMARY}\n%{DESCRIPTION}' "$package" 2>/dev/null) || continue
+            ;;
+        deb)
+            status=$(dpkg-query -W -f='${Status}' "$package" 2>/dev/null) || continue
+            [ "$status" = 'install ok installed' ] || continue
+            metadata=$(dpkg-query -W -f='${Maintainer}|${Description}' "$package")
+            ;;
+        *) echo "Unsupported build image format: $format" >&2; exit 1 ;;
+    esac
+    case " $metapackages " in
+        *" $package "*) ;;
+        *)
+            case "$metadata" in
+                'Faked provides package
+This package is empty. It has been created to put fake entry in rpmdb.'|"Korinf <builder@etersoft.ru>|Temporary bootstrap dependency for $package"*) ;;
+                *) continue ;;
+            esac
+            ;;
+    esac
+    set -- "$@" "$package"
+done
+[ "$#" -gt 0 ] || exit 0
+printf 'Remove obsolete build image packages: %s\n' "$*"
+case "$format" in
+    rpm)
+        rpm -e --test "$@"
+        rpm -e "$@"
+        ;;
+    deb)
+        dpkg --dry-run --remove "$@"
+        dpkg --remove "$@"
+        ;;
+esac

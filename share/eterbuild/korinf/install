@@ -27,6 +27,13 @@ load_mod tarball
 install_built_packages()
 {
 	assert_var DISTRNAME INTBUILT EPMCMD
+
+	if [ -n "$BOOTSTRAP_EXCLUDE" ]; then
+		case "$PKGFORMAT" in rpm|deb)
+			run_in_chroot $dist "cd $INTBUILT && bash -s -- '$PKGFORMAT' '$BOOTSTRAP_EXCLUDE' ${EXPMAINFILES} ${EXPEXTRAFILES}" < "$KORINFDIR/korinf/install-bootstrap-packages"
+			return $?
+		;; esac
+	fi
 	
 	#if [ $PKGVENDOR == "gentoo" ]
 	#then

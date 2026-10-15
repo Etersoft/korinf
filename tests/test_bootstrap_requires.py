@@ -49,7 +49,8 @@ install_build_requires Fedora/41
         for initial in ('', '1'):
             with self.subTest(initial=initial):
                 result = subprocess.run(['bash'], text=True, capture_output=True,
-                    input='load_mod() { :; }\n' + source + '\nINITIALBOOTSTRAP=' + initial + '\n' + harness,
+                    input='load_mod() { :; }\n' + source + '\nKORINFDIR=' +
+                          str(ROOT / 'share/eterbuild') + '\nINITIALBOOTSTRAP=' + initial + '\n' + harness,
                     check=True)
                 self.assertEqual('install desktop-file-utils' in result.stdout, not initial)
                 self.assertNotIn('--verbose --skip-installed install', result.stdout)

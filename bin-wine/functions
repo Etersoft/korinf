@@ -78,4 +78,12 @@ set_ver()
 
     [ -n "$ver" ]|| ver="$DEFAULTVERSION"
     set_module "$ver"
+    # Old aggregate packages pin component versions and block bootstrap updates.
+    # Applied to every component, including mono/gecko built before Wine itself.
+    case "$ver" in
+        7*|8*|9*|10*|11*)
+            BUILD_IMAGE_METAPACKAGES="wine-etersoft-full wine32-etersoft-full"
+            BUILD_IMAGE_PLACEHOLDERS="wine-etersoft-gecko wine-etersoft-mono wine-etersoft-winetricks"
+            ;;
+    esac
 }

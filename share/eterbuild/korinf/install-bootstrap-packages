@@ -1,0 +1,21 @@
+#!/bin/bash
+# Install a subset of built artifacts; the publication list stays unchanged.
+set -eu
+format=$1
+excluded=$2
+shift 2
+selected=()
+for file do
+    [ -f "$file" ] || { echo "Missing bootstrap artifact: $file" >&2; exit 1; }
+    case "$format" in
+        rpm) package=$(rpm -qp --qf '%{NAME}' "$file") ;;
+        deb) package=$(dpkg-deb -f "$file" Package) ;;
+        *) echo "Unsupported bootstrap format: $format" >&2; exit 1 ;;
+    esac
+    case " $excluded " in
+        *" $package "*) echo "Defer aggregate package: $package" ;;
+        *) selected+=("$file") ;;
+    esac
+done
+[ "${#selected[@]}" -gt 0 ] || { echo 'Empty bootstrap package selection' >&2; exit 1; }
+epm --verbose --auto --force install "${selected[@]}"

@@ -22,8 +22,7 @@ case "$ver" in
     7*|8*|9*|10*|11*)
         MAINFILES="$NAME[-_][0-9] $NAME-common[-_][0-9] $NAME-full[-_][0-9] $NAME-programs[-_][0-9] $NAME-ping[-_][0-9]"
         EXTRAFILES="$NAME-devel"
-        # wine-etersoft-full depends on these packages; create fakes if not installed
-        FAKEPKGS="$NAME-gecko $NAME-mono $NAME-winetricks"
+        BOOTSTRAP_EXCLUDE="$NAME-full"
         ;;
     1*|2*)
         MAINFILES="$NAME[-_][0-9] $NAME-gl"

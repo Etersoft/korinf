@@ -27,8 +27,7 @@ case "$ver" in
     7*|8*|9*|10*|11*)
         MAINFILES="$NAME32[-_][0-9] $NAME-common[-_][0-9] $NAME32-full[-_][0-9] $NAME-programs[-_][0-9]"
         EXTRAFILES="$NAME32-devel $NAME-ping[-_][0-9]"
-        # wine32-etersoft-full depends on these packages; create fakes if not installed
-        FAKEPKGS="$NAME-gecko $NAME-mono $NAME-winetricks"
+        BOOTSTRAP_EXCLUDE="$NAME32-full"
         ;;
      *)
         fatal "Unknown ver $ver"
