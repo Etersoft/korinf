@@ -143,6 +143,44 @@ p.unlink()
         self.assertTrue(Path(str(task) + '.interrupted').exists())
         self.assertFalse(Path(str(task) + '.run').exists())
 
+    def test_ready_order_bypasses_full_build_slots(self):
+        self.env['KORINF_TASK_JOBS'] = '1'
+        self.task('z', 'Ubuntu/22.04')
+        proc = self.start()
+        self.wait_started()
+        (self.sales / 'y.task').write_text('COMPONENTNAME="RX@Etersoft"\nDIST=RedOS/8.0\n')
+        self.finish(proc)
+        self.assertLess(self.result('y')[0], self.result('z')[1])
+
+    def test_not_ready_order_returns_to_build_queue(self):
+        self.env['KORINF_TASK_JOBS'] = '1'
+        self.fake.write_text(self.fake.read_text().replace('start = time.monotonic()',
+            "if os.environ.get('KORINF_READY_ONLY'): sys.exit(75)\nstart = time.monotonic()"))
+        self.task('z', 'Ubuntu/22.04')
+        proc = self.start()
+        self.wait_started()
+        (self.sales / 'y.task').write_text('COMPONENTNAME="RX@Etersoft"\nDIST=RedOS/8.0\n')
+        self.finish(proc)
+        self.assertGreaterEqual(self.result('y')[0], self.result('z')[1])
+        self.assertFalse(list(self.sales.glob('*.failed')))
+
+    def test_newest_pending_task_goes_first(self):
+        self.env['KORINF_TASK_JOBS'] = '1'
+        self.task('z', 'Ubuntu/22.04')
+        proc = self.start()
+        self.wait_started()
+        self.task('a', 'RedOS/8.0')
+        self.task('b', 'Debian/12')
+        self.finish(proc)
+        self.assertLess(self.result('b')[0], self.result('a')[0])
+
+    def test_user_orders_precede_newer_rebuilds(self):
+        self.env['KORINF_TASK_JOBS'] = '1'
+        self.task('z', 'Ubuntu/22.04')
+        (self.sales / 'a.task').write_text('DIST=RedOS/8.0\n')
+        self.finish(self.start())
+        self.assertLess(self.result('a')[1], self.result('z')[0])
+
     def test_invalid_selector_takes_exclusive_lock(self):
         self.assertIsNone(worker.resource(self.task('z', 'x86_64/all')))
 

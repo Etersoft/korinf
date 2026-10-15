@@ -59,6 +59,13 @@ mkdir -p "$BUILDERHOME" || exit 1
 DEAR="Здравствуйте,"
 
 
+if [ "$1" = "--check-ready" ] ; then
+	export KORINF_CHECK_ONLY=1
+	# Status readers normally create the log directory; a probe must not.
+	set_destlogdir() { DESTLOGDIR=$DESTDIR/log; }
+	shift
+fi
+
 REALRUN="$1"
 if [ "$REALRUN" = "--real" ] ; then
 	shift
@@ -72,6 +79,7 @@ fi
 # WINE@Etersoft build of one system for a project version (TASKTYPE=winebuild):
 # bin-wine/wine-etersoft-bootstrap-new.sh with stage progress, no license/email.
 if grep -qE '^[[:space:]]*TASKTYPE=["'"'"']?winebuild' "$1" 2>/dev/null ; then
+	[ -z "$KORINF_CHECK_ONLY$KORINF_READY_ONLY" ] || task_defer
 	run_wine_build_task "$1"
 	exit $?
 fi
@@ -80,8 +88,22 @@ fi
 # for the requested system/list. Build-only, no license/email. Handled before load_task,
 # which requires PROJECTVERSION and sources the whole task file.
 if grep -qE '^[[:space:]]*PACKAGE=' "$1" 2>/dev/null ; then
+	[ -z "$KORINF_CHECK_ONLY$KORINF_READY_ONLY" ] || task_defer
 	run_generic_build_task "$1"
 	exit $?
+fi
+
+# Fast-slot execution first checks readiness without changing the order.
+# Only the audited product handlers below support this mode.
+if [ -n "$KORINF_READY_ONLY$KORINF_CHECK_ONLY" ] ; then
+	case "$(get_field "$1" COMPONENTNAME)" in
+		*WINE@Etersoft*|*RX@Etersoft*|*CRYPTO@Etersoft*) ;;
+		*) task_defer ;;
+	esac
+fi
+if [ -n "$KORINF_READY_ONLY" ] && [ -z "$KORINF_CHECK_ONLY" ] ; then
+	KORINF_READY_ONLY= "$0" --check-ready "$1" || task_defer
+	export KORINF_NO_BUILD=1
 fi
 
 load_task "$1"
@@ -142,6 +164,9 @@ case $COMPONENTNAME in
 		#fatal "Unsupported component $COMPONENTNAME for product $PRODUCT"
 		;;
 esac
+
+task_require_ready
+[ -z "$KORINF_CHECK_ONLY" ] || exit 0
 
 DONEDIR=$TARGETDIR/../done/
 [ -d "$DONEDIR" ] || DONEDIR=~/done

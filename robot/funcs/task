@@ -23,6 +23,7 @@
 
 do_broken()
 {
+	[ -z "$KORINF_CHECK_ONLY$KORINF_NO_BUILD" ] || task_defer
 	flock $TASK mv -f $TASK ${TASK}.broken
 	test -n "$@" && echo "FATAL: $@"
 	exit 1
@@ -30,6 +31,7 @@ do_broken()
 
 do_removed()
 {
+	[ -z "$KORINF_CHECK_ONLY$KORINF_NO_BUILD" ] || task_defer
 	flock $TASK mv -f $TASK ${TASK}.removed
 	test -n "$@" && echo "FATAL: $@"
         exit 1

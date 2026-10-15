@@ -29,8 +29,21 @@ warning()
 }
 
 
+# Exit 75 asks the scheduler to retry in a build slot, without changing the task.
+task_defer()
+{
+	[ -z "$KORINF_DEFER_FILE" ] || : > "$KORINF_DEFER_FILE"
+	exit 75
+}
+
+task_require_ready()
+{
+	[ -z "$KORINF_DEFER_FILE" ] || [ ! -e "$KORINF_DEFER_FILE" ] || task_defer
+}
+
 fatal()
 {
+	[ -z "$KORINF_CHECK_ONLY$KORINF_NO_BUILD" ] || task_defer
 	LOGFILE=$ALOGDIR/$DIST/$BUILDNAME.log
 	[ -r "$LOGFILE" ] && PARAMMUTT="-a $LOGFILE" || PARAMMUTT=""
 

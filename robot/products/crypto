@@ -95,14 +95,15 @@ build_crypto()
 	# по аналогии с WINE. Ключ пока используется от WINE@Etersoft (своего ключа CRYPTO нет).
 	LICENSEFILE=crypto-etersoft.lic
 	LICENSEDIR="/etc/crypto-etersoft"
-	create_ftp_dir
+	[ -n "$KORINF_CHECK_ONLY" ] || create_ftp_dir
 
 	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8
-	TMPMAIL=`mktemp`
+	[ -n "$KORINF_CHECK_ONLY" ] || TMPMAIL=`mktemp`
 
 	if [ -n "$LICENSEONLY" ] ; then
-		create_license_dir
+		[ -z "$KORINF_CHECK_ONLY" ] || return 0
+		[ -n "$KORINF_CHECK_ONLY" ] || create_license_dir
 		prepare_license_mail $TMPMAIL support@etersoft.ru || fatal "Can't prepare letter"
 	else
 		for i in $CHECKCOMP ; do
@@ -124,6 +125,9 @@ build_crypto()
 		done
 		PUB5FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eget[_-]*"`
 		PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm[_-]3*"`
+
+		task_require_ready
+		[ -z "$KORINF_CHECK_ONLY" ] || return 0
 
 		if echo "$LOCALDIR" | grep -q "/pvt/Etersoft" ; then
 			PRIVFILES=''

@@ -24,19 +24,32 @@ def fields(task):
     return result
 
 
+def build_only(task):
+    data = fields(task)
+    return bool(data.get('TASKTYPE') == 'winebuild' or data.get('PACKAGE'))
+
+
+def personal(data):
+    return (not data.get('TASKTYPE') and not data.get('PACKAGE') and
+            any(product in data.get('COMPONENTNAME', '')
+                for product in ('WINE@Etersoft', 'RX@Etersoft', 'CRYPTO@Etersoft')))
+
+
 def resource(task):
-    """Unknown/list/personal tasks run exclusively; system builds lock aliases too.
+    """Unknown and list tasks run exclusively; known products lock system aliases.
 
     Both architectures and all products share a system lock: bootstrap dependencies
     and package logs can be shared even when their module images differ.
     """
     data = fields(task)
-    if data.get('TASKTYPE') != 'winebuild':
+    if data.get('TASKTYPE') != 'winebuild' and not personal(data):
         return None
-    if data.get('COMPONENTNAME', 'WINE@Etersoft') not in (
+    if not personal(data) and data.get('COMPONENTNAME', 'WINE@Etersoft') not in (
             'WINE@Etersoft', 'RX@Etersoft', 'CRYPTO@Etersoft'):
         return None
     dist = data.get('DIST', '')
+    if personal(data) and not dist:
+        return 'license-only'
     if not re.fullmatch(r'[A-Za-z0-9@_.+-]+/[A-Za-z0-9_.+-]+', re.sub(r'^(x86_64|i586)/', '', dist)):
         return None
     # Union aliases after removing architecture, also covering the 32-bit bootstrap.
@@ -90,7 +103,7 @@ def run(sales, debug=False):
         raise ValueError('KORINF_TASK_JOBS must be positive')
     queue_id = hashlib.sha256(os.fsencode(sales)).hexdigest()[:16]
     state = Path(os.environ.get('KORINF_WORKER_STATE', str(sales.parent / '.korinf-worker'))) / queue_id
-    state.mkdir(parents=True, exist_ok=True)
+    state.mkdir(mode=0o700, parents=True, exist_ok=True)
     with (state / 'scheduler.lock').open('a') as lock:
         try:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -102,18 +115,21 @@ def run(sales, debug=False):
         pending = sorted(sales.glob('*.task'), reverse=True)
         seen = set(pending)
         active = {}
+        fast_tried = set()
         timeout = os.environ.get('KORINF_TASK_TIMEOUT', '6h')
         command = os.environ.get('KORINF_BUILDTASK', str(ROOT / 'robot/hands/buildtask.sh'))
         work_root = Path(os.environ.get('KORINF_WORK_ROOT', '/srv/arobot/tasks'))
         print('Observe {}: up to {} parallel tasks'.format(sales, jobs), flush=True)
         try:
             while pending or active:
-                for task, (proc, key, log) in list(active.items()):
+                for task, (proc, key, log, fast) in list(active.items()):
                     rc = proc.poll()
                     if rc is None:
                         continue
                     log.close()
-                    if rc in (124, 137) and task.exists():
+                    if fast and task.exists():
+                        pending.append(task)
+                    elif rc in (124, 137) and task.exists():
                         with task.open('a') as out:
                             out.write('\n# build FAILED at {} (Error: timeout {})\n'.format(time.ctime(), timeout))
                         task.rename(Path(str(task) + '.failed'))
@@ -127,11 +143,19 @@ def run(sales, debug=False):
                     seen.update(new)
                 if (sales / 'STOP').exists():
                     pending.clear()  # Drain running tasks without interrupting builds.
+                pending = [task for task in pending if task.exists()]
+                pending.sort(key=lambda task: (not build_only(task), task.name), reverse=True)
                 for task in pending[:]:
-                    if len(active) >= jobs:
-                        break
+                    if build_only(task) and any(not build_only(other) for other in pending):
+                        continue
                     if not task.exists():
                         pending.remove(task)
+                        continue
+                    fast = task not in fast_tried and personal(fields(task))
+                    if fast:
+                        if any(entry[3] for entry in active.values()):
+                            continue
+                    elif sum(not entry[3] for entry in active.values()) >= jobs:
                         continue
                     key = resource(task)
                     occupied = [entry[1] for entry in active.values()]
@@ -140,24 +164,33 @@ def run(sales, debug=False):
                     logpath = state / (task.name + '.log')
                     log = logpath.open('ab')
                     env = dict(os.environ, KORINF_TASK_WORKDIR=str(work_root / queue_id / task.stem))
+                    defer = state / (task.name + '.defer')
+                    defer.unlink(missing_ok=True)
+                    env['KORINF_DEFER_FILE'] = str(defer)
+                    env['KORINF_READY_ONLY'] = '1' if fast else ''
+                    env['KORINF_NO_BUILD'] = ''
+                    env['KORINF_CHECK_ONLY'] = ''
+                    limit = os.environ.get('KORINF_READY_TIMEOUT', '5m') if fast else timeout
                     # Inherit the queue lock: after scheduler death a new scheduler
                     # cannot overlap surviving builds, including timeout's children.
-                    proc = subprocess.Popen(['timeout', '--kill-after=30s', timeout, command,
+                    proc = subprocess.Popen(['timeout', '--kill-after=30s', limit, command,
                                              '--debug' if debug else '--real', str(task)],
                                             stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT, env=env,
                                             pass_fds=(lock.fileno(),), start_new_session=True)
-                    active[task] = (proc, key, log)
+                    active[task] = (proc, key, log, fast)
+                    if fast:
+                        fast_tried.add(task)
                     marker = Path(str(task) + '.run')
                     temporary = Path(str(marker) + '.tmp')
                     temporary.write_text(str(proc.pid) + '\n')
                     temporary.replace(marker)
                     pending.remove(task)
-                    print('Started {}: pid {}, system {}, log {}'.format(task.name, proc.pid, key or 'exclusive', logpath), flush=True)
+                    print('Started {}: pid {}, system {}, lane {}, log {}'.format(task.name, proc.pid, key or 'exclusive', 'ready' if fast else 'build', logpath), flush=True)
                 if active:
                     time.sleep(0.2)
         finally:
             # Do not abandon builds on an ordinary Python exception/interrupt.
-            for proc, _, log in active.values():
+            for proc, _, log, _ in active.values():
                 proc.wait()
                 log.close()
 

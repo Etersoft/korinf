@@ -81,12 +81,15 @@ prepare_wine_etersoft()
 	# PRODUCT_name - sql/network/local
 	PRODUCT_name=`echo "$TYPE" | sed -e "s| ||g" | tr A-Z a-z`
 
+	if [ -z "$KORINF_CHECK_ONLY" ] ; then
 	# Можем стирать только каталог дистрибутива, а не весь
 	test -e $FTPDIR && rm -rf $FTPDIR
 	mkdir -p $FTPDIR/ $FTPDIR/extra
 
 	echo >> $ALOGDIR/autobuild.report.log
 	echo "$(date): Build $TYPE for $ETERREGNUM in $DIST" >> $ALOGDIR/autobuild.report.log
+
+	fi
 
 	WINEPRODUCT=wine-etersoft
 	WINEPRODUCT32=wine32-etersoft
@@ -166,6 +169,9 @@ allow_without_wine32()
 	#[ "$TYPE" = "Local" ] || check_and_refresh_component bin-cifs $PUBLOCAL/CIFS etercifs
 
 	#[ "$TYPE" = "SchoolDIS" ] || check_and_refresh_component bin-wine $PUBLOCAL/WINE fonts-ttf-liberation
+
+	task_require_ready
+	[ -z "$KORINF_CHECK_ONLY" ] || return 0
 
 	# Get file list
 	PRIVFILES=`find -L $PVTLOCAL/$DIST -maxdepth 1 -type f`
@@ -641,6 +647,7 @@ build_wine_etersoft()
 	KORINFLOCAL="/var/ftp/pub/Korinf"
 
 	if [ -n "$LICENSEONLY" ] ; then
+		[ -z "$KORINF_CHECK_ONLY" ] || return 0
 		mail_wine_etersoft_license
 		return
 	fi
@@ -672,7 +679,7 @@ build_wine_etersoft()
 		fi
 	fi
 	check_dist $DIST
-	mkdir -p "$PVTLOCAL/$DIST"
+	[ -n "$KORINF_CHECK_ONLY" ] || mkdir -p "$PVTLOCAL/$DIST"
 	
 	PUBDOWNLOAD1FONTS="$MPROTO://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/fonts/$DIST"
 	#[ -d "$PUBLOCAL/fonts/$DIST/" ] || fatal "Can't locate fonts dir fonts/$DIST"
@@ -680,14 +687,16 @@ build_wine_etersoft()
 	export FTPDIR=$TARGETDIR/$TYPE-$PROJECTVERSION/$DIST
 
 	# Record the random delivery directory for the personal orders API.
-	if [ -n "$WEB_ORDER_ID" ] && [ "$WEB_ORDER_ID" = "$(basename "$TASK" .task)" ]; then
+	if [ -z "$KORINF_CHECK_ONLY" ] && [ -n "$WEB_ORDER_ID" ] && [ "$WEB_ORDER_ID" = "$(basename "$TASK" .task)" ]; then
 		printf '\nWEB_DOWNLOAD_REL="%s"\n' "$TARGETDIRNAME/$TYPE-$PROJECTVERSION/$DIST" >> "$TASK"
 	fi
 
 	prepare_wine_etersoft
+	task_require_ready
+	[ -z "$KORINF_CHECK_ONLY" ] || return 0
 
 	# A directory exists while files are still being copied; publish readiness last.
-	if [ -n "$WEB_ORDER_ID" ] && [ "$WEB_ORDER_ID" = "$(basename "$TASK" .task)" ]; then
+	if [ -z "$KORINF_CHECK_ONLY" ] && [ -n "$WEB_ORDER_ID" ] && [ "$WEB_ORDER_ID" = "$(basename "$TASK" .task)" ]; then
 		touch "$FTPDIR/.order-$WEB_ORDER_ID.ready" || fatal "Can't mark delivery ready"
 	fi
 

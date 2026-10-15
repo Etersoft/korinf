@@ -147,13 +147,14 @@ build_rx()
 		# exports FTPDIR
 		LICENSEFILE=rx-etersoft.lic
 		LICENSEDIR="/etc/rx-etersoft"
-		create_license_dir
+		[ -n "$KORINF_CHECK_ONLY" ] || create_license_dir
 
 	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8
-	TMPMAIL=`mktemp`
+	[ -n "$KORINF_CHECK_ONLY" ] || TMPMAIL=`mktemp`
 
 	if [ -n "$LICENSEONLY" ] ; then
+		[ -z "$KORINF_CHECK_ONLY" ] || return 0
 		prepare_license_mail $TMPMAIL support@etersoft.ru || fatal "Can't prepare letter"
 		cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Лицензия для продукта $COMPONENTNAME $PROJECTVERSION" || fatal "Can't send"
 		rm -f $TMPMAIL
@@ -170,6 +171,9 @@ build_rx()
 			check_and_refresh_package $KORINFLOCAL eepm
 			PUB6FILES=`find -L $KORINFLOCAL/$DIST -maxdepth 1 -type f -name "eepm[_-]3*"`
 		fi
+
+		task_require_ready
+		[ -z "$KORINF_CHECK_ONLY" ] || return 0
 
 		if echo "$LOCALDIR" | grep -q "/pvt/Etersoft" ; then
 			PRIVFILES=''

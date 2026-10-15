@@ -42,7 +42,7 @@ check_if_updated()
 	
 	# FIXMEP get_..._package always returns true
 	DESTDIR=$PRODPATH/$DIST
-	clear_restart_build_status
+	[ -n "$KORINF_CHECK_ONLY$KORINF_NO_BUILD" ] || clear_restart_build_status
 	local SRCRPM=$(get_src_package "$SOURCEPATH" $BUILDNAME)
 	test -r "$SRCRPM" || fatal "Source package for $BUILDNAME is not found"
 	local BINPKG=$(get_bin_package "$PRODPATH/$DIST" $BINBUILDNAME)
@@ -106,6 +106,7 @@ check_and_refresh_component()
 	local RC=$?
 	[ "$RC" = 0 ] && return 0
 	[ "$RC" = 2 ] && return 1
+	[ -z "$KORINF_CHECK_ONLY$KORINF_NO_BUILD" ] || task_defer
 
         # FIXME: hack
         if [ -z "$PRVERSION" ] ; then
@@ -141,6 +142,7 @@ check_and_refresh_package()
 	local RC=$?
 	[ "$RC" = 0 ] && return 0
 	[ "$RC" = 2 ] && return 1
+	[ -z "$KORINF_CHECK_ONLY$KORINF_NO_BUILD" ] || task_defer
 
 	$AROBOTDIR/../bin/korinf -f $BUILDNAME $DIST $PRODPATH && return 0
 
