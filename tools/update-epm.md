@@ -67,7 +67,7 @@ wine-etersoft-winetricks ветки (manifest), иначе отказывает.
 `/srv/builder/Projects/wine-base-bottle-scripts`. Другой путь задаётся через
 `KORINF_INSTALLER_SNAPSHOT`. `SNAPSHOT.json` содержит upstream commit и SHA256
 неизменённых файлов. Текущий проверенный экспорт:
-`580a187728427b2330c65d462fa4b88905bd0e20` из
+`6a4d7719bafa94084436a33208d67b7982363023` из
 `https://gitlab.eterfund.ru/wine/wine-base-bottle-scripts`.
 
 Все выбранные installer собираются до первой публикации. Параллельные apply
