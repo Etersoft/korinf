@@ -2,3 +2,6 @@
 export TASKDIR=$HOME/sales
 
 #export MPROTO="https"
+
+# Number of simultaneous system build tasks (same-system tasks remain serial).
+export KORINF_TASK_JOBS=${KORINF_TASK_JOBS:-2}

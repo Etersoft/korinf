@@ -53,7 +53,8 @@ umask 0002
 
 
 # Local path to remote user home
-export BUILDERHOME=/srv/arobot
+export BUILDERHOME=${KORINF_TASK_WORKDIR:-/srv/arobot}
+mkdir -p "$BUILDERHOME" || exit 1
 
 DEAR="Здравствуйте,"
 
