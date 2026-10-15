@@ -123,6 +123,8 @@ test_package_requirements()
 
 	# TODO: replace with epm --dry-run install
 	for pkgname in $pkgnames ; do
+		# Aggregate dependencies are checked against the complete published set.
+		case " $BOOTSTRAP_EXCLUDE " in *" $pkgname "*) continue ;; esac
 		rhas "$pkgname" "-debugsource" && continue
 		rhas "$pkgname" "-debuginfo" && continue
 		rhas "$pkgname" "-debug-" && continue
@@ -146,7 +148,11 @@ test_package_files_requirements()
 	[ -n "$INITIALBOOTSTRAP" ] && return 22
 
 	# Simulate install of built packages inside container
+	if [ -n "$BOOTSTRAP_EXCLUDE" ]; then
+		run_in_chroot $dist "cd $INTBUILT && bash -s -- --simulate '$PKGFORMAT' '$BOOTSTRAP_EXCLUDE' $EXPMAINFILES $EXPEXTRAFILES" < "$KORINFDIR/korinf/install-bootstrap-packages"
+	else
 	run_in_chroot $dist "cd $INTBUILT && epm --no-stdin simulate $EXPMAINFILES $EXPEXTRAFILES"
+	fi
 	local res="$?"
 	[ "$res" != "0" ] && [ "$res" != "22" ] && return $res
 	return 0

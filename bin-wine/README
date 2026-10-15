@@ -33,7 +33,9 @@ Bootstrap for Wine 7-11:
 -b/-B builds and publishes all normal packages, including *-full. Only the
 non-aggregate packages are installed in the build image. BOOTSTRAP_EXCLUDE
 controls this installation subset without changing MAINFILES/EXTRAFILES.
-No fake gecko, mono or winetricks packages are created.
+No fake gecko, mono or winetricks packages are created. Per-component
+dependency checks also defer *-full; the complete-set check below is required
+to validate aggregate dependencies once all components are published.
 
 Before building any component, existing *-full metapackages and recognised
 legacy placeholders are removed from the build container. Real components

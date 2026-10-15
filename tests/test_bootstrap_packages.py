@@ -61,6 +61,15 @@ else:
                 self.assertEqual(calls[-1], ['epm', '--verbose', '--auto', '--force', 'install']+files[:3])
                 self.assertTrue(all(Path(f).exists() for f in files))
 
+    def test_simulation_defers_full_without_installing(self):
+        files = []
+        for name in ['wine-etersoft', 'wine-etersoft-full']:
+            path = self.root/(name+'.rpm'); path.write_text(name); files.append(str(path))
+        result, calls = self.run_helper('install-bootstrap-packages', '--simulate',
+                                       'rpm', 'wine-etersoft-full', *files)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(calls, [['epm', '--no-stdin', 'simulate', files[0]]])
+
     def test_missing_artifacts_and_empty_selection_fail(self):
         result, calls = self.run_helper('install-bootstrap-packages', 'rpm', '', '/missing.rpm')
         self.assertNotEqual(result.returncode, 0)
