@@ -1,0 +1,10 @@
+#!/bin/sh
+# epmqp is human-readable and may omit architecture. Query RPM explicitly.
+set -eu
+installed=$(rpm -qa --queryformat '%{NAME}.%{ARCH}\n')
+packages=$(printf '%s\n' "$installed" | sed -n 's/^\(.*-devel\)\.x86_64$/\1.i686/p' | sort -u)
+for package in $packages; do
+    # Some native development tools have no i686 counterpart. Preserve the
+    # best-effort policy; the package build checks its required libraries.
+    epm --auto --skip-installed install "$package" || :
+done

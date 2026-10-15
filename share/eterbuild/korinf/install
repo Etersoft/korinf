@@ -255,7 +255,7 @@ EOF
 					# FIXME: move hack with xargs -n1000 to epm
 					# not all packages existed in i686
 					#run_in_chroot $dist "epm --auto --verbose --skip-installed install $(epmqp devel .x86_64 | sed -e "s|\.x86_64|\.i686|" | xargs -n1000)" </dev/null || return
-					run_in_chroot $dist "for i in \$(epmqp devel .x86_64 | sed -e 's|\.x86_64|\.i686|') ; do epm --auto --skip-installed install \$i ; done " </dev/null
+					run_in_chroot "$dist" "sh -s" < "$KORINFDIR/korinf/install-rpm-multilib" || return
 					;;
 			esac
 		fi
