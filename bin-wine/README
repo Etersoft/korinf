@@ -27,3 +27,25 @@ Build for Ubuntu/8.10 distro for unstable:
 
 Force build for Ubuntu/8.10 distro
 ./wine-etersoft.sh Ubuntu/8.10 -f
+
+Bootstrap for Wine 7-11:
+
+-b/-B builds and publishes all normal packages, including *-full. Only the
+non-aggregate packages are installed in the build image. BOOTSTRAP_EXCLUDE
+controls this installation subset without changing MAINFILES/EXTRAFILES.
+No fake gecko, mono or winetricks packages are created.
+
+Before building any component, existing *-full metapackages and recognised
+legacy placeholders are removed from the build container. Real components
+are retained. Removal is checked by rpm/dpkg and stops on dependency conflicts;
+it never uses --nodeps or forced dependency removal.
+
+After all real components have been published, verify the complete set:
+    ../tools/check-wine-install x86_64/RockyLinux/8 11-unstable
+
+This command installs the public Wine binary packages, including *-full, in
+one transaction in a disposable container from the base image. It rejects
+an image that already contains Wine and never saves the container. The check
+is separate from bootstrap: it must run after all components are available.
+It supports RPM and DEB packages, requires curl and epm in the base image,
+and uses /var/ftp and https://download.etersoft.ru by default (--help for overrides).

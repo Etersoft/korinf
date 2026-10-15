@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+"""Install the published Wine set in a disposable base-image container via korexec."""
+import argparse
+import base64
+import os
+from pathlib import Path
+import re
+import shlex
+import subprocess
+import sys
+from urllib.parse import quote
+import uuid
+
+
+def select_packages(directory):
+    files = sorted(p for p in directory.iterdir() if p.is_file()
+                   and re.match(r'^wine(?:32)?-etersoft(?:-[a-z]+)*[-_]\d', p.name)
+                   and p.suffix in ('.rpm', '.deb') and not p.name.endswith('.src.rpm'))
+    formats = {p.suffix[1:] for p in files}
+    if len(formats) != 1:
+        raise ValueError('Expected one package format (RPM or DEB) in '+str(directory))
+    full = [p for p in files if re.match(r'^wine(?:32)?-etersoft-full[-_]\d', p.name)]
+    if not full:
+        raise ValueError('The published set has no wine-etersoft-full package')
+    return files, formats.pop(), full
+
+
+def install_script(files, fmt, full, ftp_root, url_root, marker):
+    lines = ['set -eu', 'work=$(mktemp -d)', 'trap \'rm -rf "$work"\' EXIT', 'cd "$work"']
+    if fmt == 'rpm':
+        lines += ["installed=$(rpm -qa --qf '%{NAME}\\n')"]
+    else:
+        lines += ["installed=$(dpkg-query -W -f='${binary:Package} ${db:Status-Status}\\n')",
+                  "installed=$(printf '%s\\n' \"$installed\" | awk '$2 != \"not-installed\" && $2 != \"config-files\" {print $1}')"]
+    lines += ["if printf '%s\\n' \"$installed\" | grep -E '^(fake-)?wine(32)?-etersoft($|[-:])'; then",
+              "  echo 'Base image already contains Wine; cannot verify a clean installation' >&2; exit 1", 'fi']
+    for path in files:
+        relative = path.resolve().relative_to(ftp_root.resolve())
+        url = url_root.rstrip('/')+'/'+quote(str(relative), safe='/@')
+        lines += ['curl --fail --location --silent --show-error -o '+shlex.quote(path.name)+' '+shlex.quote(url)]
+    lines += ['epm --auto install '+' '.join(shlex.quote(p.name) for p in files)]
+    for path in full:
+        if fmt == 'rpm':
+            lines += ['package=$(rpm -qp --qf \'%{NAME}\' '+shlex.quote(path.name)+')', 'rpm -q "$package"']
+        else:
+            lines += ['package=$(dpkg-deb -f '+shlex.quote(path.name)+' Package)',
+                      '[ "$(dpkg-query -W -f=\'${Status}\' "$package")" = "install ok installed" ]']
+    lines += ['echo '+shlex.quote(marker)]
+    return '\n'.join(lines)+'\n'
+
+
+def verification_env():
+    env = dict(os.environ, KORINFMODULE='')
+    for name in ('BOOTSTRAP', 'INSTALLREQUIREDPACKAGE'):
+        env.pop(name, None)
+    return env
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('system', help='One target, e.g. x86_64/RockyLinux/8')
+    parser.add_argument('version', help='Published Wine version, e.g. 11-unstable')
+    parser.add_argument('--ftp-root', type=Path, default=Path('/var/ftp'))
+    parser.add_argument('--url-root', default='https://download.etersoft.ru')
+    args = parser.parse_args()
+    if not re.fullmatch(r'(?:x86_64/|i586/)?[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', args.system):
+        parser.error('Specify one distribution/version, not a build list')
+    if not re.fullmatch(r'[A-Za-z0-9_.-]+', args.version) or args.version in ('.', '..'):
+        parser.error('Invalid project version')
+    directory = args.ftp_root/'pub/Etersoft/WINE@Etersoft'/args.version/'WINE'/args.system
+    marker = 'KORINF_INSTALL_VERIFIED_'+uuid.uuid4().hex
+    try:
+        files, fmt, full = select_packages(directory)
+        script = install_script(files, fmt, full, args.ftp_root, args.url_root, marker)
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
+    payload = base64.b64encode(script.encode()).decode()
+    command = 'printf %s '+shlex.quote(payload)+' | base64 -d > /tmp/korinf-check-wine-install; sh /tmp/korinf-check-wine-install'
+    repo = Path(__file__).resolve().parents[1]
+    child = subprocess.Popen([str(repo/'bin/korexec'), args.system, command], cwd=repo,
+                             env=verification_env(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    verified = False
+    for line in child.stdout:
+        print(line, end='', flush=True)
+        verified |= line.strip() == marker
+    status = child.wait()
+    # korexec currently masks child command failures: require an exact success marker.
+    if status or not verified:
+        print('Full Wine installation was not verified', file=sys.stderr)
+        return 1
+    print('Full Wine installation verified; the container was discarded.')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
