@@ -1,0 +1,13 @@
+#!/bin/sh
+# Probe the cpio operation used by alien. Distribution backports may retain
+# an older version number despite fixing the upstream symlink regressions.
+set -eu
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT HUP INT TERM
+mkdir -p "$work/src/nested" "$work/out"
+ln -s /usr/bin/bash "$work/src/nested/absolute"
+ln -s missing "$work/src/nested/dangling"
+(cd "$work/src" && printf '%s\n' nested/absolute nested/dangling | cpio -o -H newc > "$work/archive")
+(cd "$work/out" && cpio --extract --make-directories --no-absolute-filenames < "$work/archive")
+[ "$(readlink "$work/out/nested/absolute")" = /usr/bin/bash ]
+[ "$(readlink "$work/out/nested/dangling")" = missing ]

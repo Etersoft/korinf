@@ -62,8 +62,8 @@ convert_debian()
 	assert_var DISTRNAME DISTRVERSION
 
 	# Also protect builds invoked without dependency initialization (-i).
-	run_in_chroot $dist "dpkg --compare-versions \"\$(dpkg-query -W -f='\${Version}' cpio)\" ge 2.15" </dev/null || {
-		warning "cpio >= 2.15 is required for alien in $dist; update cpio and rerun with -i"
+	run_in_chroot "$dist" "sh -s" < "$KORINFDIR/korinf/check-cpio" || {
+		warning "cpio cannot safely extract symlinks for alien in $dist; install a fixed cpio package"
 		return 1
 	}
 

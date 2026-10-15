@@ -251,17 +251,12 @@ EOF
 		fi
 	fi
 
-	# cpio < 2.15 corrupts symlink extraction used by alien (ALT bug 42189).
+	# Check behavior: older distro packages may carry the symlink fixes.
 	if [ "$PKGFORMAT" = "deb" ]; then
-		if [ -z "$INITIALBOOTSTRAP" ]; then
-			run_in_chroot $dist "epm --auto assure cpio cpio 2.15" </dev/null || return
-		else
-			# The first epm bootstrap cannot rely on epm being installed yet.
-			run_in_chroot $dist "dpkg --compare-versions \"\$(dpkg-query -W -f='\${Version}' cpio)\" ge 2.15" </dev/null || {
-				warning "cpio >= 2.15 is required in $dist before bootstrapping epm/alien"
-				return 1
-			}
-		fi
+		run_in_chroot "$dist" "sh -s" < "$KORINFDIR/korinf/check-cpio" || {
+			warning "cpio cannot safely extract symlinks in $dist; install a fixed cpio package"
+			return 1
+		}
 	fi
 
 	# run fixes only for rpm-build-altlinux-compat (as initial step)
