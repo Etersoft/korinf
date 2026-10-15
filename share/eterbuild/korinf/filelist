@@ -69,6 +69,21 @@ prepare_filelist()
 	true
 }
 
+# RPM output names may include a disttag absent from %{RELEASE} (e.g. ROSA).
+# Select by source header, but retain each actual path instead of reconstructing it.
+list_current_rpm_files()
+{
+    local directory="$1" source_name="$2" package package_source
+    for package in "$directory"/*.rpm; do
+        [ -f "$package" ] || continue
+        case "$package" in *.src.rpm|*.nosrc.rpm) continue ;; esac
+        package_source=$(rpm -qp --qf '%{SOURCERPM}' "$package") || return 1
+        [ "$package_source" = "$source_name" ] || continue
+        printf '%s\n' "$package"
+    done
+    return 0
+}
+
 # fill MAINFILELIST and run prepare_filelist
 fill_filelist()
 {
@@ -81,7 +96,8 @@ fill_filelist()
 
 	# HACK: the follow code copied from build/hasher
 	# search for binary packages
-	BUILTBINPKGLIST=$($EPMCMD print binpkgfilelist $BUILTRPM $(basename $TARGETSRPM))
+	BUILTBINPKGLIST=$(list_current_rpm_files "$BUILTRPM" "$(basename "$TARGETSRPM")") || return 1
+	[ -n "$BUILTBINPKGLIST" ] || { error "No binary RPMs found for $TARGETSRPM"; return 1; }
 	echo "For $TARGETSRPM follow packages is found:"
 	echo "$BUILTBINPKGLIST"
 
