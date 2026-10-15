@@ -26,7 +26,13 @@ if a[0] == '-qp':
     print(os.environ['REQUIREMENT'])
 elif '--qf' in a:
     if state is None: sys.exit(1)
-    print(state['metadata'], end='')
+    print(state['metadata'] if 'SUMMARY' in a[2] else state['version'], end='')
+elif '--eval' in a:
+    import re
+    x, y = re.findall(r'"([^"]*)"', a[-1])
+    x = tuple(map(int, x.split('.')))
+    y = tuple(map(int, y.split('.')))
+    print((x > y) - (x < y))
 elif '--whatprovides' in a:
     r = a[-1].split()
     if state is None: sys.exit(1)
@@ -38,6 +44,11 @@ else:
             epm.write_text('''#!/usr/bin/env python3
 import json, os, sys
 from pathlib import Path
+if sys.argv[1:4] == ['print', 'compare', 'version']:
+    x = tuple(map(int, sys.argv[4].split('.')))
+    y = tuple(map(int, sys.argv[5].split('.')))
+    print((x > y) - (x < y))
+    sys.exit(0)
 Path(os.environ['CALL']).write_text(json.dumps(sys.argv[1:]))
 if os.environ['FAIL'] == '1': sys.exit(3)
 version = next(a.split('=', 1)[1] for a in sys.argv if a.startswith('--version='))
@@ -69,6 +80,12 @@ Path(os.environ['STATE']).write_text(json.dumps(dict(metadata=os.environ['FAKE']
             result, call = self.run_case(dict(metadata=metadata, version=version))
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(call, [])
+
+    def test_newer_minimum_is_preserved(self):
+        result, call = self.run_case(dict(metadata=FAKE, version='20260530'),
+                                     'wine-etersoft-gecko >= 20250102')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(call, [])
 
     def test_initial_creation_and_no_downgrade(self):
         result, call = self.run_case(None, built=False)
