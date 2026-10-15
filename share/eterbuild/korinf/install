@@ -180,6 +180,11 @@ EOF
 		local INSTALLCOMMAND
 		# TODO: try use epm if exists
 		#run_in_chroot "epm -h >/dev/null" || set_build_failed
+		# The initial eepm bootstrap cannot rely on a working epm in the image.
+		# Refresh apt indexes here too, including sources changed during preparation.
+		if [ "$PKGFORMAT" = "deb" ]; then
+			run_in_chroot $dist "apt-get -o Acquire::AllowReleaseInfoChange=true update" </dev/null || return
+		fi
 		# Bootstrap install eepm (get command from host's epm)
 		INSTALLCOMMAND=$(DISTRNAMEOVERRIDE=$DISTRNAME/$DISTRVERSION $EPMCMD --auto --show-command-only --nodeps install $reqsbr $reqs) || { warning "Can't get install command" ; return 1 ; }
 		# CHECKME: why we need yes here
