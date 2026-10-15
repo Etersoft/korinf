@@ -1,4 +1,5 @@
 """System build API on temporary queue and FTP directories: nothing real is enqueued."""
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -133,6 +134,11 @@ class SystemBuildApi(unittest.TestCase):
         self.assertEqual(self.client.get(f'/task/{taskid}/log').text, 'line 1\nline 2\n')
         page = self.client.get(f'/task/{taskid}').text
         self.assertIn('Этапы сборки', page)
+        # a queued task with a progress file waits for a retry: the stages are of the last run
+        self.assertIn('Этапы сборки прошлого запуска', page)
+        (self.sales / (taskid + '.task.run')).write_text(str(os.getpid()))
+        page = self.client.get(f'/task/{taskid}').text
+        self.assertIn('<h2>Этапы сборки</h2>', page)
         self.assertIn('wine32-etersoft', page)
 
     def test_finished_progress(self):

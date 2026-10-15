@@ -61,7 +61,12 @@
 {% endif %}
 
 {% if progress %}
+{% if task.status == "queued" %}
+<h2>Этапы сборки прошлого запуска</h2>
+<p class="repair-hint">Задача снова в очереди и ждёт повтора: ниже этапы прошлого запуска, робот заменит их, когда возьмёт задачу.</p>
+{% else %}
 <h2>Этапы сборки</h2>
+{% endif %}
 <p>Начата {{ progress.started | ts2str }}{% if progress.finished %}, закончена {{ progress.finished | ts2str }}
   ({{ (progress.finished - progress.started) // 60 }} мин, код {{ progress.rc }}){% elif progress.current %}, сейчас: <b>{{ progress.current }}</b>{% endif %}.
   <a href="/task/{{ task.taskid }}/log">Лог задания</a></p>
