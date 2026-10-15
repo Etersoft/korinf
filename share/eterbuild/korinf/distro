@@ -33,8 +33,7 @@ install_fake_packages()
 		run_in_chroot $dist "sh -s -- $FAKEPKGS" < "$KORINFDIR/korinf/install-fake-deb-packages"
 		return $?
 	fi
-	run_in_chroot $dist "for p in $FAKEPKGS ; do epm -q \$p >/dev/null 2>&1 || epm create-fake --install --name=\$p \$p ; done" </dev/null || warning "Can't create fake packages"
-	return 0
+	run_in_chroot $dist "sh -s -- '$FAKEPKGS'" < "$KORINFDIR/korinf/install-fake-rpm-packages"
 }
 
 build_dist_pkg()
@@ -117,6 +116,11 @@ case $DISTRNAME in
 	#fi
 
 	logit "build RPM package" build_rpms $dist || return 1
+
+	# Only the built binaries tell us the exact runtime dependency versions.
+	if [ "$PKGFORMAT" = "rpm" ] && [ -n "$FAKEPKGS" ]; then
+		run_in_chroot $dist "cd $INTBUILT && sh -s -- '$FAKEPKGS' ${EXPMAINFILES} ${EXPEXTRAFILES}" < "$KORINFDIR/korinf/install-fake-rpm-packages" || return 1
+	fi
 
 	if [ "$PKGFORMAT" != "rpm" ] && [ -z "$MAKESPKG" ] ; then
 		logit "convert RPM to $PKGFORMAT ($PACKAGERELEASE$PKGVENDOR)" convert_rpm || return 1

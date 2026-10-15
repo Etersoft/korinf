@@ -1,0 +1,47 @@
+#!/bin/sh
+# Keep bootstrap placeholders in sync with the requirements of built RPMs.
+# Arguments: a space-separated package allowlist, then optional built RPM files.
+set -eu
+packages=$1
+shift
+requirements=''
+if [ "$#" -gt 0 ]; then
+    requirements=$(rpm -qp --requires "$@")
+fi
+for package in $packages; do
+    case "$package" in ''|*[!a-zA-Z0-9+_.-]*) exit 1 ;; esac
+    installed=''
+    if metadata=$(rpm -q --qf '%{SUMMARY}\n%{DESCRIPTION}' "$package" 2>/dev/null); then
+        installed=1
+        # Leave real components alone, including their dependency failures.
+        [ "$metadata" = 'Faked provides package
+This package is empty. It has been created to put fake entry in rpmdb.' ] || continue
+        # Before the build we do not yet know the required version.
+        [ "$#" -gt 0 ] || continue
+    fi
+    constraints=$(printf '%s\n' "$requirements" | awk -v p="$package" '$1 == p && NF > 1' | sort -u)
+    version=0
+    release=0
+    requirement=$package
+    if [ -n "$constraints" ]; then
+        # Wine's bootstrap components have one exact or minimum version.
+        # Fail explicitly on ambiguous constraints instead of guessing.
+        if ! printf '%s\n' "$constraints" | awk 'NF != 3 || ($2 != "=" && $2 != ">=") {exit 1} END {if (NR != 1) exit 1}'; then
+            echo "Unsupported bootstrap requirements: $constraints" >&2
+            exit 1
+        fi
+        requirement=$constraints
+        version=$(printf '%s\n' "$constraints" | awk '{print $3}')
+        case "$version" in ''|*[!a-zA-Z0-9._+~-]*) echo "Unsupported bootstrap version: $version" >&2; exit 1 ;; esac
+        case "$version" in *-*) release=${version##*-}; version=${version%-*} ;; esac
+    elif [ -n "$installed" ]; then
+        continue
+    fi
+    if [ -n "$installed" ] && rpm -q --whatprovides "$requirement" >/dev/null 2>&1; then
+        continue
+    fi
+    epm --auto create-fake --install --name="$package" --version="$version" --release="$release" "$package"
+    # Do not hide a failed install or an old epm without --name support.
+    rpm -q "$package" >/dev/null
+    rpm -q --whatprovides "$requirement" >/dev/null
+done
