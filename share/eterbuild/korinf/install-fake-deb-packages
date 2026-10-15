@@ -9,7 +9,7 @@ for package do
         # Migrate only our old placeholders; never replace a real package.
         metadata=$(dpkg-query -W -f='${Version}|${Maintainer}|${Multi-Arch}' "$package")
         case "$metadata" in
-            '0|Korinf <builder@etersoft.ru>|') ;;
+            '0|Korinf <builder@etersoft.ru>|'|'0|Korinf <builder@etersoft.ru>|no') ;;
             *) continue ;;
         esac
     fi

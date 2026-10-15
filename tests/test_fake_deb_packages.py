@@ -36,7 +36,7 @@ dpkg-deb --field "$2" Package Version Architecture Multi-Arch > "$RESULT"
             return result, out.read_text() if out.exists() else ''
 
     def test_new_and_old_placeholders_support_foreign_architecture(self):
-        for state in ('missing', '0|Korinf <builder@etersoft.ru>|'):
+        for state in ('missing', '0|Korinf <builder@etersoft.ru>|', '0|Korinf <builder@etersoft.ru>|no'):
             with self.subTest(state=state):
                 result, installed = self.run_case(state)
                 self.assertEqual(result.returncode, 0, result.stderr)
