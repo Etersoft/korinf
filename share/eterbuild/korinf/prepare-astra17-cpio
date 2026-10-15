@@ -1,0 +1,11 @@
+#!/bin/sh
+# Astra 1.7's cpio 2.13 regresses extraction of nested symbolic links.
+# Keep the existing repository package that passes korinf/check-cpio.
+set -eu
+mkdir -p /etc/apt/preferences.d
+cat > /etc/apt/preferences.d/korinf-cpio <<'PIN'
+Package: cpio
+Pin: version 2.12+dfsg-9
+Pin-Priority: 1001
+PIN
+apt-get --assume-yes --no-install-recommends --allow-downgrades install cpio=2.12+dfsg-9
