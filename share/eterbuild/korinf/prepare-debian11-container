@@ -1,0 +1,28 @@
+#!/bin/sh
+# Debian 11 build images use legacy .list sources. Its security packages have
+# moved to the archive. Keep signature checks; relax expiry only for this source.
+set -eu
+apt_dir=${1:-/etc/apt}
+for source in "$apt_dir/sources.list" "$apt_dir"/sources.list.d/*.list; do
+    [ -f "$source" ] || continue
+    sed -E -i '
+        /^[[:space:]]*deb(-src)?[[:space:]]/ {
+            /[[:space:]]bullseye-security([[:space:]]|$)/ {
+                s#https?://(security.debian.org|deb.debian.org)/debian-security#https://archive.debian.org/debian-security#g
+                /https:\/\/archive.debian.org\/debian-security/ {
+                    /check-valid-until=/ {
+                        s/check-valid-until=[^] ]+/check-valid-until=no/g
+                    }
+                    /check-valid-until=/! {
+                        /\[/ {
+                            s/\]/ check-valid-until=no]/
+                        }
+                        /\[/! {
+                            s/^([[:space:]]*deb(-src)?[[:space:]]+)/\1[check-valid-until=no] /
+                        }
+                    }
+                }
+            }
+        }
+    ' "$source"
+done

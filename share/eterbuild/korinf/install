@@ -74,6 +74,11 @@ install_build_requires()
 	assert_var BUILDERHOME
 	assert_var dist
 
+	# Debian 11 security packages are now served from the signed archive.
+	if [ "$DISTRNAME/$DISTRVERSION" = "Debian/11" ] && [ "$PKGFORMAT" = "deb" ]; then
+		run_in_chroot $dist "sh -s" < "$KORINFDIR/korinf/prepare-debian11-container" || return
+	fi
+
 	# Prepare service handling before apt configures packages in Astra containers.
 	if [ "$DISTRNAME" = "AstraLinuxSE" ] && [ "$PKGFORMAT" = "deb" ]; then
 		run_in_chroot $dist "sh -s" < "$KORINFDIR/korinf/prepare-astra-container" || return
