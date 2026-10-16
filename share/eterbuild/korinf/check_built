@@ -73,6 +73,9 @@ check_built_package()
 # use external $BUILDSRPM $DESTDIR $MAINFILESLIST
 do_need_build_package()
 {
+	# Published binaries do not describe dependencies installed in this image.
+	[ -n "$INSTALLREQUIREDPACKAGE" ] && return 0
+
 	assert_var DESTDIR
 
 	local BUILDNAME=$1
