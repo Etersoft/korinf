@@ -1,2 +1,3 @@
 #OSNovaLinux/2.9
-OSnovaLinux/2.11
+# Disabled: installation repository no longer has a Release file (2026-10-16).
+#OSnovaLinux/2.11
