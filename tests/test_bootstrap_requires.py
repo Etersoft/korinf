@@ -44,7 +44,7 @@ quote_pkgname() { echo "$*"; }
 warning() { :; }
 epm_stub() { echo package-required-for-build; }
 run_in_chroot() {
-    case "$*" in *'--verbose install'*) return 42 ;; esac
+    case "$*" in *'--allow-remove install'*) return 42 ;; esac
 }
 BUILDNAME=wine-etersoft TARGETARCH=i586 BUILDARCH=x86_64
 TARGETSRPM=dummy PKGFORMAT=deb BUILDERHOME=dummy
@@ -80,6 +80,9 @@ install_build_requires Fedora/41
                     check=True)
                 self.assertEqual('install desktop-file-utils' in result.stdout, not initial)
                 self.assertNotIn('--verbose --skip-installed install', result.stdout)
+                if not initial:
+                    self.assertEqual(result.stdout.count('--verbose --allow-remove install'), 2)
+                    self.assertNotIn("285s/^/#/", result.stdout)
 
 
 if __name__ == '__main__':

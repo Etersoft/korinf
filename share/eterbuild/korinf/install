@@ -217,9 +217,6 @@ EOF
 		if [ "$PKGFORMAT" = "deb" ] ; then
 			run_in_chroot $dist "echo 'Acquire::AllowReleaseInfoChange \"true\";' >/etc/apt/apt.conf.d/99korinf-allowrelinfo" </dev/null 2>/dev/null
 		fi
-		# AstraLinuxSE: container's epm (3.64.64) defaults --no-remove for install (epm-install:285),
-		# which blocks removals of stale conflicting packages (libjack-jackd2-0 etc.). Comment that default out.
-		[ "$DISTRNAME" = "AstraLinuxSE" ] && run_in_chroot $dist "sed -i '285s/^/#/' /usr/share/eepm/epm-install" </dev/null 2>/dev/null
 		# ROSA: rpm IMA plugin can't apply signatures inside container (EPERM on fsm_file_prepare) — disable it
 		[ "$DISTRNAME" = "ROSA" ] && run_in_chroot $dist "echo '%__transaction_ima %{nil}' >/etc/rpm/macros.korinf" </dev/null 2>/dev/null
 		run_in_chroot $dist "epm --auto update" </dev/null || return
@@ -254,13 +251,14 @@ EOF
 			buildreq_env='APTOPTIONS="$APTOPTIONS --no-install-recommends"'
 		fi
 
+		# Allow the dependency solver to replace conflicting packages in build images.
 		# Let the package manager update requested dependencies already installed.
 		# --skip-installed kept stale ia32-libs in Astra build images indefinitely.
-		run_in_chroot $dist "$buildreq_env epm --auto --verbose install $reqsbr" </dev/null
+		run_in_chroot $dist "$buildreq_env epm --auto --verbose --allow-remove install $reqsbr" </dev/null
 		RES=$?
 		[ "$RES" = "0" ] || return "$RES"
 
-		run_in_chroot $dist "$buildreq_env epm --auto --verbose install $reqs" </dev/null
+		run_in_chroot $dist "$buildreq_env epm --auto --verbose --allow-remove install $reqs" </dev/null
 		RES=$?
 		[ "$RES" = "0" ] || return "$RES"
 
