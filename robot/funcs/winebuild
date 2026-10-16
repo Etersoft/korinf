@@ -102,6 +102,7 @@ winebuild_progress()
 		# -i: only the build requirements of the package (--init), -b: its build
 		phase = $5 == "-i" ? "init" : ($5 == "-b" ? "build" : "")
 		event("stage\t" systime() "\t" package "\t" $3 (phase != "" ? "\t" phase : ""))
+		event("command\t" systime() "\t" substr($0, 3))
 		next
 	}
 	# the source package of the stage: "Build <sources>/<name>-<version>.src.rpm package"

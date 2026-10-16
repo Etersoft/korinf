@@ -78,11 +78,16 @@ class WineBuild(unittest.TestCase):
                           ['wine32-etersoft', 'i586/ALTLinux/p10', 'build']])
         self.assertEqual([e[2:] for e in events if e[0] == 'result'],
                          [['eepm', 'skipped'], ['wine-etersoft', 'ok'], ['wine32-etersoft', 'ok']])
-        # the source package of a stage follows its stage event
+        # the source package of a stage follows its stage and command events
         index = [e[0] for e in events].index('source')
-        self.assertEqual(events[index - 1][2], 'wine-etersoft')
+        self.assertEqual(events[index - 2][2], 'wine-etersoft')
         self.assertEqual(events[index][2:], ['wine-etersoft-11.6.13-eter1.src.rpm'])
         self.assertEqual(sum(e[0] == 'source' for e in events), 1)
+        # the korinf command of each stage
+        self.assertEqual([e[2:] for e in events if e[0] == 'command'],
+                         [['./eepm.sh x86_64/ALTLinux/p10 11-testing -b'],
+                          ['./wine-etersoft.sh x86_64/ALTLinux/p10 11-testing -b'],
+                          ['./wine32-etersoft.sh i586/ALTLinux/p10 11-testing -b']])
         steps = [e[2:] for e in events if e[0] == 'step']
         self.assertIn(['DONE', 'build in hasher p10 (568 s)'], steps)
         self.assertEqual(events[-1][0], 'end')
