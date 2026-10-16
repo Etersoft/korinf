@@ -12,7 +12,16 @@ XimperLinux/Deferred
 Ubuntu/12.04
 Ubuntu/14.04
 Ubuntu/16.04
-Debian
+# Debian 12 and newer build images use amd64 with i386 multilib.
+Debian/3.1
+Debian/4.0
+Debian/5
+Debian/6
+Debian/7
+Debian/8
+Debian/9
+Debian/10
+Debian/11
 ROSA/2021.1
 AlterOS/7
 OSnovaLinux
