@@ -93,6 +93,11 @@ install_build_requires()
 	assert_var BUILDERHOME
 	assert_var dist
 
+	# Existing images also need foreign architecture enabled before apt update.
+	if [ "$PKGFORMAT" = "deb" ] && [ "$TARGETARCH" = "i586" ] && [ "$BUILDARCH" = "x86_64" ]; then
+		run_in_chroot "$dist" "dpkg --add-architecture i386" </dev/null || return
+	fi
+
 	# Debian 10 repositories have moved to the signed archive.
 	if [ "$DISTRNAME/$DISTRVERSION" = "Debian/10" ] && [ "$PKGFORMAT" = "deb" ]; then
 		run_in_chroot "$dist" "sh -s" < "$KORINFDIR/korinf/prepare-debian10-container" || return
@@ -156,9 +161,6 @@ install_build_requires()
 
 	# run fixes only for rpm-build-altlinux-compat (as initial step)
 	if  [ -n "$INITIALBOOTSTRAP" ] && [ "$BUILDNAME" = "rpm-build-altlinux-compat" ] ; then
-		if [ "$PKGFORMAT" = "deb" ] && [ "$TARGETARCH" != "$BUILDARCH" ] ; then
-			run_in_chroot $dist "dpkg --add-architecture i386" </dev/null
-		fi
 
 		if [ $DISTRNAME = "RockyLinux" ] ; then
 			run_in_chroot $dist "epm --auto repo add epel ; epm --auto repo add powertools"
