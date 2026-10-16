@@ -359,11 +359,12 @@ cat <<EOF | run_in_chroot $dist "sed -i -e 's|^optflags: i586|optflags: i586 -O2
 EOF
 	fi
 
-# native 32 bit target
-	if [ "$PKGFORMAT" = "deb" ] && [ "$BUILDARCH" = "i586" ] ; then
+# A container can report i586 while its GCC defaults to x86_64.
+	if [ "$PKGFORMAT" = "deb" ] && [ "$TARGETARCH" = "i586" ] ; then
 cat <<EOF | run_in_chroot $dist "mkdir -p /etc/rpm/$TARGETARCH-linux && tee /etc/rpm/$TARGETARCH-linux/macros"
 # created with Korinf $(date)
 
+%optflags               -O2 -g -m32 -march=i586
 %_libexecdir            %{_prefix}/lib
 %_lib                   lib
 %_libdir                $libdir32

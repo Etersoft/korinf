@@ -7,6 +7,32 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class BootstrapRequires(unittest.TestCase):
+    def test_i586_flags_do_not_depend_on_container_reported_architecture(self):
+        source = (ROOT / 'share/eterbuild/korinf/install').read_text()
+        harness = r"""
+load_mod() { :; }
+assert_var() { :; }
+rhas() { return 1; }
+convert_pkgreqs_to_target() { echo "$*"; }
+quote_pkgname() { echo "$*"; }
+warning() { :; }
+epm_stub() { echo true; }
+run_in_chroot() {
+    case "$*" in *'tee /etc/rpm/'*) cat ;; esac
+    return 0
+}
+BUILDNAME=rpm-build-altlinux-compat TARGETARCH=i586
+TARGETSRPM=dummy PKGFORMAT=deb BUILDERHOME=dummy
+DISTRNAME=Debian DISTRVERSION=12 EPMCMD=epm_stub INITIALBOOTSTRAP=1
+install_build_requires Debian/12
+"""
+        for arch in ('i586', 'x86_64'):
+            with self.subTest(buildarch=arch):
+                result = subprocess.run(['bash', '-c', 'load_mod() { :; }\n' + source +
+                    '\nKORINFDIR=' + str(ROOT / 'share/eterbuild') + '\nBUILDARCH=' + arch + '\n' + harness],
+                    capture_output=True, text=True, check=True)
+                self.assertIn('%optflags               -O2 -g -m32 -march=i586', result.stdout)
+
     def test_astra_dependency_install_failure_stops_build(self):
         source = (ROOT / 'share/eterbuild/korinf/install').read_text()
         harness = r'''
