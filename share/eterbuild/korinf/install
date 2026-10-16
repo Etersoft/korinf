@@ -219,7 +219,12 @@ EOF
 		fi
 		# ROSA: rpm IMA plugin can't apply signatures inside container (EPERM on fsm_file_prepare) — disable it
 		[ "$DISTRNAME" = "ROSA" ] && run_in_chroot $dist "echo '%__transaction_ima %{nil}' >/etc/rpm/macros.korinf" </dev/null 2>/dev/null
-		run_in_chroot $dist "epm --auto update" </dev/null || return
+		# Build images need repository indexes, not EPM's interactive completion cache.
+		if [ "$PKGFORMAT" = "deb" ]; then
+			run_in_chroot "$dist" "apt-get -o Acquire::AllowReleaseInfoChange=true update" </dev/null || return
+		else
+			run_in_chroot "$dist" "epm --auto update" </dev/null || return
+		fi
 		prepare_build_cpio || return
 		# RedOS 7.3: upgrade old binutils 2.30 -> 2.40 (2.30's `as` rejects --gdwarf-5 emitted by gcc 11)
 		if [ "$DISTRNAME" = "RedOS" ] && [ "$DISTRVERSION" = "7.3" ] ; then
