@@ -62,6 +62,7 @@ winebuild_bootstrap()
 
 # Pass the bootstrap output through, write the stage events to the progress file.
 # korinf prints a stage as '> ./<package>.sh <dist> <version> <opts>' and its
+# source package as 'Build <dir>/<name>-<version>.src.rpm package' and its
 # steps as '* [hh:mm:ss] <step> ... (N secs) [ DONE ]' ([ SKIP ], [FAILED]);
 # the status may come on a later line, after the build output.
 # arg: progress file
@@ -101,6 +102,11 @@ winebuild_progress()
 		# -i: only the build requirements of the package (--init), -b: its build
 		phase = $5 == "-i" ? "init" : ($5 == "-b" ? "build" : "")
 		event("stage\t" systime() "\t" package "\t" $3 (phase != "" ? "\t" phase : ""))
+		next
+	}
+	# the source package of the stage: "Build <sources>/<name>-<version>.src.rpm package"
+	package != "" && match($0, /^Build .*\/([^\/ ]+\.src\.rpm) package$/, m) {
+		event("source\t" systime() "\t" m[1])
 		next
 	}
 	match($0, /^ *\* \[[0-9:]+\] (.*) \.\.\.(.*)$/, m) {
