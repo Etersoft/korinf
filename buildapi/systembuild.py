@@ -113,8 +113,9 @@ def progress(sales, taskid):
     """Stages of a system build task from its progress file, None if it has not started:
     {'started', 'finished', 'rc', 'current', 'stages': [{'package', 'dist', 'phase', 'started',
      'finished', 'duration', 'result', 'steps': [{'at', 'status', 'text'}]}]}; phase: 'init' (only
-    the build requirements, --init), 'build' or None (an old progress file)"""
-    path, _ = _paths(sales, taskid)
+    the build requirements, --init), 'build' or None (an old progress file); 'source': the src.rpm of
+    the stage, 'version': its version-release (from the task log for an old progress file)"""
+    path, log = _paths(sales, taskid)
     try:
         with open(path, encoding='utf-8', errors='replace') as f:
             lines = f.read().splitlines()
@@ -133,9 +134,11 @@ def progress(sales, taskid):
             result['started'] = at
         elif kind == 'stage' and len(parts) >= 4:
             stage = {'package': parts[2], 'dist': parts[3], 'phase': parts[4] if len(parts) > 4 else None,
-                     'started': at, 'finished': None,
+                     'started': at, 'finished': None, 'source': None, 'version': None,
                      'duration': None, 'result': None, 'steps': []}
             result['stages'].append(stage)
+        elif kind == 'source' and stage is not None and len(parts) >= 3:
+            stage['source'] = parts[2]
         elif kind == 'step' and stage is not None and len(parts) >= 4:
             stage['steps'].append({'at': at, 'status': parts[2], 'text': '\t'.join(parts[3:])})
         elif kind == 'result' and stage is not None and len(parts) >= 4:
@@ -147,7 +150,32 @@ def progress(sales, taskid):
             result['rc'] = int(parts[2]) if len(parts) > 2 and parts[2].lstrip('-').isdigit() else None
     if result['finished'] is None and result['stages'] and result['stages'][-1]['result'] is None:
         result['current'] = result['stages'][-1]['package']
+    if result['stages'] and not any(s['source'] for s in result['stages']):
+        _sources_from_log(log, result['stages'])
+    for s in result['stages']:
+        if s['source']:
+            name = s['source'].removesuffix('.src.rpm')
+            s['version'] = name.removeprefix(s['package'] + '-')
     return result
+
+
+RE_LOG_STAGE = re.compile(r'^> \./[^ ]+\.sh [^ ]+')
+RE_LOG_SOURCE = re.compile(r'^Build .*/([^/ ]+\.src\.rpm) package$')
+
+
+def _sources_from_log(log, stages):
+    """The src.rpm of each stage from the task log, for a progress file written before the
+    robot recorded them: the stages of the log and of the progress file come in the same order."""
+    try:
+        with open(log, encoding='utf-8', errors='replace') as f:
+            index = -1
+            for line in f:
+                if RE_LOG_STAGE.match(line):
+                    index += 1
+                elif 0 <= index < len(stages) and (m := RE_LOG_SOURCE.match(line.rstrip('\n'))):
+                    stages[index]['source'] = m.group(1)
+    except OSError:
+        pass
 
 
 def log_tail(sales, taskid, limit=LOG_TAIL):

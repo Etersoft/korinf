@@ -71,10 +71,10 @@
   ({{ (progress.finished - progress.started) // 60 }} мин, код {{ progress.rc }}){% elif progress.current %}, сейчас: <b>{{ progress.current }}</b>{% endif %}.
   <a href="/task/{{ task.taskid }}/log">Лог задания</a></p>
 <table>
-  <thead><tr><th>Составляющая</th><th>Система</th><th>Начало</th><th>Длительность</th><th>Результат</th><th>Шаги</th></tr></thead>
+  <thead><tr><th>Составляющая</th><th>Версия</th><th>Система</th><th>Начало</th><th>Длительность</th><th>Результат</th><th>Шаги</th></tr></thead>
   <tbody>{% for s in progress.stages %}
     <tr>
-      <td>{{ s.package }}</td><td>{{ s.dist }}</td><td>{{ s.started | ts2str }}</td>
+      <td>{{ s.package }}</td><td{% if s.source %} title="{{ s.source }}"{% endif %}>{{ s.version or '' }}</td><td>{{ s.dist }}</td><td>{{ s.started | ts2str }}</td>
       <td>{% if s.duration is not none %}{{ s.duration // 60 }} мин {{ s.duration % 60 }} с{% else %}идёт…{% endif %}</td>
       <td class="{% if s.result == 'failed' %}status-failed{% elif s.result == 'ok' %}status-done{% endif %}">{{ s.result or '' }}</td>
       <td>{% for st in s.steps %}<div class="{% if st.status == 'FAILED' %}status-failed{% endif %}">{{ st.status }} · {{ st.text }}</div>{% endfor %}</td>

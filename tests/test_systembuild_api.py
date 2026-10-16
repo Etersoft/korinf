@@ -21,6 +21,7 @@ stage\t1000\teepm\tx86_64/ALTLinux/p10
 step\t1001\tSKIP\teepm is up-to-date
 result\t1001\teepm\tskipped
 stage\t1001\twine-etersoft\tx86_64/ALTLinux/p10\tbuild
+source\t1001\twine-etersoft-11.6.13-eter1.src.rpm
 step\t1600\tDONE\tbuild in hasher p10 (599 s)
 result\t1700\twine-etersoft\tok
 stage\t1700\twine32-etersoft\ti586/ALTLinux/p10
@@ -107,6 +108,22 @@ class SystemBuildApi(unittest.TestCase):
         self.assertEqual(self.build(version='../11-testing').status_code, 400)
         self.assertEqual(list(self.sales.glob('*.task')), [])
 
+    def test_versions_of_an_old_progress_file_from_the_log(self):
+        taskid = self.build().json()['taskid']
+        (self.sales / 'winebuild').mkdir()
+        (self.sales / 'winebuild' / (taskid + '.progress')).write_text(
+            PROGRESS.replace('source\t1001\twine-etersoft-11.6.13-eter1.src.rpm\n', ''))
+        (self.sales / 'winebuild' / (taskid + '.log')).write_text(
+            '> ./eepm.sh x86_64/ALTLinux/p10 11-testing -b\n'
+            'Build /ftp/11-testing/sources/eepm-3.64.64-alt1.src.rpm package\n'
+            '> ./wine-etersoft.sh x86_64/ALTLinux/p10 11-testing -b\n'
+            'Build /ftp/11-testing/sources/wine-etersoft-11.6.13-eter1.src.rpm package\n'
+            '> ./wine32-etersoft.sh i586/ALTLinux/p10 11-testing -b\n'
+            'Build /ftp/11-testing/sources/wine-etersoft-11.6.13-eter1.src.rpm package\n')
+        p = systembuild.progress(str(self.sales), taskid)
+        self.assertEqual([s['version'] for s in p['stages']],
+                         ['3.64.64-alt1', '11.6.13-eter1', 'wine-etersoft-11.6.13-eter1'])
+
     def test_api_key_required(self):
         r = self.client.post('/api/wine/build', json={'version': '11-testing', 'dist': 'x86_64/ALTLinux/p10'})
         self.assertEqual(r.status_code, 401)
@@ -127,6 +144,7 @@ class SystemBuildApi(unittest.TestCase):
         self.assertEqual([(s['package'], s['result'], s['duration']) for s in p['stages']],
                          [('eepm', 'skipped', 1), ('wine-etersoft', 'ok', 699), ('wine32-etersoft', None, None)])
         self.assertEqual(p['stages'][1]['steps'], [{'at': 1600, 'status': 'DONE', 'text': 'build in hasher p10 (599 s)'}])
+        self.assertEqual([s['version'] for s in p['stages']], [None, '11.6.13-eter1', None])
         # the phase of a stage (--init); an old progress file has none
         self.assertEqual([s['phase'] for s in p['stages'][:2]], [None, 'build'])
         log = self.client.get(f'/api/task/{taskid}/log?tail=11', headers=self.headers)
@@ -134,6 +152,7 @@ class SystemBuildApi(unittest.TestCase):
         self.assertEqual(self.client.get(f'/task/{taskid}/log').text, 'line 1\nline 2\n')
         page = self.client.get(f'/task/{taskid}').text
         self.assertIn('Этапы сборки', page)
+        self.assertIn('title="wine-etersoft-11.6.13-eter1.src.rpm">11.6.13-eter1</td>', page)
         # a queued task with a progress file waits for a retry: the stages are of the last run
         self.assertIn('Этапы сборки прошлого запуска', page)
         (self.sales / (taskid + '.task.run')).write_text(str(os.getpid()))
