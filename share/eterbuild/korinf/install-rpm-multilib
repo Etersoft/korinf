@@ -3,8 +3,20 @@
 set -eu
 installed=$(rpm -qa --queryformat '%{NAME}.%{ARCH}\n')
 packages=$(printf '%s\n' "$installed" | sed -n 's/^\(.*-devel\)\.x86_64$/\1.i686/p' | sort -u)
+failed=0
 for package in $packages; do
-    # Some native development tools have no i686 counterpart. Preserve the
-    # best-effort policy; the package build checks its required libraries.
-    epm --auto --skip-installed install "$package" || :
+    if epm --auto --skip-installed install "$package"; then
+        continue
+    fi
+    # Only a confirmed absence from enabled repositories is optional.
+    # Transaction conflicts, download failures and query failures are fatal.
+    if available=$(dnf -q repoquery --available --qf '%{name}.%{arch}' "$package"); then
+        if [ -z "$available" ]; then
+            echo "No multilib counterpart available: $package" >&2
+            continue
+        fi
+    fi
+    echo "Failed to install multilib dependency: $package" >&2
+    failed=1
 done
+exit "$failed"
