@@ -201,13 +201,16 @@ run_docker_container()
 	echo "Creating build system in docker $contname from $dockerimage:" >&2
 	# TODO: check before remove
 	a='' docker rm $contname 2>/dev/null # || return 1
+	# Do not inherit a finite sleep command from a saved image. The job owns
+	# container lifetime and stops/removes it during unmount.
 	# about ENTRYMOUNT and CMD: https://habr.com/ru/companies/southbridge/articles/329138/
 	a='' docker run -d \
 		--name $contname \
 		$platform \
 		--tmpfs /tmp:exec \
 		$MOUNTBUILDERSTRING \
-		$dockerimage
+		--entrypoint /bin/sh \
+		$dockerimage -c 'trap "exit 0" TERM INT; while :; do sleep 86400 & wait "$!"; done'
 
 	# container was detached
 	sleep 1
