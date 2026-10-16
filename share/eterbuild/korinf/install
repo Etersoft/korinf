@@ -93,6 +93,11 @@ install_build_requires()
 	assert_var BUILDERHOME
 	assert_var dist
 
+	# Debian 10 repositories have moved to the signed archive.
+	if [ "$DISTRNAME/$DISTRVERSION" = "Debian/10" ] && [ "$PKGFORMAT" = "deb" ]; then
+		run_in_chroot "$dist" "sh -s" < "$KORINFDIR/korinf/prepare-debian10-container" || return
+	fi
+
 	# Debian 11 security packages are now served from the signed archive.
 	if [ "$DISTRNAME/$DISTRVERSION" = "Debian/11" ] && [ "$PKGFORMAT" = "deb" ]; then
 		run_in_chroot $dist "sh -s" < "$KORINFDIR/korinf/prepare-debian11-container" || return
