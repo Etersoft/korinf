@@ -41,6 +41,9 @@ class Notifications(unittest.TestCase):
         self.send('x86_64/ALTLinux/Sisyphus')
         mail = [call for call in self.calls if call[0][0] == 'mutt']
         self.assertEqual(len(mail), 2)
+        for args, _ in mail:
+            self.assertIn('set from="lav+builder@etersoft.ru" use_from=yes envelope_from=yes', args)
+            self.assertIn('my_hdr Reply-To: lav+builder@etersoft.ru', args)
         self.assertTrue(all(call[0][3:5] == ['-c', 'lav@etersoft.ru'] for call in mail))
         self.assertTrue(all(call[0][-2:] == ['--', 'newest@example.org'] for call in mail))
         self.assertIn('Архитектура: x86_64', mail[0][1]['input'])

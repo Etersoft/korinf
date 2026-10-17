@@ -12,6 +12,7 @@ import subprocess
 import sys
 
 CC = 'lav@etersoft.ru'
+SENDER = 'lav+builder@etersoft.ru'
 
 TARGETS = {'ALTLinux/Sisyphus': 'i586', 'i586/ALTLinux/Sisyphus': 'i586',
            'x86_64/ALTLinux/Sisyphus': 'x86_64'}
@@ -50,7 +51,7 @@ def notify(dist, source, log, log_url='', version='', module='', state=None, dry
             '\n\nКонец журнала:\n' + '\n'.join(excerpt.splitlines()[-45:]) +
             '\n\nАдрес получателя взят из последней записи changelog исходного RPM.\n')
     if dry_run:
-        print(f'To: {recipient}\nCc: {CC}\nSubject: {subject}\n\n{body}')
+        print(f'From: {SENDER}\nReply-To: {SENDER}\nTo: {recipient}\nCc: {CC}\nSubject: {subject}\n\n{body}')
         return 'Dry run; no mail sent'
     state = Path(state or Path.home() / '.korinf-notifications')
     state.mkdir(parents=True, exist_ok=True)
@@ -64,11 +65,13 @@ def notify(dist, source, log, log_url='', version='', module='', state=None, dry
         receipt = state / (digest + '.json')
         if receipt.exists():
             return 'Already notified today'
-        subprocess.run(['mutt', '-s', subject, '-c', CC, '--', recipient], input=body, text=True,
+        subprocess.run(['mutt', '-s', subject, '-c', CC,
+                        '-e', f'set from="{SENDER}" use_from=yes envelope_from=yes',
+                        '-e', f'my_hdr Reply-To: {SENDER}', '--', recipient], input=body, text=True,
                        check=True, timeout=30,
                        env=dict(os.environ, LC_ALL='C.UTF-8'))
         temporary = receipt.with_suffix('.tmp')
-        temporary.write_text(json.dumps(dict(recipient=recipient, cc=CC, source=str(source),
+        temporary.write_text(json.dumps(dict(recipient=recipient, cc=CC, sender=SENDER, source=str(source),
                                              dist=dist, sent_at=dt.datetime.now().isoformat()))+'\n')
         temporary.replace(receipt)
     return 'Failure mail submitted to ' + recipient
