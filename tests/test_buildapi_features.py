@@ -162,6 +162,32 @@ class Features(unittest.TestCase):
         with self.assertRaises(repair.RepairError):
             repair.start(self.task, self.root, root, engine="codex")
 
+    def test_component_errors_follow_current_attempt_not_failure_history(self):
+        directory = buildlogs.PUB / 'Korinf/x86_64/ALTLinux/Sisyphus/log'
+        directory.mkdir(parents=True)
+        (directory / 'eepm.log').write_text('success after retry')
+        (directory / 'wine.log').write_text('latest component error')
+        self.task.fields.pop('PACKAGE')
+        self.task.failures = [('old attempt', 'Package eepm should be rebuilt'),
+                              ('latest attempt', 'Package wine should be rebuilt')]
+        history = list(self.task.failures)
+        for status in ('done', 'queued', 'running', 'failed', 'broken'):
+            with self.subTest(status=status):
+                self.task.status = status
+                rows = {r['component']: r for r in buildlogs.discover(self.task)}
+                self.assertEqual(set(rows), {'eepm', 'wine'})
+                self.assertFalse(rows['eepm']['failed'])
+                self.assertEqual(rows['wine']['failed'], status in ('failed', 'broken'))
+                self.assertEqual(self.task.failures, history)
+        self.task.status = 'done'
+        for suffix in ('.build.failed', '.autobuild.failed'):
+            with self.subTest(marker=suffix):
+                marker = directory / ('eepm' + suffix)
+                marker.touch()
+                rows = {r['component']: r for r in buildlogs.discover(self.task)}
+                self.assertTrue(rows['eepm']['failed'])
+                marker.unlink()
+
     def test_logs_compression_path_safety_and_html(self):
         directory = buildlogs.PUB / 'Korinf/x86_64/ALTLinux/Sisyphus/log'
         directory.mkdir(parents=True)

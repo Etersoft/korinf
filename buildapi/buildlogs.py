@@ -43,6 +43,13 @@ def _discover(task):
     # Error messages can identify a failed shared component in a product task.
     failed_names = set(re.findall(r'(?:Package |for )([A-Za-z0-9_][A-Za-z0-9_.+-]*)',
                                  '\n'.join(err or '' for _, err in task.failures)))
+    # Old attempts remain useful for finding shared logs, but only the latest
+    # failure of a currently failed task describes its current error.
+    current_failed_names = set()
+    if task.status in ('failed', 'broken') and task.failures:
+        current_failed_names = set(re.findall(
+            r'(?:Package |for )([A-Za-z0-9_][A-Za-z0-9_.+-]*)',
+            task.failures[-1][1] or ''))
     raw_dist = task.fields.get('DIST', 'all')
     dist = raw_dist.removeprefix('i586/')
     broad_dist = dist in ('all', 'ALL', 'build') or dist.endswith(('/build', '/ALL'))
@@ -102,7 +109,7 @@ def _discover(task):
                 except OSError:
                     continue
                 failed = any((directory / (component + suffix)).exists()
-                             for suffix in ('.build.failed', '.autobuild.failed')) or component in failed_names
+                             for suffix in ('.build.failed', '.autobuild.failed')) or component in current_failed_names
                 key = hashlib.sha256(str(resolved).encode()).hexdigest()[:24]
                 records[key] = dict(id=key, component=component, target=target,
                                     failed=failed, mtime=info.st_mtime, size=info.st_size,
