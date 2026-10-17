@@ -164,6 +164,17 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 		logit "copying log from broken build" copying_log
 		set_build_failed
 
+		# Only Sisyphus is the dependency source for other distributions.
+		case "$dist" in
+			ALTLinux/Sisyphus|i586/ALTLinux/Sisyphus|x86_64/ALTLinux/Sisyphus)
+				python3 "$KORINFDIR/korinf/notify-sisyphus-failure" \
+					--dist "$dist" --source "$BUILDSRPM" --log "$LOGFILE" \
+					--log-url "$DESTURL/log/$(basename "$LOGFILE").xz" \
+					--version "$PROJECTVERSION" --module "$KORINFMODULE" ||
+					warning "Could not mail the Sisyphus build failure"
+				;;
+		esac
+
 		# Stop immediately if we in auto build
 		if [ -n "$NIGHTBUILD" ] ; then
 			echo `date` $BUILDNAME on $dist FATAL | write_report
