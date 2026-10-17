@@ -9,6 +9,7 @@
 # --nostop  -- don't stop on errors
 
 NOSTOP=''
+RESULT=0
 
 STATE=''
 while [ -n "$1" ] ; do
@@ -46,13 +47,13 @@ dosh()
 {
     local cmd="$1"
     shift
-    local i j
+    local i j rc
     for i in "$@" ; do
         for j in $cmd ; do
             echo
             echo
             echo "> ./$i.sh $DISTR $ver $j"
-            ./$i.sh $DISTR $ver $j || { [ -z "$NOSTOP" ] && exit ; }
+            ./$i.sh $DISTR $ver $j || { rc=$?; RESULT=$rc; [ -n "$NOSTOP" ] || exit "$rc"; }
         done
     done
     return 0
@@ -111,3 +112,5 @@ do_bootstrap nx-libs prunner nxssh rx-etersoft rxclient
 do_build rxclient rx-etersoft-pcsc rx-etersoft-pcsc-driver kdriveclient rx-etersoft-kdrive
 
 [ "$STATE" = "--check" ] && echo "Legend: MIS - missed, OBS - obsoleted build, ABF - autobuild failed, FIL - manual build failed"
+
+exit "$RESULT"
