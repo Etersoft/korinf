@@ -16,6 +16,9 @@ class ContainerLifetime(unittest.TestCase):
         result = subprocess.run(['bash', '-c', stub + "a='' docker run -d" + command], capture_output=True, check=True)
         args = result.stdout.decode().rstrip('\0').split('\0')
         self.assertEqual(args[args.index('--entrypoint') + 1], '/bin/sh')
+        mounts = [args[i + 1] for i, arg in enumerate(args) if arg == '--tmpfs']
+        self.assertIn('/run', mounts)
+        self.assertIn('/tmp:exec', mounts)
         self.assertEqual(args[args.index('test-image') + 1], '-c')
         loop = args[-1]
         process = subprocess.Popen(['/bin/sh', '-c', loop], start_new_session=True)

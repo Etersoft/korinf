@@ -208,10 +208,12 @@ run_docker_container()
 		--name $contname \
 		$platform \
 		--tmpfs /tmp:exec \
+		--tmpfs /run \
 		$MOUNTBUILDERSTRING \
 		--entrypoint /bin/sh \
 		$dockerimage -c 'trap "exit 0" TERM INT; while :; do sleep 86400 & wait "$!"; done'
 
+	# /run is fresh: saved systemd markers must not make RPM scriptlets signal PID 1.
 	# container was detached
 	sleep 1
 	a='' docker start $contname
