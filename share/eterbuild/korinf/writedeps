@@ -37,7 +37,12 @@ make_alt_depends_list()
     if [ "$TARGETARCH" = "i586" ] && hostname | grep -q office.etersoft.ru ; then
         ssh builder@builder32 $ETERBUILDBIN/rpmreqs -p $(pwd)/$pkg > $TFILE || return
     else
-        $ETERBUILDBIN/rpmreqs -p $pkg > $TFILE || return
+        # Product file providers may not exist in the host APT repositories.
+        # Keep the directory scope tied to this version and target architecture.
+        local RPMREQS_PACKAGE_DIRS="$DESTDIR
+$DESTDIR/extra"
+        export RPMREQS_PACKAGE_DIRS
+        $ETERBUILDBIN/rpmreqs -p "$pkg" > "$TFILE" || return
     fi
     set_destlogdir
     [ -r "$TFILE" ] || return
