@@ -60,6 +60,17 @@ select_hasher_srpm()
 	printf '%s\n' "$selected"
 }
 
+# Dependencies come from the explicit product/version repositories above.
+# Cached output from another product/version must never become a candidate.
+clean_hasher_binary_repo()
+{
+	case "$BUILTRPM" in
+		*/repo/*/RPMS.hasher) ;;
+		*) error "Unexpected hasher binary repository: $BUILTRPM"; return 1 ;;
+	esac
+	rm -f -- "$BUILTRPM"/*.rpm
+}
+
 function build_in_hasher()
 {
 	assert_var DISTRVERSION BUILDARCH DESTDIR RPMDIR
@@ -91,13 +102,8 @@ function build_in_hasher()
 
 	test -n "$MENV" || fatal "build_in_hasher: Call me with correct MENV variable"
 	echo "Build in hasher: $MENV for $dist..."
-	if [ -n "$NIGHTBUILD" ] ; then
-		echo "Clean hasher's rpms before nightbuild"
-		rm -rf $BUILTRPM/*
-	else
-		echo "Clean only the same names from hasher"
-		rm -rf $BUILTRPM/*${BUILDNAME}*
-	fi
+	echo "Clean cached hasher binaries; use the selected product repositories"
+	clean_hasher_binary_repo || return 1
 
 	# FIXME: rewrite spec in hasher?
 	# FIXME: install rpm package in temp dir

@@ -27,6 +27,27 @@ rpm() { cat "${@: -1}"; }
                 text=True, capture_output=True,
                 env=dict(os.environ, HASHERDIR=str(root), BUILDSRPM=str(requested)))
 
+    def test_binary_cache_does_not_leak_between_versions_or_products(self):
+        for arch in ('i586', 'x86_64'):
+            with self.subTest(arch=arch), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                repo = root / 'repo' / arch / 'RPMS.hasher'
+                repo.mkdir(parents=True)
+                for name in ('wine32-etersoft-devel-tools-11.rpm', 'wine-etersoft-10.rpm', 'rxclient-1.rpm'):
+                    (repo / name).touch()
+                (repo / 'keep.txt').touch()
+                source = root / 'repo/SRPMS.hasher'
+                source.mkdir()
+                (source / 'wine.src.rpm').touch()
+                script = 'load_mod() { :; }; error() { echo "$*" >&2; };\n'
+                script += (ROOT / 'share/eterbuild/korinf/build/hasher').read_text()
+                result = subprocess.run(['bash'], input=script+'\nclean_hasher_binary_repo\n',
+                                        text=True, capture_output=True, env=dict(os.environ, BUILTRPM=str(repo)))
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(list(repo.glob('*.rpm')), [])
+                self.assertTrue((repo / 'keep.txt').exists())
+                self.assertTrue((source / 'wine.src.rpm').exists())
+
     def test_selects_requested_version_and_exact_name(self):
         result = self.check_selection({'wine-etersoft-11-alt1.src.rpm':'wine-etersoft 11',
             'wine-etersoft-10-alt1.src.rpm':'wine-etersoft 10',
