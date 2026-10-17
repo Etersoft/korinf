@@ -32,24 +32,28 @@ make_alt_depends_list()
     [ -n "$pkg" ] || return
     echo "Dependencies list for $pkg:"
     local TFILE=$(make_temp_file)
+    # Product file providers may not exist in the host APT repositories.
+    # Keep the directory scope tied to this version and target architecture.
+    local RPMREQS_PACKAGE_DIRS="$DESTDIR
+$DESTDIR/extra"
+    export RPMREQS_PACKAGE_DIRS
     # TODO: in any way, rpmreqs run apt-get install directly!
     # hack against imperfect rpmreqs
     if [ "$TARGETARCH" = "i586" ] && hostname | grep -q office.etersoft.ru ; then
-        ssh builder@builder32 $ETERBUILDBIN/rpmreqs -p $(pwd)/$pkg > $TFILE || return
+        # Send shell-quoted values to bash; paths are shared with builder32.
+        {
+            printf 'export RPMREQS_PACKAGE_DIRS=%q\n' "$RPMREQS_PACKAGE_DIRS"
+            printf 'exec %q -p %q\n' "$ETERBUILDBIN/rpmreqs" "$(pwd)/$pkg"
+        } | ssh builder@builder32 bash -s > "$TFILE" || return
     else
-        # Product file providers may not exist in the host APT repositories.
-        # Keep the directory scope tied to this version and target architecture.
-        local RPMREQS_PACKAGE_DIRS="$DESTDIR
-$DESTDIR/extra"
-        export RPMREQS_PACKAGE_DIRS
-        $ETERBUILDBIN/rpmreqs -p "$pkg" > "$TFILE" || return
+        "$ETERBUILDBIN/rpmreqs" -p "$pkg" > "$TFILE" || return
     fi
     set_destlogdir
     [ -r "$TFILE" ] || return
-    local DEPFILE=$DESTLOGDIR/$(get_pkgname_from_filename $pkg | filter_deb_pkgnames).rpm.depends
-    rm -f $DEPFILE # for keep correct owner
-    cat $TFILE | tee $DEPFILE
-    rm -f $TFILE
+    local DEPFILE=$DESTLOGDIR/$(get_pkgname_from_filename "$pkg" | filter_deb_pkgnames).rpm.depends
+    rm -f "$DEPFILE" # for keep correct owner
+    cat "$TFILE" | tee "$DEPFILE"
+    rm -f "$TFILE"
 }
 
 # used $dist (in set_desklogdir?)
