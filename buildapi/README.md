@@ -71,7 +71,9 @@ companion even when the public `distro.list` lists only x86_64.
 The normal robot worker serializes all Sisyphus products, versions and
 architectures using their shared system resource. No builds run in cron.
 Queue publication is locked against concurrent API submissions; active tasks
-and version aliases are reused. `.sisyphus-daily.json` in the queue prevents
+and version aliases are reused. A forced request only reuses a forced task;
+if a non-forced build is active, the forced build queues behind it under
+the same worker resource lock. The existing task is left unchanged. `.sisyphus-daily.json` in the queue prevents
 another submission on the same day, even after completion or failure.
 The next day retries failed builds but does not duplicate active ones.
 

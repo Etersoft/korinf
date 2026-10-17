@@ -88,7 +88,7 @@ class SystemBuildApi(unittest.TestCase):
 
     def test_same_active_task_is_returned(self):
         first = self.build().json()
-        second = self.build(force=True).json()
+        second = self.build().json()
         self.assertEqual((second['taskid'], second['existing']), (first['taskid'], True))
         self.assertEqual(len(list(self.sales.glob('*.task'))), 1)
         other = self.build(dist='XimperLinux/Deferred').json()

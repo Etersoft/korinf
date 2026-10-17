@@ -64,13 +64,15 @@ def is_system_build(task):
     return task.fields.get('TASKTYPE') == TASKTYPE
 
 
-def find_active(sales, version, dist, product):
+def find_active(sales, version, dist, product, *, force=False):
     """A queued/running build task for the same product, version and system."""
     for task in tr.scan_sales(sales):
         if (is_system_build(task) and task.status in ACTIVE and
+                (not force or task.fields.get('FORCE') == '1') and
                 task.fields.get('COMPONENTNAME', LEGACY_PRODUCT) == product and
                 (ETERSOFT_PUB / product / task.fields.get('PROJECTVERSION', '')).resolve() ==
-                (ETERSOFT_PUB / product / version).resolve() and task.fields.get('DIST') == dist):
+                (ETERSOFT_PUB / product / version).resolve() and
+                task.fields.get('DIST', '').removeprefix('i586/') == dist.removeprefix('i586/')):
             return task
     return None
 
@@ -92,7 +94,7 @@ def _enqueue(version, dist, force, sales, taskid, product, sisyphus_companion=Fa
         raise BuildError(400, f'{dist} is not in distro.list of {version}')
     if not RE_SYSTEM.fullmatch(dist):
         raise BuildError(400, 'invalid system')
-    existing = find_active(sales, version, dist, product)
+    existing = find_active(sales, version, dist, product, force=force)
     if existing:
         return {'taskid': existing.taskid, 'new_path': existing.path, 'existing': True}
     lines = [f'TASKTYPE={TASKTYPE}', f'COMPONENTNAME="{product}"',
