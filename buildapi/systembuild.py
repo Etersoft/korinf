@@ -7,6 +7,7 @@ module enqueues such tasks and reads their stages and log. The task type is
 TASKTYPE=winebuild for every product (the name stays for the queued tasks).
 """
 import os
+import fcntl
 from pathlib import Path
 import re
 
@@ -66,17 +67,28 @@ def is_system_build(task):
 def find_active(sales, version, dist, product):
     """A queued/running build task for the same product, version and system."""
     for task in tr.scan_sales(sales):
-        if is_system_build(task) and task.status in ACTIVE and \
-                task.fields.get('COMPONENTNAME', LEGACY_PRODUCT) == product and \
-                task.fields.get('PROJECTVERSION') == version and task.fields.get('DIST') == dist:
+        if (is_system_build(task) and task.status in ACTIVE and
+                task.fields.get('COMPONENTNAME', LEGACY_PRODUCT) == product and
+                (ETERSOFT_PUB / product / task.fields.get('PROJECTVERSION', '')).resolve() ==
+                (ETERSOFT_PUB / product / version).resolve() and task.fields.get('DIST') == dist):
             return task
     return None
 
 
-def enqueue(version, dist, force, sales, taskid, product):
+def enqueue(version, dist, force, sales, taskid, product, *, sisyphus_companion=False):
+    """Serialize duplicate detection and atomic publication across API and cron."""
+    with open(os.path.join(sales, '.systembuild-enqueue.lock'), 'a') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        return _enqueue(version, dist, force, sales, taskid, product, sisyphus_companion)
+
+
+def _enqueue(version, dist, force, sales, taskid, product, sisyphus_companion=False):
     """Write a system build task, or return the same active one: the robot builds
     tasks one by one, a second identical task would only build twice."""
-    if dist not in systems(version, product):
+    available = systems(version, product)
+    companion = (sisyphus_companion and dist == 'ALTLinux/Sisyphus'
+                 and 'x86_64/ALTLinux/Sisyphus' in available)
+    if dist not in available and not companion:
         raise BuildError(400, f'{dist} is not in distro.list of {version}')
     if not RE_SYSTEM.fullmatch(dist):
         raise BuildError(400, 'invalid system')

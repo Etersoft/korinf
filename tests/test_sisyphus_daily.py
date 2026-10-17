@@ -1,0 +1,84 @@
+import concurrent.futures
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'buildapi'))
+import products
+import sisyphus
+import systembuild
+
+
+class DailySisyphus(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.sales = self.root / 'sales'
+        self.sales.mkdir()
+        (self.sales / 'SALESDIR').touch()
+        self.patch = patch.object(systembuild, 'ETERSOFT_PUB', self.root / 'pub')
+        self.patch.start()
+        self.addCleanup(self.patch.stop)
+        for product in products.names():
+            root = systembuild.ETERSOFT_PUB / product
+            (root / '1.2').mkdir(parents=True)
+            (root / 'stable').symlink_to('1.2')
+            (root / 'version.list').write_text('Stable:\tstable\nAlias:\t1.2\n')
+            (root / '1.2' / 'distro.list').write_text('x86_64/ALTLinux/Sisyphus\n')
+
+    def test_all_products_aliases_and_companions(self):
+        jobs = sisyphus.plan()
+        self.assertEqual(len(jobs), 4)
+        self.assertEqual({j['version'] for j in jobs}, {'1.2'})
+        self.assertEqual([j['dist'] for j in jobs if j['product'] == 'RX@Etersoft'],
+                         ['x86_64/ALTLinux/Sisyphus', 'ALTLinux/Sisyphus'])
+
+    def test_force_once_per_day_and_active_next_day(self):
+        sisyphus.submit(self.sales, '2026-10-17')
+        tasks = list(self.sales.glob('*.task'))
+        self.assertEqual(len(tasks), 4)
+        self.assertTrue(all('FORCE=1\n' in p.read_text() for p in tasks))
+        sisyphus.submit(self.sales, '2026-10-18')
+        self.assertEqual(len(list(self.sales.glob('*.task'))), 4)
+        for p in tasks:
+            p.rename(str(p) + '.failed')
+        sisyphus.submit(self.sales, '2026-10-18')
+        self.assertEqual(len(list(self.sales.glob('*.task'))), 0)
+        sisyphus.submit(self.sales, '2026-10-19')
+        self.assertEqual(len(list(self.sales.glob('*.task'))), 4)
+
+    def test_concurrent_alias_submissions_are_deduplicated(self):
+        def enqueue(i):
+            return systembuild.enqueue('stable' if i % 2 else '1.2', 'x86_64/ALTLinux/Sisyphus',
+                                       True, str(self.sales), f'20261017000000.B01D-0000.{i:010}', 'WINE@Etersoft')
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+            results = list(pool.map(enqueue, range(8)))
+        self.assertEqual(sum(not r['existing'] for r in results), 1)
+        self.assertEqual(len(list(self.sales.glob('*.task'))), 1)
+
+    def test_all_sisyphus_tasks_share_worker_resource(self):
+        import importlib.util
+        path = Path(__file__).resolve().parents[1] / 'robot/hands/worker.py'
+        spec = importlib.util.spec_from_file_location('worker', path)
+        worker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(worker)
+        keys = set()
+        for i, job in enumerate(sisyphus.plan()):
+            task = self.sales / f'{i}.task'
+            task.write_text(f'TASKTYPE=winebuild\nCOMPONENTNAME="{job["product"]}"\n'
+                            f'PROJECTVERSION="{job["version"]}"\nDIST="{job["dist"]}"\n')
+            keys.add(worker.resource(task))
+        self.assertEqual(keys, {'ALTLinux/Sisyphus'})
+
+    def test_companion_exception_is_narrow(self):
+        with self.assertRaises(systembuild.BuildError):
+            systembuild.enqueue('1.2', 'ALTLinux/p10', True, str(self.sales),
+                                '20261017000000.B01D-0000.0000000000', 'RX@Etersoft', sisyphus_companion=True)
+
+
+if __name__ == '__main__':
+    unittest.main()

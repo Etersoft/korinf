@@ -1,0 +1,3 @@
+# Daily source-of-dependencies refresh through the robot queue.
+CRON_TZ=Europe/Moscow
+0 6 * * * TZ=Europe/Moscow /srv/builder/Projects/korinf/tools/enqueue-sisyphus >> /srv/builder/.korinf-worker/sisyphus-daily.log 2>&1

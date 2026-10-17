@@ -54,6 +54,34 @@ i586 companion of an x86_64 system for a product with `i586=1`.
 The `/api/wine/*` paths are deprecated aliases of the product ones with
 `product=WINE@Etersoft`.
 
+## Daily Sisyphus rebuilds
+
+`tools/enqueue-sisyphus --dry-run` lists the daily plan. Without `--dry-run`,
+it submits forced `TASKTYPE=winebuild` tasks to `~/sales` (or `--sales-dir`).
+Products come from `robot/products.list`; versions come from each product's
+published `version.list`. Historical directories absent from that list are
+not scheduled. Version symlinks are resolved and deduplicated.
+
+Every task uses `FORCE=1`, including packages whose source version has not
+changed, so Sisyphus RPMs and their `.rpm.depends` are refreshed. Products with
+`i586=1` build their companion within the x86_64 task; other products receive
+separate x86_64 and i586 Sisyphus tasks. The scheduler may enqueue this i586
+companion even when the public `distro.list` lists only x86_64.
+
+The normal robot worker serializes all Sisyphus products, versions and
+architectures using their shared system resource. No builds run in cron.
+Queue publication is locked against concurrent API submissions; active tasks
+and version aliases are reused. `.sisyphus-daily.json` in the queue prevents
+another submission on the same day, even after completion or failure.
+The next day retries failed builds but does not duplicate active ones.
+
+Install `tools/cron/enqueue-sisyphus.cron` in builder's crontab, preserving
+existing entries. It queues work daily at 06:00 Europe/Moscow; execution may
+start later when a worker is available. Submission output goes to
+`~/.korinf-worker/sisyphus-daily.log`; build logs and statuses use the normal
+queue. A malformed or missing product/version list aborts plan creation
+before any tasks are submitted.
+
 ## Conservative repair and live log
 
 Reviewed failures have a persistent comment in `buildapi/comment-state/<taskid>.json`.
