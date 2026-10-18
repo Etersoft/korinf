@@ -61,7 +61,7 @@ def submit(sales, today=None):
             taskid = dt.datetime.now().strftime('%Y%m%d%H%M%S') + '.B01D-0000.' + ''.join(
                 secrets.choice(string.ascii_lowercase + string.digits) for _ in range(10))
             result = systembuild.enqueue(job['version'], job['dist'], True, str(sales), taskid,
-                                         job['product'], sisyphus_companion=True)
+                                         job['product'], sisyphus_companion=True, skip_failed=True)
             completed.append(key)
             temporary = state.with_suffix('.tmp')
             temporary.write_text(json.dumps(dict(date=today, jobs=completed)) + '\n')

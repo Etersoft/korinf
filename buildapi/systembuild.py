@@ -64,11 +64,12 @@ def is_system_build(task):
     return task.fields.get('TASKTYPE') == TASKTYPE
 
 
-def find_active(sales, version, dist, product, *, force=False):
-    """A queued/running build task for the same product, version and system."""
+def find_active(sales, version, dist, product, *, force=False, include_failed=False):
+    """An active build, optionally including unresolved failures for daily jobs."""
     for task in tr.scan_sales(sales):
-        if (is_system_build(task) and task.status in ACTIVE and
-                (not force or task.fields.get('FORCE') == '1') and
+        if (is_system_build(task) and
+                ((task.status in ACTIVE and (not force or task.fields.get('FORCE') == '1')) or
+                 (include_failed and task.status == 'failed')) and
                 task.fields.get('COMPONENTNAME', LEGACY_PRODUCT) == product and
                 (ETERSOFT_PUB / product / task.fields.get('PROJECTVERSION', '')).resolve() ==
                 (ETERSOFT_PUB / product / version).resolve() and
@@ -77,14 +78,16 @@ def find_active(sales, version, dist, product, *, force=False):
     return None
 
 
-def enqueue(version, dist, force, sales, taskid, product, *, sisyphus_companion=False):
+def enqueue(version, dist, force, sales, taskid, product, *, sisyphus_companion=False,
+            skip_failed=False):
     """Serialize duplicate detection and atomic publication across API and cron."""
     with open(os.path.join(sales, '.systembuild-enqueue.lock'), 'a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
-        return _enqueue(version, dist, force, sales, taskid, product, sisyphus_companion)
+        return _enqueue(version, dist, force, sales, taskid, product, sisyphus_companion, skip_failed)
 
 
-def _enqueue(version, dist, force, sales, taskid, product, sisyphus_companion=False):
+def _enqueue(version, dist, force, sales, taskid, product, sisyphus_companion=False,
+             skip_failed=False):
     """Write a system build task, or return the same active one: the robot builds
     tasks one by one, a second identical task would only build twice."""
     available = systems(version, product)
@@ -94,7 +97,7 @@ def _enqueue(version, dist, force, sales, taskid, product, sisyphus_companion=Fa
         raise BuildError(400, f'{dist} is not in distro.list of {version}')
     if not RE_SYSTEM.fullmatch(dist):
         raise BuildError(400, 'invalid system')
-    existing = find_active(sales, version, dist, product, force=force)
+    existing = find_active(sales, version, dist, product, force=force, include_failed=skip_failed)
     if existing:
         return {'taskid': existing.taskid, 'new_path': existing.path, 'existing': True}
     lines = [f'TASKTYPE={TASKTYPE}', f'COMPONENTNAME="{product}"',

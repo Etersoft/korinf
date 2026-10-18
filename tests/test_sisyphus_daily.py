@@ -49,6 +49,11 @@ class DailySisyphus(unittest.TestCase):
         sisyphus.submit(self.sales, '2026-10-18')
         self.assertEqual(len(list(self.sales.glob('*.task'))), 0)
         sisyphus.submit(self.sales, '2026-10-19')
+        self.assertEqual(len(list(self.sales.glob('*.task'))), 0)
+        self.assertEqual(len(list(self.sales.glob('*.task.failed'))), 4)
+        for p in self.sales.glob('*.task.failed'):
+            p.rename(p.with_suffix('.done'))
+        sisyphus.submit(self.sales, '2026-10-20')
         self.assertEqual(len(list(self.sales.glob('*.task'))), 4)
 
     def test_forced_daily_task_follows_nonforced_active_task(self):
@@ -74,6 +79,24 @@ class DailySisyphus(unittest.TestCase):
                                     str(self.sales), '20261017000000.B01D-0000.0000000001', 'RX@Etersoft')
         self.assertTrue(second['existing'])
         self.assertEqual(second['taskid'], first['taskid'])
+
+    def test_failed_alias_blocks_only_matching_daily_architecture(self):
+        root = systembuild.ETERSOFT_PUB / 'RX@Etersoft' / '1.2'
+        (root / 'distro.list').write_text('x86_64/ALTLinux/Sisyphus\ni586/ALTLinux/Sisyphus\n')
+        first = systembuild.enqueue('stable', 'i586/ALTLinux/Sisyphus', False,
+                                   str(self.sales), '20261017000000.B01D-0000.0000000000', 'RX@Etersoft')
+        path = Path(first['new_path'])
+        path.rename(str(path) + '.failed')
+        sisyphus.submit(self.sales, '2026-10-18')
+        tasks = [p.read_text() for p in self.sales.glob('*.task')]
+        rx = [text for text in tasks if 'COMPONENTNAME="RX@Etersoft"' in text]
+        self.assertEqual(len(rx), 1)
+        self.assertIn('DIST="x86_64/ALTLinux/Sisyphus"', rx[0])
+        self.assertEqual(len(list(self.sales.glob('*.task.failed'))), 1)
+        # Manual requests remain an explicit retry, even for the failed alias.
+        retry = systembuild.enqueue('1.2', 'i586/ALTLinux/Sisyphus', True,
+                                   str(self.sales), '20261018000000.B01D-0000.0000000000', 'RX@Etersoft')
+        self.assertFalse(retry['existing'])
 
     def test_concurrent_alias_submissions_are_deduplicated(self):
         def enqueue(i):
