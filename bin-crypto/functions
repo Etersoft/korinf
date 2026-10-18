@@ -6,14 +6,9 @@ set_module()
 {
 local ver="$1"
 case $ver in
-    0.4)
-        ver=9.0
-        ;;
-    0.5-9)
-        ver=9.0
-        ;;
-    0.5)
-        ver=10.0
+    0.4|0.5|0.5-9)
+        # Published CRYPTO releases build against stable WINE@Etersoft 11.6.
+        ver=11.0
         ;;
 esac
 export KORINFMODULE=wine-$ver
