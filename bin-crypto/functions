@@ -6,8 +6,12 @@ set_module()
 {
 local ver="$1"
 case $ver in
-    0.4|0.5|0.5-9)
-        # Published CRYPTO releases build against stable WINE@Etersoft 11.6.
+    0.5-9)
+        # This compatibility release targets WINE@Etersoft 9.x.
+        ver=9.0
+        ;;
+    0.4|0.5)
+        # These CRYPTO releases build against stable WINE@Etersoft 11.6.
         ver=11.0
         ;;
 esac
