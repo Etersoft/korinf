@@ -54,6 +54,10 @@ RHEL/7
 # RedOS/7.2: no successful published 32-bit build found (2026-10-14).
 RedOS/7.2
 
+# RockyLinux/9: disabled by operator request (2026-10-18).
+# alsa-lib-devel i686/x86_64 documentation conflict (etersoft bug 19718).
+RockyLinux/9
+
 # RockyLinux/10: no successful published 32-bit build found (2026-10-14).
 RockyLinux/10
 
