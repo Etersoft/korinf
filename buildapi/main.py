@@ -31,7 +31,7 @@ import comments
 import source_updates
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
-API_KEY_PATH = BASE_DIR / 'api-key'
+API_KEY_PATH = pathlib.Path("/etc/korinf/api-key")
 
 
 def load_config() -> dict:
@@ -50,7 +50,8 @@ def load_config() -> dict:
         k, v = line.split('=', 1)
         cfg[k.strip()] = tr._unquote(v.strip())
     cfg['DONE_HOURS'] = int(cfg.get('DONE_HOURS', 48) or 48)
-    # The key is in its own file, readable by group korinfbuilder: its members
+    # The key is on the local disk (NFS /srv drops groups after the 16th), readable by
+    # group korinfbuilder: its members
     # get it with tools/korinf-api-key over ssh (API_KEY in config is a fallback)
     key = API_KEY_PATH.read_text(encoding='utf-8').strip() if API_KEY_PATH.exists() else ''
     if key:

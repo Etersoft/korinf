@@ -19,9 +19,9 @@ chmod 600 ~/.config/korinf-api.key
 ```
 
 Without the group the command says whom to ask (the builder64 administrator
-adds the account to `korinfbuilder`). The key is `buildapi/api-key` (mode 640,
-group `korinfbuilder`, excluded from git; `API_KEY` in `buildapi/config` is a
-fallback). There is one key for every client: changing it means updating
+adds the account to `korinfbuilder`). The key is `/etc/korinf/api-key` (root,
+group `korinfbuilder`, mode 640) on the local disk of builder64: NFS `/srv` passes
+only 16 groups of a user. `API_KEY` in `buildapi/config` is a fallback. There is one key for every client: changing it means updating
 `~/.config/korinf-api.key` of the clients and `[korinf].api_key` of the Wine
 Release Manager.
 

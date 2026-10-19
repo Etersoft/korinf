@@ -4,7 +4,7 @@
 #   ssh builder64.office.etersoft.ru /srv/builder/Projects/korinf/tools/korinf-api-key > ~/.config/korinf-api.key
 #   chmod 600 ~/.config/korinf-api.key
 
-KEYFILE="$(dirname "$(readlink -f "$0")")/../buildapi/api-key"
+KEYFILE=/etc/korinf/api-key
 
 if ! cat "$KEYFILE" 2>/dev/null ; then
 	echo "Cannot read the Korinf API key: it is given to the members of group korinfbuilder on $(hostname)." >&2
