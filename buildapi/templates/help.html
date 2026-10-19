@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block title %}Документация — korinf{% endblock %}
+{% block content %}
+<p class=doc-formats>Для программ: <a href=/llms.txt>llms.txt</a> · <a href=/help.md>Markdown</a> · <a href=/openapi.json>OpenAPI</a> · <a href=/docs>Swagger UI</a> · <a href=/redoc>ReDoc</a></p>
+<article class=doc>{{ doc }}</article>
+{% endblock %}

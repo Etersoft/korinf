@@ -1,0 +1,13 @@
+#!/bin/sh
+# Print the Korinf API key (the X-API-Key header of buildapi) to its members
+# of group korinfbuilder, e.g. from your workstation:
+#   ssh builder64.office.etersoft.ru /srv/builder/Projects/korinf/tools/korinf-api-key > ~/.config/korinf-api.key
+#   chmod 600 ~/.config/korinf-api.key
+
+KEYFILE="$(dirname "$(readlink -f "$0")")/../buildapi/api-key"
+
+if ! cat "$KEYFILE" 2>/dev/null ; then
+	echo "Cannot read the Korinf API key: it is given to the members of group korinfbuilder on $(hostname)." >&2
+	echo "Ask the builder64 administrator to add $(id -un) to korinfbuilder." >&2
+	exit 1
+fi

@@ -55,6 +55,12 @@ table.kv th { background: var(--subtle); text-align: right; width: 180px; font-s
 ul.failures { background: var(--failure-bg); border: 1px solid var(--failure-border); border-radius: 4px; padding: 12px 24px; }
 .empty { color: var(--muted); padding: 24px; text-align: center; }
 code { background: var(--subtle); padding: 1px 4px; border-radius: 3px; font-size: 12px; }
+.doc { max-width: 60rem; line-height: 1.5; }
+.doc pre { overflow-x: auto; background: var(--subtle); padding: 8px 12px; border-radius: 4px; }
+.doc pre code { padding: 0; background: none; }
+.doc table { border-collapse: collapse; }
+.doc th, .doc td { border: 1px solid var(--border); padding: 4px 8px; }
+.doc-formats { color: var(--muted); }
 .queue-log { max-height: 75vh; overflow: auto; white-space: pre-wrap; background: #17191c; color: #e6edf3; padding: 12px; border-radius: 4px; }
 
 a { color: var(--blue); }

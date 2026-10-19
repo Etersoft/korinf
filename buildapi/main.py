@@ -17,6 +17,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
+import markdown
+from markupsafe import Markup
 
 import taskreader as tr
 import orders
@@ -29,6 +31,7 @@ import comments
 import source_updates
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
+API_KEY_PATH = BASE_DIR / 'api-key'
 
 
 def load_config() -> dict:
@@ -47,6 +50,11 @@ def load_config() -> dict:
         k, v = line.split('=', 1)
         cfg[k.strip()] = tr._unquote(v.strip())
     cfg['DONE_HOURS'] = int(cfg.get('DONE_HOURS', 48) or 48)
+    # The key is in its own file, readable by group korinfbuilder: its members
+    # get it with tools/korinf-api-key over ssh (API_KEY in config is a fallback)
+    key = API_KEY_PATH.read_text(encoding='utf-8').strip() if API_KEY_PATH.exists() else ''
+    if key:
+        cfg['API_KEY'] = key
     return cfg
 
 
@@ -60,11 +68,14 @@ app = FastAPI(
     title='korinf buildapi',
     version='1.4.0',
     description='Очередь сборок korinf (задачи из `~/sales`).\n\n'
-                '**Аутентификация:** все `/api/*` требуют заголовок `X-API-Key` '
-                '(значение — в `/srv/builder/Projects/korinf/buildapi/config`). '
+                '**Аутентификация:** все `/api/*` требуют заголовок `X-API-Key`. '
+                'Ключ выдаётся участникам группы `korinfbuilder` на builder64: '
+                '`ssh builder64.office.etersoft.ru /srv/builder/Projects/korinf/tools/korinf-api-key`. '
                 'Нажмите кнопку **Authorize** и вставьте ключ.\n\n'
                 '**Web-интерфейс** (без ключа, для браузера): `/` — список по продуктам, '
-                '`/task/{taskid}` — детали.',
+                '`/task/{taskid}` — детали.\n\n'
+                '**Руководство:** `/help` (HTML), `/help.md` (Markdown), '
+                '`/llms.txt` (краткий указатель для программ и AI-агентов).',
 )
 templates = Jinja2Templates(directory=str(BASE_DIR / 'templates'))
 templates.env.globals['repair_engines'] = repair_engines.ENGINES
@@ -731,6 +742,36 @@ def web_queue_log(request: Request):
         'log': log, 'line_count': len(log.splitlines()),
         'queue_stopped': queue_stopped(), 'has_running': False,
     })
+
+
+README_PATH = BASE_DIR / 'README.md'
+LLMS_TXT_PATH = BASE_DIR / 'llms.txt'
+
+
+def _read_doc(path):
+    try:
+        return path.read_text(encoding='utf-8')
+    except OSError as e:
+        raise HTTPException(503, f'Документация недоступна: {e}')
+
+
+# One README for people (/help) and programs (/help.md, /llms.txt, /openapi.json)
+@app.get('/help', response_class=HTMLResponse, include_in_schema=False)
+def web_help(request: Request):
+    doc = markdown.markdown(_read_doc(README_PATH), extensions=['fenced_code', 'tables', 'toc'])
+    return templates.TemplateResponse(request, 'help.html', {
+        'doc': Markup(doc), 'queue_stopped': queue_stopped(), 'has_running': False,
+    })
+
+
+@app.get('/help.md', include_in_schema=False)
+def web_help_md():
+    return PlainTextResponse(_read_doc(README_PATH), media_type='text/markdown; charset=utf-8')
+
+
+@app.get('/llms.txt', include_in_schema=False)
+def web_llms_txt():
+    return PlainTextResponse(_read_doc(LLMS_TXT_PATH))
 
 
 @app.get('/task/{taskid}', response_class=HTMLResponse, include_in_schema=False)

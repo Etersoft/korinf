@@ -1,0 +1,23 @@
+# korinf buildapi
+
+> Build queue of Korinf (Etersoft) on builder64: builds products (WINE@Etersoft, RX@Etersoft, CRYPTO@Etersoft, ...) and common packages for the systems of their distro.list and reports progress. HTTP API at http://builder64.office.etersoft.ru:5503, internal network only.
+
+Authentication: every `/api/*` path requires the header `X-API-Key`. Get the key over ssh (members of group `korinfbuilder` on builder64): `ssh builder64.office.etersoft.ru /srv/builder/Projects/korinf/tools/korinf-api-key > ~/.config/korinf-api.key`. Web pages (`/`, `/task/{taskid}`) need no key. Never send the key anywhere else.
+
+Build a product for a system:
+
+1. `GET /api/product/systems?product=WINE@Etersoft&version=11-testing` — the systems of the version.
+2. `POST /api/product/build` with JSON `{"product": "WINE@Etersoft", "version": "11-testing", "dist": "x86_64/ALTLinux/Sisyphus", "force": false}` — returns `taskid`; `existing: true` when the same build is already queued or running (reuse it, do not enqueue again).
+3. Poll `GET /api/task/{taskid}` (status: queued, running, done, failed, broken, removed, interrupted) and `GET /api/task/{taskid}/progress` (stages); output: `GET /api/task/{taskid}/log?tail=200`. The robot builds one task at a time: a build may wait hours in the queue.
+4. A failed task: `POST /api/task/{taskid}/restart`.
+
+## Docs
+
+- [Guide (Markdown)](http://builder64.office.etersoft.ru:5503/help.md): every feature of the API and web pages, the key, products, rebuilds, repairs, orders
+- [OpenAPI schema](http://builder64.office.etersoft.ru:5503/openapi.json): all paths, parameters and responses
+
+## Optional
+
+- [Guide (HTML)](http://builder64.office.etersoft.ru:5503/help)
+- [Swagger UI](http://builder64.office.etersoft.ru:5503/docs)
+- [Client korinf-build.py](https://gitlab.eterfund.ru/wine/wine-rebased-utils/-/blob/master/rebased/korinf-build.py): enqueue a product build and wait for the result

@@ -1,8 +1,54 @@
 # Korinf web and API
 
-Open `/docs` for the interactive API documentation. `/api/*` requires the
-`X-API-Key` header (configured in `buildapi/config`). The web interface uses
-the existing internal-network access model, without individual accounts.
+The build queue of Korinf on builder64: http://builder64.office.etersoft.ru:5503.
+The web pages (`/`, `/task/{taskid}`) need no key and use the internal-network
+access model, without individual accounts. `/api/*` requires the `X-API-Key`
+header.
+
+This guide is served as `/help` (HTML) and `/help.md` (Markdown); `/llms.txt` is
+a short index for programs and AI agents; `/docs` (Swagger UI), `/redoc` and
+`/openapi.json` describe every API path.
+
+## Getting the API key
+
+The key is given to the members of group `korinfbuilder` on builder64 over ssh:
+
+```sh
+ssh builder64.office.etersoft.ru /srv/builder/Projects/korinf/tools/korinf-api-key > ~/.config/korinf-api.key
+chmod 600 ~/.config/korinf-api.key
+```
+
+Without the group the command says whom to ask (the builder64 administrator
+adds the account to `korinfbuilder`). The key is `buildapi/api-key` (mode 640,
+group `korinfbuilder`, excluded from git; `API_KEY` in `buildapi/config` is a
+fallback). There is one key for every client: changing it means updating
+`~/.config/korinf-api.key` of the clients and `[korinf].api_key` of the Wine
+Release Manager.
+
+## Quick start: build a product for a system
+
+```sh
+KEY=$(cat ~/.config/korinf-api.key)
+API=http://builder64.office.etersoft.ru:5503
+# the systems of a product version
+curl -s -H "X-API-Key: $KEY" "$API/api/product/systems?product=WINE@Etersoft&version=11-testing"
+# enqueue the build: returns taskid (existing: true if the same build is queued or running)
+curl -s -H "X-API-Key: $KEY" -H 'Content-Type: application/json' \
+     -d '{"product": "WINE@Etersoft", "version": "11-testing", "dist": "x86_64/Ubuntu/24.04"}' \
+     "$API/api/product/build"
+# status, stages and output of the task
+curl -s -H "X-API-Key: $KEY" "$API/api/task/<taskid>"
+curl -s -H "X-API-Key: $KEY" "$API/api/task/<taskid>/progress"
+curl -s -H "X-API-Key: $KEY" "$API/api/task/<taskid>/log?tail=200"
+# restart a failed task
+curl -s -X POST -H "X-API-Key: $KEY" "$API/api/task/<taskid>/restart"
+```
+
+The client `rebased/korinf-build.py` of
+[wine-rebased-utils](https://gitlab.eterfund.ru/wine/wine-rebased-utils) does this
+and waits for the result: `korinf-build.py [--force] [--check] <version> <system>`,
+exit code 0 built, 1 failed, 2 still running after `KORINF_WAIT`. It reads the key
+from `~/.config/korinf-api.key` (`KORINF_API_KEY_FILE`).
 
 ## Rebuild a common package
 

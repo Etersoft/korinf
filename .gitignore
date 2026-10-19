@@ -9,6 +9,7 @@ robot/try.task
 
 # buildapi (API + web очереди сборок)
 buildapi/config
+buildapi/api-key
 buildapi/__pycache__/
 __pycache__/
 /buildapi/order-state/
