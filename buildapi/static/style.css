@@ -4,13 +4,20 @@
   --blue: #1d4ed8; --red: #b91c1c; --border: #e5e7eb; --subtle: #f3f4f6;
   --amber: #b45309; --green: #15803d; --failure-bg: #fef2f2; --failure-border: #fecaca;
 }
+/* the theme selector (theme.js) sets data-theme; without it follow the system */
 @media (prefers-color-scheme: dark) {
-:root {
+:root:not([data-theme="light"]) {
   color-scheme: dark;
   --page: #111827; --text: #e5e7eb; --surface: #1f2937; --muted: #aeb8c7;
   --blue: #93c5fd; --red: #fca5a5; --border: #455266; --subtle: #283548;
   --amber: #fcd34d; --green: #86efac; --failure-bg: #3b2027; --failure-border: #7f3949;
 }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #111827; --text: #e5e7eb; --surface: #1f2937; --muted: #aeb8c7;
+  --blue: #93c5fd; --red: #fca5a5; --border: #455266; --subtle: #283548;
+  --amber: #fcd34d; --green: #86efac; --failure-bg: #3b2027; --failure-border: #7f3949;
 }
 body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
        margin: 0; background: var(--page); color: var(--text); font-size: 14px; }
@@ -21,6 +28,7 @@ nav a.nav-brand:hover { text-decoration: underline; }
 nav a { color: #bfdbfe; }
 .inline { display: inline; }
 .hint { color: #9ca3af; font-size: 12px; }
+nav .theme-select { margin-left: auto; font-size: 12px; padding: 2px 4px; }
 
 button { cursor: pointer; padding: 3px 10px; border: 1px solid var(--muted); background: var(--surface); border-radius: 4px; }
 button.btn-stop { color: var(--red); border-color: var(--red); }

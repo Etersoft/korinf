@@ -210,7 +210,8 @@ class Features(unittest.TestCase):
         self.assertIn('Логи составляющих', page)
         self.assertIn('eepm.log.xz', page)
         self.assertIn('<meta name="color-scheme" content="light dark">', page)
-        self.assertNotIn('/static/theme.js', page)
+        self.assertIn('/static/theme.js', page)
+        self.assertIn('id="theme-select"', page)
 
 
 class ApplyRecipe(unittest.TestCase):
