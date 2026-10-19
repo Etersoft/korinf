@@ -249,7 +249,11 @@ EOF
 		# NOTE: not used for AstraLinuxSE — its module is so stale that a full dist-upgrade
 		# upgrades core packages and kills the container; epm install there allows removal anyway.
 		if [ "$DISTRNAME" = "OSnovaLinux" ] ; then
-			run_in_chroot $dist "apt-get -y dist-upgrade" </dev/null 2>/dev/null
+			# Repair interrupted installs before upgrading; neither operation has a terminal.
+			# Keep local configuration and expose failures instead of continuing with broken deps.
+			local osnova_apt="DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
+			run_in_chroot "$dist" "$osnova_apt --fix-broken install" </dev/null || return
+			run_in_chroot "$dist" "$osnova_apt dist-upgrade" </dev/null || return
 		fi
 		# Heal broken apt state before installing build requires.
 		# e.g. eepm-full gets unpacked-but-not-configured (its Depends aria2/fzf/pigz are not pulled

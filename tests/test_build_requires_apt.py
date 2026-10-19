@@ -35,13 +35,13 @@ printf 'parent:%s\n' "$APTOPTIONS"
                     input='load_mod() { :; }\n' + source + '\nPKGFORMAT=' + pkgformat + '\n' + harness)
                 self.assertEqual(result.returncode, 0, result.stderr)
                 calls = [line for line in result.stdout.splitlines() if line.startswith('epm:')]
-                installs = [line for line in calls if '--verbose install' in line]
+                installs = [line for line in calls if '--verbose --allow-remove install' in line]
                 self.assertEqual(len(installs), 2)
                 for line in installs:
                     self.assertIn('--no-remove -o Debug::pkgProblemResolver=true', line)
                     self.assertEqual('--no-install-recommends' in line, pkgformat == 'deb')
                 for line in calls:
-                    if '--verbose install' not in line:
+                    if '--verbose --allow-remove install' not in line:
                         self.assertNotIn('--no-install-recommends', line)
                 self.assertIn('parent:--no-remove -o Debug::pkgProblemResolver=true\n', result.stdout)
 
@@ -75,6 +75,64 @@ install_build_requires Debian/12
                 self.assertIn(' update', calls[0])
                 installs = [line for line in calls if 'install dependencies' in line]
                 self.assertEqual(len(installs), 1 if code == 0 else 0)
+
+
+    def test_osnova_repairs_before_upgrade_and_propagates_failures(self):
+        source = (ROOT / 'share/eterbuild/korinf/install').read_text()
+        harness = r'''
+load_mod() { :; }
+assert_var() { :; }
+rhas() { return 1; }
+convert_pkgreqs_to_target() { echo "$*"; }
+quote_pkgname() { echo "$*"; }
+warning() { :; }
+epm_stub() { echo test-build-requirement; }
+run_in_chroot() {
+    printf 'call:%s\n' "$2"
+    case "$2" in
+        *'--fix-broken install'*) return "$REPAIR_RC" ;;
+        *dist-upgrade*) return "$UPGRADE_RC" ;;
+    esac
+    return 0
+}
+BUILDNAME=test-package TARGETARCH=x86_64 BUILDARCH=x86_64
+TARGETSRPM=dummy BUILDERHOME=dummy DISTRVERSION=3.0
+PKGFORMAT=deb EPMCMD=epm_stub
+install_build_requires "x86_64/$DISTRNAME/$DISTRVERSION"
+'''
+        for distro, repair, upgrade in (
+                ('OSnovaLinux', 0, 0), ('OSnovaLinux', 42, 0),
+                ('OSnovaLinux', 0, 43), ('Ubuntu', 0, 0)):
+            with self.subTest(distro=distro, repair=repair, upgrade=upgrade):
+                setup = (f'load_mod() {{ :; }}\n{source}\n'
+                         f'KORINFDIR={ROOT / "share/eterbuild"}\n'
+                         f'DISTRNAME={distro} REPAIR_RC={repair} UPGRADE_RC={upgrade}\n')
+                result = subprocess.run(['bash'], text=True, capture_output=True,
+                                        input=setup + harness)
+                self.assertEqual(result.returncode, repair or upgrade, result.stderr)
+                calls = [line[5:] for line in result.stdout.splitlines()
+                         if line.startswith('call:')]
+                repairs = [i for i, cmd in enumerate(calls) if '--fix-broken install' in cmd]
+                upgrades = [i for i, cmd in enumerate(calls) if 'dist-upgrade' in cmd]
+                installs = [i for i, cmd in enumerate(calls)
+                            if '--verbose --allow-remove install' in cmd]
+                if distro != 'OSnovaLinux':
+                    self.assertEqual(repairs, [])
+                    self.assertEqual(upgrades, [])
+                    self.assertEqual(len(installs), 2)
+                    continue
+                self.assertEqual(len(repairs), 1)
+                self.assertEqual(len(upgrades), 0 if repair else 1)
+                self.assertEqual(len(installs), 0 if repair or upgrade else 2)
+                for i in repairs + upgrades:
+                    self.assertIn('DEBIAN_FRONTEND=noninteractive', calls[i])
+                    self.assertIn('apt-get -y', calls[i])
+                    self.assertIn('-o Dpkg::Options::=--force-confdef', calls[i])
+                    self.assertIn('-o Dpkg::Options::=--force-confold', calls[i])
+                if upgrades:
+                    self.assertLess(repairs[0], upgrades[0])
+                if installs:
+                    self.assertLess(upgrades[0], installs[0])
 
 
 if __name__ == '__main__':
