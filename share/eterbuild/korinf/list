@@ -35,9 +35,18 @@ get_linked_x86_64_wine_system()
 
 check_native_32_system()
 {
-	grep -q "^$1 *$" $KORINFETC/native-32 && return
-	local sys="$(echo "$1" | sed -e "s|/.*$||")"
-	grep -q "^$sys *$" $KORINFETC/native-32 && return
+	local target="$1" file
+	case "$target" in
+		i586/*|i686/*|x86_64/*|aarch64/*) target="${target#*/}" ;;
+	esac
+	local sys="${target%%/*}"
+	# Modules may retain native images after the default switches to multilib.
+	for file in "$KORINFETC/native-32" "${KORINFMODULE:+$KORINFETC/native-32.$KORINFMODULE}" ; do
+		[ -f "$file" ] || continue
+		grep -q "^$target *$" "$file" && return 0
+		grep -q "^$sys *$" "$file" && return 0
+	done
+	return 1
 }
 
 
