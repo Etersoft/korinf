@@ -9,6 +9,19 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 
 class ContainerLifetime(unittest.TestCase):
+    def test_windows_cleanup_does_not_reuse_a_previous_linux_environment(self):
+        script = f"""
+            . {ROOT}/share/eterbuild/korinf/mount
+            get_remote_host() {{ echo unexpected-backend >&2; exit 91; }}
+            rm() {{ echo unexpected-remove >&2; exit 92; }}
+            DISTRNAME=Windows BUILDROOT=/previous/linux/buildroot
+            unset CONTAINERNAME
+            end_umount Windows/ALL
+        """
+        result = subprocess.run(['bash', '-c', script], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, '')
+
     def test_launcher_overrides_image_command_and_handles_stop(self):
         source = (ROOT / 'share/eterbuild/korinf/mount').read_text()
         command = source.split("a='' docker run -d", 1)[1].split('\n\n', 1)[0]

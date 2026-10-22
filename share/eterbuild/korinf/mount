@@ -356,6 +356,10 @@ end_umount()
 	# if early error
 	[ -z "$DISTRNAME" ] && return
 
+	# Windows builds run on the host and never mount a Linux environment.
+	# A preceding Linux target may have left BUILDROOT or backend state behind.
+	[ "$DISTRNAME" = Windows ] && return 0
+
 	[ -n "$dist" ] || fatal "empty dist"
 
 	local rhost
