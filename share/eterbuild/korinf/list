@@ -40,8 +40,8 @@ check_native_32_system()
 		i586/*|i686/*|x86_64/*|aarch64/*) target="${target#*/}" ;;
 	esac
 	local sys="${target%%/*}"
-	# Modules may retain native images after the default switches to multilib.
-	for file in "$KORINFETC/native-32" "${KORINFMODULE:+$KORINFETC/native-32.$KORINFMODULE}" ; do
+	# Each module, including the base image, may retain native images.
+	for file in "$KORINFETC/native-32" "$KORINFETC/native-32.${KORINFMODULE:-default}" ; do
 		[ -f "$file" ] || continue
 		grep -q "^$target *$" "$file" && return 0
 		grep -q "^$sys *$" "$file" && return 0

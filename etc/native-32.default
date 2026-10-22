@@ -1,0 +1,2 @@
+# The base Debian 13 image uses i386 without amd64 multiarch.
+Debian/13
