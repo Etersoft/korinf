@@ -39,8 +39,8 @@ set_ver()
     set_module "$ver"
     # libwine-devel has several providers in ALT. Use the stable WINE@Etersoft
     # toolchain selected by this product's build repository.
-    case "$ver" in
-        0.4|0.5)
+    case "$ver:$NAME" in
+        0.4:wine-etersoft-cpcsp_proxy|0.5:wine-etersoft-cpcsp_proxy)
             case "$1" in
                 x86_64/*) export ETERBUILD_HASHER_BUILD_PACKAGES=wine-etersoft-devel-tools ;;
                 *) export ETERBUILD_HASHER_BUILD_PACKAGES=wine32-etersoft-devel-tools ;;
