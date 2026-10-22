@@ -21,7 +21,8 @@ LOCUSER=builder
 RPMSDIR=RPM/RPMS
 
 # Path to chroot dir (remote system mounted)
-CHROOTDIR=/tmp/autobuild
+# Allow large builds to use a filesystem with sufficient free space.
+CHROOTDIR=${KORINF_CHROOTDIR:-/tmp/autobuild}
 # FIXME
 mkdir -p $CHROOTDIR
 
