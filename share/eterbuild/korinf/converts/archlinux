@@ -42,6 +42,10 @@ convert_archlinux()
 	done
 	prepreqs=$(estrlist uniq $prepreqs)
 
+	# Quote the data for the child shell instead of inserting it into shell syntax.
+	local binpkglist
+	binpkglist=$(printf '%q' "$BUILTBINPKGLIST")
+
 	cat <<EOF | run_in_chroot --user $dist "bash -x -" || return
 	umask 002
 	mkdir -p ~/RPM/log
@@ -49,7 +53,8 @@ convert_archlinux()
 	rm -rf $WRKDIR/
 	mkdir -p $WRKDIR/src/ && cd $WRKDIR/src/ || exit
 
-	for i in $BUILTBINPKGLIST ; do
+	binpkglist=$binpkglist
+	for i in \$binpkglist ; do
 		pkg=$INTBUILT/\$(basename \$i)
 		test -r \$pkg || exit
 		# rpm2cpio is broken
