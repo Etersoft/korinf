@@ -176,7 +176,7 @@ for dist in $(get_distro_list $REBUILDLIST) ; do
 		esac
 
 		# Stop immediately if we in auto build
-		if [ -n "$NIGHTBUILD" ] ; then
+		if [ -n "$NIGHTBUILD" ] && [ -z "$CONTINUEONFAILURE" ] ; then
 			echo `date` $BUILDNAME on $dist FATAL | write_report
 			fatal "Fatal autobuild"
 		fi

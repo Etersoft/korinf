@@ -140,6 +140,7 @@ print_build_project_options()
 	echo "	-b - buildstrap (build if needed, install package(s) after build)"
 	echo "	-B - force buildstrap (even if package is up-to-date)"
 	echo "	-q - enable quiet mode"
+	echo "	--nostop - continue with other systems after a build failure"
 	echo "	-c - print build status list"
 	echo "	-f - force rebuild only failed package(s)"
 	echo "	-F - force rebuild all packages (even if package is up-to-date)"
@@ -152,6 +153,9 @@ print_build_project_options()
 handle_arg()
 {
 	case "$1" in
+	--nostop)
+		CONTINUEONFAILURE=1
+		;;
 	-q)
 		QUIET=1
 		;;

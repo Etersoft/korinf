@@ -107,9 +107,9 @@ run_generic_build_task()
 	local KORINF="$AROBOTDIR/../bin/korinf"
 	local OPTS
 	if [ "$FORCE" = "1" ] ; then
-		OPTS="-F"
+		OPTS="--nostop -F"
 	else
-		OPTS="-f"
+		OPTS="--nostop -f"
 	fi
 
 	# Invoke korinf directly (no eval): empty positionals break bin/korinf's parser,
