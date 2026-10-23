@@ -2,8 +2,9 @@
 #x86_64/CentOS/6
 x86_64/CentOS/7
 x86_64/CentOS/8
-# CentOS Stream, built in its own image.
+# CentOS/10 is the build target understood by older host conversion tools.
 x86_64/CentOS/10
+x86_64/CentOSStream/10
 #x86_64/Scientific/6
 x86_64/RedOS/7.2
 x86_64/RedOS/7.3
