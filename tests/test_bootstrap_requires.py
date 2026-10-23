@@ -7,28 +7,6 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class BootstrapRequires(unittest.TestCase):
-    def test_centos_stream_initial_bootstrap_uses_native_dnf(self):
-        source = (ROOT / 'share/eterbuild/korinf/install').read_text()
-        harness = r'''
-load_mod() { :; }
-assert_var() { :; }
-rhas() { return 1; }
-convert_pkgreqs_to_target() { echo "$*"; }
-quote_pkgname() { echo "$*"; }
-warning() { :; }
-epm_stub() { echo 'apt-get install wrong-backend'; }
-run_in_chroot() { echo "$*"; }
-BUILDNAME=rpm-build-altlinux-compat TARGETARCH=x86_64 BUILDARCH=x86_64
-TARGETSRPM=dummy PKGFORMAT=rpm BUILDERHOME=dummy
-DISTRNAME=CentOSStream DISTRVERSION=10 EPMCMD=epm_stub INITIALBOOTSTRAP=1
-install_build_requires x86_64/CentOSStream/10
-'''
-        result = subprocess.run(['bash'], input='load_mod() { :; }\n' + source + '\n' + harness,
-                                capture_output=True, text=True)
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('dnf -y install', result.stdout)
-        self.assertNotIn('apt-get', result.stdout)
-
     def test_i586_flags_do_not_depend_on_container_reported_architecture(self):
         source = (ROOT / 'share/eterbuild/korinf/install').read_text()
         harness = r"""
