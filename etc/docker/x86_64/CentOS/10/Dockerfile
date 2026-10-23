@@ -1,6 +1,7 @@
 FROM quay.io/centos/centos:stream10
 
-RUN dnf install -y rpm-build make
+# Required by the initial eepm RPM before a dependency solver is bootstrapped.
+RUN dnf install -y rpm-build make coreutils-common
 
 RUN useradd -m korinfer
 
