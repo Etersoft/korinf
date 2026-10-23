@@ -216,7 +216,13 @@ EOF
 		fi
 		prepare_build_cpio || return
 		# Bootstrap install eepm (get command from host's epm)
-		INSTALLCOMMAND=$(DISTRNAMEOVERRIDE=$DISTRNAME/$DISTRVERSION $EPMCMD --auto --show-command-only --nodeps install $reqsbr $reqs) || { warning "Can't get install command" ; return 1 ; }
+		if [ "$DISTRNAME" = "CentOSStream" ]; then
+			# Older host distro_info versions classify Stream as apt-rpm.
+			# Its own initial image has dnf and no epm yet.
+			INSTALLCOMMAND="dnf -y install $reqsbr $reqs"
+		else
+			INSTALLCOMMAND=$(DISTRNAMEOVERRIDE=$DISTRNAME/$DISTRVERSION $EPMCMD --auto --show-command-only --nodeps install $reqsbr $reqs) || { warning "Can't get install command" ; return 1 ; }
+		fi
 		# CHECKME: why we need yes here
 		run_in_chroot $dist "$INSTALLCOMMAND </dev/null" || return
 	else
