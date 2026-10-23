@@ -46,6 +46,23 @@ EXPMAINFILES='wine.rpm full.rpm' EXPEXTRAFILES=devel.rpm
                 self.assertIn("'wine-etersoft-full' wine.rpm full.rpm devel.rpm", result.stdout)
                 self.assertEqual('--simulate' in result.stdout, simulate)
 
+    def test_initial_local_rpm_install_allows_unsigned_and_propagates_failure(self):
+        result = self.shell('install', '''
+epm_stub() { echo 'rpm -Uvh --force'; }
+run_in_chroot() {
+    case "$*" in
+        *'bash -x /usr/bin/epm'*) return 127 ;;
+        *'yes | rpm'*) echo "$*"; return 42 ;;
+    esac
+}
+BUILDNAME=rpm-build-altlinux-compat INITIALBOOTSTRAP=1
+PKGFORMAT=rpm INTBUILT=/built dist=test EPMCMD=epm_stub
+EXPMAINFILES='rpm-build-altlinux-compat*.rpm'
+install_built_packages
+''')
+        self.assertEqual(result.returncode, 42, result.stderr)
+        self.assertIn('rpm -Uvh --force --nosignature', result.stdout)
+
 
 if __name__ == '__main__':
     unittest.main()

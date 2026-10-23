@@ -61,10 +61,13 @@ install_built_packages()
 	local INSTALLCOMMAND
 	INSTALLCOMMAND=$(DISTRNAMEOVERRIDE=$DISTRNAME/$DISTRVERSION $EPMCMD --auto --show-command-only install) || { warning "Can't get install command" ; return 1 ; }
 	[ -n "$INSTALLCOMMAND" ] || { warning "Got empty install command" ; return 1 ; }
+	# These bootstrap RPMs were just built locally and have no repository signature.
+	# Fedora 45 requires signatures even for direct rpm installation by default.
+	[ "$PKGFORMAT" = "rpm" ] && INSTALLCOMMAND="$INSTALLCOMMAND --nosignature"
 	# Install only the first (base) package to avoid broken deps from subpackages (like eepm-repack)
 	local BOOTSTRAPFILES="${EXPMAINFILES%% *}"
 	# CHECKME: why we need yes here
-	run_in_chroot $dist "cd $INTBUILT && yes | $INSTALLCOMMAND ${BOOTSTRAPFILES}" #|| set_build_failed
+	run_in_chroot $dist "cd $INTBUILT && yes | $INSTALLCOMMAND ${BOOTSTRAPFILES}" || return
 	if [ "$BUILDNAME" = "eepm" ] ; then
 		run_in_chroot $dist "epm -h >/dev/null" || set_build_failed
 	fi
