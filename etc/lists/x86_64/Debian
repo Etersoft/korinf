@@ -21,4 +21,5 @@ x86_64/Debian/13
 
 # Debian/12
 x86_64/LMDE/6
+x86_64/LMDE/7
 x86_64/Deepin/25
