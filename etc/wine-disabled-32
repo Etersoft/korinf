@@ -35,6 +35,9 @@ Fedora/43
 # Fedora/44: no successful published 32-bit build found (2026-10-14).
 Fedora/44
 
+# Fedora/45: initial i586 eepm bootstrap failed (2026-11-07).
+Fedora/45
+
 # MOSDesktop/2021.1: no successful published 32-bit build found (2026-10-14).
 MOSDesktop/2021.1
 
