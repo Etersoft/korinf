@@ -131,6 +131,9 @@ install_build_requires()
 
 	if rhas "$BUILDNAME" "wine" && ! rhas "$BUILDNAME" "local" && ! rhas "$BUILDNAME" "network" ; then
 		buildsystempkgs="$buildsystempkgs clang llvm lld flex bison"
+		# Wine falls back to an obsolete -Ttext preloader link without libc.a;
+		# Fedora 45's binutils 2.47 needs the static-pie path instead.
+		[ "$DISTRNAME/$DISTRVERSION" = "Fedora/45" ] && buildsystempkgs="$buildsystempkgs glibc-static"
 	fi
 
 	# hack to prepare Debian based system
