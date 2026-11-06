@@ -33,7 +33,7 @@ install_built_packages()
 			# Fedora's package solver checks group(wineadmin) before running
 			# the WINE common subpackage's %pre groupadd scriptlet.
 			if [ "$PKGFORMAT" = rpm ] && [ "$DISTRNAME" = Fedora ] && rhas "$BUILDNAME" "wine"; then
-				run_in_chroot --user "$dist" "groupadd -f wine; groupadd -f wineadmin" || return $?
+				run_in_chroot "$dist" "groupadd -f wine; groupadd -f wineadmin" || return $?
 			fi
 			run_in_chroot $dist "cd $INTBUILT && bash -s -- '$PKGFORMAT' '$BOOTSTRAP_EXCLUDE' ${EXPMAINFILES} ${EXPEXTRAFILES}" < "$KORINFDIR/korinf/install-bootstrap-packages"
 			return $?
