@@ -35,6 +35,13 @@ build_rpms()
 	INTBUILT=/home/$INTUSER/$RPMSDIR
 
 	RPMARGS="$(get_rpm_args $dist $BUILDNAME)"
+	RPMWEAKGROUPDEPS=""
+	if [ "$DISTRNAME" = Fedora ] && [ "$BUILDNAME" = wine-etersoft ]; then
+		# The WINE common subpackage creates wineadmin in %pre. Fedora's
+		# solver cannot satisfy the generated hard group() dependency before
+		# installing that subpackage; leave the generated group deps weak.
+		RPMWEAKGROUPDEPS="--define='_use_weak_usergroup_deps 1'"
+	fi
 
 	echo "Build '$BUILDSRPM' for $dist distro with args '$RPMARGS'"
 	# FIXME: problem if system's rpm does not recognize our src.rpm (as Mandriva 2007.1/2008)
@@ -88,7 +95,7 @@ build_rpms()
 	#echo "srpm requires:"
 	#epm req /home/$INTUSER/tmp/$(basename $TARGETSRPM)
 
-	\$RPMCMD -v --rebuild $RPMBUILDNODEPS \$RPMARGS \$DDF \
+	\$RPMCMD -v --rebuild $RPMBUILDNODEPS \$RPMARGS $RPMWEAKGROUPDEPS \$DDF \
 		--define='_unpackaged_files_terminate_build 0' \
 		--define='_build_id_links none' \
 		--define='%debug_package %{nil}' \
