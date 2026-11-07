@@ -17,3 +17,4 @@
 WINE@Etersoft   bootstrap=bin-wine/wine-etersoft-bootstrap-new.sh init=1 i586=1 log_alias=wine32-:wine- download_url=https://download.etersoft.ru/W@E/ required=wine-etersoft.lic,wine-etersoft-install.sh,wine-etersoft-install.sha256 install=wine-etersoft-install.sh license_types=1
 RX@Etersoft     bootstrap=bin-rx/build-rx-bootstrap-new.sh required=rx-etersoft.lic downloaddir=1
 CRYPTO@Etersoft bootstrap=bin-crypto/crypto-bootstrap-new.sh i586=1 downloaddir=1
+SELTA@Etersoft  bootstrap=bin-selta/selta-bootstrap-new.sh noarch=1 required=selta.lic downloaddir=1

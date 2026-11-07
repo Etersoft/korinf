@@ -198,7 +198,7 @@ class ProductOrders(unittest.TestCase):
                             params=dict(principal='tester@ETERSOFT.RU', version='1.10', product='RX@Etersoft'))
         self.assertEqual(d.json(), ['x86_64/ALTLinux/p10'])
         bad = self.client.get('/api/orders/distributions', headers=self.headers,
-                              params=dict(principal='tester@ETERSOFT.RU', version='1.10', product='SELTA@Etersoft'))
+                              params=dict(principal='tester@ETERSOFT.RU', version='1.10', product='LINUX@Etersoft'))
         self.assertEqual(bad.status_code, 400)
 
     def test_enqueue(self):

@@ -97,7 +97,7 @@ fi
 # Only the audited product handlers below support this mode.
 if [ -n "$KORINF_READY_ONLY$KORINF_CHECK_ONLY" ] ; then
 	case "$(get_field "$1" COMPONENTNAME)" in
-		*WINE@Etersoft*|*RX@Etersoft*|*CRYPTO@Etersoft*) ;;
+		*WINE@Etersoft*|*RX@Etersoft*|*CRYPTO@Etersoft*|*SELTA@Etersoft*) ;;
 		*) task_defer ;;
 	esac
 fi

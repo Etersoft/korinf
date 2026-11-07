@@ -1,0 +1,2 @@
+# the version of SELTA@Etersoft built when none is given: the last one on pvt
+DEFAULTVERSION=$(basename "$(readlink -f /var/ftp/pvt/Etersoft/SELTA@Etersoft/last)")

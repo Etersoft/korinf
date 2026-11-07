@@ -1,0 +1,23 @@
+#!/bin/sh
+
+. `dirname $0`/config
+
+set_ver()
+{
+    # System/Version [Version] [option]
+    ver="$3"
+    case "$ver" in
+        -*|"")
+            ver="$2"
+            ;;
+    esac
+
+    case "$ver" in
+        -*)
+            ver=""
+            ;;
+    esac
+
+    [ -n "$ver" ]|| ver="$DEFAULTVERSION"
+    export KORINFMODULE=selta
+}

@@ -143,7 +143,8 @@ class WineBuild(unittest.TestCase):
     def test_product_bootstrap(self):
         for product, script in (('WINE@Etersoft', 'bin-wine/wine-etersoft-bootstrap-new.sh'),
                                 ('RX@Etersoft', 'bin-rx/build-rx-bootstrap-new.sh'),
-                                ('CRYPTO@Etersoft', 'bin-crypto/crypto-bootstrap-new.sh')):
+                                ('CRYPTO@Etersoft', 'bin-crypto/crypto-bootstrap-new.sh'),
+                                ('SELTA@Etersoft', 'bin-selta/selta-bootstrap-new.sh')):
             with self.subTest(product=product):
                 out = subprocess.run(['bash', '-c', f'AROBOTDIR={ROOT}/robot; . {ROOT}/robot/funcs/winebuild; '
                                       f'winebuild_bootstrap {product}'],
@@ -153,7 +154,7 @@ class WineBuild(unittest.TestCase):
                 self.assertTrue(os.access(out, os.X_OK))
 
     def test_unknown_product(self):
-        task = self.task().replace('WINE@Etersoft', 'SELTA@Etersoft')
+        task = self.task().replace('WINE@Etersoft', 'LINUX@Etersoft')
         env_free = self.run_task_env(task)
         self.assertNotEqual(env_free.returncode, 0)
         self.assertTrue((self.sales / (TASKID + '.task.broken')).exists())

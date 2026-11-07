@@ -210,7 +210,7 @@ class SystemBuildApi(unittest.TestCase):
         self.assertNotEqual(wine['taskid'], rx['taskid'])
 
     def test_product_validation(self):
-        self.assertEqual(self.product_build(product='SELTA@Etersoft').status_code, 400)
+        self.assertEqual(self.product_build(product='LINUX@Etersoft').status_code, 400)
         self.assertEqual(self.product_build(version='1.9').status_code, 404)
         self.assertEqual(self.product_build(version='..').status_code, 400)
         r = self.client.get('/api/product/systems?product=RX@Etersoft&version=1.10', headers=self.headers)
@@ -251,9 +251,9 @@ class SystemBuildApi(unittest.TestCase):
 
     def test_products(self):
         r = self.client.get('/api/products', headers=self.headers).json()
-        self.assertEqual([p['product'] for p in r], ['WINE@Etersoft', 'RX@Etersoft', 'CRYPTO@Etersoft'])
+        self.assertEqual([p['product'] for p in r], ['WINE@Etersoft', 'RX@Etersoft', 'CRYPTO@Etersoft', 'SELTA@Etersoft'])
         self.assertEqual({p['product']: p['i586'] for p in r},
-                         {'WINE@Etersoft': True, 'RX@Etersoft': False, 'CRYPTO@Etersoft': True})
+                         {'WINE@Etersoft': True, 'RX@Etersoft': False, 'CRYPTO@Etersoft': True, 'SELTA@Etersoft': False})
         self.assertEqual(self.client.get('/api/products').status_code, 401)
 
     def test_wine_paths_are_deprecated(self):
