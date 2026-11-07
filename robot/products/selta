@@ -4,8 +4,8 @@
 #
 #  Publish SELTA@Etersoft product for client by task file
 #
-#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009
-#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009
+#  Copyright (c) Etersoft <http://etersoft.ru> 2006, 2007, 2009, 2026
+#  Copyright (c) Vitaly Lipatov <lav@etersoft.ru> 2006, 2007, 2009, 2026
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as published by
@@ -21,22 +21,27 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-# Выполняет сборку по первому заказу в списке
-# Отправляет на реальный адрес только с параметром --real /путь
-# Также отладку можно включить, создав файл arobot.sh.debug
-# (c) Etersoft
-# 08.06.2006, 09.06.06, 28.02.07, 09.03.07, 15.12.07, 2008
-# FIXME: если в имени запятая, разделяет на два адреса
-#
+# A SELTA@Etersoft delivery (DOWNLOADDIR=SELTA@Etersoft/<version>):
+#  * Windows/selta.msi and Windows/seltaEng.msi: the 32-bit ODBC driver for the
+#    Windows clients (1C:Enterprise 7.7 is 32-bit, on Win64 too), required;
+#    Windows/selta64.msi and Windows/seltaEng64.msi: the 64-bit one for 64-bit
+#    applications, delivered when present. They are built outside korinf and
+#    put to /var/ftp/pvt/Etersoft/SELTA@Etersoft/<version>/Windows as
+#    selta-<version>-eter<rev>.{x86,x64}.msi with these links to them;
+#  * <DIST>/selta-server-*.rpm: the server part (selta-pg-setup and the SELTA
+#    schema for PostgreSQL for 1C), built by bin-selta for the system;
+#  * selta.lic: the license (for C:\Program Files\Selta).
+# An order without a system (LICENSEONLY) gets only the license.
 
-# Ошибка: не ловятся ошибки отсюда
+SELTA_PVT=${SELTA_PVT:-/var/ftp/pvt/Etersoft}
+SELTA_MSI="selta.msi seltaEng.msi"
+SELTA_MSI64="selta64.msi seltaEng64.msi"
+
 prepareSeltaMail()
 {
-	local FILETO BETA
-	FILETO=$1
+	local FILETO=$1
 	>$FILETO
 	NAME="$(get_dear_from_fio "$FULLNAME" "покупатель")"
-	BETA=""
 
 	if [ "$TYPE_LICENSE" = "Demo" ] ; then
 		THANKTEXT="Благодарим Вас за внимание к нашему продукту."
@@ -48,30 +53,53 @@ prepareSeltaMail()
 ${DEAR} ${NAME}!
 
 Ваш заказ Продукта ${PRODUCT} (релиз $PROJECTVERSION) выполнен.
-${BETA}
+
 Регистрационный номер Продукта: ${ETERREGNUM}.
 
-Для получения Продукта необходимо скачать файлы по приведённым ссылкам:
+Для получения Продукта необходимо скачать файлы по приведённым ссылкам.
 
-Установочный пакет SELTA@Etersoft (файл selta.msi) и файл лицензии (selta.lic):
+Установочные пакеты SELTA@Etersoft для клиентов Windows: 32-битный драйвер ODBC
+(selta.msi, английская версия seltaEng.msi). Он нужен 1С:Предприятию 7.7
+и другим 32-битным приложениям, в том числе в 64-битной Windows:
 EOF
-	LOCALFILES=selta.msi
-	printURL $PUBLOCAL $PUBDOWNLOAD1 $LOCALFILES >>$FILETO || fatal "Error with mirror 1 ($PUBLOCAL with '$LOCALFILES') (possible files are missed!)"
-	printURL $FTPDIR $DOWNLOADDIR/$PROJECTVERSION `find -L  $FTPDIR -maxdepth 1 -type f ` >>$FILETO || fatal "Error with private part (files are missed) "
+	printURL "$FTPDIR/Windows" "$DOWNLOADDIR/$PROJECTVERSION/Windows" $MSIFILES >>$FILETO || fatal "Error with MSI packages (files are missed)"
+
+	if [ -n "$MSIFILES64" ] ; then
+		cat >>$FILETO <<EOF
+
+64-битный драйвер ODBC для 64-битных приложений в 64-битной Windows
+(selta64.msi, английская версия seltaEng64.msi):
+EOF
+		printURL "$FTPDIR/Windows" "$DOWNLOADDIR/$PROJECTVERSION/Windows" $MSIFILES64 >>$FILETO || fatal "Error with 64-bit MSI packages (files are missed)"
+	fi
 
 	cat >>$FILETO <<EOF
 
-Пакеты PostgreSQL для системы ${TEXTDIST} (файлы postgresql*):
+Файл лицензии:
 EOF
-
-	LOCALFILES=`find -L $PGLOCAL/$DIST -maxdepth 1 -type f`
-	printURL $PGLOCAL/$DIST $PGDOWNLOAD1/$DIST $LOCALFILES >>$FILETO || fatal "Error with mirror 1 ($PGLOCAL with '$LOCALFILES') (possible files are missed!)"
-
+	printURL "$FTPDIR" "$DOWNLOADDIR/$PROJECTVERSION" $LICENSEFILE >>$FILETO || fatal "Error with license (files are missed)"
 
 	cat >>$FILETO <<EOF
+
+Файл лицензии $LICENSEFILE необходимо расположить в каталоге $LICENSEDIR
+на клиентах Windows.
+
+Серверная часть для PostgreSQL для 1C в системе ${TEXTDIST}:
+EOF
+	printURL "$FTPDIR/$DIST" "$DOWNLOADDIR/$PROJECTVERSION/$DIST" $SERVERFILES >>$FILETO || fatal "Error with selta-server (files are missed)"
+
+	cat >>$FILETO <<EOF
+
+После установки пакета настройте PostgreSQL для SELTA командой
+	selta-pg-setup init --allow <сеть клиентов>
+а после обновления пакета обновите схему SELTA в базах командой
+	selta-pg-setup upgrade
+
+Вы можете напрямую зайти в каталог, чтобы загрузить файлы:
+	${DOWNLOADDIR}/$PROJECTVERSION
 
 Документация и краткая инструкция по установке доступна по адресу
-http://wiki.etersoft.ru/SELTA
+https://wiki.etersoft.ru/SELTA
 
 По вопросам использования продукта пишите на selta@etersoft.ru, указав
 в теме письма регистрационный номер.
@@ -81,86 +109,108 @@ http://wiki.etersoft.ru/SELTA
 
 $THANKTEXT
 
--- 
+--
 Команда разработчиков
-Etersoft, 2024
+Etersoft, 2026
 EOF
-}
-
-build_selta_license()
-{
-	PROJECTNAME="SELTA@Etersoft"
-	VERNAME=$PROJECTNAME/$PROJECTVERSION
-	TARGETDIR=/var/ftp/pub/download/SELTA@Etersoft/$TARGETDIRNAME
-	DOWNLOADDIR="$MPROTO://$DOWNLOADDOMAIN/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
-
-	# exports FTPDIR
-	LICENSEFILE=selta.lic
-	LICENSEDIR="C:\\Program Files\\Selta"
-	create_license_dir
-
-	# Для отправки писем обязательно нужна локаль!
-	export LC_ALL=ru_RU.UTF-8
-	TMPMAIL=$(make_temp_file)
-	prepare_license_mail $TMPMAIL selta@etersoft.ru || fatal "Can't prepare letter"
-	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Лицензия для продукта $COMPONENTNAME" || fatal "Can't send"
-	rm -f $TMPMAIL
-	rm -f $TMPDIR/selta.lic
 }
 
 build_selta()
 {
-	PROJECTNAME="SELTA@Etersoft"
-	VERNAME=$PROJECTNAME/$PROJECTVERSION
+	local PROJ=$DOWNLOADDIR
+	local i n
+	# old orders have no DOWNLOADDIR
+	[ -n "$PROJ" ] || PROJ="SELTA@Etersoft/$PROJECTVERSION"
+	LOCALDIR=$SELTA_PVT/$PROJ
 
-	if [ -n "$LICENSEONLY" ] ; then
-		build_selta_license
-		return
+	# Use real path if possible
+	# NOTE: replace PROJECTVERSION with linked version
+	if [ -L "$LOCALDIR" ] ; then
+		LOCALDIR=`readlink -f "$LOCALDIR"`
+		PROJECTVERSION=`basename $LOCALDIR`
+		PROJ=`dirname $PROJ`/$PROJECTVERSION
 	fi
-
-	# SELTA@Etersoft
-	PUBLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Windows"
-	PUBDOWNLOAD1="$MPROTO://$DOWNLOADDOMAIN/pub/Etersoft/$VERNAME/Windows"
-
-	# Postgre@Etersoft
-	PGLOCAL="/var/ftp/pub/Etersoft/$VERNAME/Postgre"
-
-	# Use real path instead link
-	if [ -L "$PGLOCAL" ] ; then
-		PGLOCAL=`readlink -f "$PGLOCAL"`
-	fi
-	PGDOWNLOAD1="$MPROTO://$DOWNLOADDOMAIN/$(echo $PGLOCAL | sed -e "s|/var/ftp/||g")"
-
-	# Target dir
-	TARGETDIR=/var/ftp/pub/download/SELTA@Etersoft/$TARGETDIRNAME
-	DOWNLOADDIR="$MPROTO://$DOWNLOADDOMAIN/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
-
+	[ -d "$LOCALDIR" ] || fatal "SELTA@Etersoft $PROJECTVERSION is missed ($LOCALDIR)"
 
 	TEXTDIST=$DIST
 	# Check for linked system (собираем для основной системы)
-	if [ -L "$PGLOCAL/$DIST" ] ; then
-		DIST=`readlink $PGLOCAL/$DIST | sed -e "s|\.\./||g"`
+	if [ -L "$LOCALDIR/$DIST" ] ; then
+		DIST=`readlink $LOCALDIR/$DIST | sed -e "s|\.\./||g"`
 		TEXTDIST="$TEXTDIST (фактически сборка выполнена для $DIST)"
 	fi
 
-	check_dist $DIST
-	REBUILDLIST=$DIST
-	echo "Work with $TASK for $REBUILDLIST"
+	if [ -z "$LICENSEONLY" ] ; then
+		check_dist $DIST
+	fi
 
-	CHECKCOMP=postgre-etersoft9.2
-	check_and_refresh_component bin-postgres $PGLOCAL $CHECKCOMP
-	assert_present_package $PGLOCAL/$DIST $CHECKCOMP
+	# will do FTPDIR from it in create_license_dir
+	TARGETDIR=/var/ftp/pub/download/SELTA@Etersoft/$TARGETDIRNAME
+	DOWNLOADDIR="$MPROTO://$DOWNLOADDOMAIN/pub/download/SELTA@Etersoft/$TARGETDIRNAME"
 
-	# exports FTPDIR
 	LICENSEFILE=selta.lic
 	LICENSEDIR="C:\\Program Files\\Selta"
-	create_license_dir
 
 	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8
-	TMPMAIL=`mktemp`
+
+	if [ -n "$LICENSEONLY" ] ; then
+		[ -z "$KORINF_CHECK_ONLY" ] || return 0
+		# exports FTPDIR
+		create_license_dir
+		TMPMAIL=$(make_temp_file)
+		prepare_license_mail $TMPMAIL selta@etersoft.ru || fatal "Can't prepare letter"
+		order_delivery "$TARGETDIRNAME/$PROJECTVERSION"
+		order_ready "$FTPDIR"
+		cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Лицензия для продукта $COMPONENTNAME $PROJECTVERSION" || fatal "Can't send"
+		rm -f $TMPMAIL
+		return 0
+	fi
+
+	# the MSI packages are built outside korinf: they must be in place
+	MSIFILES=''
+	for i in $SELTA_MSI ; do
+		[ -r "$LOCALDIR/Windows/$i" ] || fatal "Missed $i in $LOCALDIR/Windows"
+		MSIFILES="$MSIFILES $i"
+	done
+	# the 64-bit driver: both of its packages or none
+	MSIFILES64=''
+	for i in $SELTA_MSI64 ; do
+		[ -r "$LOCALDIR/Windows/$i" ] && MSIFILES64="$MSIFILES64 $i"
+	done
+	if [ -n "$MSIFILES64" ] && [ "$(echo $MSIFILES64)" != "$SELTA_MSI64" ] ; then
+		fatal "Only$MSIFILES64 of $SELTA_MSI64 is in $LOCALDIR/Windows"
+	fi
+
+	check_and_refresh_component bin-selta $LOCALDIR selta-server
+	assert_present_package $LOCALDIR/$DIST selta-server
+
+	task_require_ready
+	[ -z "$KORINF_CHECK_ONLY" ] || return 0
+
+	# exports FTPDIR
+	create_license_dir
+
+	SERVERFILES=''
+	n="$(echo $LOCALDIR/$DIST/selta-server[-_][0-9]*)"
+	[ -r "$n" ] || fatal "Missed selta-server package in $LOCALDIR/$DIST"
+	SERVERFILES="$(basename $n)"
+
+	# Нужно скопировать файлы (жёсткими ссылками, если можно)
+	mkdir -p $FTPDIR/Windows $FTPDIR/$DIST
+	for i in $MSIFILES $MSIFILES64 ; do
+		# the links selta.msi -> selta-<version>-eter<rev>.msi: copy the file under the link name
+		n="$(readlink -f $LOCALDIR/Windows/$i)"
+		cp -fl $n $FTPDIR/Windows/$i || cp -f $n $FTPDIR/Windows/$i || fatal "Can't copy $i"
+	done
+	n="$LOCALDIR/$DIST/$SERVERFILES"
+	cp -fl $n $FTPDIR/$DIST || cp -f $n $FTPDIR/$DIST || fatal "Can't copy $n"
+
+	# a personal order (orders API): its delivery directory is ready
+	order_delivery "$TARGETDIRNAME/$PROJECTVERSION"
+	order_ready "$FTPDIR"
+
+	TMPMAIL=$(make_temp_file)
 	prepareSeltaMail $TMPMAIL || fatal "Can't prepare letter"
-	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Сборка $COMPONENTNAME" || fatal "Can't send"
+	cat $TMPMAIL | mutt "${FULLMAILTO}" -b "sales-track@etersoft.ru" -s "$ETERREGNUM: Сборка $COMPONENTNAME $PROJECTVERSION" || fatal "Can't send"
 	rm -f $TMPMAIL
 }
-
