@@ -28,7 +28,7 @@ def plan():
             available = systembuild.systems(version, product)
             targets = [s for s in ('x86_64/ALTLinux/Sisyphus', 'ALTLinux/Sisyphus') if s in available]
             if 'x86_64/ALTLinux/Sisyphus' in targets:
-                if products.get(product)['i586']:
+                if products.get(product)['i586'] or products.get(product)['noarch']:
                     targets = ['x86_64/ALTLinux/Sisyphus']
                 elif 'ALTLinux/Sisyphus' not in targets:
                     targets.append('ALTLinux/Sisyphus')

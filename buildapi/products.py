@@ -8,11 +8,11 @@ from pathlib import Path
 LIST = Path(__file__).resolve().parent.parent / 'robot' / 'products.list'
 DEFAULT_DOWNLOAD_URL = 'https://download.etersoft.ru/pub/download/{product}/'
 LISTS = ('required',)
-FLAGS = ('init', 'i586', 'license_types', 'downloaddir')
+FLAGS = ('init', 'i586', 'noarch', 'license_types', 'downloaddir')
 
 
 def parse(text):
-    """{product: {'bootstrap', 'init', 'i586', 'log_alias', 'download_url', 'required', 'install',
+    """{product: {'bootstrap', 'init', 'i586', 'noarch', 'log_alias', 'download_url', 'required', 'install',
     'license_types', 'downloaddir'}} of a products.list text, in its order."""
     result = {}
     for raw in text.splitlines():

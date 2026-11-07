@@ -6,6 +6,7 @@
 #                  run as <script> [--force|--init] --nostop <dist> <version>
 #   init=1         install the package BuildRequires first (--init): the build images can lack them
 #   i586=1         a build of x86_64/<D>/<V> also builds the 32-bit packages of its i586 companion <D>/<V>
+#   noarch=1       the packages are noarch: the x86_64 build serves i586 too, no separate i586 build
 #   log_alias      <from>:<to> - the live log of a package <from>* is <to>* (wine32-etersoft -> wine-etersoft)
 #   download_url   the URL of the personal deliveries, {product} is the product name
 #                  (default https://download.etersoft.ru/pub/download/{product}/)

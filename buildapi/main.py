@@ -437,15 +437,17 @@ class ProductOut(BaseModel):
     product: str
     bootstrap: str
     i586: bool
+    noarch: bool
     init: bool
 
 
 @app.get('/api/products', response_model=list[ProductOut], tags=['Products'],
          dependencies=[Depends(require_api_key)], summary='Продукты сборки систем и заказов',
          description='Продукты из `robot/products.list`: сценарий сборки системы (`bootstrap`), '
-                     'собирается ли 32-битный компаньон (`i586`), ставятся ли сначала сборочные зависимости (`init`).')
+                     'собирается ли 32-битный компаньон (`i586`), noarch ли пакеты (`noarch`: без отдельной сборки i586), '
+                     'ставятся ли сначала сборочные зависимости (`init`).')
 def api_products():
-    return [{'product': name, 'bootstrap': p['bootstrap'], 'i586': p['i586'], 'init': p['init']}
+    return [{'product': name, 'bootstrap': p['bootstrap'], 'i586': p['i586'], 'noarch': p['noarch'], 'init': p['init']}
             for name, p in products.PRODUCTS.items()]
 
 

@@ -75,7 +75,7 @@ list, e.g. `x86_64/ALL`.
 The products of the system builds and personal orders are in
 `robot/products.list`, one line each: the build script (`bootstrap`), whether
 the build installs BuildRequires first (`init=1`), builds an i586 companion
-(`i586=1`), the delivery files, URL and install script. A new product is a new
+(`i586=1`), has noarch packages only (`noarch=1`), the delivery files, URL and install script. A new product is a new
 line there, not code. `GET /api/products` lists them.
 
 ## System build with stages
@@ -110,8 +110,9 @@ not scheduled. Version symlinks are resolved and deduplicated.
 
 Every task uses `FORCE=1`, including packages whose source version has not
 changed, so Sisyphus RPMs and their `.rpm.depends` are refreshed. Products with
-`i586=1` build their companion within the x86_64 task; other products receive
-separate x86_64 and i586 Sisyphus tasks. The scheduler may enqueue this i586
+`i586=1` build their companion within the x86_64 task, products with
+`noarch=1` (their x86_64 packages serve i586 too) get only the x86_64 task;
+other products receive separate x86_64 and i586 Sisyphus tasks. The scheduler may enqueue this i586
 companion even when the public `distro.list` lists only x86_64.
 
 The normal robot worker serializes all Sisyphus products, versions and
