@@ -10,6 +10,11 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'buildapi'))
+import products  # noqa: E402
+
+# the products of robot/products.list: their tasks are known to the scheduler
+PRODUCTS = products.names()
 
 
 def fields(task):
@@ -32,7 +37,7 @@ def build_only(task):
 def personal(data):
     return (not data.get('TASKTYPE') and not data.get('PACKAGE') and
             any(product in data.get('COMPONENTNAME', '')
-                for product in ('WINE@Etersoft', 'RX@Etersoft', 'CRYPTO@Etersoft')))
+                for product in PRODUCTS))
 
 
 def resource(task):
@@ -44,8 +49,7 @@ def resource(task):
     data = fields(task)
     if data.get('TASKTYPE') != 'winebuild' and not personal(data):
         return None
-    if not personal(data) and data.get('COMPONENTNAME', 'WINE@Etersoft') not in (
-            'WINE@Etersoft', 'RX@Etersoft', 'CRYPTO@Etersoft'):
+    if not personal(data) and data.get('COMPONENTNAME', 'WINE@Etersoft') not in PRODUCTS:
         return None
     dist = data.get('DIST', '')
     if personal(data) and not dist:
