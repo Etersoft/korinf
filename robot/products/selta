@@ -115,6 +115,18 @@ Etersoft, 2026
 EOF
 }
 
+# The driver checks DATE_START against the UTC date (GetSystemTime), the order
+# has a Moscow date: a license of the day of the order would not work till
+# 03:00 MSK (and for a day west of UTC). Start it a day earlier.
+selta_date_start()
+{
+	local d m y
+	IFS=/ read -r d m y <<EOF
+$DATE_START
+EOF
+	DATE_START=$(date -d "$y-$m-$d -1 day" +%d/%m/%Y 2>/dev/null) || fatal "Wrong DATE_START $d/$m/$y (DD/MM/YYYY)"
+}
+
 build_selta()
 {
 	local PROJ=$DOWNLOADDIR
@@ -149,6 +161,7 @@ build_selta()
 
 	LICENSEFILE=selta.lic
 	LICENSEDIR="C:\\Program Files\\Selta"
+	[ -n "$KORINF_CHECK_ONLY" ] || selta_date_start
 
 	# Для отправки писем обязательно нужна локаль!
 	export LC_ALL=ru_RU.UTF-8

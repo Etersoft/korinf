@@ -23,6 +23,7 @@ COMPONENTNAME=SELTA@Etersoft
 PRODUCT="SELTA@Etersoft 1.1 (базовая лицензия)"
 FULLNAME="Иванов Иван Иванович"
 TYPE_LICENSE=Base
+DATE_START={date_start}
 ETERREGNUM=0D23-A26B
 TARGETDIRNAME=0D23-test
 MPROTO=https
@@ -35,7 +36,7 @@ check_and_refresh_component() {{ echo "check $1 $3"; }}
 assert_present_package() {{ [ -r "$(echo $1/$2-[0-9]*)" ] || fatal "no $2 in $1"; }}
 get_dear_from_fio() {{ echo Иван; }}
 make_temp_file() {{ echo $TESTROOT/mail; }}
-create_license() {{ echo license > "$1"; }}
+create_license() {{ echo "DATE_START=$DATE_START" > "$1"; }}
 mutt() {{ cat > $TESTROOT/sent; echo "$@" > $TESTROOT/sent.args; }}
 '''
 
@@ -58,8 +59,8 @@ class SeltaDelivery(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def run_selta(self, extra='', dist=DIST, license_only=''):
-        script = STUBS.format(dist=dist, license_only=license_only) + extra + '''
+    def run_selta(self, extra='', dist=DIST, license_only='', date_start='01/03/2026'):
+        script = STUBS.format(dist=dist, license_only=license_only, date_start=date_start) + extra + '''
 create_ftp_dir() { export FTPDIR=$TESTROOT/download/$PROJECTVERSION; mkdir -p $FTPDIR; }
 build_selta
 '''
@@ -136,6 +137,20 @@ cp() { forbidden cp; }
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertIn('check bin-selta selta-server', r.stdout)
         self.assertFalse(self.download.exists())
+
+    def test_date_start_is_a_day_earlier(self):
+        # the driver compares DATE_START with the UTC date, the order date is Moscow
+        for start, lic in (('01/03/2026', '28/02/2026'), ('01/01/2027', '31/12/2026'), ('08/11/2026', '07/11/2026')):
+            r = self.run_selta(date_start=start)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertEqual((self.download / '1.1.6' / 'selta.lic').read_text().strip(), 'DATE_START=' + lic)
+        r = self.run_selta(license_only='1', date_start='08/11/2026')
+        self.assertEqual((self.download / '1.1.6' / 'selta.lic').read_text().strip(), 'DATE_START=07/11/2026')
+
+    def test_wrong_date_start_fails(self):
+        r = self.run_selta(date_start='2026-11-08')
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn('Wrong DATE_START', r.stdout + r.stderr)
 
 
 if __name__ == '__main__':
