@@ -90,6 +90,7 @@ build_selta
         # no 64-bit driver yet
         self.assertFalse((ftp / 'Windows' / 'selta64.msi').exists())
         self.assertNotIn('64-битный драйвер', mail)
+        self.assertIn('после удаления прежней', mail)
 
     def add_x64(self, names=('selta', 'seltaEng')):
         for name in names:
@@ -107,6 +108,7 @@ build_selta
         mail = (self.root / 'sent').read_text()
         self.assertIn('64-битный драйвер', mail)
         self.assertIn('/0D23-test/1.1.6/Windows/seltaEng64.msi', mail)
+        self.assertIn('можно установить на один компьютер', mail)
 
     def test_half_x64_fails(self):
         self.add_x64(('selta',))

@@ -73,6 +73,12 @@ EOF
 (selta64.msi, английская версия seltaEng64.msi):
 EOF
 		printURL "$FTPDIR/Windows" "$DOWNLOADDIR/$PROJECTVERSION/Windows" $MSIFILES64 >>$FILETO || fatal "Error with 64-bit MSI packages (files are missed)"
+		cat >>$FILETO <<EOF
+
+32-битный и 64-битный драйверы можно установить на один компьютер.
+64-битный драйвер заменяет драйвер ODBC «SQL Server» для всех 64-битных
+программ; 32-битные программы продолжают работать с 32-битным драйвером.
+EOF
 	fi
 
 	cat >>$FILETO <<EOF
@@ -85,6 +91,9 @@ EOF
 
 Файл лицензии $LICENSEFILE необходимо расположить в каталоге $LICENSEDIR
 на клиентах Windows.
+
+Новую версию драйвера устанавливайте после удаления прежней
+(через «Установка и удаление программ»).
 
 EOF
 	if [ -n "$MCHARFILES" ] ; then
