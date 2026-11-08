@@ -1,0 +1,26 @@
+#!/bin/sh
+# Run as root in a deb build system (korinf/install, after apt-get update).
+# Usage: downgrade-stray-packages <package>...
+# An image upgraded from an older release can keep a package version that no
+# repository has any more; with a higher epoch apt prefers it to the repository
+# one (AstraLinuxSE 1.8: libpq5 1:11.21 of 1.7 vs 15.18, so libpq-dev can't be
+# installed). Replace such a version with the newest one in the repositories.
+set -u
+export DEBIAN_FRONTEND=noninteractive
+rc=0
+for pkg in "$@"; do
+	installed="$(dpkg-query -W -f '${Status} ${Version}' "$pkg" 2>/dev/null)" || continue
+	case "$installed" in
+		"install ok installed "*) installed="${installed##* }" ;;
+		*) continue ;;
+	esac
+	available="$(apt-cache madison "$pkg" 2>/dev/null | awk -F' *[|] *' '{print $2}')"
+	[ -n "$available" ] || continue
+	printf '%s\n' "$available" | grep -qxF "$installed" && continue
+	version="$(printf '%s\n' "$available" | head -n1)"
+	echo "Replacing $pkg $installed (not in the repositories) with $version"
+	apt-get -y --no-remove --allow-downgrades --no-install-recommends \
+		-o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold \
+		install "$pkg=$version" </dev/null || rc=1
+done
+exit $rc

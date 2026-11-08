@@ -244,6 +244,11 @@ EOF
 			# remove it (only a set of extra tools, eepm itself stays).
 			run_in_chroot "$dist" "sh -s" < "$KORINFDIR/korinf/remove-broken-eepm-full" ||
 				warning "can't remove unconfigured eepm-full"
+			# AstraLinuxSE 1.8 images upgraded from 1.7 keep libpq5 1:11.21, which no
+			# repository has: libpq-dev 15 can't be installed against it.
+			if [ "$DISTRNAME/$DISTRVERSION" = "AstraLinuxSE/1.8" ] ; then
+				run_in_chroot "$dist" "sh -s libpq5" < "$KORINFDIR/korinf/downgrade-stray-packages" || return
+			fi
 		else
 			run_in_chroot "$dist" "epm --auto update" </dev/null || return
 		fi
