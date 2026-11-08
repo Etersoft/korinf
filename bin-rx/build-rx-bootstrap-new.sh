@@ -108,8 +108,13 @@ do_build()
     esac
 }
 
-do_bootstrap nx-libs prunner nxssh rx-etersoft rxclient
-do_build rxclient rx-etersoft-pcsc rx-etersoft-pcsc-driver kdriveclient rx-etersoft-kdrive
+if [ "$ver" = "Workspace" ] ; then
+    # RX@Etersoft/Workspace: rx-workspace only (eterbug #19932)
+    do_bootstrap rx-workspace
+else
+    do_bootstrap nx-libs prunner nxssh rx-etersoft rxclient
+    do_build rxclient rx-etersoft-pcsc rx-etersoft-pcsc-driver kdriveclient rx-etersoft-kdrive
+fi
 
 [ "$STATE" = "--check" ] && echo "Legend: MIS - missed, OBS - obsoleted build, ABF - autobuild failed, FIL - manual build failed"
 
