@@ -1,0 +1,19 @@
+#!/bin/sh
+# Run as root in a deb build system (korinf/install, before the build requires).
+# eepm-full is a set of extra tools for eepm (Depends aria2, fzf, pigz). When it is
+# unpacked but not configured and its Depends can't be installed (no fzf in
+# AstraLinuxSE 1.8), apt refuses every install: remove it, eepm itself stays.
+
+status="$(dpkg-query -W -f '${Status}' eepm-full 2>/dev/null)"
+case "$status" in
+	""|*" installed"|*" not-installed"|*" config-files")
+		exit 0
+		;;
+esac
+
+export DEBIAN_FRONTEND=noninteractive
+apt-get -y --no-install-recommends -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold \
+	--fix-broken install </dev/null && exit 0
+
+echo "Removing eepm-full ($status): its Depends can't be installed"
+dpkg --remove eepm-full
