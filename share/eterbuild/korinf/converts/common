@@ -44,6 +44,15 @@ get_target_deplist()
 	convert_pkgreqs_to_target $(cat $depfile)
 }
 
+# The package requires of a binary rpm built for the target (its spec is
+# converted by rpmbph, the names are of the target already), without the
+# file, soname and rpmlib ones. For a package not built for ALT Sisyphus,
+# which has no .rpm.depends there (as postgresql-mchar of SELTA@Etersoft).
+get_rpm_deplist()
+{
+	rpm -qp --requires "$1" 2>/dev/null | grep -v -e '(' -e '^/' | awk 'NF { print $1 }' | sort -u
+}
+
 # General local prepare for varios systems
 prepare_convert()
 {

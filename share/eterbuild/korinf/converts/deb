@@ -81,7 +81,10 @@ convert_debian()
 			# TODO: rewrite this part
 			local depf=$(get_pkgname_from_filename $i)
 			local dependencies=""
-			if get_target_deplist "$depf" | tee $DESTLOGDIR/$depf.deb.depends ; then
+			# no ALT Sisyphus build of the package: the requires of its rpm built here
+			if { get_target_deplist "$depf" > $DESTLOGDIR/$depf.deb.depends ||
+			     get_rpm_deplist "$i" > $DESTLOGDIR/$depf.deb.depends ; } &&
+			   cat $DESTLOGDIR/$depf.deb.depends ; then
 				#__wine_dependence_hack "$i" "$depf"
 				#cp "$DESTLOGDIR/${depf}.deb.depends" ${depf}.deb.depends
 				local dep
