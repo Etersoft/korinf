@@ -188,6 +188,17 @@ cp() { forbidden cp; }
         self.assertNotIn('postgresql-mchar', mail)
         self.assertIn('PostgreSQL для 1C в системе', mail)
 
+    def test_osnova_has_no_mchar(self):
+        d = self.windows.parent / 'x86_64/OSnovaLinux/3.0'
+        d.mkdir(parents=True)
+        (d / DEB).write_text('deb')
+        r = self.run_selta(dist='x86_64/OSnovaLinux/3.0')
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertNotIn('postgresql-mchar', r.stdout)
+        mail = (self.root / 'sent').read_text()
+        self.assertNotIn('postgresql-mchar', mail)
+        self.assertIn('PostgreSQL для 1C в системе', mail)
+
     def test_missing_mchar_fails(self):
         self.add_debian(mchar=False)
         r = self.run_selta(dist=DEB_DIST)

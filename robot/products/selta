@@ -146,13 +146,13 @@ Etersoft, 2026
 EOF
 }
 
-# PostgreSQL for 1C is in ALT (and has mchar); elsewhere selta-server runs
-# on PostgreSQL for 1C installed by hand or on the PostgreSQL of the
-# distribution with postgresql-mchar
+# PostgreSQL for 1C is in ALT and is the PostgreSQL of OSnova 3 (both have
+# mchar); elsewhere selta-server runs on PostgreSQL for 1C installed by hand
+# or on the PostgreSQL of the distribution with postgresql-mchar
 selta_with_mchar()
 {
 	case "$DIST" in
-		ALTLinux/*|*/ALTLinux/*|XimperLinux/*|*/XimperLinux/*)
+		ALTLinux/*|*/ALTLinux/*|XimperLinux/*|*/XimperLinux/*|OSnovaLinux/3*|*/OSnovaLinux/3*)
 			return 1
 			;;
 	esac
