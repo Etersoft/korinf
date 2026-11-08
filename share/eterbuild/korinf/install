@@ -73,12 +73,16 @@ install_built_packages()
 	fi
 }
 
-# Pin the affected Astra releases, after refreshing their package indexes.
+# Pin the affected Astra and Ubuntu releases, after refreshing their package indexes.
 prepare_build_cpio()
 {
 	case "$PKGFORMAT:$DISTRNAME/$DISTRVERSION" in
 		deb:AstraLinuxSE/1.7|deb:AstraLinuxSE/1.8)
 			run_in_chroot "$dist" "sh -s" < "$KORINFDIR/korinf/prepare-astra17-cpio"
+			return $?
+			;;
+		deb:Ubuntu/22.04)
+			run_in_chroot "$dist" "sh -s" < "$KORINFDIR/korinf/prepare-ubuntu2204-cpio"
 			return $?
 			;;
 	esac

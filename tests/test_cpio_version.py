@@ -40,7 +40,8 @@ quote_pkgname() { echo "$*"; }
 warning() { echo "$*"; }
 epm_stub() { echo true; }
 run_in_chroot() {
-    case "$2" in 'sh -s') cat >/dev/null; return 1 ;; esac
+    # only the cpio probe fails, the preparing scripts pass
+    case "$2" in 'sh -s') grep -q 'Probe the cpio operation' && return 1; return 0 ;; esac
     return 0
 }
 BUILDNAME=eepm TARGETARCH=x86_64 BUILDARCH=x86_64 TARGETSRPM=dummy

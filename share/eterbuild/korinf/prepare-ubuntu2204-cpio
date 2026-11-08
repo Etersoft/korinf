@@ -1,0 +1,15 @@
+#!/bin/sh
+# Ubuntu 22.04: cpio 2.13+dfsg-7ubuntu0.2 of jammy-updates regresses extraction
+# of nested symbolic links (korinf/check-cpio); 2.13+dfsg-7 of the jammy release
+# passes. Pin it, also against the cpio upgrade with the build requires.
+set -eu
+mkdir -p /etc/apt/preferences.d
+cat > /etc/apt/preferences.d/korinf-cpio <<'PIN'
+Package: cpio
+Pin: version 2.13+dfsg-7
+Pin-Priority: 1001
+PIN
+if [ "$(dpkg-query -W -f='${Version}' cpio 2>/dev/null || true)" = '2.13+dfsg-7' ]; then
+    exit 0
+fi
+DEBIAN_FRONTEND=noninteractive apt-get --assume-yes --no-install-recommends --allow-downgrades install cpio=2.13+dfsg-7

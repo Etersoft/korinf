@@ -32,7 +32,7 @@ printf 'parent:%s\n' "$APTOPTIONS"
         for pkgformat in ('deb', 'rpm'):
             with self.subTest(pkgformat=pkgformat):
                 result = subprocess.run(['bash'], text=True, capture_output=True,
-                    input='load_mod() { :; }\n' + source + '\nPKGFORMAT=' + pkgformat + '\n' + harness)
+                    input='KORINFDIR=' + str(ROOT / 'share/eterbuild') + '\nload_mod() { :; }\n' + source + '\nPKGFORMAT=' + pkgformat + '\n' + harness)
                 self.assertEqual(result.returncode, 0, result.stderr)
                 calls = [line for line in result.stdout.splitlines() if line.startswith('epm:')]
                 installs = [line for line in calls if '--verbose --allow-remove install' in line]
