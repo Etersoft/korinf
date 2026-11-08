@@ -8,8 +8,9 @@
 # --init  -- install build requires before build
 # --nostop  -- don't stop on errors
 #
-# Components: selta-server (noarch, ALT only) for the system, as
-# robot/products/selta delivers it with the Windows MSI of the version.
+# Components: selta-server (noarch) for the system and, not on ALT,
+# postgresql-mchar (mchar for the PostgreSQL of the distribution), as
+# robot/products/selta delivers them with the Windows MSI of the version.
 
 NOSTOP=''
 
@@ -85,6 +86,15 @@ do_bootstrap()
 }
 
 do_bootstrap selta-server
+
+# PostgreSQL for 1C of ALT has its own mchar
+case "$DISTR" in
+    ALTLinux/*|*/ALTLinux/*|XimperLinux/*|*/XimperLinux/*)
+        ;;
+    *)
+        do_bootstrap postgresql-mchar
+        ;;
+esac
 
 [ "$STATE" = "--check" ] && echo "Legend: MIS - missed, OBS - obsoleted build, ABF - autobuild failed, FIL - manual build failed"
 exit 0

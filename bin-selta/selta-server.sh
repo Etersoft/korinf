@@ -4,7 +4,8 @@
 # GNU Public License version 3
 #
 # selta-server: selta-pg-setup and the SELTA schema for PostgreSQL for 1C
-# (noarch, ALT only: it requires postgresql18-1C)
+# (noarch; on ALT it requires PostgreSQL for 1C, elsewhere it runs with
+# postgresql-mchar, see postgresql-mchar.sh)
 
 export SKIPBUILDLIST="FreeBSD OpenSolaris Windows"
 
