@@ -16,7 +16,8 @@ kormod korinf
 SKIPBUILDLIST="FreeBSD OpenSolaris Windows"
 
 NAME="rx-workspace"
-MAINFILES="$NAME[-_][0-9]"
+# no rx-workspace package itself, only its subpackages (rx-workspace-client...)
+MAINFILES="$NAME[-_][a-z]*[-_][0-9]"
 
 export KORINFMODULE=rx
 
