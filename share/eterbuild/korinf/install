@@ -235,6 +235,11 @@ EOF
 		# Build images need repository indexes, not EPM's interactive completion cache.
 		if [ "$PKGFORMAT" = "deb" ]; then
 			run_in_chroot "$dist" "apt-get -o Acquire::AllowReleaseInfoChange=true update" </dev/null || return
+			# An unconfigured eepm-full whose Depends are not in the repositories (fzf in
+			# AstraLinuxSE 1.8) makes apt refuse every install, also the cpio one below:
+			# remove it (only a set of extra tools, eepm itself stays).
+			run_in_chroot "$dist" "sh -s" < "$KORINFDIR/korinf/remove-broken-eepm-full" ||
+				warning "can't remove unconfigured eepm-full"
 		else
 			run_in_chroot "$dist" "epm --auto update" </dev/null || return
 		fi
@@ -264,12 +269,6 @@ EOF
 		# Heal broken apt state before installing build requires.
 		# e.g. eepm-full gets unpacked-but-not-configured (its Depends aria2/fzf/pigz are not pulled
 		# during install_built_packages), which breaks all subsequent apt installs (clang/llvm/lld).
-		# Where a Depends of it is not in the repositories (fzf in AstraLinuxSE 1.8) apt can't fix
-		# it: remove the unconfigured eepm-full (only a set of extra tools, eepm itself stays).
-		if [ "$PKGFORMAT" = "deb" ]; then
-			run_in_chroot "$dist" "sh -s" < "$KORINFDIR/korinf/remove-broken-eepm-full" ||
-				warning "can't remove unconfigured eepm-full"
-		fi
 		run_in_chroot $dist "epm --auto fix" </dev/null || warning "epm fix failure (install requires)"
 
 		# Recommends are not BuildRequires: e.g. valgrind:i386 pulls gdb:i386
