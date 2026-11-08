@@ -4,8 +4,8 @@
 # GNU Public License version 3
 #
 # postgresql-mchar: mchar of PostgreSQL for 1C for the PostgreSQL of the
-# distribution (not ALT and OSnova 3: PostgreSQL for 1C there has its own
-# mchar, see selta-bootstrap-new.sh)
+# distribution (not ALT, OSnova 3 and AstraLinuxSE 1.8: PostgreSQL for 1C
+# there has its own mchar, see selta-bootstrap-new.sh)
 
 export SKIPBUILDLIST="FreeBSD OpenSolaris Windows ALTLinux XimperLinux"
 

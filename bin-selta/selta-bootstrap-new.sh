@@ -87,10 +87,10 @@ do_bootstrap()
 
 do_bootstrap selta-server
 
-# PostgreSQL for 1C of ALT and the PostgreSQL of OSnova 3 (a PostgreSQL
-# for 1C) have their own mchar
+# PostgreSQL for 1C of ALT and the PostgreSQL of OSnova 3 and AstraLinuxSE
+# 1.8 (PostgreSQL for 1C) have their own mchar
 case "$DISTR" in
-    ALTLinux/*|*/ALTLinux/*|XimperLinux/*|*/XimperLinux/*|OSnovaLinux/3*|*/OSnovaLinux/3*)
+    ALTLinux/*|*/ALTLinux/*|XimperLinux/*|*/XimperLinux/*|OSnovaLinux/3*|*/OSnovaLinux/3*|AstraLinuxSE/1.8|*/AstraLinuxSE/1.8)
         ;;
     *)
         do_bootstrap postgresql-mchar
