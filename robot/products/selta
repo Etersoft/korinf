@@ -30,6 +30,8 @@
 #    selta-<version>-eter<rev>.{x86,x64}.msi with these links to them;
 #  * <DIST>/selta-server-*.rpm: the server part (selta-pg-setup and the SELTA
 #    schema for PostgreSQL for 1C), built by bin-selta for the system;
+#  * <DIST>/postgresql-mchar-*: mchar for the PostgreSQL of the distribution,
+#    not on ALT (PostgreSQL for 1C has its own);
 #  * selta.lic: the license (for C:\Program Files\Selta).
 # An order without a system (LICENSEONLY) gets only the license.
 
@@ -84,9 +86,29 @@ EOF
 Файл лицензии $LICENSEFILE необходимо расположить в каталоге $LICENSEDIR
 на клиентах Windows.
 
+EOF
+	if [ -n "$MCHARFILES" ] ; then
+		cat >>$FILETO <<EOF
+Серверная часть SELTA для системы ${TEXTDIST} (selta-server) и модуль mchar
+для PostgreSQL системы (postgresql-mchar):
+EOF
+	else
+		cat >>$FILETO <<EOF
 Серверная часть для PostgreSQL для 1C в системе ${TEXTDIST}:
 EOF
-	printURL "$FTPDIR/$DIST" "$DOWNLOADDIR/$PROJECTVERSION/$DIST" $SERVERFILES >>$FILETO || fatal "Error with selta-server (files are missed)"
+	fi
+	printURL "$FTPDIR/$DIST" "$DOWNLOADDIR/$PROJECTVERSION/$DIST" $SERVERFILES $MCHARFILES >>$FILETO || fatal "Error with selta-server (files are missed)"
+
+	if [ -n "$MCHARFILES" ] ; then
+		cat >>$FILETO <<EOF
+
+SELTA работает с PostgreSQL одним из двух способов:
+ - с PostgreSQL системы: установите оба пакета, postgresql-mchar установит
+   PostgreSQL системы (версии 12 и новее);
+ - с PostgreSQL для 1С (например, Postgres Pro для 1С: epm play postgrespro-1c):
+   установите его и только пакет selta-server.
+EOF
+	fi
 
 	cat >>$FILETO <<EOF
 
@@ -113,6 +135,19 @@ $THANKTEXT
 Команда разработчиков
 Etersoft, 2026
 EOF
+}
+
+# PostgreSQL for 1C is in ALT (and has mchar); elsewhere selta-server runs
+# on PostgreSQL for 1C installed by hand or on the PostgreSQL of the
+# distribution with postgresql-mchar
+selta_with_mchar()
+{
+	case "$DIST" in
+		ALTLinux/*|*/ALTLinux/*|XimperLinux/*|*/XimperLinux/*)
+			return 1
+			;;
+	esac
+	return 0
 }
 
 # The driver checks DATE_START against the UTC date (GetSystemTime), the order
@@ -196,6 +231,10 @@ build_selta()
 
 	check_and_refresh_component bin-selta $LOCALDIR selta-server
 	assert_present_package $LOCALDIR/$DIST selta-server
+	if selta_with_mchar ; then
+		check_and_refresh_component bin-selta $LOCALDIR postgresql-mchar
+		assert_present_package $LOCALDIR/$DIST postgresql-mchar
+	fi
 
 	task_require_ready
 	[ -z "$KORINF_CHECK_ONLY" ] || return 0
@@ -207,6 +246,12 @@ build_selta()
 	n="$(echo $LOCALDIR/$DIST/selta-server[-_][0-9]*)"
 	[ -r "$n" ] || fatal "Missed selta-server package in $LOCALDIR/$DIST"
 	SERVERFILES="$(basename $n)"
+	MCHARFILES=''
+	if selta_with_mchar ; then
+		n="$(echo $LOCALDIR/$DIST/postgresql-mchar[-_][0-9]*)"
+		[ -r "$n" ] || fatal "Missed postgresql-mchar package in $LOCALDIR/$DIST"
+		MCHARFILES="$(basename $n)"
+	fi
 
 	# Нужно скопировать файлы (жёсткими ссылками, если можно)
 	mkdir -p $FTPDIR/Windows $FTPDIR/$DIST
@@ -215,8 +260,10 @@ build_selta()
 		n="$(readlink -f $LOCALDIR/Windows/$i)"
 		cp -fl $n $FTPDIR/Windows/$i || cp -f $n $FTPDIR/Windows/$i || fatal "Can't copy $i"
 	done
-	n="$LOCALDIR/$DIST/$SERVERFILES"
-	cp -fl $n $FTPDIR/$DIST || cp -f $n $FTPDIR/$DIST || fatal "Can't copy $n"
+	for i in $SERVERFILES $MCHARFILES ; do
+		n="$LOCALDIR/$DIST/$i"
+		cp -fl $n $FTPDIR/$DIST || cp -f $n $FTPDIR/$DIST || fatal "Can't copy $n"
+	done
 
 	# a personal order (orders API): its delivery directory is ready
 	order_delivery "$TARGETDIRNAME/$PROJECTVERSION"

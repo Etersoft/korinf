@@ -8,6 +8,9 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 DIST = 'x86_64/ALTLinux/Sisyphus'
 RPM = 'selta-server-1.1.6-alt1.noarch.rpm'
+DEB_DIST = 'x86_64/Debian/12'
+DEB = 'selta-server_1.1.6-alt1_all.deb'
+MCHAR = 'postgresql-mchar_2.2.1-alt1_amd64.deb'
 
 STUBS = '''
 AROBOTDIR=$REPO/robot
@@ -33,7 +36,7 @@ LICENSEONLY={license_only}
 ALOGDIR=$TESTROOT/log
 check_dist() {{ :; }}
 check_and_refresh_component() {{ echo "check $1 $3"; }}
-assert_present_package() {{ [ -r "$(echo $1/$2-[0-9]*)" ] || fatal "no $2 in $1"; }}
+assert_present_package() {{ [ -r "$(echo $1/$2[-_][0-9]*)" ] || fatal "no $2 in $1"; }}
 get_dear_from_fio() {{ echo Иван; }}
 make_temp_file() {{ echo $TESTROOT/mail; }}
 create_license() {{ echo "DATE_START=$DATE_START" > "$1"; }}
@@ -151,6 +154,44 @@ cp() { forbidden cp; }
         r = self.run_selta(date_start='2026-11-08')
         self.assertNotEqual(r.returncode, 0)
         self.assertIn('Wrong DATE_START', r.stdout + r.stderr)
+
+    def add_debian(self, mchar=True):
+        d = self.windows.parent / DEB_DIST
+        d.mkdir(parents=True)
+        (d / DEB).write_text('deb')
+        if mchar:
+            (d / MCHAR).write_text('mchar')
+        return d
+
+    def test_delivery_debian_with_mchar(self):
+        self.add_debian()
+        r = self.run_selta(dist=DEB_DIST)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn('check bin-selta postgresql-mchar', r.stdout)
+        ftp = self.download / '1.1.6' / DEB_DIST
+        self.assertTrue((ftp / DEB).exists())
+        self.assertEqual((ftp / MCHAR).read_text(), 'mchar')
+        mail = (self.root / 'sent').read_text()
+        url = 'https://download.etersoft.ru/pub/download/SELTA@Etersoft/0D23-test/1.1.6/' + DEB_DIST
+        self.assertIn(f'{url}/{DEB}', mail)
+        self.assertIn(f'{url}/{MCHAR}', mail)
+        self.assertIn('epm play postgrespro-1c', mail)
+        self.assertNotIn('PostgreSQL для 1C в системе', mail)
+
+    def test_alt_has_no_mchar(self):
+        r = self.run_selta()
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertNotIn('postgresql-mchar', r.stdout)
+        mail = (self.root / 'sent').read_text()
+        self.assertNotIn('postgresql-mchar', mail)
+        self.assertIn('PostgreSQL для 1C в системе', mail)
+
+    def test_missing_mchar_fails(self):
+        self.add_debian(mchar=False)
+        r = self.run_selta(dist=DEB_DIST)
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn('postgresql-mchar', r.stdout + r.stderr)
+        self.assertFalse((self.root / 'sent').exists())
 
 
 if __name__ == '__main__':
